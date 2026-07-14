@@ -1,0 +1,82 @@
+{
+  "scenarios": [
+    {
+      "name": "smoke",
+      "tier": "smoke",
+      "module": "EffectBroker.tla",
+      "config": "EffectBroker.smoke.cfg"
+    },
+    {
+      "name": "idempotent-retry",
+      "tier": "smoke",
+      "module": "EffectBroker.tla",
+      "config": "EffectBroker.idempotent-retry.cfg"
+    },
+    {
+      "name": "journal",
+      "tier": "smoke",
+      "module": "EffectBrokerJournal.tla",
+      "config": "EffectBrokerJournal.cfg"
+    },
+    {
+      "name": "journal-refinement",
+      "tier": "smoke",
+      "module": "EffectBrokerJournalRefinement.tla",
+      "config": "EffectBrokerJournalRefinement.cfg"
+    },
+    {
+      "name": "journal-refinement-retry",
+      "tier": "smoke",
+      "module": "EffectBrokerJournalRefinement.tla",
+      "config": "EffectBrokerJournalRefinement.retry.cfg"
+    },
+    {
+      "name": "wal",
+      "tier": "smoke",
+      "module": "EffectBrokerWAL.tla",
+      "config": "EffectBrokerWAL.cfg"
+    },
+    {
+      "name": "wal-refinement",
+      "tier": "smoke",
+      "module": "EffectBrokerWALRefinement.tla",
+      "config": "EffectBrokerWALRefinement.cfg"
+    },
+    {
+      "name": "wal-refinement-multirequest",
+      "tier": "full",
+      "module": "EffectBrokerWALRefinement.tla",
+      "config": "EffectBrokerWALRefinement.multirequest.cfg"
+    },
+    {
+      "name": "wal-refinement-retry",
+      "tier": "full",
+      "module": "EffectBrokerWALRefinement.tla",
+      "config": "EffectBrokerWALRefinement.retry.cfg"
+    },
+    {
+      "name": "deduplicated",
+      "tier": "full",
+      "module": "EffectBroker.tla",
+      "config": "EffectBroker.cfg"
+    },
+    {
+      "name": "multi-capability",
+      "tier": "smoke",
+      "module": "EffectBroker.tla",
+      "config": "EffectBroker.multicap.cfg"
+    },
+    {
+      "name": "idempotent",
+      "tier": "full",
+      "module": "EffectBroker.tla",
+      "config": "EffectBroker.idempotent.cfg"
+    },
+    {
+      "name": "read-only",
+      "tier": "full",
+      "module": "EffectBroker.tla",
+      "config": "EffectBroker.readonly.cfg"
+    }
+  ]
+}

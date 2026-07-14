@@ -1,0 +1,19 @@
+{
+  "verus": {
+    "version": "0.2026.07.05.49b8806",
+    "platform": "x86_64-pc-windows-msvc",
+    "archive": "verus-0.2026.07.05.49b8806-x86-win.zip",
+    "url": "https://github.com/verus-lang/verus/releases/download/release/0.2026.07.05.49b8806/verus-0.2026.07.05.49b8806-x86-win.zip",
+    "sha256": "c45489d535f85de6d6f3204a70462ba437fbf98875361d84ff5213d89e3d8130"
+  },
+  "rustup": {
+    "version": "1.29.0",
+    "platform": "x86_64-pc-windows-msvc",
+    "archive": "rustup-init.exe",
+    "url": "https://static.rust-lang.org/rustup/archive/1.29.0/x86_64-pc-windows-msvc/rustup-init.exe",
+    "sha256": "86478e53f769379d7f0ebfa7c9aa97cb76ca92233f79aa2cc0dbee2efaac73c7"
+  },
+  "rust": {
+    "toolchain": "1.96.0-x86_64-pc-windows-msvc"
+  }
+}

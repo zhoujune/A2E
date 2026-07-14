@@ -1,0 +1,11 @@
+# TLA+ Toolbox and TLC-generated state/trace artifacts
+**/.toolbox/
+**/states/
+**/states-*/
+**/MC*.tla
+**/*_TTrace_*.tla
+**/*.out
+
+# Locally generated model-check reports; retain the versioned schema.
+formal/results/*.json
+!formal/results/schema.json

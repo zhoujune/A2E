@@ -69,11 +69,15 @@ intervals and verifies 747 cumulative obligations, 4 beyond T5-S0. T5-R0 proves
 exact first-`FinishRecover` episode equality and verifies 769 cumulative
 obligations, 22 beyond T5-E0; the 34 targets registered through T5-R0 contained
 806 dependency-aware non-duplicated obligations. T5-C0 completes the contextual
-mapped export and verifies 783 cumulative obligations, 14 beyond T5-R0. The 35
-registered targets contain 820 dependency-aware non-duplicated obligations.
-T1--T5 are complete.
-Adapter-specific external effects and end-to-end T6 remain outside their
-claims.
+mapped export and verifies 783 cumulative obligations, 14 beyond T5-R0. At that
+historical checkpoint, 35 registered targets contained 820 dependency-aware
+non-duplicated obligations. H1 is the subsequent artifact/nonvacuity checkpoint:
+it adds 3 obligations, verifies 786 cumulative obligations, and brings the
+registry to 36 targets and 823 dependency-aware non-duplicated obligations. H1
+constructs a concrete total well-formed `FullConfig` and, without premises,
+inhabits the complete T5-C0 premise/conclusion package. T1--T5 are complete;
+T6-S0 is next. Adapter-specific external effects and end-to-end T6 remain
+outside the completed claims.
 The adversary, trusted base, guarantees, and non-goals are fixed in
 [threat-model.md](threat-model.md).
 Adapter-specific trace interpretation and proof obligations are defined in
@@ -204,6 +208,18 @@ their finite configurations; they are validation evidence, not a parameterized
 proof. Each configuration also uses one scenario-wide `MaxAttempts` value;
 theorem V1 instead fixes an immutable `max_attempts(r)` for every request.
 
+The artifact runners make this evidence boundary reproducible. The Verus
+runner verifies only an exact read-only copy of the registered proof sources,
+checks that snapshot around every target, validates each cumulative target's
+immediate predecessor, and records the schema, driver, lock, sources, and fresh
+Rust toolchain tree by hash. The TLC runner validates unique scenario names,
+exact tiers and fields, unique configuration registration, and complete
+coverage of every `formal/*.cfg`; it executes from isolated model and tool
+snapshots with exact membership and hash checks around each invocation. Both
+runners also require their bound driver/schema/manifest or lock inputs to remain
+stable. Thus the reported hashes name the files actually checked, while the
+finite TLC runs remain bounded validation rather than theorem evidence.
+
 ## Initial proof target
 
 Let `BrokerSafety` be the conjunction of:
@@ -318,6 +334,19 @@ execution under the inert storage-parametric context proves the complete C0
 premise conjunction and conclusion are inhabited. In the TLA+ oracle, the
 recovery record labels correspond to
 `RecoverRecordedFailure` and `QuarantineUncontrolled`.
+
+H1 strengthens only the nonvacuity and artifact boundary. Its total
+`FullConfig` maps every request to an uncontrolled request with no stable key
+and one permitted attempt, maps every capability to unit budget with universal
+resource and argument scope, and admits every request/result pair. The proof
+derives `FullConfigWF` directly; deduplicated-key injectivity is vacuous because
+no request is deduplicated. With T4's inert context and T5-C0's six-event
+minimal contextual recovery execution, the premise-free H1 theorem exhibits
+`crash = 0` and `finish = 5` and proves that all T5-C0 premises and its complete
+conclusion hold together. This concrete witness does not exhibit a nonempty
+pre-crash committed history, a realistic adapter, or an external effect; the
+generic T5 theorem, rather than H1's witness, carries the conditional committed-
+history preservation claim.
 
 ## Modeling and implementation assumptions
 
@@ -437,8 +466,10 @@ of configurations in a finite execution. T5-R0 additionally proves exact
 first-`FinishRecover` endpoint equality and mechanically inhabited recovery
 episodes. T5-C0 additionally proves exact commit-delta refinement, all-prefix
 WAL/Broker `alpha_commit` equality, contextual mapped recovery endpoints, and a
-combined inert-context recovery witness. T5 is complete; T6 adapter-backed end-
-to-end effect refinement is next. T4
+combined inert-context recovery witness. H1 additionally proves the cumulative
+T1--T5 premise/conclusion package inhabited under a concrete total
+configuration and hardens the source-hashed verification artifact. T5 is
+complete; T6-S0, the terminal-evidence and compatibility bridge, is next. T4
 does not prove reverse contextual equivalence, liveness, autonomous context
 steps, protected-handle exclusivity, adapter effect refinement, or byte-level
 WAL correctness. The WAL is still a symbolic typed-frame model, not a byte
@@ -466,8 +497,10 @@ and [T6 conditional end-to-end effect refinement](mechanization-contract.md#t6-c
 
 ## Next formal increments
 
-1. Complete T6 from the checked T1--T5 chain under the mediation,
-   `StorageParametricContext`, protected-handle, and `AdapterRely` premises.
+1. Prove T6-S0, the generic `TerminalEvidenceAndCompatibility` bridge, from the
+   checked T1--T5 chain under the mediation, `StorageParametricContext`,
+   protected-handle, and `AdapterRely` premises; then complete T6 with verified
+   adapter instances.
 2. Extend the current bounded typed-frame `WAL -> Journal` check to concrete
    record bytes, checksums, flush/fsync semantics, and a verified parser under
    crash injection at every record boundary.

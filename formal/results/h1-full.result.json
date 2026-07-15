@@ -1,0 +1,586 @@
+{
+    "schemaVersion":  "1.3.0",
+    "runId":  "f1ab622ff9624bbe9c1b07aaa3eaeaf7",
+    "status":  "passed",
+    "startedAtUtc":  "2026-07-15T07:56:48.2666679+00:00",
+    "completedAtUtc":  "2026-07-15T08:41:00.7703860+00:00",
+    "invocation":  {
+                       "workingDirectory":  ".",
+                       "suite":  "full",
+                       "scenario":  null,
+                       "workers":  4,
+                       "coverage":  false
+                   },
+    "manifest":  {
+                     "path":  "model-suite.json",
+                     "sha256":  "3f872f6ccef4ab82f751c99fe9978ce265ad2bd1b74961596b48c611f2d1a38f"
+                 },
+    "runner":  {
+                   "path":  "check-model.ps1",
+                   "sha256":  "65161d6169b10a2d98c100c853a00d0937bf88c1745fca25699f6a0eb349f9ba"
+               },
+    "resultSchema":  {
+                         "path":  "results/schema.json",
+                         "sha256":  "7b1f7a86f3044b663e2e328f8092c681c2151ae9931e6a30682a0e4de2179fae"
+                     },
+    "snapshot":  {
+                     "kind":  "isolated-read-only-copy",
+                     "createdAtUtc":  "2026-07-15T07:56:47.9020090+00:00",
+                     "tlaFileCount":  6,
+                     "configurationFileCount":  13
+                 },
+    "toolSnapshot":  {
+                         "kind":  "isolated-per-run-copy",
+                         "createdAtUtc":  "2026-07-15T07:56:43.1919644+00:00",
+                         "fileCount":  317,
+                         "directoryCount":  63,
+                         "treeSha256":  "e120c940f10dce9876cd370ad696b05e12723dd0c3d9d11b0ff8e90a74da217e",
+                         "jreArchive":  {
+                                            "path":  "jre.zip",
+                                            "sha256":  "be26677aaa20b39a62edcaab4c8857a8b76673b0f45abc0b6143b142b62717e4"
+                                        },
+                         "tlaTools":  {
+                                          "path":  "tla2tools.jar",
+                                          "sha256":  "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88"
+                                      },
+                         "java":  {
+                                      "path":  "jre/bin/java.exe",
+                                      "sha256":  "5e0fab9f07952ceb6e71eb9fd33e1ed69959904ca00cf70869b7baf516a98016"
+                                  }
+                     },
+    "modelInputs":  [
+                        {
+                            "path":  "EffectBroker.tla",
+                            "sha256":  "74da6cebe8ee238e4d27b8645b8802fb2d087d75d90ea5c4a884c125f2421c84"
+                        },
+                        {
+                            "path":  "EffectBrokerJournal.tla",
+                            "sha256":  "216a980b0e7e624cade6acf9142770d91f1da2dbb49afdbc88239ae22bfabb0b"
+                        },
+                        {
+                            "path":  "EffectBrokerJournalRefinement.tla",
+                            "sha256":  "df75a57d17ae7eaa24d3ce164408fad0a29bb372318430ae6553145f739f1d99"
+                        },
+                        {
+                            "path":  "EffectBrokerParameters.tla",
+                            "sha256":  "6d973875acd34e1e85277564b5675853a56305389b1ea478d869e3a50ab21323"
+                        },
+                        {
+                            "path":  "EffectBrokerWAL.tla",
+                            "sha256":  "16966ec2e3f82df62be527ad47af655f7ac964a80b64fd264340546d4729993e"
+                        },
+                        {
+                            "path":  "EffectBrokerWALRefinement.tla",
+                            "sha256":  "b6c974e58fb01044f13753ecaabba410b8e5b7f25872b7c0d0a7e9c39f474c39"
+                        }
+                    ],
+    "scenarios":  [
+                      {
+                          "name":  "smoke",
+                          "tier":  "smoke",
+                          "status":  "passed",
+                          "startedAtUtc":  "2026-07-15T07:56:48.3682269+00:00",
+                          "completedAtUtc":  "2026-07-15T07:57:27.7883218+00:00",
+                          "durationMilliseconds":  39419,
+                          "exitStatus":  0,
+                          "error":  null,
+                          "workers":  4,
+                          "coverage":  false,
+                          "module":  {
+                                         "path":  "EffectBroker.tla",
+                                         "sha256":  "74da6cebe8ee238e4d27b8645b8802fb2d087d75d90ea5c4a884c125f2421c84"
+                                     },
+                          "configuration":  {
+                                                "path":  "EffectBroker.smoke.cfg",
+                                                "sha256":  "bea607735602424a3c2934e8e70916bbb9a147023e49b24c6bf25cc1c969d5e5"
+                                            },
+                          "toolchain":  {
+                                            "tlaToolsVersion":  "v1.7.4",
+                                            "tlaToolsSha256":  "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88",
+                                            "observedTlcVersion":  "2.19 of 08 August 2024 (rev: 5a47802)",
+                                            "jreVersion":  "21.0.11+10",
+                                            "jreSha256":  "be26677aaa20b39a62edcaab4c8857a8b76673b0f45abc0b6143b142b62717e4",
+                                            "javaSha256":  "5e0fab9f07952ceb6e71eb9fd33e1ed69959904ca00cf70869b7baf516a98016",
+                                            "observedJavaVersion":  "openjdk version \"21.0.11\" 2026-04-21 LTS\r\nOpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)\r\nOpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)"
+                                        },
+                          "exploration":  {
+                                              "fingerprintIndex":  43,
+                                              "seed":  6318470410323469901,
+                                              "aril":  null
+                                          },
+                          "statistics":  {
+                                             "generatedStates":  833775,
+                                             "distinctStates":  437162,
+                                             "depth":  23
+                                         }
+                      },
+                      {
+                          "name":  "idempotent-retry",
+                          "tier":  "smoke",
+                          "status":  "passed",
+                          "startedAtUtc":  "2026-07-15T07:57:27.8323205+00:00",
+                          "completedAtUtc":  "2026-07-15T07:57:31.9189797+00:00",
+                          "durationMilliseconds":  4086,
+                          "exitStatus":  0,
+                          "error":  null,
+                          "workers":  4,
+                          "coverage":  false,
+                          "module":  {
+                                         "path":  "EffectBroker.tla",
+                                         "sha256":  "74da6cebe8ee238e4d27b8645b8802fb2d087d75d90ea5c4a884c125f2421c84"
+                                     },
+                          "configuration":  {
+                                                "path":  "EffectBroker.idempotent-retry.cfg",
+                                                "sha256":  "109d0e5374f6c5e0b4fef3a35c06fa6a08fb85377612848de70fd1c2c3a646f2"
+                                            },
+                          "toolchain":  {
+                                            "tlaToolsVersion":  "v1.7.4",
+                                            "tlaToolsSha256":  "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88",
+                                            "observedTlcVersion":  "2.19 of 08 August 2024 (rev: 5a47802)",
+                                            "jreVersion":  "21.0.11+10",
+                                            "jreSha256":  "be26677aaa20b39a62edcaab4c8857a8b76673b0f45abc0b6143b142b62717e4",
+                                            "javaSha256":  "5e0fab9f07952ceb6e71eb9fd33e1ed69959904ca00cf70869b7baf516a98016",
+                                            "observedJavaVersion":  "openjdk version \"21.0.11\" 2026-04-21 LTS\r\nOpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)\r\nOpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)"
+                                        },
+                          "exploration":  {
+                                              "fingerprintIndex":  31,
+                                              "seed":  -2641460936842817476,
+                                              "aril":  null
+                                          },
+                          "statistics":  {
+                                             "generatedStates":  45025,
+                                             "distinctStates":  23422,
+                                             "depth":  29
+                                         }
+                      },
+                      {
+                          "name":  "journal",
+                          "tier":  "smoke",
+                          "status":  "passed",
+                          "startedAtUtc":  "2026-07-15T07:57:31.9259815+00:00",
+                          "completedAtUtc":  "2026-07-15T07:57:35.8317989+00:00",
+                          "durationMilliseconds":  3906,
+                          "exitStatus":  0,
+                          "error":  null,
+                          "workers":  4,
+                          "coverage":  false,
+                          "module":  {
+                                         "path":  "EffectBrokerJournal.tla",
+                                         "sha256":  "216a980b0e7e624cade6acf9142770d91f1da2dbb49afdbc88239ae22bfabb0b"
+                                     },
+                          "configuration":  {
+                                                "path":  "EffectBrokerJournal.cfg",
+                                                "sha256":  "90f0e8919187d377fa9843dac57034c05d822120845ce9b2b32247bc1458f347"
+                                            },
+                          "toolchain":  {
+                                            "tlaToolsVersion":  "v1.7.4",
+                                            "tlaToolsSha256":  "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88",
+                                            "observedTlcVersion":  "2.19 of 08 August 2024 (rev: 5a47802)",
+                                            "jreVersion":  "21.0.11+10",
+                                            "jreSha256":  "be26677aaa20b39a62edcaab4c8857a8b76673b0f45abc0b6143b142b62717e4",
+                                            "javaSha256":  "5e0fab9f07952ceb6e71eb9fd33e1ed69959904ca00cf70869b7baf516a98016",
+                                            "observedJavaVersion":  "openjdk version \"21.0.11\" 2026-04-21 LTS\r\nOpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)\r\nOpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)"
+                                        },
+                          "exploration":  {
+                                              "fingerprintIndex":  64,
+                                              "seed":  -2541601997708390279,
+                                              "aril":  null
+                                          },
+                          "statistics":  {
+                                             "generatedStates":  359,
+                                             "distinctStates":  302,
+                                             "depth":  9
+                                         }
+                      },
+                      {
+                          "name":  "journal-refinement",
+                          "tier":  "smoke",
+                          "status":  "passed",
+                          "startedAtUtc":  "2026-07-15T07:57:35.8467995+00:00",
+                          "completedAtUtc":  "2026-07-15T07:57:40.4712870+00:00",
+                          "durationMilliseconds":  4625,
+                          "exitStatus":  0,
+                          "error":  null,
+                          "workers":  4,
+                          "coverage":  false,
+                          "module":  {
+                                         "path":  "EffectBrokerJournalRefinement.tla",
+                                         "sha256":  "df75a57d17ae7eaa24d3ce164408fad0a29bb372318430ae6553145f739f1d99"
+                                     },
+                          "configuration":  {
+                                                "path":  "EffectBrokerJournalRefinement.cfg",
+                                                "sha256":  "46cada30c3fb55113c70da015a8fcde7bff9e43836fba51621379dda3fdff0b3"
+                                            },
+                          "toolchain":  {
+                                            "tlaToolsVersion":  "v1.7.4",
+                                            "tlaToolsSha256":  "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88",
+                                            "observedTlcVersion":  "2.19 of 08 August 2024 (rev: 5a47802)",
+                                            "jreVersion":  "21.0.11+10",
+                                            "jreSha256":  "be26677aaa20b39a62edcaab4c8857a8b76673b0f45abc0b6143b142b62717e4",
+                                            "javaSha256":  "5e0fab9f07952ceb6e71eb9fd33e1ed69959904ca00cf70869b7baf516a98016",
+                                            "observedJavaVersion":  "openjdk version \"21.0.11\" 2026-04-21 LTS\r\nOpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)\r\nOpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)"
+                                        },
+                          "exploration":  {
+                                              "fingerprintIndex":  1,
+                                              "seed":  -5097647792196414432,
+                                              "aril":  null
+                                          },
+                          "statistics":  {
+                                             "generatedStates":  728,
+                                             "distinctStates":  465,
+                                             "depth":  15
+                                         }
+                      },
+                      {
+                          "name":  "journal-refinement-retry",
+                          "tier":  "smoke",
+                          "status":  "passed",
+                          "startedAtUtc":  "2026-07-15T07:57:40.4843029+00:00",
+                          "completedAtUtc":  "2026-07-15T07:58:11.3391758+00:00",
+                          "durationMilliseconds":  30855,
+                          "exitStatus":  0,
+                          "error":  null,
+                          "workers":  4,
+                          "coverage":  false,
+                          "module":  {
+                                         "path":  "EffectBrokerJournalRefinement.tla",
+                                         "sha256":  "df75a57d17ae7eaa24d3ce164408fad0a29bb372318430ae6553145f739f1d99"
+                                     },
+                          "configuration":  {
+                                                "path":  "EffectBrokerJournalRefinement.retry.cfg",
+                                                "sha256":  "e23fbb4c1f96400deb46c6ddfc60df367703f832a8f913f7483e2f3f19066cd6"
+                                            },
+                          "toolchain":  {
+                                            "tlaToolsVersion":  "v1.7.4",
+                                            "tlaToolsSha256":  "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88",
+                                            "observedTlcVersion":  "2.19 of 08 August 2024 (rev: 5a47802)",
+                                            "jreVersion":  "21.0.11+10",
+                                            "jreSha256":  "be26677aaa20b39a62edcaab4c8857a8b76673b0f45abc0b6143b142b62717e4",
+                                            "javaSha256":  "5e0fab9f07952ceb6e71eb9fd33e1ed69959904ca00cf70869b7baf516a98016",
+                                            "observedJavaVersion":  "openjdk version \"21.0.11\" 2026-04-21 LTS\r\nOpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)\r\nOpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)"
+                                        },
+                          "exploration":  {
+                                              "fingerprintIndex":  47,
+                                              "seed":  8130453949073263414,
+                                              "aril":  null
+                                          },
+                          "statistics":  {
+                                             "generatedStates":  8567,
+                                             "distinctStates":  4671,
+                                             "depth":  21
+                                         }
+                      },
+                      {
+                          "name":  "wal",
+                          "tier":  "smoke",
+                          "status":  "passed",
+                          "startedAtUtc":  "2026-07-15T07:58:11.3611762+00:00",
+                          "completedAtUtc":  "2026-07-15T07:58:35.4290206+00:00",
+                          "durationMilliseconds":  24068,
+                          "exitStatus":  0,
+                          "error":  null,
+                          "workers":  4,
+                          "coverage":  false,
+                          "module":  {
+                                         "path":  "EffectBrokerWAL.tla",
+                                         "sha256":  "16966ec2e3f82df62be527ad47af655f7ac964a80b64fd264340546d4729993e"
+                                     },
+                          "configuration":  {
+                                                "path":  "EffectBrokerWAL.cfg",
+                                                "sha256":  "358d25b72da2dcfcd5c7fd4087ce2f75d8f4e0d8e2e27c0d7e47a135fee46c49"
+                                            },
+                          "toolchain":  {
+                                            "tlaToolsVersion":  "v1.7.4",
+                                            "tlaToolsSha256":  "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88",
+                                            "observedTlcVersion":  "2.19 of 08 August 2024 (rev: 5a47802)",
+                                            "jreVersion":  "21.0.11+10",
+                                            "jreSha256":  "be26677aaa20b39a62edcaab4c8857a8b76673b0f45abc0b6143b142b62717e4",
+                                            "javaSha256":  "5e0fab9f07952ceb6e71eb9fd33e1ed69959904ca00cf70869b7baf516a98016",
+                                            "observedJavaVersion":  "openjdk version \"21.0.11\" 2026-04-21 LTS\r\nOpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)\r\nOpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)"
+                                        },
+                          "exploration":  {
+                                              "fingerprintIndex":  103,
+                                              "seed":  -7073453941551499059,
+                                              "aril":  null
+                                          },
+                          "statistics":  {
+                                             "generatedStates":  11366,
+                                             "distinctStates":  5577,
+                                             "depth":  44
+                                         }
+                      },
+                      {
+                          "name":  "wal-refinement",
+                          "tier":  "smoke",
+                          "status":  "passed",
+                          "startedAtUtc":  "2026-07-15T07:58:35.4410214+00:00",
+                          "completedAtUtc":  "2026-07-15T07:59:17.1541323+00:00",
+                          "durationMilliseconds":  41712,
+                          "exitStatus":  0,
+                          "error":  null,
+                          "workers":  4,
+                          "coverage":  false,
+                          "module":  {
+                                         "path":  "EffectBrokerWALRefinement.tla",
+                                         "sha256":  "b6c974e58fb01044f13753ecaabba410b8e5b7f25872b7c0d0a7e9c39f474c39"
+                                     },
+                          "configuration":  {
+                                                "path":  "EffectBrokerWALRefinement.cfg",
+                                                "sha256":  "0f7a217f40a61a88066127f763a644911e1c508b363306499657cf3b97bdf147"
+                                            },
+                          "toolchain":  {
+                                            "tlaToolsVersion":  "v1.7.4",
+                                            "tlaToolsSha256":  "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88",
+                                            "observedTlcVersion":  "2.19 of 08 August 2024 (rev: 5a47802)",
+                                            "jreVersion":  "21.0.11+10",
+                                            "jreSha256":  "be26677aaa20b39a62edcaab4c8857a8b76673b0f45abc0b6143b142b62717e4",
+                                            "javaSha256":  "5e0fab9f07952ceb6e71eb9fd33e1ed69959904ca00cf70869b7baf516a98016",
+                                            "observedJavaVersion":  "openjdk version \"21.0.11\" 2026-04-21 LTS\r\nOpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)\r\nOpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)"
+                                        },
+                          "exploration":  {
+                                              "fingerprintIndex":  6,
+                                              "seed":  9143245095353377048,
+                                              "aril":  null
+                                          },
+                          "statistics":  {
+                                             "generatedStates":  6442,
+                                             "distinctStates":  3494,
+                                             "depth":  40
+                                         }
+                      },
+                      {
+                          "name":  "wal-refinement-multirequest",
+                          "tier":  "full",
+                          "status":  "passed",
+                          "startedAtUtc":  "2026-07-15T07:59:17.3138964+00:00",
+                          "completedAtUtc":  "2026-07-15T08:03:51.3383346+00:00",
+                          "durationMilliseconds":  274026,
+                          "exitStatus":  0,
+                          "error":  null,
+                          "workers":  4,
+                          "coverage":  false,
+                          "module":  {
+                                         "path":  "EffectBrokerWALRefinement.tla",
+                                         "sha256":  "b6c974e58fb01044f13753ecaabba410b8e5b7f25872b7c0d0a7e9c39f474c39"
+                                     },
+                          "configuration":  {
+                                                "path":  "EffectBrokerWALRefinement.multirequest.cfg",
+                                                "sha256":  "2d713d0447b4e1a04328e02622e5641927018f72dcde2e53cb2d5ad9ed450987"
+                                            },
+                          "toolchain":  {
+                                            "tlaToolsVersion":  "v1.7.4",
+                                            "tlaToolsSha256":  "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88",
+                                            "observedTlcVersion":  "2.19 of 08 August 2024 (rev: 5a47802)",
+                                            "jreVersion":  "21.0.11+10",
+                                            "jreSha256":  "be26677aaa20b39a62edcaab4c8857a8b76673b0f45abc0b6143b142b62717e4",
+                                            "javaSha256":  "5e0fab9f07952ceb6e71eb9fd33e1ed69959904ca00cf70869b7baf516a98016",
+                                            "observedJavaVersion":  "openjdk version \"21.0.11\" 2026-04-21 LTS\r\nOpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)\r\nOpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)"
+                                        },
+                          "exploration":  {
+                                              "fingerprintIndex":  11,
+                                              "seed":  7363722172384535138,
+                                              "aril":  null
+                                          },
+                          "statistics":  {
+                                             "generatedStates":  38125,
+                                             "distinctStates":  20334,
+                                             "depth":  41
+                                         }
+                      },
+                      {
+                          "name":  "wal-refinement-retry",
+                          "tier":  "full",
+                          "status":  "passed",
+                          "startedAtUtc":  "2026-07-15T08:03:51.3533796+00:00",
+                          "completedAtUtc":  "2026-07-15T08:22:22.7260180+00:00",
+                          "durationMilliseconds":  1111373,
+                          "exitStatus":  0,
+                          "error":  null,
+                          "workers":  4,
+                          "coverage":  false,
+                          "module":  {
+                                         "path":  "EffectBrokerWALRefinement.tla",
+                                         "sha256":  "b6c974e58fb01044f13753ecaabba410b8e5b7f25872b7c0d0a7e9c39f474c39"
+                                     },
+                          "configuration":  {
+                                                "path":  "EffectBrokerWALRefinement.retry.cfg",
+                                                "sha256":  "89477b8e7fd24148fe71214b9e429b0ba069df190fb11b358db5df1b0c6c1d79"
+                                            },
+                          "toolchain":  {
+                                            "tlaToolsVersion":  "v1.7.4",
+                                            "tlaToolsSha256":  "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88",
+                                            "observedTlcVersion":  "2.19 of 08 August 2024 (rev: 5a47802)",
+                                            "jreVersion":  "21.0.11+10",
+                                            "jreSha256":  "be26677aaa20b39a62edcaab4c8857a8b76673b0f45abc0b6143b142b62717e4",
+                                            "javaSha256":  "5e0fab9f07952ceb6e71eb9fd33e1ed69959904ca00cf70869b7baf516a98016",
+                                            "observedJavaVersion":  "openjdk version \"21.0.11\" 2026-04-21 LTS\r\nOpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)\r\nOpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)"
+                                        },
+                          "exploration":  {
+                                              "fingerprintIndex":  62,
+                                              "seed":  -8369540952845259119,
+                                              "aril":  null
+                                          },
+                          "statistics":  {
+                                             "generatedStates":  57987,
+                                             "distinctStates":  30417,
+                                             "depth":  57
+                                         }
+                      },
+                      {
+                          "name":  "deduplicated",
+                          "tier":  "full",
+                          "status":  "passed",
+                          "startedAtUtc":  "2026-07-15T08:22:22.7430710+00:00",
+                          "completedAtUtc":  "2026-07-15T08:26:19.6721695+00:00",
+                          "durationMilliseconds":  236929,
+                          "exitStatus":  0,
+                          "error":  null,
+                          "workers":  4,
+                          "coverage":  false,
+                          "module":  {
+                                         "path":  "EffectBroker.tla",
+                                         "sha256":  "74da6cebe8ee238e4d27b8645b8802fb2d087d75d90ea5c4a884c125f2421c84"
+                                     },
+                          "configuration":  {
+                                                "path":  "EffectBroker.cfg",
+                                                "sha256":  "28c68ef14c0d29edc405093844a9193da56dc813592cab26db483ff911ac50e2"
+                                            },
+                          "toolchain":  {
+                                            "tlaToolsVersion":  "v1.7.4",
+                                            "tlaToolsSha256":  "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88",
+                                            "observedTlcVersion":  "2.19 of 08 August 2024 (rev: 5a47802)",
+                                            "jreVersion":  "21.0.11+10",
+                                            "jreSha256":  "be26677aaa20b39a62edcaab4c8857a8b76673b0f45abc0b6143b142b62717e4",
+                                            "javaSha256":  "5e0fab9f07952ceb6e71eb9fd33e1ed69959904ca00cf70869b7baf516a98016",
+                                            "observedJavaVersion":  "openjdk version \"21.0.11\" 2026-04-21 LTS\r\nOpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)\r\nOpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)"
+                                        },
+                          "exploration":  {
+                                              "fingerprintIndex":  104,
+                                              "seed":  -9203081442271090271,
+                                              "aril":  null
+                                          },
+                          "statistics":  {
+                                             "generatedStates":  4183918,
+                                             "distinctStates":  2155078,
+                                             "depth":  30
+                                         }
+                      },
+                      {
+                          "name":  "multi-capability",
+                          "tier":  "smoke",
+                          "status":  "passed",
+                          "startedAtUtc":  "2026-07-15T08:26:19.6876418+00:00",
+                          "completedAtUtc":  "2026-07-15T08:26:29.4771562+00:00",
+                          "durationMilliseconds":  9790,
+                          "exitStatus":  0,
+                          "error":  null,
+                          "workers":  4,
+                          "coverage":  false,
+                          "module":  {
+                                         "path":  "EffectBroker.tla",
+                                         "sha256":  "74da6cebe8ee238e4d27b8645b8802fb2d087d75d90ea5c4a884c125f2421c84"
+                                     },
+                          "configuration":  {
+                                                "path":  "EffectBroker.multicap.cfg",
+                                                "sha256":  "813e6b5dc19bc701d896e944ac54dabfb6636b36d68646d3ed078e574c0e5689"
+                                            },
+                          "toolchain":  {
+                                            "tlaToolsVersion":  "v1.7.4",
+                                            "tlaToolsSha256":  "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88",
+                                            "observedTlcVersion":  "2.19 of 08 August 2024 (rev: 5a47802)",
+                                            "jreVersion":  "21.0.11+10",
+                                            "jreSha256":  "be26677aaa20b39a62edcaab4c8857a8b76673b0f45abc0b6143b142b62717e4",
+                                            "javaSha256":  "5e0fab9f07952ceb6e71eb9fd33e1ed69959904ca00cf70869b7baf516a98016",
+                                            "observedJavaVersion":  "openjdk version \"21.0.11\" 2026-04-21 LTS\r\nOpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)\r\nOpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)"
+                                        },
+                          "exploration":  {
+                                              "fingerprintIndex":  85,
+                                              "seed":  -2653455953688843880,
+                                              "aril":  null
+                                          },
+                          "statistics":  {
+                                             "generatedStates":  254513,
+                                             "distinctStates":  123420,
+                                             "depth":  24
+                                         }
+                      },
+                      {
+                          "name":  "idempotent",
+                          "tier":  "full",
+                          "status":  "passed",
+                          "startedAtUtc":  "2026-07-15T08:26:29.5014647+00:00",
+                          "completedAtUtc":  "2026-07-15T08:33:48.1313698+00:00",
+                          "durationMilliseconds":  438630,
+                          "exitStatus":  0,
+                          "error":  null,
+                          "workers":  4,
+                          "coverage":  false,
+                          "module":  {
+                                         "path":  "EffectBroker.tla",
+                                         "sha256":  "74da6cebe8ee238e4d27b8645b8802fb2d087d75d90ea5c4a884c125f2421c84"
+                                     },
+                          "configuration":  {
+                                                "path":  "EffectBroker.idempotent.cfg",
+                                                "sha256":  "2ee9b67dfaefe106c8f115e947e800816047da3e608a755ac88ea4cfeb9fd40a"
+                                            },
+                          "toolchain":  {
+                                            "tlaToolsVersion":  "v1.7.4",
+                                            "tlaToolsSha256":  "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88",
+                                            "observedTlcVersion":  "2.19 of 08 August 2024 (rev: 5a47802)",
+                                            "jreVersion":  "21.0.11+10",
+                                            "jreSha256":  "be26677aaa20b39a62edcaab4c8857a8b76673b0f45abc0b6143b142b62717e4",
+                                            "javaSha256":  "5e0fab9f07952ceb6e71eb9fd33e1ed69959904ca00cf70869b7baf516a98016",
+                                            "observedJavaVersion":  "openjdk version \"21.0.11\" 2026-04-21 LTS\r\nOpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)\r\nOpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)"
+                                        },
+                          "exploration":  {
+                                              "fingerprintIndex":  26,
+                                              "seed":  -8507299219181711810,
+                                              "aril":  null
+                                          },
+                          "statistics":  {
+                                             "generatedStates":  7449848,
+                                             "distinctStates":  3847736,
+                                             "depth":  30
+                                         }
+                      },
+                      {
+                          "name":  "read-only",
+                          "tier":  "full",
+                          "status":  "passed",
+                          "startedAtUtc":  "2026-07-15T08:33:48.1483998+00:00",
+                          "completedAtUtc":  "2026-07-15T08:40:59.3069718+00:00",
+                          "durationMilliseconds":  431159,
+                          "exitStatus":  0,
+                          "error":  null,
+                          "workers":  4,
+                          "coverage":  false,
+                          "module":  {
+                                         "path":  "EffectBroker.tla",
+                                         "sha256":  "74da6cebe8ee238e4d27b8645b8802fb2d087d75d90ea5c4a884c125f2421c84"
+                                     },
+                          "configuration":  {
+                                                "path":  "EffectBroker.readonly.cfg",
+                                                "sha256":  "67b91e8635fb7a84fb1ade0806e92358c64355a0e7231cf20957a13999752196"
+                                            },
+                          "toolchain":  {
+                                            "tlaToolsVersion":  "v1.7.4",
+                                            "tlaToolsSha256":  "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88",
+                                            "observedTlcVersion":  "2.19 of 08 August 2024 (rev: 5a47802)",
+                                            "jreVersion":  "21.0.11+10",
+                                            "jreSha256":  "be26677aaa20b39a62edcaab4c8857a8b76673b0f45abc0b6143b142b62717e4",
+                                            "javaSha256":  "5e0fab9f07952ceb6e71eb9fd33e1ed69959904ca00cf70869b7baf516a98016",
+                                            "observedJavaVersion":  "openjdk version \"21.0.11\" 2026-04-21 LTS\r\nOpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)\r\nOpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)"
+                                        },
+                          "exploration":  {
+                                              "fingerprintIndex":  123,
+                                              "seed":  -5913850874598107424,
+                                              "aril":  null
+                                          },
+                          "statistics":  {
+                                             "generatedStates":  7386070,
+                                             "distinctStates":  3814222,
+                                             "depth":  30
+                                         }
+                      }
+                  ]
+}

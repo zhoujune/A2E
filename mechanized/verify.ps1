@@ -1,20 +1,29 @@
 [CmdletBinding()]
-param()
+param(
+    [string]$ReportPath = "",
+    [switch]$NoReport
+)
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
-if ([System.Environment]::OSVersion.Platform -ne
-        [System.PlatformID]::Win32NT -or
-    -not [System.Environment]::Is64BitOperatingSystem -or
-    -not [System.Environment]::Is64BitProcess -or
-    [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture -ne
-        [System.Runtime.InteropServices.Architecture]::X64) {
-    throw "The verified core is pinned to 64-bit Windows on x86-64"
-}
-
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $lockPath = Join-Path $scriptDir "toolchain.lock.json"
+$schemaPath = Join-Path $scriptDir "results\verification-report.schema.v1.json"
+if ($NoReport -and $PSBoundParameters.ContainsKey("ReportPath")) {
+    throw "-NoReport and -ReportPath cannot be used together"
+}
+if (-not $NoReport) {
+    if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+        $ReportPath = Join-Path $scriptDir "results\verification-report.json"
+    }
+    elseif (-not [System.IO.Path]::IsPathRooted($ReportPath)) {
+        $ReportPath = [System.IO.Path]::GetFullPath((Join-Path (Get-Location) $ReportPath))
+    }
+    else {
+        $ReportPath = [System.IO.Path]::GetFullPath($ReportPath)
+    }
+}
 $targets = @(
     [pscustomobject]@{
         Name = "M0"
@@ -225,8 +234,613 @@ $targets = @(
         SourcePath = Join-Path $scriptDir "t5_commit_contextual.rs"
         ExtraArguments = @()
         ContributionParent = "T5-R0"
+    },
+    [pscustomobject]@{
+        Name = "H1"
+        SourcePath = Join-Path $scriptDir "h1_artifact_nonvacuity.rs"
+        ExtraArguments = @()
+        ContributionParent = "T5-C0"
     }
 )
+
+function Get-Sha256Lower {
+    param([Parameter(Mandatory = $true)][string]$Path)
+
+    (Get-FileHash -Algorithm SHA256 -LiteralPath $Path).Hash.ToLowerInvariant()
+}
+
+function Assert-SafeLeafName {
+    param(
+        [Parameter(Mandatory = $true)][string]$Name,
+        [Parameter(Mandatory = $true)][string]$Description
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Name) -or
+        [System.IO.Path]::IsPathRooted($Name) -or
+        [System.IO.Path]::GetFileName($Name) -ne $Name -or
+        $Name -eq "." -or $Name -eq ".." -or
+        $Name -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]*$') {
+        throw "$Description must be a safe leaf name: $Name"
+    }
+    $Name
+}
+
+function Assert-PathWithinRoot {
+    param(
+        [Parameter(Mandatory = $true)][string]$Root,
+        [Parameter(Mandatory = $true)][string]$Path,
+        [switch]$AllowRoot
+    )
+
+    $fullRoot = [System.IO.Path]::GetFullPath($Root).TrimEnd(
+        [System.IO.Path]::DirectorySeparatorChar,
+        [System.IO.Path]::AltDirectorySeparatorChar)
+    $fullPath = [System.IO.Path]::GetFullPath($Path)
+    $prefix = $fullRoot + [System.IO.Path]::DirectorySeparatorChar
+    $isRoot = $fullPath.Equals(
+        $fullRoot,
+        [System.StringComparison]::OrdinalIgnoreCase)
+    if ((-not $AllowRoot -or -not $isRoot) -and
+        -not $fullPath.StartsWith(
+            $prefix,
+            [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw "Path must remain below $fullRoot`: $fullPath"
+    }
+    $fullPath
+}
+
+function Get-DeterministicTreeMetadata {
+    param([Parameter(Mandatory = $true)][string]$Root)
+
+    $fullRoot = [System.IO.Path]::GetFullPath($Root).TrimEnd(
+        [System.IO.Path]::DirectorySeparatorChar,
+        [System.IO.Path]::AltDirectorySeparatorChar)
+    if (-not (Test-Path -LiteralPath $fullRoot -PathType Container)) {
+        throw "Tree root is missing: $fullRoot"
+    }
+    $items = @(Get-ChildItem -LiteralPath $fullRoot -Recurse -Force)
+    foreach ($item in $items) {
+        if (($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+            throw "Tree hashing does not admit reparse points: $($item.FullName)"
+        }
+    }
+    [string[]]$relativePaths = @($items | ForEach-Object {
+        $_.FullName.Substring($fullRoot.Length + 1).Replace('\', '/')
+    })
+    [System.Array]::Sort(
+        $relativePaths,
+        [System.StringComparer]::Ordinal)
+    $manifest = New-Object System.Text.StringBuilder
+    foreach ($relativePath in $relativePaths) {
+        $fullPath = Join-Path $fullRoot $relativePath.Replace(
+            '/',
+            [System.IO.Path]::DirectorySeparatorChar)
+        $item = Get-Item -Force -LiteralPath $fullPath
+        if ($item.PSIsContainer) {
+            [void]$manifest.Append("D:")
+            [void]$manifest.Append($relativePath.Length)
+            [void]$manifest.Append(":")
+            [void]$manifest.Append($relativePath)
+            [void]$manifest.Append("`n")
+            continue
+        }
+        $hash = Get-Sha256Lower -Path $fullPath
+        [void]$manifest.Append("F:")
+        [void]$manifest.Append($relativePath.Length)
+        [void]$manifest.Append(":")
+        [void]$manifest.Append($relativePath)
+        [void]$manifest.Append(":")
+        [void]$manifest.Append($item.Length)
+        [void]$manifest.Append(":")
+        [void]$manifest.Append($hash)
+        [void]$manifest.Append("`n")
+    }
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $bytes = [System.Text.Encoding]::UTF8.GetBytes($manifest.ToString())
+        $digest = $sha.ComputeHash($bytes)
+    }
+    finally {
+        $sha.Dispose()
+    }
+    [pscustomobject]@{
+        FileCount = @($items | Where-Object { -not $_.PSIsContainer }).Count
+        Sha256 = ([System.BitConverter]::ToString($digest) -replace '-', '').ToLowerInvariant()
+    }
+}
+
+function Get-DirectPathImports {
+    param([Parameter(Mandatory = $true)][string]$SourcePath)
+
+    $sourceText = Get-Content -Raw -LiteralPath $SourcePath
+    $sourceDirectory = Split-Path -Parent $SourcePath
+    if ($sourceText -match '/\*|\*/') {
+        throw "Block comments are not admitted by the simple module grammar in $SourcePath"
+    }
+    if ($sourceText -match '\binclude(?:_str|_bytes)?\s*//' -or
+        $sourceText -match '\bmod\s*//') {
+        throw "Comment-interposed module loading is not admitted in $SourcePath"
+    }
+    if ($sourceText -match '\binclude(?:_str|_bytes)?\s*!') {
+        throw "Unsupported include-style module loading in $SourcePath"
+    }
+    $pathOccurrenceCount = [regex]::Matches(
+        $sourceText,
+        '(?is)#\s*\[\s*path\b').Count
+    $moduleOccurrenceCount = [regex]::Matches(
+        $sourceText,
+        '(?is)\b(?:pub\s+)?mod\s+[A-Za-z_][A-Za-z0-9_]*\s*;').Count
+    $lines = @($sourceText -split "`r?`n")
+    $imports = @()
+    $pathLineCount = 0
+    $moduleLineCount = 0
+    $pathQualifiedModuleLines = @{}
+    for ($lineIndex = 0; $lineIndex -lt $lines.Count; $lineIndex++) {
+        $line = $lines[$lineIndex]
+        if ($line -match '^\s*#\s*\[\s*path\s*=\s*"([^"\r\n]+)"\s*\]\s*$') {
+            $pathLineCount++
+            $declaredPath = Assert-SafeLeafName `
+                -Name $matches[1] `
+                -Description "Rust #[path] value"
+            if ([System.IO.Path]::GetExtension($declaredPath) -ne ".rs") {
+                throw "Rust #[path] must name a .rs source: $declaredPath"
+            }
+            $moduleLine = $lineIndex + 1
+            if ($moduleLine -ge $lines.Count -or
+                $lines[$moduleLine] -notmatch '^\s*(?:pub\s+)?mod\s+[A-Za-z_][A-Za-z0-9_]*\s*;\s*$') {
+                throw ("Rust #[path] must be followed immediately by one simple " +
+                    "module declaration in $SourcePath")
+            }
+            $pathQualifiedModuleLines[$moduleLine] = $true
+            $imports += [pscustomobject]@{
+                DeclaredPath = $declaredPath
+                FullPath = [System.IO.Path]::GetFullPath(
+                    (Join-Path $sourceDirectory $declaredPath))
+            }
+        }
+        elseif ($line -match '#\s*\[\s*path\b') {
+            throw "Unsupported multiline or noncanonical #[path] form in $SourcePath"
+        }
+
+        if ($line -match '^\s*(?:pub\s+)?mod\s+[A-Za-z_][A-Za-z0-9_]*\s*;\s*$') {
+            $moduleLineCount++
+            if (-not $pathQualifiedModuleLines.ContainsKey($lineIndex)) {
+                throw "Implicit Rust module loading is not admitted in $SourcePath"
+            }
+        }
+    }
+    if ($pathOccurrenceCount -ne $pathLineCount -or
+        $moduleOccurrenceCount -ne $moduleLineCount) {
+        throw "Unsupported multiline module-loading grammar in $SourcePath"
+    }
+    $imports
+}
+
+function Write-VerificationReport {
+    param(
+        [Parameter(Mandatory = $true)][object]$Report,
+        [Parameter(Mandatory = $true)][string]$Destination
+    )
+
+    $fullDestination = [System.IO.Path]::GetFullPath($Destination)
+    $destinationDirectory = Split-Path -Parent $fullDestination
+    New-Item -ItemType Directory -Force -Path $destinationDirectory | Out-Null
+    $partial = $fullDestination + ".partial-" + [guid]::NewGuid().ToString("N")
+    try {
+        $json = $Report | ConvertTo-Json -Depth 20
+        $utf8WithoutBom = New-Object System.Text.UTF8Encoding($false)
+        [System.IO.File]::WriteAllText(
+            $partial,
+            $json + [System.Environment]::NewLine,
+            $utf8WithoutBom)
+        Move-Item -Force -LiteralPath $partial -Destination $fullDestination
+    }
+    finally {
+        Remove-Item -Force -LiteralPath $partial -ErrorAction SilentlyContinue
+    }
+}
+
+function Assert-RegisteredSourceHashes {
+    param(
+        [Parameter(Mandatory = $true)][object[]]$RegisteredTargets,
+        [Parameter(Mandatory = $true)][hashtable]$ReportsByName
+    )
+
+    foreach ($registeredTarget in $RegisteredTargets) {
+        $expectedHash = $ReportsByName[$registeredTarget.Name].source_sha256
+        $actualHash = Get-Sha256Lower -Path $registeredTarget.SourcePath
+        if ($actualHash -ne $expectedHash) {
+            throw ("Registered source changed during verification: " +
+                $registeredTarget.SourcePath)
+        }
+    }
+}
+
+function Assert-HashedFileIntegrity {
+    param(
+        [Parameter(Mandatory = $true)][object[]]$Inputs,
+        [Parameter(Mandatory = $true)][string]$Description
+    )
+
+    foreach ($input in $Inputs) {
+        $path = [string]$input.path
+        if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+            throw "$Description disappeared during verification: $path"
+        }
+        if ((Get-Sha256Lower -Path $path) -ne [string]$input.sha256) {
+            throw "$Description changed during verification: $path"
+        }
+    }
+}
+
+function Assert-SourceSnapshot {
+    param(
+        [Parameter(Mandatory = $true)][string]$SnapshotRoot,
+        [Parameter(Mandatory = $true)][object[]]$RegisteredTargets,
+        [Parameter(Mandatory = $true)][hashtable]$ReportsByName,
+        [Parameter(Mandatory = $true)][hashtable]$SnapshotPathsByName,
+        [string]$ExpectedTreeSha256 = ""
+    )
+
+    $fullSnapshotRoot = [System.IO.Path]::GetFullPath($SnapshotRoot)
+    $children = @(Get-ChildItem -LiteralPath $fullSnapshotRoot -Force)
+    if (@($children | Where-Object { $_.PSIsContainer }).Count -ne 0) {
+        throw "The source snapshot must use a flat files-only layout"
+    }
+    [string[]]$expectedNames = @($RegisteredTargets | ForEach-Object {
+        [System.IO.Path]::GetFileName($_.SourcePath).ToLowerInvariant()
+    })
+    [string[]]$actualNames = @($children | ForEach-Object {
+        $_.Name.ToLowerInvariant()
+    })
+    [System.Array]::Sort($expectedNames, [System.StringComparer]::Ordinal)
+    [System.Array]::Sort($actualNames, [System.StringComparer]::Ordinal)
+    if ($expectedNames.Count -ne $RegisteredTargets.Count -or
+        $actualNames.Count -ne $RegisteredTargets.Count -or
+        @(Compare-Object -ReferenceObject $expectedNames `
+            -DifferenceObject $actualNames -CaseSensitive).Count -ne 0) {
+        throw "The source snapshot membership does not exactly match the registry"
+    }
+
+    foreach ($registeredTarget in $RegisteredTargets) {
+        $snapshotPath = Assert-PathWithinRoot `
+            -Root $fullSnapshotRoot `
+            -Path $SnapshotPathsByName[$registeredTarget.Name]
+        if (-not (Test-Path -LiteralPath $snapshotPath -PathType Leaf)) {
+            throw "Snapshot source is missing for $($registeredTarget.Name)"
+        }
+        $expectedHash = $ReportsByName[$registeredTarget.Name].source_sha256
+        if ((Get-Sha256Lower -Path $snapshotPath) -ne $expectedHash) {
+            throw "Snapshot source hash changed for $($registeredTarget.Name)"
+        }
+        $attributes = (Get-Item -Force -LiteralPath $snapshotPath).Attributes
+        if (($attributes -band [System.IO.FileAttributes]::ReadOnly) -eq 0) {
+            throw "Snapshot source is not read-only: $snapshotPath"
+        }
+    }
+    $metadata = Get-DeterministicTreeMetadata -Root $fullSnapshotRoot
+    if (-not [string]::IsNullOrWhiteSpace($ExpectedTreeSha256) -and
+        $metadata.Sha256 -ne $ExpectedTreeSha256) {
+        throw "The source snapshot tree changed during verification"
+    }
+    $metadata
+}
+
+function Assert-TreeHash {
+    param(
+        [Parameter(Mandatory = $true)][string]$Root,
+        [Parameter(Mandatory = $true)][string]$ExpectedSha256,
+        [Parameter(Mandatory = $true)][string]$Description
+    )
+
+    $metadata = Get-DeterministicTreeMetadata -Root $Root
+    if ($metadata.Sha256 -ne $ExpectedSha256) {
+        throw "$Description changed during verification"
+    }
+    $metadata
+}
+
+function Remove-FreshRunRoot {
+    param([Parameter(Mandatory = $true)][string]$RunRoot)
+
+    if (-not (Test-Path -LiteralPath $RunRoot)) {
+        return
+    }
+    $items = @(Get-ChildItem -LiteralPath $RunRoot -Recurse -Force -ErrorAction SilentlyContinue)
+    foreach ($item in $items) {
+        if (-not $item.PSIsContainer -and
+            ($item.Attributes -band [System.IO.FileAttributes]::ReadOnly) -ne 0) {
+            $item.Attributes = $item.Attributes -band (-bnot [System.IO.FileAttributes]::ReadOnly)
+        }
+    }
+    Remove-Item -Recurse -Force -LiteralPath $RunRoot
+}
+
+function Assert-PassedReportSemanticConsistency {
+    param([Parameter(Mandatory = $true)][object]$Report)
+
+    if ($Report.status -ne "passed") {
+        throw "Semantic consistency is defined here only for passed reports"
+    }
+    $entries = @($Report.targets)
+    $count = $entries.Count
+    if ($count -ne [int]$Report.summary.registered_target_count -or
+        $count -ne [int]$Report.summary.registered_source_count -or
+        $count -ne [int]$Report.summary.present_source_count -or
+        $count -ne [int]$Report.summary.verified_target_count -or
+        $count -ne [int]$Report.source_snapshot.source_file_count) {
+        throw "Passed-report target and source counts are inconsistent"
+    }
+    $names = @($entries | ForEach-Object { $_.name } | Sort-Object -Unique)
+    $sourcePaths = @($entries | ForEach-Object { $_.source_path } | Sort-Object -Unique)
+    $snapshotPaths = @($entries | ForEach-Object {
+        $_.snapshot_source_path
+    } | Sort-Object -Unique)
+    if ($names.Count -ne $count -or $sourcePaths.Count -ne $count -or
+        $snapshotPaths.Count -ne $count) {
+        throw "Passed-report target names and source paths must be unique"
+    }
+    if (-not $Report.source_snapshot.exact_membership_validated -or
+        -not $Report.source_snapshot.source_hashes_match_registry -or
+        -not $Report.source_snapshot.all_files_read_only -or
+        [int]$Report.source_snapshot.pre_target_validation_count -ne $count -or
+        [int]$Report.source_snapshot.post_target_validation_count -ne $count -or
+        -not $Report.source_snapshot.final_validation_passed -or
+        -not $Report.source_snapshot.removed_after_run) {
+        throw "Passed-report source snapshot evidence is incomplete"
+    }
+    if (-not $Report.toolchain.observed.fresh_rust_environment -or
+        -not $Report.toolchain.observed.rust_toolchain_tree_unchanged -or
+        -not $Report.toolchain.observed.verus_tree_unchanged) {
+        throw "Passed-report verifier toolchain isolation evidence is incomplete"
+    }
+
+    $expectedArguments = @("--crate-type", "lib", "--no-cheating")
+    $byName = @{}
+    $sum = 0
+    $runningNonDuplicated = 0
+    $parentDeltaCount = 0
+    foreach ($entry in $entries) {
+        if ($entry.status -ne "passed" -or
+            [int]$entry.verus_exit_code -ne 0 -or
+            [int]$entry.verus_errors -ne 0) {
+            throw "Passed report contains a target that did not pass: $($entry.name)"
+        }
+        $arguments = @($entry.verus_arguments)
+        if ($arguments.Count -ne $expectedArguments.Count) {
+            throw "Unexpected Verus argument count for $($entry.name)"
+        }
+        for ($argumentIndex = 0; $argumentIndex -lt $expectedArguments.Count; $argumentIndex++) {
+            if ($arguments[$argumentIndex] -ne $expectedArguments[$argumentIndex]) {
+                throw "Unexpected Verus arguments for $($entry.name)"
+            }
+        }
+
+        $verified = [int]$entry.verified_obligations_total
+        $delta = [int]$entry.contribution_delta
+        if ($entry.contribution_mode -eq "full") {
+            if ($delta -ne $verified) {
+                throw "Full target delta is inconsistent for $($entry.name)"
+            }
+        }
+        elseif ($entry.contribution_mode -eq "excluded") {
+            if ($delta -ne 0) {
+                throw "Excluded target contributes a nonzero delta: $($entry.name)"
+            }
+        }
+        elseif ($entry.contribution_mode -eq "parent_delta") {
+            $parentDeltaCount++
+            if (-not $byName.ContainsKey($entry.contribution_parent)) {
+                throw "Target parent is missing or not earlier: $($entry.name)"
+            }
+            $expectedDelta = $verified - [int]$byName[$entry.contribution_parent].verified_obligations_total
+            if ($expectedDelta -lt 0 -or $delta -ne $expectedDelta -or
+                -not $entry.immediate_parent_import_validated -or
+                @($entry.direct_path_imports).Count -ne 1) {
+                throw "Parent-delta semantics are inconsistent for $($entry.name)"
+            }
+        }
+        else {
+            throw "Unknown contribution mode for $($entry.name)"
+        }
+        $sum += $verified
+        $runningNonDuplicated += $delta
+        if ([int]$entry.non_duplicated_total_after -ne $runningNonDuplicated) {
+            throw "Running non-duplicated total is inconsistent for $($entry.name)"
+        }
+        $byName[$entry.name] = $entry
+    }
+    if ($sum -ne [int]$Report.summary.sum_of_target_obligations -or
+        $runningNonDuplicated -ne
+            [int]$Report.summary.non_duplicated_verified_obligations -or
+        $parentDeltaCount -ne
+            [int]$Report.policy.cumulative_parent_imports_validated) {
+        throw "Passed-report summary arithmetic is inconsistent"
+    }
+}
+
+function Get-CanonicalVersionLine {
+    param(
+        [Parameter(Mandatory = $true)][string]$Text,
+        [Parameter(Mandatory = $true)][string]$Pattern,
+        [Parameter(Mandatory = $true)][string]$ToolName
+    )
+
+    $matchingLines = @($Text -split "`r?`n" | Where-Object {
+        $_ -match $Pattern
+    })
+    if ($matchingLines.Count -ne 1) {
+        throw ("Could not isolate exactly one canonical $ToolName version line: " +
+            $Text)
+    }
+    $matchingLines[0].Trim()
+}
+
+$runStarted = [System.DateTimeOffset]::UtcNow
+$runId = [guid]::NewGuid().ToString("N")
+$runRoot = $null
+$sourceSnapshotRoot = $null
+$snapshotSourceByName = @{}
+$schemaHash = if (Test-Path -LiteralPath $schemaPath) {
+    Get-Sha256Lower -Path $schemaPath
+}
+else {
+    $null
+}
+$driverHash = Get-Sha256Lower -Path $MyInvocation.MyCommand.Path
+$forbiddenProofPattern = '\b(assume|admit|external_body|external_fn_specification|assume_specification|axiom|get_Some|recommends|rlimit|resource_limit|spinoff|spinoff_prover)\b|verifier\s*::\s*external'
+$forbiddenArgumentPattern = '(?s).+'
+$targetReports = @()
+foreach ($target in $targets) {
+    $sourceHash = $null
+    if (Test-Path -LiteralPath $target.SourcePath) {
+        try {
+            $sourceHash = Get-Sha256Lower -Path $target.SourcePath
+        }
+        catch {
+            $sourceHash = $null
+        }
+    }
+    $contributionMode = if ($target.ContributionParent -eq "__full__") {
+        "full"
+    }
+    elseif ($target.ContributionParent -eq "__skip__") {
+        "excluded"
+    }
+    else {
+        "parent_delta"
+    }
+    $contributionParent = if ($contributionMode -eq "parent_delta") {
+        $target.ContributionParent
+    }
+    else {
+        $null
+    }
+    $targetReports += [pscustomobject][ordered]@{
+        name = $target.Name
+        source_path = "mechanized/" + [System.IO.Path]::GetFileName($target.SourcePath)
+        source_sha256 = $sourceHash
+        snapshot_source_path = "sources/" + [System.IO.Path]::GetFileName($target.SourcePath)
+        direct_path_imports = @()
+        contribution_mode = $contributionMode
+        contribution_parent = $contributionParent
+        immediate_parent_import_validated = if ($contributionMode -eq "parent_delta") { $false } else { $null }
+        verus_arguments = @("--crate-type", "lib", "--no-cheating") + @($target.ExtraArguments)
+        status = "pending"
+        started_at_utc = $null
+        completed_at_utc = $null
+        duration_ms = $null
+        verified_obligations_total = $null
+        verus_errors = $null
+        verus_exit_code = $null
+        contribution_delta = $null
+        non_duplicated_total_after = $null
+        error = $null
+    }
+}
+
+$lockHash = if (Test-Path -LiteralPath $lockPath) {
+    Get-Sha256Lower -Path $lockPath
+}
+else {
+    $null
+}
+$report = [pscustomobject][ordered]@{
+    schema = "vetra.verus-verification-report"
+    schema_version = 1
+    schema_path = "mechanized/results/verification-report.schema.v1.json"
+    schema_sha256 = $schemaHash
+    status = "running"
+    started_at_utc = $runStarted.ToString("o")
+    completed_at_utc = $null
+    duration_ms = $null
+    error = $null
+    environment = [pscustomobject][ordered]@{
+        os_description = [System.Runtime.InteropServices.RuntimeInformation]::OSDescription
+        os_architecture = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString()
+        process_architecture = [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture.ToString()
+        powershell_version = $PSVersionTable.PSVersion.ToString()
+    }
+    policy = [pscustomobject][ordered]@{
+        status = "pending"
+        no_cheating = $true
+        source_scan_is_case_insensitive = $true
+        forbidden_source_pattern = $forbiddenProofPattern
+        forbidden_extra_argument_pattern = $forbiddenArgumentPattern
+        nonempty_extra_arguments_rejected = $false
+        simple_path_module_grammar_enforced = $false
+        complete_registered_source_coverage = $false
+        all_direct_path_imports_registered = $false
+        cumulative_parent_imports_validated = 0
+    }
+    source_snapshot = [pscustomobject][ordered]@{
+        kind = "isolated-read-only-copy"
+        run_id = $runId
+        created_at_utc = $null
+        source_file_count = $null
+        manifest_sha256 = $null
+        exact_membership_validated = $false
+        source_hashes_match_registry = $false
+        all_files_read_only = $false
+        pre_target_validation_count = 0
+        post_target_validation_count = 0
+        final_validation_passed = $false
+        removed_after_run = $false
+    }
+    toolchain = [pscustomobject][ordered]@{
+        lock_path = "mechanized/toolchain.lock.json"
+        lock_sha256 = $lockHash
+        verification_driver_path = "mechanized/verify.ps1"
+        verification_driver_sha256 = $driverHash
+        declared = $null
+        observed = [pscustomobject][ordered]@{
+            verus_archive_sha256 = $null
+            verus_executable_sha256 = $null
+            verus_tree_sha256 = $null
+            verus_tree_file_count = $null
+            verus_tree_unchanged = $false
+            verus_version = $null
+            rustup_archive_sha256 = $null
+            rustup_executable_sha256 = $null
+            rustup_version = $null
+            rustc_executable_sha256 = $null
+            rustc_version = $null
+            cargo_executable_sha256 = $null
+            rust_toolchain_tree_sha256 = $null
+            rust_toolchain_file_count = $null
+            rust_toolchain_tree_unchanged = $false
+            fresh_rust_environment = $false
+            rustup_dist_server = $null
+            rustup_update_root = $null
+        }
+    }
+    summary = [pscustomobject][ordered]@{
+        registered_target_count = $targets.Count
+        registered_source_count = $targets.Count
+        present_source_count = $null
+        verified_target_count = 0
+        sum_of_target_obligations = 0
+        non_duplicated_verified_obligations = 0
+    }
+    targets = $targetReports
+}
+$targetReportByName = @{}
+$nonDuplicatedVerified = 0
+$sumOfTargetObligations = 0
+$verifiedTargetCount = 0
+
+try {
+    if ($null -eq $report.schema_sha256) {
+        throw "The verification-report schema is missing: $schemaPath"
+    }
+    if ([System.Environment]::OSVersion.Platform -ne
+            [System.PlatformID]::Win32NT -or
+        -not [System.Environment]::Is64BitOperatingSystem -or
+        -not [System.Environment]::Is64BitProcess -or
+        [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture -ne
+            [System.Runtime.InteropServices.Architecture]::X64) {
+        throw "The verified core is pinned to 64-bit Windows on x86-64"
+    }
 
 # Fail closed when a new mechanized crate is added without being registered.
 $declaredSources = @($targets | ForEach-Object {
@@ -248,27 +862,191 @@ if ($sourceCoverageDifference.Count -ne 0) {
     throw "Every mechanized .rs file must be an explicit verifier target: $details"
 }
 
-$lock = Get-Content -Raw -LiteralPath $lockPath | ConvertFrom-Json
+    $report.summary.present_source_count = $presentSources.Count
+    $report.policy.complete_registered_source_coverage = $true
+    $declaredNames = @($targets | ForEach-Object { $_.Name } | Sort-Object -Unique)
+    if ($declaredNames.Count -ne $targets.Count) {
+        throw "The verifier target list contains a duplicate target name"
+    }
+    for ($targetIndex = 0; $targetIndex -lt $targets.Count; $targetIndex++) {
+        $target = $targets[$targetIndex]
+        $targetReport = $targetReports[$targetIndex]
+        $targetReportByName[$target.Name] = $targetReport
+        if ($null -eq $targetReport.source_sha256) {
+            throw "$($target.Name) source could not be hashed: $($target.SourcePath)"
+        }
+    }
 
-$tempRoot = [System.IO.Path]::GetFullPath($env:TEMP).TrimEnd(
-    [System.IO.Path]::DirectorySeparatorChar,
-    [System.IO.Path]::AltDirectorySeparatorChar)
-$cacheRoot = [System.IO.Path]::GetFullPath(
-    (Join-Path $tempRoot "proveai-verus-m0"))
-$requiredPrefix = $tempRoot + [System.IO.Path]::DirectorySeparatorChar
-if (-not $cacheRoot.StartsWith(
-        $requiredPrefix,
-        [System.StringComparison]::OrdinalIgnoreCase)) {
-    throw "Verifier cache must remain below TEMP: $cacheRoot"
-}
+    $declaredSourceLookup = @{}
+    foreach ($target in $targets) {
+        $declaredSourceLookup[[System.IO.Path]::GetFullPath(
+            $target.SourcePath).ToLowerInvariant()] = $target.Name
+    }
+    $validatedParentImports = 0
+    for ($targetIndex = 0; $targetIndex -lt $targets.Count; $targetIndex++) {
+        $target = $targets[$targetIndex]
+        $targetReport = $targetReports[$targetIndex]
+        $imports = @(Get-DirectPathImports -SourcePath $target.SourcePath)
+        $targetReport.direct_path_imports = @(
+            $imports | ForEach-Object { $_.DeclaredPath })
+        foreach ($import in $imports) {
+            $importKey = $import.FullPath.ToLowerInvariant()
+            if (-not $declaredSourceLookup.ContainsKey($importKey)) {
+                throw ("$($target.Name) directly imports an unregistered source: " +
+                    $import.DeclaredPath)
+            }
+        }
 
-$downloadDir = Join-Path $cacheRoot "downloads"
-$verusRoot = Join-Path $cacheRoot ("verus-" + $lock.verus.version)
-$cargoHome = Join-Path $cacheRoot "cargo"
-$rustupHome = Join-Path $cacheRoot "rustup"
-$rustupInit = Join-Path $downloadDir $lock.rustup.archive
-$verusArchive = Join-Path $downloadDir $lock.verus.archive
-$verusExe = Join-Path $verusRoot "verus-x86-win\verus.exe"
+        if ($target.ContributionParent -ne "__full__" -and
+            $target.ContributionParent -ne "__skip__") {
+            $parentName = $target.ContributionParent
+            $parentIndex = -1
+            for ($candidateIndex = 0; $candidateIndex -lt $targetIndex; $candidateIndex++) {
+                if ($targets[$candidateIndex].Name -eq $parentName) {
+                    $parentIndex = $candidateIndex
+                    break
+                }
+            }
+            if ($parentIndex -lt 0) {
+                throw "$($target.Name) contribution parent is not an earlier target: $parentName"
+            }
+            if ($imports.Count -ne 1) {
+                throw ("$($target.Name) must directly import exactly its declared " +
+                    "contribution parent $parentName; found $($imports.Count) path imports")
+            }
+            $expectedParentPath = [System.IO.Path]::GetFullPath(
+                $targets[$parentIndex].SourcePath)
+            if (-not $imports[0].FullPath.Equals(
+                    $expectedParentPath,
+                    [System.StringComparison]::OrdinalIgnoreCase)) {
+                throw ("$($target.Name) contribution parent $parentName does not match " +
+                    "its sole direct path import $($imports[0].DeclaredPath)")
+            }
+            $targetReport.immediate_parent_import_validated = $true
+            $validatedParentImports++
+        }
+    }
+    $report.policy.all_direct_path_imports_registered = $true
+    $report.policy.cumulative_parent_imports_validated = $validatedParentImports
+    $report.policy.simple_path_module_grammar_enforced = $true
+
+    foreach ($target in $targets) {
+        if (@($target.ExtraArguments).Count -ne 0) {
+            throw "$($target.Name) contains nonempty ExtraArguments"
+        }
+        $forbidden = @(Select-String -LiteralPath $target.SourcePath `
+            -CaseSensitive:$false `
+            -Pattern $forbiddenProofPattern)
+        if ($forbidden.Count -ne 0) {
+            throw ("$($target.Name) contains a forbidden proof construct: " +
+                $forbidden[0].Line.Trim())
+        }
+    }
+    $report.policy.nonempty_extra_arguments_rejected = $true
+    $report.policy.status = "passed"
+
+    if (-not (Test-Path -LiteralPath $lockPath)) {
+        throw "The pinned toolchain lock is missing: $lockPath"
+    }
+    $boundArtifactInputs = @(
+        [pscustomobject]@{ path = $MyInvocation.MyCommand.Path; sha256 = $driverHash },
+        [pscustomobject]@{ path = $lockPath; sha256 = $lockHash },
+        [pscustomobject]@{ path = $schemaPath; sha256 = $schemaHash }
+    )
+    Assert-HashedFileIntegrity `
+        -Inputs $boundArtifactInputs `
+        -Description "Bound artifact input"
+    $lock = Get-Content -Raw -LiteralPath $lockPath | ConvertFrom-Json
+    $report.toolchain.declared = $lock
+
+    $verusArchiveName = Assert-SafeLeafName `
+        -Name ([string]$lock.verus.archive) `
+        -Description "Verus archive name"
+    $rustupArchiveName = Assert-SafeLeafName `
+        -Name ([string]$lock.rustup.archive) `
+        -Description "rustup archive name"
+    $verusVersionLeaf = Assert-SafeLeafName `
+        -Name ([string]$lock.verus.version) `
+        -Description "Verus version"
+    $rustToolchainLeaf = Assert-SafeLeafName `
+        -Name ([string]$lock.rust.toolchain) `
+        -Description "Rust toolchain"
+    if ([string]$lock.verus.sha256 -notmatch '^[0-9a-fA-F]{64}$' -or
+        [string]$lock.rustup.sha256 -notmatch '^[0-9a-fA-F]{64}$') {
+        throw "Toolchain archive hashes must be SHA256 values"
+    }
+
+    $tempRoot = [System.IO.Path]::GetFullPath($env:TEMP).TrimEnd(
+        [System.IO.Path]::DirectorySeparatorChar,
+        [System.IO.Path]::AltDirectorySeparatorChar)
+    $cacheRoot = Assert-PathWithinRoot `
+        -Root $tempRoot `
+        -Path (Join-Path $tempRoot "proveai-verus-m0")
+    $runRoot = Assert-PathWithinRoot `
+        -Root $tempRoot `
+        -Path (Join-Path $tempRoot ("vetra-verus-run-" + $runId))
+    if (Test-Path -LiteralPath $runRoot) {
+        throw "Fresh verifier run directory already exists: $runRoot"
+    }
+    New-Item -ItemType Directory -Path $runRoot | Out-Null
+    $sourceSnapshotRoot = Assert-PathWithinRoot `
+        -Root $runRoot `
+        -Path (Join-Path $runRoot "sources")
+    New-Item -ItemType Directory -Path $sourceSnapshotRoot | Out-Null
+    $report.source_snapshot.created_at_utc =
+        [System.DateTimeOffset]::UtcNow.ToString("o")
+    foreach ($target in $targets) {
+        $sourceLeaf = Assert-SafeLeafName `
+            -Name ([System.IO.Path]::GetFileName($target.SourcePath)) `
+            -Description "Registered source name"
+        $snapshotPath = Assert-PathWithinRoot `
+            -Root $sourceSnapshotRoot `
+            -Path (Join-Path $sourceSnapshotRoot $sourceLeaf)
+        Copy-Item -LiteralPath $target.SourcePath -Destination $snapshotPath
+        if ((Get-Sha256Lower -Path $snapshotPath) -ne
+            $targetReportByName[$target.Name].source_sha256) {
+            throw "Source changed while snapshotting $($target.Name)"
+        }
+        [System.IO.File]::SetAttributes(
+            $snapshotPath,
+            [System.IO.FileAttributes]::ReadOnly)
+        $snapshotSourceByName[$target.Name] = $snapshotPath
+    }
+    Assert-RegisteredSourceHashes `
+        -RegisteredTargets $targets `
+        -ReportsByName $targetReportByName
+    $snapshotMetadata = Assert-SourceSnapshot `
+        -SnapshotRoot $sourceSnapshotRoot `
+        -RegisteredTargets $targets `
+        -ReportsByName $targetReportByName `
+        -SnapshotPathsByName $snapshotSourceByName
+    $report.source_snapshot.source_file_count = $snapshotMetadata.FileCount
+    $report.source_snapshot.manifest_sha256 = $snapshotMetadata.Sha256
+    $report.source_snapshot.exact_membership_validated = $true
+    $report.source_snapshot.source_hashes_match_registry = $true
+    $report.source_snapshot.all_files_read_only = $true
+
+    $downloadDir = Assert-PathWithinRoot `
+        -Root $cacheRoot `
+        -Path (Join-Path $cacheRoot "downloads")
+    $verusRoot = Assert-PathWithinRoot `
+        -Root $cacheRoot `
+        -Path (Join-Path $cacheRoot ("verus-" + $verusVersionLeaf))
+    $cargoHome = Assert-PathWithinRoot `
+        -Root $runRoot `
+        -Path (Join-Path $runRoot "cargo")
+    $rustupHome = Assert-PathWithinRoot `
+        -Root $runRoot `
+        -Path (Join-Path $runRoot "rustup")
+    $rustupInit = Assert-PathWithinRoot `
+        -Root $downloadDir `
+        -Path (Join-Path $downloadDir $rustupArchiveName)
+    $verusArchive = Assert-PathWithinRoot `
+        -Root $downloadDir `
+        -Path (Join-Path $downloadDir $verusArchiveName)
+    $verusExe = Assert-PathWithinRoot `
+        -Root $verusRoot `
+        -Path (Join-Path $verusRoot "verus-x86-win\verus.exe")
 
 $cacheMutex = New-Object System.Threading.Mutex(
     $false,
@@ -294,6 +1072,7 @@ function Get-VerifiedArtifact {
         [Parameter(Mandatory = $true)][string]$ExpectedSha256
     )
 
+    $Destination = Assert-CacheChild $Destination
     $expected = $ExpectedSha256.ToUpperInvariant()
     if (Test-Path -LiteralPath $Destination) {
         $actual = (Get-FileHash -Algorithm SHA256 -LiteralPath $Destination).Hash
@@ -303,7 +1082,7 @@ function Get-VerifiedArtifact {
         Remove-Item -Force -LiteralPath $Destination
     }
 
-    $partial = $Destination + ".partial"
+    $partial = Assert-CacheChild ($Destination + ".partial")
     Remove-Item -Force -LiteralPath $partial -ErrorAction SilentlyContinue
     try {
         Invoke-WebRequest -UseBasicParsing -Uri $Uri -OutFile $partial
@@ -321,17 +1100,7 @@ function Get-VerifiedArtifact {
 function Assert-CacheChild {
     param([Parameter(Mandatory = $true)][string]$Path)
 
-    $fullPath = [System.IO.Path]::GetFullPath($Path)
-    $cachePrefix = $cacheRoot.TrimEnd(
-        [System.IO.Path]::DirectorySeparatorChar,
-        [System.IO.Path]::AltDirectorySeparatorChar) +
-        [System.IO.Path]::DirectorySeparatorChar
-    if (-not $fullPath.StartsWith(
-            $cachePrefix,
-            [System.StringComparison]::OrdinalIgnoreCase)) {
-        throw "Refusing a cache operation outside $cacheRoot`: $fullPath"
-    }
-    $fullPath
+    Assert-PathWithinRoot -Root $cacheRoot -Path $Path
 }
 
 function Invoke-NativeCaptured {
@@ -364,6 +1133,10 @@ function Invoke-NativeCaptured {
         -Uri $lock.rustup.url `
         -Destination $rustupInit `
         -ExpectedSha256 $lock.rustup.sha256
+    $report.toolchain.observed.verus_archive_sha256 =
+        Get-Sha256Lower -Path $verusArchive
+    $report.toolchain.observed.rustup_archive_sha256 =
+        Get-Sha256Lower -Path $rustupInit
 
     # Recreate the executable tree from the hash-checked archive on every run.
     # This prevents a modified cache entry from surviving behind a valid
@@ -390,40 +1163,116 @@ function Invoke-NativeCaptured {
             Remove-Item -Recurse -Force -LiteralPath $extracting
         }
     }
+    $report.toolchain.observed.verus_executable_sha256 =
+        Get-Sha256Lower -Path $verusExe
+    $verusTreeRoot = Assert-PathWithinRoot `
+        -Root $verusRoot `
+        -Path (Join-Path $verusRoot "verus-x86-win")
+    $verusTreeMetadata = Get-DeterministicTreeMetadata -Root $verusTreeRoot
+    $report.toolchain.observed.verus_tree_sha256 =
+        $verusTreeMetadata.Sha256
+    $report.toolchain.observed.verus_tree_file_count =
+        $verusTreeMetadata.FileCount
 
-    foreach ($target in $targets) {
-        if (-not (Test-Path -LiteralPath $target.SourcePath)) {
-            throw "$($target.Name) source is missing: $($target.SourcePath)"
-        }
-        $forbidden = @(Select-String -LiteralPath $target.SourcePath `
-            -CaseSensitive:$false `
-            -Pattern '\b(assume|admit|external_body|external_fn_specification|assume_specification|axiom|get_Some)\b|verifier::external')
-        if ($forbidden.Count -ne 0) {
-            throw ("$($target.Name) contains a forbidden proof construct: " +
-                $forbidden[0].Line.Trim())
-        }
-    }
-
-    $savedEnvironment = @{
-        CARGO_HOME = $env:CARGO_HOME
-        RUSTUP_HOME = $env:RUSTUP_HOME
-        RUSTUP_TOOLCHAIN = $env:RUSTUP_TOOLCHAIN
-        PATH = $env:PATH
+    $isolatedEnvironmentNames = @(
+        "CARGO_HOME",
+        "RUSTUP_HOME",
+        "RUSTUP_TOOLCHAIN",
+        "RUSTUP_DIST_SERVER",
+        "RUSTUP_UPDATE_ROOT",
+        "RUSTUP_NO_UPDATE_CHECK",
+        "RUSTC",
+        "RUSTC_WRAPPER",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "CARGO_BUILD_RUSTC",
+        "CARGO_TARGET_DIR",
+        "RUSTFLAGS",
+        "CARGO_ENCODED_RUSTFLAGS",
+        "RUSTC_BOOTSTRAP",
+        "RUSTDOCFLAGS",
+        "VERUS_Z3_PATH",
+        "VERUS_SINGULAR_PATH",
+        "VERUS_RUSTC",
+        "VERUS_RUSTC_PATH",
+        "Z3_EXE",
+        "PATH"
+    )
+    $savedEnvironment = @{}
+    foreach ($environmentName in $isolatedEnvironmentNames) {
+        $savedEnvironment[$environmentName] =
+            [System.Environment]::GetEnvironmentVariable(
+                $environmentName,
+                [System.EnvironmentVariableTarget]::Process)
     }
 
     try {
-        $env:CARGO_HOME = $cargoHome
-        $env:RUSTUP_HOME = $rustupHome
-        $env:RUSTUP_TOOLCHAIN = $lock.rust.toolchain
-        $env:PATH = (Join-Path $cargoHome "bin") + ";" + $savedEnvironment.PATH
+        [System.Environment]::SetEnvironmentVariable(
+            "CARGO_HOME", $cargoHome,
+            [System.EnvironmentVariableTarget]::Process)
+        [System.Environment]::SetEnvironmentVariable(
+            "RUSTUP_HOME", $rustupHome,
+            [System.EnvironmentVariableTarget]::Process)
+        [System.Environment]::SetEnvironmentVariable(
+            "RUSTUP_TOOLCHAIN", $rustToolchainLeaf,
+            [System.EnvironmentVariableTarget]::Process)
+        [System.Environment]::SetEnvironmentVariable(
+            "RUSTUP_DIST_SERVER", "https://static.rust-lang.org",
+            [System.EnvironmentVariableTarget]::Process)
+        [System.Environment]::SetEnvironmentVariable(
+            "RUSTUP_UPDATE_ROOT", "https://static.rust-lang.org/rustup",
+            [System.EnvironmentVariableTarget]::Process)
+        [System.Environment]::SetEnvironmentVariable(
+            "RUSTUP_NO_UPDATE_CHECK", "1",
+            [System.EnvironmentVariableTarget]::Process)
+        foreach ($clearedName in @(
+                "RUSTC",
+                "RUSTC_WRAPPER",
+                "RUSTC_WORKSPACE_WRAPPER",
+                "CARGO_BUILD_RUSTC",
+                "CARGO_TARGET_DIR",
+                "RUSTFLAGS",
+                "CARGO_ENCODED_RUSTFLAGS",
+                "RUSTC_BOOTSTRAP",
+                "RUSTDOCFLAGS",
+                "VERUS_Z3_PATH",
+                "VERUS_SINGULAR_PATH",
+                "VERUS_RUSTC",
+                "VERUS_RUSTC_PATH",
+                "Z3_EXE")) {
+            [System.Environment]::SetEnvironmentVariable(
+                $clearedName,
+                $null,
+                [System.EnvironmentVariableTarget]::Process)
+        }
+        [System.Environment]::SetEnvironmentVariable(
+            "PATH",
+            (Join-Path $cargoHome "bin") + ";" + $savedEnvironment["PATH"],
+            [System.EnvironmentVariableTarget]::Process)
+        $report.toolchain.observed.rustup_dist_server =
+            "https://static.rust-lang.org"
+        $report.toolchain.observed.rustup_update_root =
+            "https://static.rust-lang.org/rustup"
 
-        $rustupExe = Join-Path $cargoHome "bin\rustup.exe"
-        if (-not (Test-Path -LiteralPath $rustupExe)) {
-            & $rustupInit -y --no-modify-path --profile minimal `
-                --default-toolchain none
-            if ($LASTEXITCODE -ne 0) {
-                throw "The isolated rustup installation failed"
-            }
+        $rustupExe = Assert-PathWithinRoot `
+            -Root $cargoHome `
+            -Path (Join-Path $cargoHome "bin\rustup.exe")
+        if ((Test-Path -LiteralPath $cargoHome) -or
+            (Test-Path -LiteralPath $rustupHome)) {
+            throw "Fresh Rust homes unexpectedly existed before installation"
+        }
+        $rustupInstallResult = Invoke-NativeCaptured `
+            -FilePath $rustupInit `
+            -Arguments @(
+                "-y",
+                "--no-modify-path",
+                "--profile", "minimal",
+                "--default-toolchain", "none")
+        if ($rustupInstallResult.ExitCode -ne 0) {
+            throw ("The fresh rustup installation failed: " +
+                $rustupInstallResult.Text)
+        }
+        if (-not (Test-Path -LiteralPath $rustupExe -PathType Leaf)) {
+            throw "The fresh rustup installation did not create rustup.exe"
         }
 
         $installedRustupHash = (
@@ -431,6 +1280,8 @@ function Invoke-NativeCaptured {
         if ($installedRustupHash -ne $lock.rustup.sha256.ToUpperInvariant()) {
             throw "The installed rustup executable does not match the pinned archive"
         }
+        $report.toolchain.observed.rustup_executable_sha256 =
+            $installedRustupHash.ToLowerInvariant()
 
         $autoUpdateResult = Invoke-NativeCaptured -FilePath $rustupExe `
             -Arguments @("set", "auto-self-update", "disable")
@@ -440,23 +1291,44 @@ function Invoke-NativeCaptured {
 
         $rustupResult = Invoke-NativeCaptured -FilePath $rustupExe `
             -Arguments @("--version")
-        if ($rustupResult.ExitCode -ne 0 -or
-            $rustupResult.Text -notmatch ("rustup " + [regex]::Escape($lock.rustup.version))) {
+        if ($rustupResult.ExitCode -ne 0) {
             throw "Unexpected rustup version: $($rustupResult.Text)"
         }
+        $rustupVersionPattern = "^rustup " +
+            [regex]::Escape($lock.rustup.version) + "(?:\s|$)"
+        $rustupVersionLine = Get-CanonicalVersionLine `
+            -Text $rustupResult.Text `
+            -Pattern $rustupVersionPattern `
+            -ToolName "rustup"
+        $report.toolchain.observed.rustup_version = $rustupVersionLine
 
-        $toolchainRoot = Join-Path $rustupHome ("toolchains\" + $lock.rust.toolchain)
-        $rustcExe = Join-Path $toolchainRoot "bin\rustc.exe"
-        $cargoExe = Join-Path $toolchainRoot "bin\cargo.exe"
-        $targetLib = Join-Path $toolchainRoot (
-            "lib\rustlib\x86_64-pc-windows-msvc\lib")
-        if (-not (Test-Path -LiteralPath $rustcExe) -or
-            -not (Test-Path -LiteralPath $cargoExe) -or
-            -not (Test-Path -LiteralPath $targetLib)) {
-            & $rustupExe toolchain install $lock.rust.toolchain --profile minimal
-            if ($LASTEXITCODE -ne 0) {
-                throw "The pinned Rust toolchain installation failed"
-            }
+        $toolchainInstallResult = Invoke-NativeCaptured `
+            -FilePath $rustupExe `
+            -Arguments @(
+                "toolchain", "install", $rustToolchainLeaf,
+                "--profile", "minimal")
+        if ($toolchainInstallResult.ExitCode -ne 0) {
+            throw ("The exact Rust toolchain installation failed: " +
+                $toolchainInstallResult.Text)
+        }
+
+        $toolchainRoot = Assert-PathWithinRoot `
+            -Root $rustupHome `
+            -Path (Join-Path $rustupHome ("toolchains\" + $rustToolchainLeaf))
+        $rustcExe = Assert-PathWithinRoot `
+            -Root $toolchainRoot `
+            -Path (Join-Path $toolchainRoot "bin\rustc.exe")
+        $cargoExe = Assert-PathWithinRoot `
+            -Root $toolchainRoot `
+            -Path (Join-Path $toolchainRoot "bin\cargo.exe")
+        $targetLib = Assert-PathWithinRoot `
+            -Root $toolchainRoot `
+            -Path (Join-Path $toolchainRoot (
+                "lib\rustlib\x86_64-pc-windows-msvc\lib"))
+        if (-not (Test-Path -LiteralPath $rustcExe -PathType Leaf) -or
+            -not (Test-Path -LiteralPath $cargoExe -PathType Leaf) -or
+            -not (Test-Path -LiteralPath $targetLib -PathType Container)) {
+            throw "The exact Rust toolchain has an unexpected layout"
         }
 
         $installedRustupHash = (
@@ -467,66 +1339,174 @@ function Invoke-NativeCaptured {
 
         $rustcResult = Invoke-NativeCaptured -FilePath $rustcExe `
             -Arguments @("--version")
-        if ($rustcResult.ExitCode -ne 0 -or
-            $rustcResult.Text -notmatch "rustc 1\.96\.0") {
+        $expectedRustVersion = ($lock.rust.toolchain -split '-', 2)[0]
+        if ($rustcResult.ExitCode -ne 0) {
             throw "Unexpected Rust toolchain version: $($rustcResult.Text)"
         }
+        $rustcVersionPattern = "^rustc " +
+            [regex]::Escape($expectedRustVersion) + "(?:\s|$)"
+        $rustcVersionLine = Get-CanonicalVersionLine `
+            -Text $rustcResult.Text `
+            -Pattern $rustcVersionPattern `
+            -ToolName "rustc"
+        $report.toolchain.observed.rustc_executable_sha256 =
+            Get-Sha256Lower -Path $rustcExe
+        $report.toolchain.observed.rustc_version = $rustcVersionLine
+        $report.toolchain.observed.cargo_executable_sha256 =
+            Get-Sha256Lower -Path $cargoExe
+        $toolchainMetadata = Get-DeterministicTreeMetadata -Root $toolchainRoot
+        $report.toolchain.observed.rust_toolchain_tree_sha256 =
+            $toolchainMetadata.Sha256
+        $report.toolchain.observed.rust_toolchain_file_count =
+            $toolchainMetadata.FileCount
+        $report.toolchain.observed.fresh_rust_environment = $true
 
         $verusVersion = Get-Content -Raw -LiteralPath (
             Join-Path $verusRoot "verus-x86-win\version.txt")
         if ($verusVersion.Trim() -ne $lock.verus.version) {
             throw "Unexpected Verus version: $($verusVersion.Trim())"
         }
+        $report.toolchain.observed.verus_version = $verusVersion.Trim()
 
         $nonDuplicatedVerified = 0
         $verifiedCounts = @{}
         foreach ($target in $targets) {
-            Write-Host ("Verifying " + $target.Name + "...")
-            $arguments = @(
-                $target.SourcePath,
-                "--crate-type",
-                "lib",
-                "--no-cheating"
-            ) + @($target.ExtraArguments)
-            $verusResult = Invoke-NativeCaptured -FilePath $verusExe `
-                -Arguments $arguments
-            $verusResult.Output | ForEach-Object { Write-Host $_ }
-            if ($verusResult.ExitCode -ne 0) {
-                throw "Verus rejected $($target.Name)"
-            }
-            $result = [regex]::Match(
-                $verusResult.Text,
-                "(\d+) verified, (\d+) errors")
-            if (-not $result.Success -or [int]$result.Groups[2].Value -ne 0) {
-                throw ("Could not confirm a zero-error Verus obligation count for " +
-                    $target.Name)
-            }
-            $verified = [int]$result.Groups[1].Value
-            $verifiedCounts[$target.Name] = $verified
-            if ($target.ContributionParent -eq "__full__") {
-                $nonDuplicatedVerified += $verified
-            }
-            elseif ($target.ContributionParent -ne "__skip__") {
-                $parent = $target.ContributionParent
-                if (-not $verifiedCounts.ContainsKey($parent)) {
-                    throw "$($target.Name) contribution parent was not verified first: $parent"
+            $targetReport = $targetReportByName[$target.Name]
+            $targetStarted = [System.DateTimeOffset]::UtcNow
+            $targetReport.status = "running"
+            $targetReport.started_at_utc = $targetStarted.ToString("o")
+            try {
+                Assert-HashedFileIntegrity `
+                    -Inputs $boundArtifactInputs `
+                    -Description "Bound artifact input"
+                $null = Assert-SourceSnapshot `
+                    -SnapshotRoot $sourceSnapshotRoot `
+                    -RegisteredTargets $targets `
+                    -ReportsByName $targetReportByName `
+                    -SnapshotPathsByName $snapshotSourceByName `
+                    -ExpectedTreeSha256 $report.source_snapshot.manifest_sha256
+                $report.source_snapshot.pre_target_validation_count++
+                Write-Host ("Verifying " + $target.Name + "...")
+                $arguments = @(
+                    $snapshotSourceByName[$target.Name],
+                    "--crate-type",
+                    "lib",
+                    "--no-cheating"
+                )
+                $verusResult = Invoke-NativeCaptured -FilePath $verusExe `
+                    -Arguments $arguments
+                $targetReport.verus_exit_code = $verusResult.ExitCode
+                $verusResult.Output | ForEach-Object { Write-Host $_ }
+                if ($verusResult.ExitCode -ne 0) {
+                    throw "Verus rejected $($target.Name)"
                 }
-                $delta = $verified - [int]$verifiedCounts[$parent]
-                if ($delta -lt 0) {
-                    throw "$($target.Name) verified fewer obligations than parent $parent"
+                $result = [regex]::Match(
+                    $verusResult.Text,
+                    "(\d+) verified, (\d+) errors")
+                if (-not $result.Success) {
+                    throw ("Could not parse a Verus obligation count for " +
+                        $target.Name)
+                }
+                $verusErrors = [int]$result.Groups[2].Value
+                $targetReport.verus_errors = $verusErrors
+                if ($verusErrors -ne 0) {
+                    throw ("Could not confirm a zero-error Verus obligation count for " +
+                        $target.Name)
+                }
+                $null = Assert-SourceSnapshot `
+                    -SnapshotRoot $sourceSnapshotRoot `
+                    -RegisteredTargets $targets `
+                    -ReportsByName $targetReportByName `
+                    -SnapshotPathsByName $snapshotSourceByName `
+                    -ExpectedTreeSha256 $report.source_snapshot.manifest_sha256
+                $report.source_snapshot.post_target_validation_count++
+                Assert-HashedFileIntegrity `
+                    -Inputs $boundArtifactInputs `
+                    -Description "Bound artifact input"
+                $verified = [int]$result.Groups[1].Value
+                $verifiedCounts[$target.Name] = $verified
+                $delta = 0
+                if ($target.ContributionParent -eq "__full__") {
+                    $delta = $verified
+                }
+                elseif ($target.ContributionParent -ne "__skip__") {
+                    $parent = $target.ContributionParent
+                    if (-not $verifiedCounts.ContainsKey($parent)) {
+                        throw "$($target.Name) contribution parent was not verified first: $parent"
+                    }
+                    $delta = $verified - [int]$verifiedCounts[$parent]
+                    if ($delta -lt 0) {
+                        throw "$($target.Name) verified fewer obligations than parent $parent"
+                    }
                 }
                 $nonDuplicatedVerified += $delta
+                $sumOfTargetObligations += $verified
+                $verifiedTargetCount++
+                $targetReport.verified_obligations_total = $verified
+                $targetReport.contribution_delta = $delta
+                $targetReport.non_duplicated_total_after = $nonDuplicatedVerified
+                $targetReport.status = "passed"
+                $report.summary.verified_target_count = $verifiedTargetCount
+                $report.summary.sum_of_target_obligations = $sumOfTargetObligations
+                $report.summary.non_duplicated_verified_obligations =
+                    $nonDuplicatedVerified
+                Write-Host ("$($target.Name) verified obligations: " + $verified)
             }
-            Write-Host ("$($target.Name) verified obligations: " + $verified)
+            catch {
+                $targetReport.status = "failed"
+                $targetReport.error = $_.Exception.Message
+                throw
+            }
+            finally {
+                $targetCompleted = [System.DateTimeOffset]::UtcNow
+                $targetReport.completed_at_utc = $targetCompleted.ToString("o")
+                $targetReport.duration_ms = [long](
+                    ($targetCompleted - $targetStarted).TotalMilliseconds)
+            }
         }
+        $null = Assert-SourceSnapshot `
+            -SnapshotRoot $sourceSnapshotRoot `
+            -RegisteredTargets $targets `
+            -ReportsByName $targetReportByName `
+            -SnapshotPathsByName $snapshotSourceByName `
+            -ExpectedTreeSha256 $report.source_snapshot.manifest_sha256
+        $null = Assert-TreeHash `
+            -Root $toolchainRoot `
+            -ExpectedSha256 $toolchainMetadata.Sha256 `
+            -Description "The exact Rust toolchain tree"
+        Assert-HashedFileIntegrity `
+            -Inputs @(
+                [pscustomobject]@{
+                    path = $verusArchive
+                    sha256 = $report.toolchain.observed.verus_archive_sha256
+                },
+                [pscustomobject]@{
+                    path = $verusExe
+                    sha256 = $report.toolchain.observed.verus_executable_sha256
+                },
+                [pscustomobject]@{
+                    path = $rustupInit
+                    sha256 = $report.toolchain.observed.rustup_archive_sha256
+                }
+            ) `
+            -Description "Pinned verifier artifact"
+        $null = Assert-TreeHash `
+            -Root $verusTreeRoot `
+            -ExpectedSha256 $verusTreeMetadata.Sha256 `
+            -Description "The extracted Verus tool tree"
+        $report.source_snapshot.final_validation_passed = $true
+        $report.toolchain.observed.rust_toolchain_tree_unchanged = $true
+        $report.toolchain.observed.verus_tree_unchanged = $true
         Write-Host ("Non-duplicated verified artifact obligations: " +
             $nonDuplicatedVerified)
     }
     finally {
-        $env:CARGO_HOME = $savedEnvironment.CARGO_HOME
-        $env:RUSTUP_HOME = $savedEnvironment.RUSTUP_HOME
-        $env:RUSTUP_TOOLCHAIN = $savedEnvironment.RUSTUP_TOOLCHAIN
-        $env:PATH = $savedEnvironment.PATH
+        foreach ($environmentName in $isolatedEnvironmentNames) {
+            [System.Environment]::SetEnvironmentVariable(
+                $environmentName,
+                $savedEnvironment[$environmentName],
+                [System.EnvironmentVariableTarget]::Process)
+        }
     }
 }
 finally {
@@ -534,4 +1514,59 @@ finally {
         $cacheMutex.ReleaseMutex()
     }
     $cacheMutex.Dispose()
+}
+    Assert-RegisteredSourceHashes `
+        -RegisteredTargets $targets `
+        -ReportsByName $targetReportByName
+    Assert-HashedFileIntegrity `
+        -Inputs $boundArtifactInputs `
+        -Description "Bound artifact input"
+    Remove-FreshRunRoot -RunRoot $runRoot
+    if (Test-Path -LiteralPath $runRoot) {
+        throw "The fresh verifier run directory could not be removed"
+    }
+    $report.source_snapshot.removed_after_run = $true
+    $report.status = "passed"
+    Assert-PassedReportSemanticConsistency -Report $report
+}
+catch {
+    $report.status = "failed"
+    $report.error = [pscustomobject][ordered]@{
+        type = $_.Exception.GetType().FullName
+        message = $_.Exception.Message
+    }
+    throw
+}
+finally {
+    if ($null -ne $runRoot -and (Test-Path -LiteralPath $runRoot)) {
+        try {
+            Remove-FreshRunRoot -RunRoot $runRoot
+            $report.source_snapshot.removed_after_run =
+                -not (Test-Path -LiteralPath $runRoot)
+        }
+        catch {
+            [Console]::Error.WriteLine(
+                "Could not remove fresh verifier run directory: " +
+                $_.Exception.Message)
+        }
+    }
+    $runCompleted = [System.DateTimeOffset]::UtcNow
+    $report.completed_at_utc = $runCompleted.ToString("o")
+    $report.duration_ms = [long](($runCompleted - $runStarted).TotalMilliseconds)
+    if (-not $NoReport) {
+        try {
+            Write-VerificationReport -Report $report -Destination $ReportPath
+            Write-Host ("Verification report: " + $ReportPath)
+        }
+        catch {
+            if ($report.status -eq "failed") {
+                [Console]::Error.WriteLine(
+                    "Could not write failed verification report: " +
+                    $_.Exception.Message)
+            }
+            else {
+                throw
+            }
+        }
+    }
 }

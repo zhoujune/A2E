@@ -569,18 +569,45 @@ C0 premise conjunction and conclusion are inhabited.
 
 T5-C0 verifies 783 cumulative obligations, 14 beyond T5-R0: 13 commit-delta,
 representation, mapped-prefix, and contextual bridge/export obligations plus
-the combined witness. The 35 registered targets contain 820 dependency-aware
-non-duplicated obligations. The oracle actions
+the combined witness. At that historical checkpoint, 35 registered targets
+contained 820 dependency-aware non-duplicated obligations. The oracle actions
 `RecoverRecordedFailure` and `QuarantineUncontrolled` are the executable
 counterparts of those two recovery-mode terminal records.
+
+H1 follows T5-C0 as an artifact/nonvacuity checkpoint. It defines a total
+`FullConfig` in which every request is uncontrolled, has no stable key, and has
+`max_attempts = 1`; every capability has unit budget and universal resource and
+argument scope; and every request/result pair is valid. `FullConfigWF` is proved
+directly, with deduplicated-key injectivity vacuous because the configuration
+contains no deduplicated request. The premise-free H1 package theorem combines
+that configuration, the inert context, and the six-event minimal contextual WAL
+recovery execution at `crash = 0`, `finish = 5`, and establishes the entire
+T5-C0 premise conjunction and conclusion. H1 adds 3 obligations: the total
+configuration witness, the concrete T5-C0 package, and its existential
+inhabitation theorem. The cumulative result is 786 verified obligations with
+zero errors; 36 registered targets contain 823 dependency-aware non-duplicated
+obligations.
+
+This H1 witness establishes consistency of the cumulative package, not a new
+recovery or adapter theorem. In particular, the concrete minimal execution does
+not exhibit a nonempty pre-crash commit history or an external effect. The
+Verus evidence report records SHA-256 hashes for its schema, every registered
+source, the runner, the toolchain lock, and the fresh Rust tree; complete
+source/import registration and immediate-predecessor checks are enforced, and
+Verus reads only an exact read-only source snapshot checked around each target.
+TLC separately runs from hash-checked per-run model and tool snapshots. Its
+manifest validation rejects duplicate names/configurations, invalid tiers or
+fields, missing inputs, and any unregistered `formal/*.cfg`, and its unique
+machine-readable report is enabled by default.
 
 The complete hierarchy is T1 parameterized Broker safety, T2 independent
 atomic-Journal runtime simulation, T3 typed-WAL simulation, completed T4-C0
 closed-machine composition, completed T4-C1 context observation and structural
 plugging, completed T4-C2 contextual replacement and composition, T5 committed-
 history prefix preservation, and T6 conditional end-to-end per-request effect
-refinement. T1--T5 are now complete; T6 is the next open proof frontier. Under the
-complete stated
+refinement. T1--T5 and H1 are now complete; T6-S0, the generic
+`TerminalEvidenceAndCompatibility` bridge, is the next open proof frontier.
+Under the complete stated
 persistence, mediation, context, and adapter rely conditions, the broker
 provides authorized, per-internal-request at-most-once logical completion and
 crash-stable abstract history. It does **not** claim physical exactly-once

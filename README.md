@@ -23,7 +23,9 @@ execution. T5-R0 proves exact committed-history equality from a selected
 `Crash` through the first later `FinishRecover`. T5-C0 completes T5 by proving
 committed-history equality at every canonical WAL-to-Broker mapped prefix and
 exporting recovery endpoint equality through the storage-parametric contextual
-replacement theorem.
+replacement theorem. H1 closes the cumulative artifact's configuration-level
+nonvacuity gap with a concrete well-formed configuration and binds verification
+evidence to the exact checked sources and toolchain.
 
 The first research target is deliberately smaller than a complete agent
 runtime. T1 establishes the Broker-side form of the claim:
@@ -54,7 +56,7 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   B1, C1, D1, Q1, B2-R, B2-C, B2-P0, B2-P1, B2-P2, B2-P3, B2-L, B2-A,
   G0, G1-P, G1-E, T1, T2-J0, T2-J1, T2-E, T2-R, T2, T3-W0,
   T3-W1-T, T3-W1-E, T3-W1-R, T3, T4-C0, T4-C1, T4-C2, T5-S0, T5-E0,
-  T5-R0, and T5-C0.
+  T5-R0, T5-C0, and H1.
   M0 checks a reduced atomic-Journal safety slice; R1 checks the complete typed record language and
   replay invariants; B1 checks a
   generic crash-reset append protocol and acknowledgment trace; C1 composes B1
@@ -110,6 +112,8 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   canonical mapped prefix, carries R0 equality to the mapped Broker prefixes at
   `mu[crash]` and `mu[finish + 1]`, and instantiates the complete contextual
   theorem on a six-event WAL recovery execution with seven inert context states.
+  H1 constructs a total `FullConfig`, proves it well formed, and unconditionally
+  inhabits the complete T5-C0 premise/conclusion package.
 - [Adapter refinement](formal/adapter-refinement.md) defines how concrete
   retries and outcomes denote abstract effects for each adapter class.
 - [Value refinement](formal/value-refinement.md) specifies and model-checks
@@ -134,21 +138,25 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   dependencies, coverage, and platform prerequisites.
 
 Run `powershell -ExecutionPolicy Bypass -File formal/check-model.ps1` to fetch
-the pinned model-checking runtime into the system temporary directory, verify
-its checksums, and explore the smoke and full configured state spaces. Add
-`-Suite smoke` for a fast regression run or `-Coverage` for TLC coverage data.
+the pinned model-checking runtime, validate complete configuration registration,
+copy the selected TLA+ inputs into an isolated read-only, hash-checked temporary
+snapshot, and explore the smoke and full state spaces. The runner emits a
+source-hashed JSON report by default. Add `-Suite smoke` for a fast regression
+run or `-Coverage` for TLC coverage data.
 Run `powershell -ExecutionPolicy Bypass -File mechanized/verify.ps1` to fetch
 the hash-pinned Verus and rustup artifacts plus the version-pinned Rust
-toolchain into an isolated temporary cache and check all mechanized targets.
+toolchain into a fresh per-run environment, verify from an exact read-only
+source snapshot, enforce the proof/import policy, and emit a source-hashed
+verification report with the observed Rust tree digest.
 The current result is M0 21, R1 86, B1 39, C1 128,
   D1 144, Q1 144, B2-R 169, B2-C 175, B2-P0 193, B2-P1 251, B2-P2 276,
   B2-P3 292, B2-L 310, B2-A 335, G0 342, G1-P 410, G1-E 429, T1 461,
   T2-J0 475, T2-J1 486, T2-E 508, T2-R 520, T2 531, T3-W0 577,
   T3-W1-T 588, T3-W1-E 626, T3-W1-R 641, T3 659, T4-C0 676, T4-C1 720,
-  T4-C2 734, T5-S0 743, T5-E0 747, T5-R0 769, and T5-C0 783 obligations, all
-  with zero errors. At T5-R0, 34 registered targets contained 806 dependency-
-  aware non-duplicated obligations; the completed T5-C0 registry has 35 targets
-  and 820 such obligations.
+  T4-C2 734, T5-S0 743, T5-E0 747, T5-R0 769, T5-C0 783, and H1 786
+  obligations, all with zero errors. At T5-R0, 34 registered targets contained
+  806 dependency-aware non-duplicated obligations; T5-C0 had 35 targets and 820;
+  the H1 registry has 36 targets and 823.
 
 ## Current boundary
 
@@ -302,4 +310,16 @@ seven identical inert context states proves that this premise conjunction and
 the final conclusion are inhabited. T5 does not transport `RecoveryEpisode` to
 the Broker event trace, equate full machine or context state across recovery,
 or interpret physical invocations as external effects. T6 is the next open
-theorem.
+semantic theorem.
+
+H1 is complete. Its concrete configuration maps every request to an
+uncontrolled, single-attempt request with no stable key and gives every
+capability unit budget with universal resource and argument scope. The
+premise-free H1 theorem instantiates the inert context and minimal contextual
+recovery execution, proving that the cumulative T5-C0 package is inhabited.
+This is a consistency result: the witness does not contain a nonempty pre-crash
+commit history or an external adapter effect. H1 also hardens the artifact
+boundary with isolated model/tool snapshots for TLC, strict manifest coverage,
+exact source snapshots and source-hashed Verus reports, immediate-parent import
+validation, and complete proof-policy scanning. T6-S0, the terminal evidence
+and compatibility bridge, is next.

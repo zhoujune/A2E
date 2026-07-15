@@ -15,8 +15,11 @@ finite forward contextual replacement. T5-S0 proves exact one-step committed-
 history laws for the Broker, atomic Journal, and typed WAL. T5-E0 lifts those
 laws over arbitrary finite execution intervals. T5-R0 proves exact recovery-
 episode equality and nonvacuity. T5-C0 proves all-prefix mapped committed-
-history equality and contextual mapped recovery endpoint preservation. T4 and
-T5 are therefore complete; the T6 end-to-end effect theorem remains open.
+history equality and contextual mapped recovery endpoint preservation. H1
+closes the cumulative artifact's remaining configuration-level nonvacuity gap
+with a concrete well-formed configuration and contextual recovery execution.
+T4 and T5 are therefore complete; the T6 end-to-end effect theorem remains
+open.
 
 ## M0: reduced atomic-Journal safety
 
@@ -738,6 +741,24 @@ trace: private WAL fibers can be erased, and the target endpoints are
 `mu[crash]` and `mu[finish + 1]`. It also makes no liveness, full-state,
 external-effect, byte-level WAL, or filesystem claim.
 
+## H1: cumulative artifact nonvacuity
+
+`h1_artifact_nonvacuity.rs` imports only T5-C0. It defines a concrete total
+`FullConfig`: every request is uncontrolled, has no stable key, and permits one
+attempt; every capability admits all resources and arguments with unit budget;
+and all request-result pairs are valid. The proof establishes
+`full_config_wf` directly. In particular, deduplicated-key injectivity is
+vacuous because no request is classified as deduplicated; it is not introduced
+as an assumption.
+
+The exported `h1_artifact_nonvacuity` theorem instantiates that configuration
+with T4's inert context and T5-C0's six-event minimal contextual recovery
+execution. It exhibits concrete witnesses with `crash == 0` and `finish == 5`
+for which all T5-C0 premises and the complete T5-C0 conclusion hold together.
+H1 therefore establishes inhabitation of the cumulative T1--T5 artifact, not
+external-effect refinement, a realistic adapter configuration, liveness, or
+byte-level implementation correctness. Those remain outside H1.
+
 ## Reproducible verification
 
 The toolchain is locked in `toolchain.lock.json`:
@@ -754,12 +775,41 @@ Run from the repository root:
 .\mechanized\verify.ps1
 ```
 
-The verifier downloads hash-pinned Verus and rustup artifacts, installs the
-version-pinned Rust toolchain in an isolated temporary cache, reconstructs the
-Verus executable tree from its checked archive on every run, restores the
-caller's environment, serializes cache access, rejects
-unsupported platforms, scans every proof target for forbidden proof escapes,
-and invokes Verus with `--no-cheating`.
+By default the run atomically writes the machine-readable evidence file
+`mechanized/results/verification-report.json`. `-ReportPath <path>` selects a
+different JSON destination, while `-NoReport` retains console-only operation.
+The report records run and per-target status/timestamps, the normative schema
+SHA256, every registered source SHA256, the verifier-driver and toolchain-lock
+SHA256 values, source-snapshot metadata, declared and observed toolchain
+metadata, target totals, contribution parents and deltas, and the running non-
+duplicated total.
+
+The verifier downloads hash-pinned Verus and rustup artifacts, reconstructs and
+tree-hashes the complete Verus executable tree from its checked archive, and
+installs the exact Rust
+version into fresh per-run `CARGO_HOME` and `RUSTUP_HOME` directories from the
+official rustup distribution endpoints. It records and rechecks a deterministic
+tree hash of that installation, restores the caller's environment, serializes
+shared-download access, and rejects unsupported platforms. The Rust tree hash
+is observed evidence; the Rust component tree is not independently pre-hashed
+in `toolchain.lock.json`.
+
+Before verification, every registered `.rs` file is copied into an exact flat,
+read-only per-run snapshot. Verus is invoked only on snapshot paths. The runner
+checks exact snapshot membership, source hashes, and read-only attributes before
+and after every target, while separately confirming the live registered sources,
+driver, lock, and report schema remain unchanged. It accepts only the repository's
+simple one-line `#[path = "file.rs"]` plus immediate `mod` grammar, rejects
+implicit or include-based module loading, requires every direct import to resolve
+to a registered source, and validates that each delta-counted cumulative target
+imports exactly its declared immediate predecessor.
+
+The lexical proof policy rejects `assume`, `admit`, axioms, external proof-body
+mechanisms, `get_Some`, `recommends`, and verifier resource-limit or spinoff
+constructs. All target-specific extra verifier arguments are rejected. Every
+target is invoked exactly with `--crate-type lib --no-cheating`; the driver
+checks target/source counts, parent-delta arithmetic, running totals, and final
+summary consistency before assigning `status: "passed"`.
 
 The current result is:
 
@@ -799,7 +849,8 @@ T5-S0 verified obligations: 743
 T5-E0 verified obligations: 747
 T5-R0 verified obligations: 769
 T5-C0 verified obligations: 783
-Non-duplicated verified artifact obligations: 820
+H1 verified obligations: 786
+Non-duplicated verified artifact obligations: 823
 ```
 
 C1's 128 obligations include the 86 R1 and 39 B1 obligations imported into the
@@ -846,13 +897,16 @@ equality across the Broker, Journal, and WAL. T5-C0 adds 14 obligations: 13 for
 event-delta translation, matched-or-erased step correspondence,
 representation-to-commit-history bridges, all-prefix mapped equality, mapped
 recovery endpoints, and contextual export; plus 1 combined inert-context
-recovery witness that instantiates the final theorem.
+recovery witness that instantiates the final theorem. H1 adds 3 obligations for
+the concrete total configuration, the concrete T5-C0 premise/conclusion
+package, and the final existential artifact-nonvacuity theorem.
 The non-duplicated total therefore
 counts M0, C1, each independent D1/Q1 delta, the B2-R delta over Q1, and the
-B2-C through T5-C0 deltas along their dependency chain. The registry now
-contains 35 Verus targets and 820 non-duplicated obligations. At the historical
-T5-R0 checkpoint, 34 targets contained 806 non-duplicated obligations.
+B2-C through H1 deltas along their dependency chain. The registry now contains
+36 Verus targets and 823 non-duplicated obligations. At the historical T5-C0
+checkpoint, 35 targets contained 820 non-duplicated obligations; at T5-R0, 34
+targets contained 806.
 
-The next checkpoint is T6: the terminal-evidence, complete-mediation, protected-
+The next checkpoint is T6-S0: the terminal-evidence, complete-mediation, protected-
 handle, and adapter-rely bridge from the completed T1--T5 safety stack to
 per-request external-effect refinement.

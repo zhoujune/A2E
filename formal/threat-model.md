@@ -170,9 +170,10 @@ physical at-most-once behavior.
 | Abstract transition system | Model checked in finite instances; arbitrary finite request-to-capability maps are configuration parameters | TLA+ exploration plus machine-checked T1 Broker safety and T2 atomic-Journal simulation |
 | Rust broker core | To be verified | Verus functional-correctness proof |
 | Adapter retry declaration | Trusted per adapter | Replaced by an adapter refinement proof |
-| Abstract Journal interface | T2 proves atomic-Journal-to-Broker simulation; T4-C0 closes WAL-to-Broker composition; T4-C1 establishes structural three-backend plugging; T4-C2 proves storage-parametric finite forward contextual replacement; T5-S0 proves exact one-step committed-history laws; T5-E0 proves finite execution-interval monotonicity; T5-R0 proves exact first-Finish recovery equality; T5-C0 exports the equality through the canonical contextual map and completes T5 | T6 terminal/effect refinement remains |
+| Abstract Journal interface | T2 proves atomic-Journal-to-Broker simulation; T4-C0 closes WAL-to-Broker composition; T4-C1 establishes structural three-backend plugging; T4-C2 proves storage-parametric finite forward contextual replacement; T5-S0 proves exact one-step committed-history laws; T5-E0 proves finite execution-interval monotonicity; T5-R0 proves exact first-Finish recovery equality; T5-C0 exports the equality through the canonical contextual map and completes T5; H1 proves the cumulative package inhabited under a concrete total configuration | T6-S0 terminal evidence/compatibility and subsequent adapter/effect refinement remain |
 | WAL model and implementation | Bounded typed-frame refinement with interruptible scan checked; implementation unverified | Extend `WAL -> Journal` to byte decoding, checksums, partial truncation, flush/fsync, atomic-write, and filesystem assumptions |
-| Rust compiler and Verus toolchain | Trusted | Document versions and soundness assumptions |
+| Rust compiler and Verus toolchain | Trusted; the Verus and rustup archives are hash pinned, while the exact Rust version is freshly installed from the official rustup service and recorded by tree hash | Document versions and soundness assumptions; retain source-hashed verification reports |
+| Verification evidence pipeline | Verus runs on an exact source snapshot and reports schema/source/runner/lock/tool hashes and counts; TLC runs from isolated model/tool snapshots and reports them by hash | Preserve complete source/import and configuration-manifest coverage; reports do not remove trust in Verus, TLC, Rust distribution services, Java, PowerShell, or SHA-256 implementations |
 | OS, filesystem, hardware | Trusted below persistence contract | State exact flush and atomic-write assumptions |
 | Serialization/front end | Untrusted input boundary | Validate before constructing an admitted request |
 | TLS and remote service | Environment | State authenticity and retry assumptions per adapter |
@@ -237,12 +238,23 @@ the same `alpha_commit` at every mapped prefix and in particular at
 configurations `mu[crash]` and `mu[finish + 1]`. It retains the complete T4-C2
 contextual replacement conclusion. Its target verifies 783 obligations, 14
 beyond R0: 13 bridge/export obligations and one combined inert-context
-nonvacuity obligation. Across 35 registered targets, the current
-dependency-aware non-duplicated total is 820. T5 is complete and T6 is next.
+nonvacuity obligation. At that historical checkpoint, 35 registered targets
+contained 820 dependency-aware non-duplicated obligations. H1 then constructs a
+total `FullConfig`: every request is uncontrolled with no stable key and one
+attempt, every capability has unit budget and universal resource/argument
+scope, and every request/result pair is valid. It proves this configuration
+well formed and, without premises, instantiates the inert context and minimal
+six-event recovery execution at `crash = 0`, `finish = 5`, so that the complete
+T5-C0 premise conjunction and conclusion hold together. H1 adds 3 obligations,
+for 786 cumulative obligations; the current 36 registered targets contain 823
+dependency-aware non-duplicated obligations. T5 and H1 are complete, and T6-S0
+is next.
 This is mapped configuration-prefix equality, not a transported target Broker
 `RecoveryEpisode`; it uses `mu[finish + 1]`, not `mu[finish]`, and proves no
 liveness, full-state equality, external-effect refinement, or byte-level
-WAL/filesystem correctness. The
+WAL/filesystem correctness. H1 is only an inhabitance result: its minimal
+witness does not demonstrate a nonempty pre-crash commit history or a real
+adapter effect. The
 product checks `BrokerDurable = Replay(Parse(media))`, synchronized WAL/Broker
 crash control, Broker-stuttering scan/truncation/abort phases, recovery-only
 terminal staging, WAL-quiescence-gated response acceptance, and acknowledged
@@ -428,7 +440,14 @@ execution-interval monotonicity. T5-R0 now proves exact equality from `Crash`
 through the first `FinishRecover`, including a mechanically inhabited repeated-
 Crash episode. T5-C0 completes the mapped T4 bridge/export, including the
 combined inert-context recovery witness, and closes theorem T5. T6 is the next
-theorem checkpoint.
+semantic layer; T6-S0, `TerminalEvidenceAndCompatibility`, is its next theorem
+checkpoint. H1 additionally supplies a concrete total
+configuration/package witness and hardened evidence capture: the Verus runner
+checks an exact read-only source snapshot around every target and records its
+schema, sources, runner, lock, and fresh Rust tree by hash; the TLC runner
+rejects malformed, duplicate, missing, or unregistered manifest configurations
+and executes from exact per-run model and tool snapshots. These controls
+establish artifact provenance, not external semantics.
 
 The parameterized proof is organized as
 [T1 Broker safety](mechanization-contract.md#t1-parameterized-broker-safety),

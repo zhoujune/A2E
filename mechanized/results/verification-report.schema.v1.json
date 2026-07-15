@@ -1,0 +1,621 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vetra:schema:verus-verification-report:1",
+  "title": "Vetra Verus Verification Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schema_version",
+    "schema_path",
+    "schema_sha256",
+    "status",
+    "started_at_utc",
+    "completed_at_utc",
+    "duration_ms",
+    "error",
+    "environment",
+    "policy",
+    "source_snapshot",
+    "toolchain",
+    "summary",
+    "targets"
+  ],
+  "properties": {
+    "schema": {
+      "const": "vetra.verus-verification-report"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "schema_path": {
+      "const": "mechanized/results/verification-report.schema.v1.json"
+    },
+    "schema_sha256": {
+      "$ref": "#/$defs/nullableSha256"
+    },
+    "status": {
+      "enum": ["running", "passed", "failed"]
+    },
+    "started_at_utc": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "completed_at_utc": {
+      "$ref": "#/$defs/nullableTimestamp"
+    },
+    "duration_ms": {
+      "$ref": "#/$defs/nullableNonnegativeInteger"
+    },
+    "error": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/error" }
+      ]
+    },
+    "environment": {
+      "$ref": "#/$defs/environment"
+    },
+    "policy": {
+      "$ref": "#/$defs/policy"
+    },
+    "source_snapshot": {
+      "$ref": "#/$defs/sourceSnapshot"
+    },
+    "toolchain": {
+      "$ref": "#/$defs/toolchain"
+    },
+    "summary": {
+      "$ref": "#/$defs/summary"
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/target"
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "nullableSha256": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/sha256" }
+      ]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "nullableTimestamp": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/timestamp" }
+      ]
+    },
+    "nullableString": {
+      "type": ["string", "null"]
+    },
+    "nullableBoolean": {
+      "type": ["boolean", "null"]
+    },
+    "nullableNonnegativeInteger": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "message"],
+      "properties": {
+        "type": { "type": "string", "minLength": 1 },
+        "message": { "type": "string", "minLength": 1 }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "os_description",
+        "os_architecture",
+        "process_architecture",
+        "powershell_version"
+      ],
+      "properties": {
+        "os_description": { "type": "string", "minLength": 1 },
+        "os_architecture": { "type": "string", "minLength": 1 },
+        "process_architecture": { "type": "string", "minLength": 1 },
+        "powershell_version": { "type": "string", "minLength": 1 }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "no_cheating",
+        "source_scan_is_case_insensitive",
+        "forbidden_source_pattern",
+        "forbidden_extra_argument_pattern",
+        "nonempty_extra_arguments_rejected",
+        "simple_path_module_grammar_enforced",
+        "complete_registered_source_coverage",
+        "all_direct_path_imports_registered",
+        "cumulative_parent_imports_validated"
+      ],
+      "properties": {
+        "status": { "enum": ["pending", "passed"] },
+        "no_cheating": { "type": "boolean" },
+        "source_scan_is_case_insensitive": { "type": "boolean" },
+        "forbidden_source_pattern": { "type": "string", "minLength": 1 },
+        "forbidden_extra_argument_pattern": { "type": "string", "minLength": 1 },
+        "nonempty_extra_arguments_rejected": { "type": "boolean" },
+        "simple_path_module_grammar_enforced": { "type": "boolean" },
+        "complete_registered_source_coverage": { "type": "boolean" },
+        "all_direct_path_imports_registered": { "type": "boolean" },
+        "cumulative_parent_imports_validated": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "sourceSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "run_id",
+        "created_at_utc",
+        "source_file_count",
+        "manifest_sha256",
+        "exact_membership_validated",
+        "source_hashes_match_registry",
+        "all_files_read_only",
+        "pre_target_validation_count",
+        "post_target_validation_count",
+        "final_validation_passed",
+        "removed_after_run"
+      ],
+      "properties": {
+        "kind": { "const": "isolated-read-only-copy" },
+        "run_id": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+        "created_at_utc": { "$ref": "#/$defs/nullableTimestamp" },
+        "source_file_count": { "$ref": "#/$defs/nullableNonnegativeInteger" },
+        "manifest_sha256": { "$ref": "#/$defs/nullableSha256" },
+        "exact_membership_validated": { "type": "boolean" },
+        "source_hashes_match_registry": { "type": "boolean" },
+        "all_files_read_only": { "type": "boolean" },
+        "pre_target_validation_count": { "type": "integer", "minimum": 0 },
+        "post_target_validation_count": { "type": "integer", "minimum": 0 },
+        "final_validation_passed": { "type": "boolean" },
+        "removed_after_run": { "type": "boolean" }
+      }
+    },
+    "declaredTool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "platform", "archive", "url", "sha256"],
+      "properties": {
+        "version": { "type": "string", "minLength": 1 },
+        "platform": { "type": "string", "minLength": 1 },
+        "archive": { "type": "string", "minLength": 1 },
+        "url": { "type": "string", "format": "uri" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "declaredToolchain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["verus", "rustup", "rust"],
+      "properties": {
+        "verus": { "$ref": "#/$defs/declaredTool" },
+        "rustup": { "$ref": "#/$defs/declaredTool" },
+        "rust": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["toolchain"],
+          "properties": {
+            "toolchain": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "observedToolchain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "verus_archive_sha256",
+        "verus_executable_sha256",
+        "verus_tree_sha256",
+        "verus_tree_file_count",
+        "verus_tree_unchanged",
+        "verus_version",
+        "rustup_archive_sha256",
+        "rustup_executable_sha256",
+        "rustup_version",
+        "rustc_executable_sha256",
+        "rustc_version",
+        "cargo_executable_sha256",
+        "rust_toolchain_tree_sha256",
+        "rust_toolchain_file_count",
+        "rust_toolchain_tree_unchanged",
+        "fresh_rust_environment",
+        "rustup_dist_server",
+        "rustup_update_root"
+      ],
+      "properties": {
+        "verus_archive_sha256": { "$ref": "#/$defs/nullableSha256" },
+        "verus_executable_sha256": { "$ref": "#/$defs/nullableSha256" },
+        "verus_tree_sha256": { "$ref": "#/$defs/nullableSha256" },
+        "verus_tree_file_count": { "$ref": "#/$defs/nullableNonnegativeInteger" },
+        "verus_tree_unchanged": { "type": "boolean" },
+        "verus_version": { "$ref": "#/$defs/nullableString" },
+        "rustup_archive_sha256": { "$ref": "#/$defs/nullableSha256" },
+        "rustup_executable_sha256": { "$ref": "#/$defs/nullableSha256" },
+        "rustup_version": { "$ref": "#/$defs/nullableString" },
+        "rustc_executable_sha256": { "$ref": "#/$defs/nullableSha256" },
+        "rustc_version": { "$ref": "#/$defs/nullableString" },
+        "cargo_executable_sha256": { "$ref": "#/$defs/nullableSha256" },
+        "rust_toolchain_tree_sha256": { "$ref": "#/$defs/nullableSha256" },
+        "rust_toolchain_file_count": { "$ref": "#/$defs/nullableNonnegativeInteger" },
+        "rust_toolchain_tree_unchanged": { "type": "boolean" },
+        "fresh_rust_environment": { "type": "boolean" },
+        "rustup_dist_server": { "$ref": "#/$defs/nullableString" },
+        "rustup_update_root": { "$ref": "#/$defs/nullableString" }
+      }
+    },
+    "toolchain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lock_path",
+        "lock_sha256",
+        "verification_driver_path",
+        "verification_driver_sha256",
+        "declared",
+        "observed"
+      ],
+      "properties": {
+        "lock_path": { "const": "mechanized/toolchain.lock.json" },
+        "lock_sha256": { "$ref": "#/$defs/nullableSha256" },
+        "verification_driver_path": { "const": "mechanized/verify.ps1" },
+        "verification_driver_sha256": { "$ref": "#/$defs/sha256" },
+        "declared": {
+          "oneOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/declaredToolchain" }
+          ]
+        },
+        "observed": { "$ref": "#/$defs/observedToolchain" }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "registered_target_count",
+        "registered_source_count",
+        "present_source_count",
+        "verified_target_count",
+        "sum_of_target_obligations",
+        "non_duplicated_verified_obligations"
+      ],
+      "properties": {
+        "registered_target_count": { "type": "integer", "minimum": 1 },
+        "registered_source_count": { "type": "integer", "minimum": 1 },
+        "present_source_count": { "$ref": "#/$defs/nullableNonnegativeInteger" },
+        "verified_target_count": { "type": "integer", "minimum": 0 },
+        "sum_of_target_obligations": { "type": "integer", "minimum": 0 },
+        "non_duplicated_verified_obligations": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "source_path",
+        "source_sha256",
+        "snapshot_source_path",
+        "direct_path_imports",
+        "contribution_mode",
+        "contribution_parent",
+        "immediate_parent_import_validated",
+        "verus_arguments",
+        "status",
+        "started_at_utc",
+        "completed_at_utc",
+        "duration_ms",
+        "verified_obligations_total",
+        "verus_errors",
+        "verus_exit_code",
+        "contribution_delta",
+        "non_duplicated_total_after",
+        "error"
+      ],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "source_path": { "type": "string", "pattern": "^mechanized/.+\\.rs$" },
+        "source_sha256": { "$ref": "#/$defs/nullableSha256" },
+        "snapshot_source_path": {
+          "type": "string",
+          "pattern": "^sources/[A-Za-z0-9][A-Za-z0-9._-]*\\.rs$"
+        },
+        "direct_path_imports": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "contribution_mode": { "enum": ["full", "excluded", "parent_delta"] },
+        "contribution_parent": { "$ref": "#/$defs/nullableString" },
+        "immediate_parent_import_validated": { "$ref": "#/$defs/nullableBoolean" },
+        "verus_arguments": {
+          "type": "array",
+          "prefixItems": [
+            { "const": "--crate-type" },
+            { "const": "lib" },
+            { "const": "--no-cheating" }
+          ],
+          "items": false,
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "status": { "enum": ["pending", "running", "passed", "failed"] },
+        "started_at_utc": { "$ref": "#/$defs/nullableTimestamp" },
+        "completed_at_utc": { "$ref": "#/$defs/nullableTimestamp" },
+        "duration_ms": { "$ref": "#/$defs/nullableNonnegativeInteger" },
+        "verified_obligations_total": { "$ref": "#/$defs/nullableNonnegativeInteger" },
+        "verus_errors": { "$ref": "#/$defs/nullableNonnegativeInteger" },
+        "verus_exit_code": { "type": ["integer", "null"] },
+        "contribution_delta": { "$ref": "#/$defs/nullableNonnegativeInteger" },
+        "non_duplicated_total_after": { "$ref": "#/$defs/nullableNonnegativeInteger" },
+        "error": { "$ref": "#/$defs/nullableString" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "contribution_mode": { "const": "parent_delta" } },
+            "required": ["contribution_mode"]
+          },
+          "then": {
+            "properties": {
+              "contribution_parent": { "type": "string", "minLength": 1 }
+            }
+          },
+          "else": {
+            "properties": {
+              "contribution_parent": { "type": "null" },
+              "immediate_parent_import_validated": { "type": "null" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": { "const": "passed" },
+              "contribution_mode": { "const": "parent_delta" }
+            },
+            "required": ["status", "contribution_mode"]
+          },
+          "then": {
+            "properties": {
+              "immediate_parent_import_validated": { "const": true },
+              "direct_path_imports": { "minItems": 1, "maxItems": 1 }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": { "const": "passed" },
+              "contribution_mode": { "const": "excluded" }
+            },
+            "required": ["status", "contribution_mode"]
+          },
+          "then": {
+            "properties": { "contribution_delta": { "const": 0 } }
+          }
+        },
+        {
+          "if": {
+            "properties": { "status": { "const": "pending" } },
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "started_at_utc": { "type": "null" },
+              "completed_at_utc": { "type": "null" },
+              "duration_ms": { "type": "null" },
+              "verified_obligations_total": { "type": "null" },
+              "verus_errors": { "type": "null" },
+              "verus_exit_code": { "type": "null" },
+              "contribution_delta": { "type": "null" },
+              "non_duplicated_total_after": { "type": "null" },
+              "error": { "type": "null" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "status": { "const": "running" } },
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "started_at_utc": { "$ref": "#/$defs/timestamp" },
+              "completed_at_utc": { "type": "null" },
+              "duration_ms": { "type": "null" },
+              "error": { "type": "null" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "status": { "const": "passed" } },
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "started_at_utc": { "$ref": "#/$defs/timestamp" },
+              "completed_at_utc": { "$ref": "#/$defs/timestamp" },
+              "duration_ms": { "type": "integer", "minimum": 0 },
+              "verified_obligations_total": { "type": "integer", "minimum": 0 },
+              "verus_errors": { "const": 0 },
+              "verus_exit_code": { "const": 0 },
+              "contribution_delta": { "type": "integer", "minimum": 0 },
+              "non_duplicated_total_after": { "type": "integer", "minimum": 0 },
+              "error": { "type": "null" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "status": { "const": "failed" } },
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "started_at_utc": { "$ref": "#/$defs/timestamp" },
+              "completed_at_utc": { "$ref": "#/$defs/timestamp" },
+              "duration_ms": { "type": "integer", "minimum": 0 },
+              "error": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "status": { "const": "running" } },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "completed_at_utc": { "type": "null" },
+          "duration_ms": { "type": "null" },
+          "error": { "type": "null" }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "status": { "const": "passed" } },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "schema_sha256": { "$ref": "#/$defs/sha256" },
+          "completed_at_utc": { "$ref": "#/$defs/timestamp" },
+          "duration_ms": { "type": "integer", "minimum": 0 },
+          "error": { "type": "null" },
+          "policy": {
+            "properties": {
+              "status": { "const": "passed" },
+              "no_cheating": { "const": true },
+              "source_scan_is_case_insensitive": { "const": true },
+              "nonempty_extra_arguments_rejected": { "const": true },
+              "simple_path_module_grammar_enforced": { "const": true },
+              "complete_registered_source_coverage": { "const": true },
+              "all_direct_path_imports_registered": { "const": true },
+              "cumulative_parent_imports_validated": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "source_snapshot": {
+            "properties": {
+              "created_at_utc": { "$ref": "#/$defs/timestamp" },
+              "source_file_count": { "type": "integer", "minimum": 1 },
+              "manifest_sha256": { "$ref": "#/$defs/sha256" },
+              "exact_membership_validated": { "const": true },
+              "source_hashes_match_registry": { "const": true },
+              "all_files_read_only": { "const": true },
+              "pre_target_validation_count": { "type": "integer", "minimum": 1 },
+              "post_target_validation_count": { "type": "integer", "minimum": 1 },
+              "final_validation_passed": { "const": true },
+              "removed_after_run": { "const": true }
+            }
+          },
+          "toolchain": {
+            "properties": {
+              "lock_sha256": { "$ref": "#/$defs/sha256" },
+              "declared": { "$ref": "#/$defs/declaredToolchain" },
+              "observed": {
+                "properties": {
+                  "verus_archive_sha256": { "$ref": "#/$defs/sha256" },
+                  "verus_executable_sha256": { "$ref": "#/$defs/sha256" },
+                  "verus_tree_sha256": { "$ref": "#/$defs/sha256" },
+                  "verus_tree_file_count": { "type": "integer", "minimum": 1 },
+                  "verus_tree_unchanged": { "const": true },
+                  "verus_version": { "type": "string", "minLength": 1 },
+                  "rustup_archive_sha256": { "$ref": "#/$defs/sha256" },
+                  "rustup_executable_sha256": { "$ref": "#/$defs/sha256" },
+                  "rustup_version": { "type": "string", "minLength": 1 },
+                  "rustc_executable_sha256": { "$ref": "#/$defs/sha256" },
+                  "rustc_version": { "type": "string", "minLength": 1 },
+                  "cargo_executable_sha256": { "$ref": "#/$defs/sha256" },
+                  "rust_toolchain_tree_sha256": { "$ref": "#/$defs/sha256" },
+                  "rust_toolchain_file_count": { "type": "integer", "minimum": 1 },
+                  "rust_toolchain_tree_unchanged": { "const": true },
+                  "fresh_rust_environment": { "const": true },
+                  "rustup_dist_server": {
+                    "const": "https://static.rust-lang.org"
+                  },
+                  "rustup_update_root": {
+                    "const": "https://static.rust-lang.org/rustup"
+                  }
+                }
+              }
+            }
+          },
+          "summary": {
+            "properties": {
+              "present_source_count": { "type": "integer", "minimum": 1 },
+              "verified_target_count": { "type": "integer", "minimum": 1 },
+              "sum_of_target_obligations": { "type": "integer", "minimum": 1 },
+              "non_duplicated_verified_obligations": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "targets": {
+            "items": {
+              "properties": {
+                "source_sha256": { "$ref": "#/$defs/sha256" },
+                "status": { "const": "passed" },
+                "started_at_utc": { "$ref": "#/$defs/timestamp" },
+                "completed_at_utc": { "$ref": "#/$defs/timestamp" },
+                "duration_ms": { "type": "integer", "minimum": 0 },
+                "verified_obligations_total": { "type": "integer", "minimum": 0 },
+                "verus_errors": { "const": 0 },
+                "verus_exit_code": { "const": 0 },
+                "contribution_delta": { "type": "integer", "minimum": 0 },
+                "non_duplicated_total_after": { "type": "integer", "minimum": 0 },
+                "error": { "type": "null" }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "status": { "const": "failed" } },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "completed_at_utc": { "$ref": "#/$defs/timestamp" },
+          "duration_ms": { "type": "integer", "minimum": 0 },
+          "error": { "$ref": "#/$defs/error" }
+        }
+      }
+    }
+  ]
+}

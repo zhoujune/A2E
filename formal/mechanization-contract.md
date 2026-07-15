@@ -7,14 +7,19 @@ mechanization. The TLA+ modules remain executable finite models of the design;
 where their finite constants or proof shadows differ from this document, this
 document defines the unbounded theorem statement.
 
-The cumulative Verus target through the completed T5-C0 checkpoint verifies
-783 proof obligations with zero errors. Across 35 registered targets, the
-dependency-aware non-duplicated total is 820 obligations. T4-C2 closes theorem
-T4 with canonical finite forward contextual replacement. T5-S0 proves the
-exact one-step committed-history laws, T5-E0 lifts them over arbitrary finite
-execution intervals, T5-R0 proves exact first-`FinishRecover` episode equality,
-and T5-C0 exports those equalities through T4's canonical contextual map.
-Theorem T5 is complete; T6 is the next theorem checkpoint.
+The cumulative Verus target through the completed H1 artifact/nonvacuity
+checkpoint verifies 786 proof obligations with zero errors. Across 36
+registered targets, the dependency-aware non-duplicated total is 823
+obligations. The preceding T5-C0 checkpoint remains a historical boundary: it
+verified 783 cumulative obligations across 35 targets and 820 non-duplicated
+obligations. T4-C2 closes theorem T4 with canonical finite forward contextual
+replacement. T5-S0 proves the exact one-step committed-history laws, T5-E0
+lifts them over arbitrary finite execution intervals, T5-R0 proves exact first-
+`FinishRecover` episode equality, and T5-C0 exports those equalities through
+T4's canonical contextual map. H1 proves the resulting premise/conclusion
+package inhabited under a concrete total configuration and records the hardened
+artifact evidence. Theorem T5 and H1 are complete; T6-S0 is the next theorem
+checkpoint.
 
 Theorem V1 is a safety and refinement theorem for arbitrary **finite**
 executions. It assumes one globally serialized WAL writer and one globally
@@ -1744,7 +1749,64 @@ not transport `RecoveryEpisode` to the target Broker event trace. T5 as a whole
 does not prove recovery liveness, full-state equality, external-effect
 refinement, or byte-level WAL/filesystem correctness.
 
-Theorem T5 is complete. The next theorem checkpoint is T6.
+Theorem T5 is complete. H1 below checks that its cumulative package is
+inhabited. The next semantic theorem checkpoint is T6-S0.
+
+### H1. Artifact and nonvacuity checkpoint
+
+H1 imports only T5-C0 and defines a concrete total `FullConfig`. For every
+request identifier, the request map returns an uncontrolled request with no
+stable key and `max_attempts = 1`. For every capability identifier, the
+capability map returns unit budget and universal resource and argument sets.
+The valid-result relation is universal. The mechanization proves
+`FullConfigWF` directly. In particular, stable-key injectivity is discharged
+vacuously because the witness contains no deduplicated request; it is not an
+extra assumption.
+
+Let `Cfg_H1` be this configuration, `Inert(Cfg_H1,0)` T4's inert context, and
+`MinRecovery(Cfg_H1,0)` T5-C0's six-event, seven-state plugged WAL execution.
+The H1 package predicate is
+
+```text
+T5C0Package(Cfg,Ctxt,tau,crash,finish) :=
+  FullConfigWF(Cfg)
+  and StorageParametricContext(Cfg,Ctxt)
+  and PluggedWalExec(Cfg,Ctxt,tau)
+  and RecoveryEpisode(tau.machine.events,crash,finish)
+  and T5C0Statement(Cfg,Ctxt,tau,crash,finish).
+```
+
+The two exported H1 results have no premises:
+
+```text
+T5C0Package(Cfg_H1,Inert(Cfg_H1,0),MinRecovery(Cfg_H1,0),0,5)
+
+exists Cfg,Ctxt,tau,crash,finish.
+  Cfg = Cfg_H1
+  and crash = 0
+  and finish = 5
+  and T5C0Package(Cfg,Ctxt,tau,crash,finish).
+```
+
+H1 adds 3 obligations beyond T5-C0: well-formedness of the concrete total
+configuration, the concrete T5-C0 package, and existential cumulative-artifact
+inhabitation. Its cumulative target verifies 786 obligations with zero errors;
+36 registered targets contain 823 dependency-aware non-duplicated obligations.
+This is a satisfiability result, not a stronger recovery theorem. The concrete
+minimal witness does not exhibit a nonempty pre-crash commit history, realistic
+adapter behavior, an external effect, liveness, or byte-level persistence.
+
+The artifact evidence is part of H1's reproducibility boundary. The Verus
+runner reports SHA-256 hashes for its schema, every registered source, the
+runner, the toolchain lock, and the fresh Rust tree. It invokes Verus only on an
+exact read-only source snapshot, requires complete source/import registration,
+and validates each cumulative target's immediate predecessor. The TLC runner
+validates exact manifest fields, unique scenario names and configurations, the
+`smoke`/`full` tier alphabet, input existence, and registration of every
+`formal/*.cfg`. It runs only from exact per-run model and tool snapshots and
+checks their membership and hashes around each invocation. Both runners require
+their bound metadata inputs to remain stable. These controls bind reports to
+checked inputs; they do not enlarge the semantic theorem.
 
 ### T6. Conditional end-to-end theorem
 
@@ -1838,10 +1900,15 @@ group has only backward dependencies.
     interval monotonicity, and T5-R0 Crash-to-first-`FinishRecover` equality;
     export the exact endpoint equalities through T4's canonical contextual map
     in T5-C0 and close theorem T5.
-12. **Terminal bridge and adapters:** prove
-    `TerminalEvidenceAndCompatibility`, then class-specific adapter lemmas,
-    successful-value refinement, and `AdapterVerified` instances.
-13. **End to end:** combine T1--T5, the terminal bridge, and each adapter
+12. **Artifact nonvacuity (completed H1):** construct a total well-formed
+    configuration, instantiate the complete T5-C0 package without premises,
+    and bind verification reports to the checked source snapshots.
+13. **Terminal bridge (T6-S0):** prove
+    `TerminalEvidenceAndCompatibility` from the completed T1--T5 safety and
+    provenance stack under the stated run and adapter-rely premises.
+14. **Adapters:** prove class-specific adapter lemmas, successful-value
+    refinement, and `AdapterVerified` instances.
+15. **End to end:** combine T1--T5, the terminal bridge, and each adapter
     instance to prove T6.
 
 The first executable proof checkpoint is groups 1--5 over the atomic Journal

@@ -11,7 +11,7 @@ formal/results/*.json
 !formal/results/schema.json
 !formal/results/h1-full.result.json
 
-# Retain the current H1 Verus evidence and its versioned schema.
+# Retain the current Verus evidence and its versioned schema.
 mechanized/results/*.json
 !mechanized/results/verification-report.json
 !mechanized/results/verification-report.schema.v1.json

@@ -86,11 +86,27 @@ below is derived from this relation; it is not by itself a functional
 correctness proof.
 
 Theorem V1 makes the rely explicit as
-`AdapterRely(Cfg,tau,r,run)` and packages the class relation as
-`Refines(Cfg,r,eta_r,run,o)`. `AdapterVerified(Cfg)` proves once per adapter
-that compatible Broker outcome evidence implies that relation. T6 then
+`AdapterRely(P,tau,r,run)` and packages the class relation as
+`Refines(P,r,eta_r,run,o)`. Here `P : PaperConfig<Adapter<X,I>>` contains the
+adapter interpretation and `Cfg = paper_broker_config(P) : FullConfig` is the
+derived broker configuration. A concrete adapter theorem must establish
+`AdapterVerified(P)` uniformly over every compatible well-formed `P`; an
+end-to-end instance then assumes it for its selected `P`. T6 then
 concludes `PerRequestEffectRefinement` for every terminal request. This is a
 per-request result, not global linearizability across adapters or requests.
+
+T6-D0 freezes this interface in Verus. An `ExternalRun<X,I>` contains the only
+pre- and post-state values passed to the effect and result relations.
+Standalone `AdapterRelyTrace(P,...)` inputs must contain only events for their
+named request. `Delivery` and `TerminalRecord` return `Some` only for unique
+matching evidence. The broker-only predicate
+`OutcomeEvidence(Cfg,j,r,eta,o)` takes the derived `FullConfig` explicitly
+because the Unknown branch checks a configuration-dependent structural rule.
+Commit and Fail references are resolved only in the strict prefix preceding
+their terminal record. The Unknown guard/anchor decomposition is proved equal
+to the replay layer's rule, preventing the two definitions from silently
+drifting.
+These definitions do not themselves establish the T6 bridge.
 
 ## 4. Abstract effect summary
 

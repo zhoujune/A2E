@@ -25,7 +25,11 @@ committed-history equality at every canonical WAL-to-Broker mapped prefix and
 exporting recovery endpoint equality through the storage-parametric contextual
 replacement theorem. H1 closes the cumulative artifact's configuration-level
 nonvacuity gap with a concrete well-formed configuration and binds verification
-evidence to the exact checked sources and toolchain.
+evidence to the exact checked sources and toolchain. T6-D0 then freezes the
+request-local adapter rely, duplicate-rejecting terminal and delivery
+selectors, configuration-explicit outcome evidence, compatibility branches,
+and separate Journal/WAL bridge statement boundaries without claiming the
+bridge theorem.
 
 The first research target is deliberately smaller than a complete agent
 runtime. T1 establishes the Broker-side form of the claim:
@@ -56,7 +60,7 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   B1, C1, D1, Q1, B2-R, B2-C, B2-P0, B2-P1, B2-P2, B2-P3, B2-L, B2-A,
   G0, G1-P, G1-E, T1, T2-J0, T2-J1, T2-E, T2-R, T2, T3-W0,
   T3-W1-T, T3-W1-E, T3-W1-R, T3, T4-C0, T4-C1, T4-C2, T5-S0, T5-E0,
-  T5-R0, T5-C0, and H1.
+  T5-R0, T5-C0, H1, and T6-D0.
   M0 checks a reduced atomic-Journal safety slice; R1 checks the complete typed record language and
   replay invariants; B1 checks a
   generic crash-reset append protocol and acknowledgment trace; C1 composes B1
@@ -113,7 +117,10 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   `mu[crash]` and `mu[finish + 1]`, and instantiates the complete contextual
   theorem on a six-event WAL recovery execution with seven inert context states.
   H1 constructs a total `FullConfig`, proves it well formed, and unconditionally
-  inhabits the complete T5-C0 premise/conclusion package.
+  inhabits the complete T5-C0 premise/conclusion package. T6-D0 introduces the
+  complete adapter/terminal definition surface, verifies unique selector and
+  branch-unfolding sanity obligations, and fixes one shared core plus separate
+  Journal and WAL T6-S0 statements.
 - [Adapter refinement](formal/adapter-refinement.md) defines how concrete
   retries and outcomes denote abstract effects for each adapter class.
 - [Value refinement](formal/value-refinement.md) specifies and model-checks
@@ -153,10 +160,10 @@ The current result is M0 21, R1 86, B1 39, C1 128,
   B2-P3 292, B2-L 310, B2-A 335, G0 342, G1-P 410, G1-E 429, T1 461,
   T2-J0 475, T2-J1 486, T2-E 508, T2-R 520, T2 531, T3-W0 577,
   T3-W1-T 588, T3-W1-E 626, T3-W1-R 641, T3 659, T4-C0 676, T4-C1 720,
-  T4-C2 734, T5-S0 743, T5-E0 747, T5-R0 769, T5-C0 783, and H1 786
-  obligations, all with zero errors. At T5-R0, 34 registered targets contained
+  T4-C2 734, T5-S0 743, T5-E0 747, T5-R0 769, T5-C0 783, H1 786, and T6-D0
+  799 obligations, all with zero errors. At T5-R0, 34 registered targets contained
   806 dependency-aware non-duplicated obligations; T5-C0 had 35 targets and 820;
-  the H1 registry has 36 targets and 823.
+  H1 had 36 targets and 823; the current T6-D0 registry has 37 targets and 839.
 
 ## Current boundary
 
@@ -322,4 +329,5 @@ commit history or an external adapter effect. H1 also hardens the artifact
 boundary with isolated model/tool snapshots for TLC, strict manifest coverage,
 exact source snapshots and source-hashed Verus reports, immediate-parent import
 validation, and complete proof-policy scanning. T6-S0, the terminal evidence
-and compatibility bridge, is next.
+and compatibility bridge, remains open. T6-D0 now fixes its definitions;
+T6-E0, the terminal-evidence half, is next.

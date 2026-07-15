@@ -18,8 +18,10 @@ episode equality and nonvacuity. T5-C0 proves all-prefix mapped committed-
 history equality and contextual mapped recovery endpoint preservation. H1
 closes the cumulative artifact's remaining configuration-level nonvacuity gap
 with a concrete well-formed configuration and contextual recovery execution.
-T4 and T5 are therefore complete; the T6 end-to-end effect theorem remains
-open.
+T6-D0 freezes the request-local adapter interpretation, unique terminal and
+delivery selectors, evidence and compatibility branches, and shared-core plus
+backend-specific bridge statement interfaces. T4 and T5 are complete; the T6
+end-to-end effect theorem remains open.
 
 ## M0: reduced atomic-Journal safety
 
@@ -759,6 +761,38 @@ H1 therefore establishes inhabitation of the cumulative T1--T5 artifact, not
 external-effect refinement, a realistic adapter configuration, liveness, or
 byte-level implementation correctness. Those remain outside H1.
 
+## T6-D0: terminal and adapter definition freeze
+
+`t6_terminal_definitions.rs` imports T5-C0 directly; H1's concrete witness is
+not a semantic dependency. The checkpoint defines `ExternalRun<X,I>`, the
+first-class adapter interpretation, request-local `AdapterRelyTrace`, the
+request-free `TerminalOutcome`, the total unique `delivery` selector, and the
+duplicate-rejecting `terminal_record` selector, whose successful result is a
+one-based `IndexedTerminalRecord`. Duplicate deliveries or terminal records
+produce `None` rather than selecting arbitrary evidence.
+
+The definition surface gives Commit, Fail, and Unknown separate
+`OutcomeEvidence` and `BrokerOutcomeCompatible` branches. The evidence
+predicate takes `FullConfig` explicitly because Unknown validates the exact
+configuration-dependent `StructuralEnabled` rule. `AdapterVerified` is a
+derived universal predicate over legal Journals, adapter relies, outcome
+evidence, and compatibility; it is not a field supplied by an adapter. The
+later concrete-adapter theorem must establish that predicate uniformly for
+every compatible well-formed `PaperConfig`, while an end-to-end instance uses
+it at one selected configuration. The
+effect and result relations receive one `ExternalRun`, so their pre/post states
+cannot disagree with independently repeated arguments.
+
+T6-D0 also freezes one broker-state core statement and separate atomic-Journal
+and typed-WAL wrapper statements over the existing T2 and T4-C0 representation
+relations. Its proofs cover empty, singleton, and duplicate terminal selection;
+concrete unique and duplicate delivery cases; exhaustive Commit/Fail/Unknown
+unfolding; exact decomposition of the replay-layer Unknown rule into reason and
+anchor predicates; projection of `AdapterRely`; and elimination of
+`AdapterVerified`. It does not
+prove `OutcomeEvidence`, compatibility, or external-effect refinement for an
+arbitrary terminal execution. T6-E0 is the next proof checkpoint.
+
 ## Reproducible verification
 
 The toolchain is locked in `toolchain.lock.json`:
@@ -850,7 +884,8 @@ T5-E0 verified obligations: 747
 T5-R0 verified obligations: 769
 T5-C0 verified obligations: 783
 H1 verified obligations: 786
-Non-duplicated verified artifact obligations: 823
+T6-D0 verified obligations: 799
+Non-duplicated verified artifact obligations: 839
 ```
 
 C1's 128 obligations include the 86 R1 and 39 B1 obligations imported into the
@@ -899,14 +934,20 @@ representation-to-commit-history bridges, all-prefix mapped equality, mapped
 recovery endpoints, and contextual export; plus 1 combined inert-context
 recovery witness that instantiates the final theorem. H1 adds 3 obligations for
 the concrete total configuration, the concrete T5-C0 premise/conclusion
-package, and the final existential artifact-nonvacuity theorem.
+package, and the final existential artifact-nonvacuity theorem. T6-D0 imports
+T5-C0 directly and adds 16 definition-boundary obligations for the three
+evidence branches, three compatibility branches, empty/singleton/duplicate
+terminal selection, unique/duplicate delivery cases, exact Unknown-rule
+decomposition, and adapter-rely and adapter-verification unfolding.
 The non-duplicated total therefore
 counts M0, C1, each independent D1/Q1 delta, the B2-R delta over Q1, and the
-B2-C through H1 deltas along their dependency chain. The registry now contains
-36 Verus targets and 823 non-duplicated obligations. At the historical T5-C0
-checkpoint, 35 targets contained 820 non-duplicated obligations; at T5-R0, 34
-targets contained 806.
+B2-C through T5-C0 deltas along their dependency chain, plus the independent H1
+and T6-D0 deltas over T5-C0. The registry now contains 37 Verus targets and 839
+non-duplicated obligations. At the historical H1 checkpoint, 36 targets
+contained 823 non-duplicated obligations; at T5-C0, 35 targets contained 820;
+at T5-R0, 34 targets contained 806.
 
-The next checkpoint is T6-S0: the terminal-evidence, complete-mediation, protected-
-handle, and adapter-rely bridge from the completed T1--T5 safety stack to
-per-request external-effect refinement.
+The next checkpoint is T6-E0: derive the configuration-explicit terminal
+`OutcomeEvidence` half from the completed T1--T5 record-reference and physical-
+provenance stack. T6-C0 will prove compatibility, and T6-S0 will combine both
+halves and discharge the Journal/WAL wrappers.

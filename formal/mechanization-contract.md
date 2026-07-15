@@ -7,10 +7,10 @@ mechanization. The TLA+ modules remain executable finite models of the design;
 where their finite constants or proof shadows differ from this document, this
 document defines the unbounded theorem statement.
 
-The cumulative Verus target through the completed H1 artifact/nonvacuity
-checkpoint verifies 786 proof obligations with zero errors. Across 36
-registered targets, the dependency-aware non-duplicated total is 823
-obligations. The preceding T5-C0 checkpoint remains a historical boundary: it
+The cumulative Verus target at the completed T6-D0 definition checkpoint
+verifies 799 proof obligations with zero errors. Across 37 registered targets,
+the dependency-aware non-duplicated total is 839 obligations. The preceding
+T5-C0 checkpoint remains a historical boundary: it
 verified 783 cumulative obligations across 35 targets and 820 non-duplicated
 obligations. T4-C2 closes theorem T4 with canonical finite forward contextual
 replacement. T5-S0 proves the exact one-step committed-history laws, T5-E0
@@ -18,8 +18,8 @@ lifts them over arbitrary finite execution intervals, T5-R0 proves exact first-
 `FinishRecover` episode equality, and T5-C0 exports those equalities through
 T4's canonical contextual map. H1 proves the resulting premise/conclusion
 package inhabited under a concrete total configuration and records the hardened
-artifact evidence. Theorem T5 and H1 are complete; T6-S0 is the next theorem
-checkpoint.
+artifact evidence. Theorem T5 and H1 are complete. T6-D0 freezes the terminal
+and adapter definition boundary; T6-E0 is the next proof checkpoint.
 
 Theorem V1 is a safety and refinement theorem for arbitrary **finite**
 executions. It assumes one globally serialized WAL writer and one globally
@@ -1222,15 +1222,22 @@ These are the respective `Init` predicates used by `Exec`.
 
 ## 9. Adapter rely and per-request effect refinement
 
+This section distinguishes the two configuration levels used by the
+mechanization. Let `P : PaperConfig<Adapter<X,I>>` contain both the generic
+broker parameters and the adapter interpretation, and let
+`Cfg = paper_broker_config(P) : FullConfig`. Predicates that interpret external
+effects take `P`; broker-only legality, evidence, compatibility, invariant, and
+representation predicates take `Cfg`.
+
 An adapter interpretation supplies total predicates and relations:
 
 ```text
 Adapter = {
   env_rely:(R,Seq<PhysicalEvent>,ExternalRun) -> Prop,
   classification_ok:(R,AttemptId,Observation,ExternalRun) -> Prop,
-  zero_effect:(R,X,X,ExternalRun) -> Prop,
-  one_effect:(R,X,X,ExternalRun) -> Prop,
-  result_spec:(R,X,X,V,ExternalRun) -> Prop,
+  zero_effect:(R,ExternalRun) -> Prop,
+  one_effect:(R,ExternalRun) -> Prop,
+  result_spec:(R,V,ExternalRun) -> Prop,
   read_preserves:(R,ExternalRun) -> Prop,
   idempotent_under_rely:(R,ExternalRun) -> Prop,
   dedup_service_law:(R,N,Q,Seq<PhysicalEvent>,ExternalRun) -> Prop
@@ -1240,17 +1247,20 @@ ExternalRun = { pre:X, post:X, interference:I }
 ```
 
 `I` is an opaque interference-witness type interpreted by the adapter
-proof. `zero_effect` and `one_effect` factor out permitted environment
+proof. The pre- and post-states are read only from `ExternalRun`; they are not
+repeated as independent relation arguments, so an interpretation cannot be
+called with state arguments inconsistent with the run. `zero_effect` and
+`one_effect` factor out permitted environment
 interference and respectively mean observational equivalence to zero or one
 execution of the immutable request operation.
 
 For a per-request history `eta`,
-`AdapterRelyTrace(Cfg,r,eta,run)` is exactly:
+`AdapterRelyTrace(P,r,eta,run)` is exactly:
 
 1. `env_rely(r,eta,run)`;
-2. every Invoke carries `CanonicalCall(r)`, including the adapter namespace,
-   declared stable key, and the same immutable target, resource, and complete
-   arguments;
+2. every event belongs to `r`, and every Invoke carries `CanonicalCall(r)`,
+   including the adapter namespace, declared stable key, and the same immutable
+   target, resource, and complete arguments;
 3. attempt identifiers are positive and unique; each delivery names its
    unique earlier Invoke and there is at most one delivery per attempt;
 4. every delivered observation satisfies `classification_ok`; every
@@ -1263,8 +1273,8 @@ For a per-request history `eta`,
    Success, Failure, and InvalidResult cannot conflict.
 
 ```text
-AdapterRely(Cfg,tau,r,run) :=
-  AdapterRelyTrace(Cfg,r,pi_adapter(tau,r),run)
+AdapterRely(P,tau,r,run) :=
+  AdapterRelyTrace(P,r,pi_adapter(tau,r),run)
 ```
 
 For a well-formed `eta`, define `Invoked(eta)` as its attempt identifiers and
@@ -1286,38 +1296,41 @@ The last predicate permits earlier unresolved or Ambiguous calls: under
 `dedup_service_law`, the named Failure is the memoized terminal result for the
 stable key and resolves them as no-effect calls.
 
-Define `Refines(Cfg,r,eta,run,o)` as trace well-formedness above plus:
+Define `Refines(P,r,eta,run,o)` as trace well-formedness above plus:
 
 ```text
 o = Commit(a,v):
   Delivered(r,a,Success(v)) occurs in eta
-  and result_spec(r,run.pre,run.post,v,run)
+  and result_spec(r,v,run)
   and (class(r)=ReadOnly
-       ? zero_effect(r,run.pre,run.post,run)
-       : one_effect(r,run.pre,run.post,run))
+       ? zero_effect(r,run)
+       : one_effect(r,run))
 
 o = Fail(a):
   Delivered(r,a,Failure) occurs in eta
-  and zero_effect(r,run.pre,run.post,run)
+  and zero_effect(r,run)
 
 o = UnknownOutcome(_,_):
-  zero_effect(r,run.pre,run.post,run)
-  or one_effect(r,run.pre,run.post,run)
+  zero_effect(r,run)
+  or one_effect(r,run)
 ```
 
 Let `TerminalRecord(j,r)` be the Option-valued pair `(u,rec)` containing the
 unique terminal record and its LSN, when present.
-`OutcomeEvidence(j,r,eta,o)` is the causal predicate:
+`OutcomeEvidence(Cfg,j,r,eta,o)` is the causal predicate. The configuration
+argument is explicit because the Unknown branch checks the exact
+`StructuralEnabled` rule, including retry class, attempt bound, digest, and
+stable-key fields:
 
 ```text
 o = Commit(a,v):
   TerminalRecord(j,r)=Some(u,CommitRec(r,a,v,...,outcome_ref))
-  and outcome_ref names Outcome(r,a,Success(v))
+  and outcome_ref names Outcome(r,a,Success(v)) in prefix(j,u-1)
   and Delivery(eta,a)=Some(Success(v))
 
 o = Fail(a):
   TerminalRecord(j,r)=Some(u,FailRec(r,a,...,outcome_ref))
-  and outcome_ref names Outcome(r,a,Failure)
+  and outcome_ref names Outcome(r,a,Failure) in prefix(j,u-1)
   and Delivery(eta,a)=Some(Failure)
 
 o = UnknownOutcome(a,q):
@@ -1370,61 +1383,85 @@ uncertainty through its memoized Failure law. Unknown admits unresolved,
 ambiguous, invalid, delivered-but-unpersisted, and mixed evidence; the adapter
 law must still prove the external history represents zero or one effect.
 
-`AdapterVerified(Cfg)` means that for every `r`, legal finite Journal `j`,
+`AdapterVerified(P)` means that for every `r`, finite Journal `j`,
 finite `eta`, run, and `o`, the conjunction
 
 ```text
-AdapterRelyTrace(Cfg,r,eta,run)
-and OutcomeEvidence(j,r,eta,o)
+JournalLegal(erase_config(Cfg),j)
+and AdapterRelyTrace(P,r,eta,run)
+and OutcomeEvidence(Cfg,j,r,eta,o)
 and BrokerOutcomeCompatible(Cfg,j,r,eta,o)
 ```
 
-implies `Refines(Cfg,r,eta,run,o)`. This is discharged once per adapter; it is
-not proved by the generic broker.
+implies `Refines(P,r,eta,run,o)`. A per-adapter theorem must establish this
+uniformly for every compatible well-formed `P`; each end-to-end instance uses
+the result at its selected `P`. It is not proved by the generic broker.
 
 ```text
-PerRequestEffectRefinement(Cfg,tau,r,run) :=
+PerRequestEffectRefinement(P,tau,r,run) :=
   terminal(tau,r)=Some(o) implies
-    Refines(Cfg,r,pi_adapter(tau,r),run,o)
+    Refines(P,r,pi_adapter(tau,r),run,o)
 ```
 
 This permits multiple physical invocations for retry-safe classes but never
 more than one abstract request effect. `Unknown` intentionally leaves the
 choice between zero and one unresolved.
 
-The generic proof exposes the following bridge lemma rather than leaving the
-adapter premise implicit. Let `G_final` be the final ghost state of `tau` and
-let `C_final` and `B_final` be its final runtime state and related final Broker
-state:
+The generic proof exposes the following bridge rather than leaving the adapter
+premise implicit. Journal and WAL executions have different types, so the
+mechanization freezes one broker-state core and two typed wrappers rather than
+an untyped disjunction. For either runtime execution `E`, write
+`final(E) = E.configs[|E.events|]`. The exact frozen statement boundary is:
 
 ```text
-TerminalEvidenceAndCompatibility(Cfg,tau,B_final,r,run):
-  ((tau in Exec(JournalRuntime(Cfg))
-      and AdmissibleJournalTrace(Cfg,tau))
-   or (tau in Exec(WALRuntime(Cfg))
-      and AdmissibleWALTrace(Cfg,tau)))
-  and TraceAgreement(tau)
-  and Representation(Cfg,C_final,G_final,B_final)
-  and AdapterRely(Cfg,tau,r,run)
+T6S0Core(P,tau,B,r,run,o):
+  paper_config_wf(P)
+  and BrokerInvariant(Cfg,B)
+  and B.core.evidence.records = pi_journal(tau)
+  and B.physical.physical = pi_physical(tau)
+  and AdapterRely(P,tau,r,run)
   and terminal(tau,r)=Some(o)
   implies
-    OutcomeEvidence(G_final.records,r,pi_adapter(tau,r),o)
-    and BrokerOutcomeCompatible(
-          Cfg,G_final.records,r,pi_adapter(tau,r),o)
+    TerminalEvidenceAndCompatibility(
+      Cfg,tau,B.core.evidence.records,r,o)
+
+JournalT6S0(P,E_J,B,r,run,o):
+  paper_config_wf(P)
+  and Exec(JournalRuntime(Cfg),E_J)
+  and AdmissibleJournalTrace(Cfg,E_J)
+  and TraceAgreement(Cfg,E_J)
+  and Representation_J(Cfg,final(E_J),B)
+  and AdapterRely(P,E_J.events,r,run)
+  and terminal(E_J.events,r)=Some(o)
+  implies TerminalEvidenceAndCompatibility(
+      Cfg,E_J.events,final(E_J).evidence.records,r,o)
+
+WalT6S0(P,E_W,B,r,run,o):
+  paper_config_wf(P)
+  and Exec(WALRuntime(Cfg),E_W)
+  and AdmissibleWALTrace(Cfg,E_W)
+  and TraceAgreement(Cfg,E_W)
+  and WalBrokerRepresentation(Cfg,final(E_W),B)
+  and AdapterRely(P,E_W.events,r,run)
+  and terminal(E_W.events,r)=Some(o)
+  implies TerminalEvidenceAndCompatibility(
+      Cfg,E_W.events,final(E_W).evidence.records,r,o)
 ```
 
-The OutcomeEvidence half follows from legal references, Broker provenance, and
-the per-prefix record/physical projection equalities. The compatibility half
-uses retry discipline and physical causality; the Deduplicated Fail case also
-uses the nonconflict clause of `AdapterRely`. This lemma is generic broker work.
-`AdapterVerified` then turns its conclusion into the adapter-specific
-`Refines` relation.
+T6-E0 will derive the OutcomeEvidence half from legal references, Broker
+provenance, and the per-prefix record/physical projection equalities. T6-C0
+will derive the compatibility half from retry discipline and physical
+causality; the Deduplicated Fail case will also use the nonconflict clause of
+`AdapterRely`. T6-S0 will combine this generic broker work. `AdapterVerified`
+can then turn its conclusion into the adapter-specific `Refines` relation.
 
 ## 10. Theorem statements
 
-Every theorem in this section is stated under the common premise
-`CfgWellFormed(Cfg)`; T1 repeats it explicitly because it is the first exported
-mechanized result.
+T1--T5 are stated under the common premise `CfgWellFormed(Cfg)`; T1 repeats it
+explicitly because it is the first exported mechanized result. T6 instead uses
+`paper_config_wf(P)`, which includes the well-formed derived broker
+configuration `Cfg = paper_broker_config(P)` and supplies the adapter
+interpretation.
 
 ### T1. Parameterized Broker safety
 
@@ -1750,7 +1787,8 @@ does not prove recovery liveness, full-state equality, external-effect
 refinement, or byte-level WAL/filesystem correctness.
 
 Theorem T5 is complete. H1 below checks that its cumulative package is
-inhabited. The next semantic theorem checkpoint is T6-S0.
+inhabited. T6-D0 then freezes the terminal/adapter interface; T6-E0 is the next
+semantic proof checkpoint.
 
 ### H1. Artifact and nonvacuity checkpoint
 
@@ -1791,7 +1829,8 @@ exists Cfg,Ctxt,tau,crash,finish.
 H1 adds 3 obligations beyond T5-C0: well-formedness of the concrete total
 configuration, the concrete T5-C0 package, and existential cumulative-artifact
 inhabitation. Its cumulative target verifies 786 obligations with zero errors;
-36 registered targets contain 823 dependency-aware non-duplicated obligations.
+the historical H1 registry contained 36 targets and 823 dependency-aware
+non-duplicated obligations.
 This is a satisfiability result, not a stronger recovery theorem. The concrete
 minimal witness does not exhibit a nonempty pre-crash commit history, realistic
 adapter behavior, an external effect, liveness, or byte-level persistence.
@@ -1808,22 +1847,65 @@ checks their membership and hashes around each invocation. Both runners require
 their bound metadata inputs to remain stable. These controls bind reports to
 checked inputs; they do not enlarge the semantic theorem.
 
+### T6-D0. Terminal and adapter definition freeze
+
+T6-D0 imports T5-C0 directly and freezes the vocabulary consumed by the T6
+proof without claiming the terminal bridge. The mechanized surface contains:
+
+- generic `ExternalRun<X,I>` and total first-class adapter relations;
+- request-local physical-history well-formedness, exact unique `Delivery`,
+  invocation-count predicates, class laws, and deduplicated terminal-result
+  consistency;
+- the request-free `TerminalOutcome` datatype and a duplicate-rejecting
+  `terminal_record` selector that returns a one-based `IndexedTerminalRecord`
+  only for exactly one request terminal;
+- `UnknownCause`, configuration-explicit `OutcomeEvidence`, and three separate
+  outcome-indexed compatibility branches;
+- derived `Refines`, `AdapterVerified`, and per-request refinement predicates;
+  and
+- one broker-state core statement plus separate atomic-Journal and typed-WAL
+  T6-S0 wrapper statements over the representation relations already proved by
+  T2 and T4-C0.
+
+T6-D0 verifies 799 cumulative obligations with zero errors, 16 beyond its
+T5-C0 parent. Together with the independent H1 delta, the current 37-target
+registry contains 839 dependency-aware non-duplicated obligations.
+
+`AdapterRelyTrace` itself requires every event in its input history to belong
+to the named request; this is necessary because `AdapterVerified` quantifies
+over arbitrary finite histories, not only values already produced by
+`pi_adapter`. Both terminal-record and delivery selectors reject duplicates,
+so malformed histories cannot acquire arbitrary evidence through a
+last-element convention. Unknown evidence remains a durable structural anchor
+and makes no negative claim about unpersisted physical outcomes.
+The checkpoint also proves that replay-layer `unknown_enabled` is exactly the
+conjunction of the frozen reason guard and evidence-anchor predicate, so a
+future replay-rule change cannot silently drift from the T6 vocabulary.
+
+The definition checkpoint proves only constructor/unfolding and selector
+sanity obligations. T6-E0 must next derive the `OutcomeEvidence` half of the
+core statement; T6-C0 will derive `BrokerOutcomeCompatible`; T6-S0 will combine
+them and discharge the two backend wrappers.
+
 ### T6. Conditional end-to-end theorem
 
-For every `Cfg`, `ProgramContext<S>` value `Ctxt`, finite plugged WAL execution
-`tau_W^S`, protected-handle trace `omega:ProtectedTrace`, and map
+For every `P : PaperConfig<Adapter<X,I>>`, let
+`Cfg = paper_broker_config(P)`. For every `ProgramContext<S>` value `Ctxt`,
+finite plugged WAL execution `tau_W^S`, protected-handle trace
+`omega:ProtectedTrace`, and map
 `runs:R -> ExternalRun`, if:
 
 ```text
-StorageParametricContext(Cfg,Ctxt)
+paper_config_wf(P)
+and StorageParametricContext(Cfg,Ctxt)
 and PluggedWalExec(Cfg,Ctxt,tau_W^S)
 and AdmissibleWALTrace(Cfg,tau_W^S.machine)
 and TraceAgreement(tau_W^S.machine)
 and the initial WAL invariant holds
 and ProtectedHandlesExclusive(Cfg,Ctxt)
 and CompleteMediation(tau_W^S.machine,omega)
-and AdapterVerified(Cfg)
-and forall r. AdapterRely(Cfg,tau_W^S.machine,r,runs(r)),
+and AdapterVerified(P)
+and forall r. AdapterRely(P,tau_W^S.machine.events,r,runs(r)),
 ```
 
 then T4-C2, invoking T4-C0 internally, produces a prefix-related plugged Broker
@@ -1833,7 +1915,7 @@ crash-prefix, failure-provenance, and value-provenance properties hold for
 `tau_W^S.machine`. For each terminal request,
 `TerminalEvidenceAndCompatibility` supplies the exact premise consumed by
 `AdapterVerified`; therefore every request `r` satisfies
-`PerRequestEffectRefinement(Cfg,tau_W^S.machine,r,runs(r))`. In particular, every
+`PerRequestEffectRefinement(P,tau_W^S.machine.events,r,runs(r))`. In particular, every
 committed mutating request refines one authorized abstract effect, every
 committed read refines zero protected mutations and one valid observation, and
 no request contributes two commit-log entries.
@@ -1903,12 +1985,19 @@ group has only backward dependencies.
 12. **Artifact nonvacuity (completed H1):** construct a total well-formed
     configuration, instantiate the complete T5-C0 package without premises,
     and bind verification reports to the checked source snapshots.
-13. **Terminal bridge (T6-S0):** prove
-    `TerminalEvidenceAndCompatibility` from the completed T1--T5 safety and
-    provenance stack under the stated run and adapter-rely premises.
-14. **Adapters:** prove class-specific adapter lemmas, successful-value
+13. **Definition freeze (completed T6-D0):** mechanize the adapter relations,
+    unique terminal/delivery selectors, outcome evidence, compatibility, and
+    separate Journal/WAL bridge statement boundaries.
+14. **Terminal evidence (T6-E0):** derive `OutcomeEvidence` from terminal
+    Journal records, reference validity, and exact physical provenance.
+15. **Terminal compatibility (T6-C0):** derive
+    `BrokerOutcomeCompatible` by retry-class case analysis under
+    `AdapterRelyTrace`.
+16. **Terminal bridge (T6-S0):** combine T6-E0 and T6-C0 and discharge the
+    atomic-Journal and typed-WAL wrapper statements.
+17. **Adapters:** prove class-specific adapter lemmas, successful-value
     refinement, and `AdapterVerified` instances.
-15. **End to end:** combine T1--T5, the terminal bridge, and each adapter
+18. **End to end:** combine T1--T5, the terminal bridge, and each adapter
     instance to prove T6.
 
 The first executable proof checkpoint is groups 1--5 over the atomic Journal

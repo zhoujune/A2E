@@ -600,13 +600,27 @@ manifest validation rejects duplicate names/configurations, invalid tiers or
 fields, missing inputs, and any unregistered `formal/*.cfg`, and its unique
 machine-readable report is enabled by default.
 
+T6-D0 follows as a definition-only semantic checkpoint. It introduces the
+generic external run and adapter interpretation, requires standalone adapter
+histories to be request-local, and makes terminal-record and delivery lookup
+total while returning `Some` only for unique evidence. `OutcomeEvidence` takes
+the configuration explicitly because Unknown evidence checks the exact
+configuration-dependent structural rule. Commit, Fail, and Unknown evidence
+and compatibility are separate named branches. One shared broker-state
+statement and separate Journal/WAL wrappers fix the shape of the later T6-S0
+proof without establishing it.
+The T6-D0 target verifies 799 cumulative obligations with zero errors, 16
+beyond T5-C0. Together with H1's independent 3-obligation delta, the current 37
+registered targets contain 839 dependency-aware non-duplicated obligations.
+
 The complete hierarchy is T1 parameterized Broker safety, T2 independent
 atomic-Journal runtime simulation, T3 typed-WAL simulation, completed T4-C0
 closed-machine composition, completed T4-C1 context observation and structural
 plugging, completed T4-C2 contextual replacement and composition, T5 committed-
 history prefix preservation, and T6 conditional end-to-end per-request effect
-refinement. T1--T5 and H1 are now complete; T6-S0, the generic
-`TerminalEvidenceAndCompatibility` bridge, is the next open proof frontier.
+refinement. T1--T5, H1, and the T6-D0 definition boundary are now complete;
+T6-E0, the `OutcomeEvidence` half of
+`TerminalEvidenceAndCompatibility`, is the next open proof frontier.
 Under the complete stated
 persistence, mediation, context, and adapter rely conditions, the broker
 provides authorized, per-internal-request at-most-once logical completion and

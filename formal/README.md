@@ -76,8 +76,13 @@ it adds 3 obligations, verifies 786 cumulative obligations, and brings the
 registry to 36 targets and 823 dependency-aware non-duplicated obligations. H1
 constructs a concrete total well-formed `FullConfig` and, without premises,
 inhabits the complete T5-C0 premise/conclusion package. T1--T5 are complete;
-T6-S0 is next. Adapter-specific external effects and end-to-end T6 remain
-outside the completed claims.
+T6-D0 subsequently freezes the machine-checked adapter, terminal-outcome,
+unique selector, outcome-evidence, compatibility, and Journal/WAL bridge
+statement interfaces. Its target verifies 799 cumulative obligations, 16
+beyond its T5-C0 parent; the current registry contains 37 targets and 839
+dependency-aware non-duplicated obligations. T6-E0 is next; adapter-specific
+external effects and the
+proved end-to-end T6 bridge remain outside the completed claims.
 The adversary, trusted base, guarantees, and non-goals are fixed in
 [threat-model.md](threat-model.md).
 Adapter-specific trace interpretation and proof obligations are defined in
@@ -469,7 +474,8 @@ WAL/Broker `alpha_commit` equality, contextual mapped recovery endpoints, and a
 combined inert-context recovery witness. H1 additionally proves the cumulative
 T1--T5 premise/conclusion package inhabited under a concrete total
 configuration and hardens the source-hashed verification artifact. T5 is
-complete; T6-S0, the terminal-evidence and compatibility bridge, is next. T4
+complete. T6-D0 freezes the terminal and adapter definition boundary without
+proving the bridge; T6-E0, the terminal-evidence half, is next. T4
 does not prove reverse contextual equivalence, liveness, autonomous context
 steps, protected-handle exclusivity, adapter effect refinement, or byte-level
 WAL correctness. The WAL is still a symbolic typed-frame model, not a byte
@@ -493,14 +499,15 @@ The theorem roadmap is [T1 parameterized Broker safety](mechanization-contract.m
 [T4-C1 context observation and plugging](mechanization-contract.md#t4-c1-context-observation-and-plugging-foundation),
 [T4-C2 contextual replacement and composition](mechanization-contract.md#t4-c2-contextual-replacement-and-composition),
 [T5 committed-history recovery preservation](mechanization-contract.md#t5-recovery-and-committed-history-prefix-preservation),
+[T6-D0 terminal and adapter definition freeze](mechanization-contract.md#t6-d0-terminal-and-adapter-definition-freeze),
 and [T6 conditional end-to-end effect refinement](mechanization-contract.md#t6-conditional-end-to-end-theorem).
 
 ## Next formal increments
 
-1. Prove T6-S0, the generic `TerminalEvidenceAndCompatibility` bridge, from the
-   checked T1--T5 chain under the mediation, `StorageParametricContext`,
-   protected-handle, and `AdapterRely` premises; then complete T6 with verified
-   adapter instances.
+1. Prove T6-E0, deriving configuration-explicit `OutcomeEvidence` from the
+   checked terminal-record references and exact physical provenance; then
+   prove T6-C0 compatibility and combine both halves in T6-S0 before adding
+   verified adapter instances.
 2. Extend the current bounded typed-frame `WAL -> Journal` check to concrete
    record bytes, checksums, flush/fsync semantics, and a verified parser under
    crash injection at every record boundary.

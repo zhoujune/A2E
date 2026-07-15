@@ -267,6 +267,10 @@ and, without premises, establishes the complete T5-C0 premise/conclusion
 package. H1 does not strengthen the refinement relation: its concrete witness
 has no demonstrated nonempty pre-crash commit history and no external-effect
 interpretation.
+T6-D0 then freezes the adapter interpretation, request-local physical-history
+rely, unique terminal/delivery selectors, configuration-explicit outcome
+evidence, compatibility branches, and the shared-core plus two-backend bridge
+statement boundary. It proves definition sanity, not the bridge conclusion.
 Adapter laws are explicit `AdapterRely` assumptions, not unrestricted Journal
 legality.
 
@@ -288,6 +292,7 @@ The normative proof layers are:
 | [T5-C0](mechanization-contract.md#t5-recovery-and-committed-history-prefix-preservation) | T4's canonical contextual map preserves commit deltas, all-prefix committed history, and source-recovery endpoint equality |
 | [T5](mechanization-contract.md#t5-recovery-and-committed-history-prefix-preservation) | Every step extends committed history; recovery preserves it exactly |
 | [H1](mechanization-contract.md#h1-artifact-and-nonvacuity-checkpoint) | A concrete total well-formed configuration unconditionally inhabits the cumulative T5-C0 premise/conclusion package, and the source-hashed artifact records the checked inputs |
+| [T6-D0](mechanization-contract.md#t6-d0-terminal-and-adapter-definition-freeze) | Adapter and terminal vocabulary, duplicate-rejecting selectors, evidence/compatibility branches, and Journal/WAL bridge statement interfaces are frozen without claiming the bridge theorem |
 | [T6](mechanization-contract.md#t6-conditional-end-to-end-theorem) | Under persistence, mediation, context, and adapter relies, each terminal request refines its class-specific abstract effect |
 
 T1--T5 are machine checked. T3 includes
@@ -302,14 +307,16 @@ foundation. T4-C2 supplies canonical finite forward contextual replacement.
 T5-S0 supplies the exact local step laws, T5-E0 supplies finite execution-
 interval monotonicity, and T5-R0 supplies Crash-to-first-`FinishRecover`
 equality. T5-C0 supplies exact delta commutation, all-prefix mapped
-`alpha_commit` equality, and contextual recovery endpoint export. T6 remains
-open; its next checkpoint is T6-S0, the generic
-`TerminalEvidenceAndCompatibility` bridge. H1 adds an unconditional
+`alpha_commit` equality, and contextual recovery endpoint export. T6-D0 fixes
+the complete terminal/adapter interface and separate backend statement
+boundaries. T6 remains open; its next checkpoint is T6-E0, the
+`OutcomeEvidence` half of the generic bridge. H1 adds an unconditional
 configuration/package inhabitance theorem and artifact evidence, not an
 external semantic interpretation. None of the completed results yet interprets the
 physical history as an external tool effect.
 
-T1--T6 are safety and refinement results for arbitrary finite executions with
+T1--T5 are proved safety and refinement results, and T6 is a planned refinement
+result, for arbitrary finite executions with
 one globally serialized writer and executor slot. They do not include
 `ReturnResult`, liveness, multi-worker linearizability, or a global
 linearization order for external effects of different requests. T4 specifically
@@ -372,9 +379,10 @@ correctness.
 | Verus T5-R0 recovery-episode equality | 769 obligations verified transitively with no admitted proof bodies: the T5-E0 closure plus 22 obligations for recovery completeness/nonvacuity, generic repair and sequence facts, three-backend mode confinement, non-Online and per-episode step stuttering, prefix invariants, and endpoint equality; at this checkpoint 34 registered targets contained 806 non-duplicated obligations |
 | Verus T5-C0 contextual mapped recovery | 783 obligations verified transitively with no admitted proof bodies: the T5-R0 closure plus 13 delta-translation, weak-step, representation, mapped-prefix, recovery-endpoint, canonical, contextual, and paper-export obligations, plus 1 combined inert-context nonvacuity witness |
 | Verus H1 artifact nonvacuity | 786 obligations verified transitively with no admitted proof bodies: the historical T5-C0 closure plus 3 obligations for a concrete total `FullConfig`, an unconditional concrete T5-C0 premise/conclusion package, and the existential cumulative-artifact inhabitance theorem |
+| Verus T6-D0 terminal-definition freeze | 799 obligations verified transitively with no admitted proof bodies: the historical T5-C0 closure plus 16 obligations for evidence/compatibility branch unfolding, empty/singleton/duplicate terminal selection, unique/duplicate delivery cases, exact replay-Unknown decomposition, and adapter-rely/verification projections; it freezes statement interfaces but does not prove the T6 bridge |
 | Byte decoding and checksum correctness | Not yet modeled |
 | Actual flush/fsync and filesystem contract | Assumed below the typed WAL |
-| Parameterized proof | The current 36 registered Verus targets verify 823 dependency-aware non-duplicated obligations; the historical T5-C0 checkpoint was 783 cumulative obligations across 35 targets and 820 non-duplicated obligations; T1--T5 and H1 are complete, while T6-S0 remains open |
+| Parameterized proof | The current 37 registered Verus targets verify 839 dependency-aware non-duplicated obligations; the historical T5-C0 checkpoint was 783 cumulative obligations across 35 targets and 820 non-duplicated obligations; T1--T5, H1, and T6-D0 are complete, while T6-S0 remains open |
 
 The TLA+ results are model-checking evidence for the architecture and theorem
 statements. The TLC runner first validates exact manifest structure, unique
@@ -423,4 +431,4 @@ exact first-`FinishRecover` equality. T5-C0 completes contextual mapped
 committed-history preservation. H1 proves the cumulative T5-C0 package is
 inhabited under a concrete total configuration and records the hardened
 artifact boundary. Adapter effect refinement and end-to-end T6 remain open;
-T6-S0 is next.
+T6-E0 is next.

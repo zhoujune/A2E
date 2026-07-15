@@ -240,6 +240,12 @@ $targets = @(
         SourcePath = Join-Path $scriptDir "h1_artifact_nonvacuity.rs"
         ExtraArguments = @()
         ContributionParent = "T5-C0"
+    },
+    [pscustomobject]@{
+        Name = "T6-D0"
+        SourcePath = Join-Path $scriptDir "t6_terminal_definitions.rs"
+        ExtraArguments = @()
+        ContributionParent = "T5-C0"
     }
 )
 

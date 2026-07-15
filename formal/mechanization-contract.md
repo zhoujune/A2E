@@ -7,19 +7,23 @@ mechanization. The TLA+ modules remain executable finite models of the design;
 where their finite constants or proof shadows differ from this document, this
 document defines the unbounded theorem statement.
 
-The cumulative Verus target at the completed T6-D0 definition checkpoint
-verifies 799 proof obligations with zero errors. Across 37 registered targets,
-the dependency-aware non-duplicated total is 839 obligations. The preceding
-T5-C0 checkpoint remains a historical boundary: it
-verified 783 cumulative obligations across 35 targets and 820 non-duplicated
-obligations. T4-C2 closes theorem T4 with canonical finite forward contextual
-replacement. T5-S0 proves the exact one-step committed-history laws, T5-E0
+The cumulative Verus target at the completed T6-E0 terminal-evidence
+checkpoint verifies 817 proof obligations with zero errors. Across 38
+registered targets, the dependency-aware non-duplicated total is 857
+obligations. The preceding T6-D0 definition checkpoint verified 799 cumulative
+obligations across 37 targets and 839 non-duplicated obligations. T5-C0 remains
+a historical boundary: it verified 783 cumulative obligations across 35
+targets and 820 non-duplicated obligations. T4-C2 closes theorem T4 with
+canonical finite forward contextual replacement. T5-S0 proves the exact
+one-step committed-history laws, T5-E0
 lifts them over arbitrary finite execution intervals, T5-R0 proves exact first-
 `FinishRecover` episode equality, and T5-C0 exports those equalities through
 T4's canonical contextual map. H1 proves the resulting premise/conclusion
 package inhabited under a concrete total configuration and records the hardened
 artifact evidence. Theorem T5 and H1 are complete. T6-D0 freezes the terminal
-and adapter definition boundary; T6-E0 is the next proof checkpoint.
+and adapter definition boundary, and T6-E0 proves the generic Broker-side
+`OutcomeEvidence` implication. T6-C0 compatibility is the next proof
+checkpoint; T6-S0 composition and its Journal/WAL wrappers remain open.
 
 Theorem V1 is a safety and refinement theorem for arbitrary **finite**
 executions. It assumes one globally serialized WAL writer and one globally
@@ -1448,8 +1452,10 @@ WalT6S0(P,E_W,B,r,run,o):
       Cfg,E_W.events,final(E_W).evidence.records,r,o)
 ```
 
-T6-E0 will derive the OutcomeEvidence half from legal references, Broker
-provenance, and the per-prefix record/physical projection equalities. T6-C0
+T6-E0 derives the `OutcomeEvidence` half from legal references, Broker
+provenance, and exact record/physical projection equalities. Its event theorem
+is adapter independent and concludes evidence over `pi_adapter(tau,r)` without
+an `ExternalRun` or `AdapterRely` premise. T6-C0
 will derive the compatibility half from retry discipline and physical
 causality; the Deduplicated Fail case will also use the nonconflict clause of
 `AdapterRely`. T6-S0 will combine this generic broker work. `AdapterVerified`
@@ -1787,8 +1793,9 @@ does not prove recovery liveness, full-state equality, external-effect
 refinement, or byte-level WAL/filesystem correctness.
 
 Theorem T5 is complete. H1 below checks that its cumulative package is
-inhabited. T6-D0 then freezes the terminal/adapter interface; T6-E0 is the next
-semantic proof checkpoint.
+inhabited. T6-D0 then freezes the terminal/adapter interface, and T6-E0 proves
+its generic terminal-evidence half. T6-C0 is the next semantic proof
+checkpoint.
 
 ### H1. Artifact and nonvacuity checkpoint
 
@@ -1868,8 +1875,8 @@ proof without claiming the terminal bridge. The mechanized surface contains:
   T2 and T4-C0.
 
 T6-D0 verifies 799 cumulative obligations with zero errors, 16 beyond its
-T5-C0 parent. Together with the independent H1 delta, the current 37-target
-registry contains 839 dependency-aware non-duplicated obligations.
+T5-C0 parent. Together with the independent H1 delta, its 37-target checkpoint
+contains 839 dependency-aware non-duplicated obligations.
 
 `AdapterRelyTrace` itself requires every event in its input history to belong
 to the named request; this is necessary because `AdapterVerified` quantifies
@@ -1883,9 +1890,55 @@ conjunction of the frozen reason guard and evidence-anchor predicate, so a
 future replay-rule change cannot silently drift from the T6 vocabulary.
 
 The definition checkpoint proves only constructor/unfolding and selector
-sanity obligations. T6-E0 must next derive the `OutcomeEvidence` half of the
-core statement; T6-C0 will derive `BrokerOutcomeCompatible`; T6-S0 will combine
-them and discharge the two backend wrappers.
+sanity obligations. T6-E0, described next, derives the `OutcomeEvidence` half;
+T6-C0 will derive `BrokerOutcomeCompatible`; T6-S0 will combine them and
+discharge the two backend wrappers.
+
+### T6-E0. Terminal evidence
+
+T6-E0 imports T6-D0 directly and proves an adapter-independent full-history
+lemma:
+
+```text
+JournalLegal(erase_config(Cfg),j)
+and PhysicalUnique(eta)
+and DurableOutcomesFollowDeliveries(j,eta)
+and terminal_from_records(j,r)=Some(o)
+implies OutcomeEvidence(Cfg,j,r,eta,o).
+```
+
+It then discharges the event-level evidence half used by the frozen core:
+
+```text
+T6E0Core(Cfg,tau,B,r,o):
+  BrokerInvariant(Cfg,B)
+  and B.core.evidence.records = pi_journal(tau)
+  and B.physical.physical = pi_physical(tau)
+  and terminal(tau,r)=Some(o)
+  implies OutcomeEvidence(
+    Cfg,B.core.evidence.records,r,pi_adapter(tau,r),o).
+```
+
+The proof establishes soundness of the one-based terminal selector, exact
+recovery of an Outcome record from its LSN and observation projections,
+prefix closure of durable Outcome-to-delivery causality, the delivery-count
+bound induced by global physical uniqueness, and preservation of delivery
+counts and latest observations by the request-local adapter projection. In the
+Commit and Fail branches, the terminal record's `outcome_ref` therefore names
+the exact Outcome in the strict pre-terminal prefix, and the causally prior
+matching physical delivery is the unique selected delivery. In the Unknown
+branch, Journal legality supplies the exact prefix `StructuralEnabled` rule and
+its reason-specific durable anchor; the proof makes no negative assertion
+about unpersisted physical outcomes.
+
+T6-E0 verifies 817 cumulative obligations with zero errors, 18 beyond its
+T6-D0 parent. The current 38-target registry contains 857 dependency-aware
+non-duplicated obligations. The theorem neither assumes nor proves an adapter
+semantic interpretation: it does not establish `BrokerOutcomeCompatible`,
+`Refines`, an `AdapterVerified` instance, external-effect refinement, the
+combined T6-S0 conclusion, or either Journal/WAL wrapper. T6-C0 is next; T6-S0
+retains responsibility for combining the two halves and discharging those
+wrappers.
 
 ### T6. Conditional end-to-end theorem
 
@@ -1988,8 +2041,9 @@ group has only backward dependencies.
 13. **Definition freeze (completed T6-D0):** mechanize the adapter relations,
     unique terminal/delivery selectors, outcome evidence, compatibility, and
     separate Journal/WAL bridge statement boundaries.
-14. **Terminal evidence (T6-E0):** derive `OutcomeEvidence` from terminal
-    Journal records, reference validity, and exact physical provenance.
+14. **Terminal evidence (completed T6-E0):** derive `OutcomeEvidence` from
+    terminal Journal records, reference validity, exact physical provenance,
+    and the request-local event projection.
 15. **Terminal compatibility (T6-C0):** derive
     `BrokerOutcomeCompatible` by retry-class case analysis under
     `AdapterRelyTrace`.

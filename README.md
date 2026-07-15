@@ -29,7 +29,11 @@ evidence to the exact checked sources and toolchain. T6-D0 then freezes the
 request-local adapter rely, duplicate-rejecting terminal and delivery
 selectors, configuration-explicit outcome evidence, compatibility branches,
 and separate Journal/WAL bridge statement boundaries without claiming the
-bridge theorem.
+bridge theorem. T6-E0 proves the generic Broker-side evidence half: an
+invariant Broker snapshot whose Journal and physical histories equal the event
+projections and whose trace has a unique terminal outcome satisfies
+`OutcomeEvidence` over the request-local adapter projection. Compatibility,
+backend wrapper discharge, and external-effect interpretation remain open.
 
 The first research target is deliberately smaller than a complete agent
 runtime. T1 establishes the Broker-side form of the claim:
@@ -60,7 +64,7 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   B1, C1, D1, Q1, B2-R, B2-C, B2-P0, B2-P1, B2-P2, B2-P3, B2-L, B2-A,
   G0, G1-P, G1-E, T1, T2-J0, T2-J1, T2-E, T2-R, T2, T3-W0,
   T3-W1-T, T3-W1-E, T3-W1-R, T3, T4-C0, T4-C1, T4-C2, T5-S0, T5-E0,
-  T5-R0, T5-C0, H1, and T6-D0.
+  T5-R0, T5-C0, H1, T6-D0, and T6-E0.
   M0 checks a reduced atomic-Journal safety slice; R1 checks the complete typed record language and
   replay invariants; B1 checks a
   generic crash-reset append protocol and acknowledgment trace; C1 composes B1
@@ -120,7 +124,11 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   inhabits the complete T5-C0 premise/conclusion package. T6-D0 introduces the
   complete adapter/terminal definition surface, verifies unique selector and
   branch-unfolding sanity obligations, and fixes one shared core plus separate
-  Journal and WAL T6-S0 statements.
+  Journal and WAL T6-S0 statements. T6-E0 derives the generic/event
+  `OutcomeEvidence` conclusion from the Broker invariant and exact Journal and
+  physical projection equalities, including strict-prefix Commit/Fail
+  references, uniquely selected deliveries, and exact Unknown structural
+  evidence.
 - [Adapter refinement](formal/adapter-refinement.md) defines how concrete
   retries and outcomes denote abstract effects for each adapter class.
 - [Value refinement](formal/value-refinement.md) specifies and model-checks
@@ -160,10 +168,11 @@ The current result is M0 21, R1 86, B1 39, C1 128,
   B2-P3 292, B2-L 310, B2-A 335, G0 342, G1-P 410, G1-E 429, T1 461,
   T2-J0 475, T2-J1 486, T2-E 508, T2-R 520, T2 531, T3-W0 577,
   T3-W1-T 588, T3-W1-E 626, T3-W1-R 641, T3 659, T4-C0 676, T4-C1 720,
-  T4-C2 734, T5-S0 743, T5-E0 747, T5-R0 769, T5-C0 783, H1 786, and T6-D0
-  799 obligations, all with zero errors. At T5-R0, 34 registered targets contained
-  806 dependency-aware non-duplicated obligations; T5-C0 had 35 targets and 820;
-  H1 had 36 targets and 823; the current T6-D0 registry has 37 targets and 839.
+  T4-C2 734, T5-S0 743, T5-E0 747, T5-R0 769, T5-C0 783, H1 786, T6-D0
+  799, and T6-E0 817 obligations, all with zero errors. At T5-R0, 34 registered
+  targets contained 806 dependency-aware non-duplicated obligations; T5-C0 had
+  35 targets and 820; H1 had 36 targets and 823; T6-D0 had 37 targets and 839;
+  the current T6-E0 registry has 38 targets and 857.
 
 ## Current boundary
 
@@ -316,8 +325,8 @@ plus the source episode premise. A minimal six-event WAL recovery trace with
 seven identical inert context states proves that this premise conjunction and
 the final conclusion are inhabited. T5 does not transport `RecoveryEpisode` to
 the Broker event trace, equate full machine or context state across recovery,
-or interpret physical invocations as external effects. T6 is the next open
-semantic theorem.
+or interpret physical invocations as external effects. T6 remains the open
+end-to-end semantic theorem.
 
 H1 is complete. Its concrete configuration maps every request to an
 uncontrolled, single-attempt request with no stable key and gives every
@@ -328,6 +337,8 @@ This is a consistency result: the witness does not contain a nonempty pre-crash
 commit history or an external adapter effect. H1 also hardens the artifact
 boundary with isolated model/tool snapshots for TLC, strict manifest coverage,
 exact source snapshots and source-hashed Verus reports, immediate-parent import
-validation, and complete proof-policy scanning. T6-S0, the terminal evidence
-and compatibility bridge, remains open. T6-D0 now fixes its definitions;
-T6-E0, the terminal-evidence half, is next.
+validation, and complete proof-policy scanning. T6-D0 fixes the terminal
+definitions, and T6-E0 now proves the generic `OutcomeEvidence` half over the
+event-level request projection. T6-C0 compatibility is next; T6-S0 composition
+and the Journal/WAL wrapper proofs remain open, as do adapter-specific external
+effects.

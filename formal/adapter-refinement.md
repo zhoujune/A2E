@@ -108,6 +108,20 @@ to the replay layer's rule, preventing the two definitions from silently
 drifting.
 These definitions do not themselves establish the T6 bridge.
 
+T6-E0 proves the adapter-independent evidence implication. At the history
+level, Journal legality, physical-delivery uniqueness, durable
+Outcome-to-delivery causality, and a selected terminal outcome imply
+`OutcomeEvidence(Cfg,j,r,eta,o)`. At the event level, the Broker contract
+invariant, exact equality of the Broker Journal and physical histories with
+`pi_journal(tau)` and `pi_physical(tau)`, and
+`terminal(tau,r)=Some(o)` imply `OutcomeEvidence` over
+`pi_adapter(tau,r)`. Commit and Fail resolve their references in the strict
+pre-terminal prefix and select the unique matching delivery; Unknown reuses
+the exact prefix `StructuralEnabled` rule and its durable reason-specific
+anchor. This proof consumes no adapter run or semantic effect relation. It does
+not establish `BrokerOutcomeCompatible`, `Refines`, an `AdapterVerified`
+instance, the Journal/WAL T6-S0 wrappers, or an external-effect theorem.
+
 ## 4. Abstract effect summary
 
 For adapter class `c`, let

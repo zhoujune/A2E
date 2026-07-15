@@ -610,17 +610,29 @@ and compatibility are separate named branches. One shared broker-state
 statement and separate Journal/WAL wrappers fix the shape of the later T6-S0
 proof without establishing it.
 The T6-D0 target verifies 799 cumulative obligations with zero errors, 16
-beyond T5-C0. Together with H1's independent 3-obligation delta, the current 37
-registered targets contain 839 dependency-aware non-duplicated obligations.
+beyond T5-C0.
+
+T6-E0 proves the generic terminal-evidence implication. Given a Broker contract
+invariant, exact equality of its durable records and physical history with the
+corresponding event projections, and `terminal(tau,r)=Some(o)`, it derives
+`OutcomeEvidence(Cfg,B.core.evidence.records,r,pi_adapter(tau,r),o)`. Commit and
+Fail references name exact Outcome records in the strict pre-terminal prefix
+and select the unique matching delivery. Unknown reuses the exact prefix
+`StructuralEnabled` rule and its durable reason-specific anchor. The result is
+independent of an external run or adapter effect relation. T6-E0 verifies 817
+cumulative obligations with zero errors, 18 beyond T6-D0. Together with H1's
+independent 3-obligation delta, the current 38 registered targets contain 857
+dependency-aware non-duplicated obligations.
 
 The complete hierarchy is T1 parameterized Broker safety, T2 independent
 atomic-Journal runtime simulation, T3 typed-WAL simulation, completed T4-C0
 closed-machine composition, completed T4-C1 context observation and structural
 plugging, completed T4-C2 contextual replacement and composition, T5 committed-
 history prefix preservation, and T6 conditional end-to-end per-request effect
-refinement. T1--T5, H1, and the T6-D0 definition boundary are now complete;
-T6-E0, the `OutcomeEvidence` half of
-`TerminalEvidenceAndCompatibility`, is the next open proof frontier.
+refinement. T1--T5, H1, T6-D0, and the T6-E0 `OutcomeEvidence` half of
+`TerminalEvidenceAndCompatibility` are now complete. T6-C0 compatibility is
+the next open proof frontier; T6-S0 composition and the separate Journal/WAL
+wrappers remain open.
 Under the complete stated
 persistence, mediation, context, and adapter rely conditions, the broker
 provides authorized, per-internal-request at-most-once logical completion and

@@ -268,6 +268,10 @@ oracle checks successful-value provenance in bounded configurations and treats
 failure only as a classified terminal status. T1 and T6 in the
 [mechanization contract](mechanization-contract.md#10-theorem-statements) are
 the parameterized value-provenance result and end-to-end proof target. T1
-already proves durable commit provenance; T6 remains open and will connect that
-result to adapter refinement. Neither theorem covers delivery to the agent;
-`ReturnResult` remains outside theorem V1.
+already proves durable commit provenance. T6-E0 now proves that, under the
+Broker invariant and exact event projections, a terminal Commit carries an
+exact strict-prefix successful Outcome reference and the unique matching
+request-local delivery. This is causal `OutcomeEvidence`, not the adapter's
+`result_spec` or one-effect relation. T6-C0, T6-S0, and adapter refinement remain
+open. Neither T1 nor T6-E0 covers delivery to the agent; `ReturnResult` remains
+outside theorem V1.

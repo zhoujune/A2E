@@ -246,6 +246,12 @@ $targets = @(
         SourcePath = Join-Path $scriptDir "t6_terminal_definitions.rs"
         ExtraArguments = @()
         ContributionParent = "T5-C0"
+    },
+    [pscustomobject]@{
+        Name = "T6-E0"
+        SourcePath = Join-Path $scriptDir "t6_terminal_evidence.rs"
+        ExtraArguments = @()
+        ContributionParent = "T6-D0"
     }
 )
 
@@ -1295,8 +1301,23 @@ function Invoke-NativeCaptured {
             throw "Could not disable rustup self-update in the isolated cache"
         }
 
-        $rustupResult = Invoke-NativeCaptured -FilePath $rustupExe `
-            -Arguments @("--version")
+        # Query rustup itself without resolving the not-yet-installed selected
+        # toolchain.  Otherwise `rustup --version` may implicitly download that
+        # toolchain before the explicit, checked installation below.
+        [System.Environment]::SetEnvironmentVariable(
+            "RUSTUP_TOOLCHAIN",
+            $null,
+            [System.EnvironmentVariableTarget]::Process)
+        try {
+            $rustupResult = Invoke-NativeCaptured -FilePath $rustupExe `
+                -Arguments @("--version")
+        }
+        finally {
+            [System.Environment]::SetEnvironmentVariable(
+                "RUSTUP_TOOLCHAIN",
+                $rustToolchainLeaf,
+                [System.EnvironmentVariableTarget]::Process)
+        }
         if ($rustupResult.ExitCode -ne 0) {
             throw "Unexpected rustup version: $($rustupResult.Text)"
         }

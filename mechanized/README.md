@@ -20,8 +20,10 @@ closes the cumulative artifact's remaining configuration-level nonvacuity gap
 with a concrete well-formed configuration and contextual recovery execution.
 T6-D0 freezes the request-local adapter interpretation, unique terminal and
 delivery selectors, evidence and compatibility branches, and shared-core plus
-backend-specific bridge statement interfaces. T4 and T5 are complete; the T6
-end-to-end effect theorem remains open.
+backend-specific bridge statement interfaces. T6-E0 proves the generic/event
+Broker `OutcomeEvidence` implication over the request-local adapter projection.
+T4 and T5 are complete; T6-C0 compatibility, T6-S0 composition and backend
+wrappers, and the end-to-end effect theorem remain open.
 
 ## M0: reduced atomic-Journal safety
 
@@ -791,7 +793,55 @@ unfolding; exact decomposition of the replay-layer Unknown rule into reason and
 anchor predicates; projection of `AdapterRely`; and elimination of
 `AdapterVerified`. It does not
 prove `OutcomeEvidence`, compatibility, or external-effect refinement for an
-arbitrary terminal execution. T6-E0 is the next proof checkpoint.
+arbitrary terminal execution; the subsequent T6-E0 checkpoint supplies the
+evidence proof without retroactively strengthening T6-D0.
+
+## T6-E0: generic terminal evidence
+
+`t6_terminal_evidence.rs` imports T6-D0 directly. Its adapter-independent
+full-history theorem proves
+
+```text
+JournalLegal(erase_config(cfg), records)
+and PhysicalUnique(history)
+and DurableOutcomesFollowDeliveries(records, history)
+and terminal_from_records(records, request) == Some(outcome)
+implies OutcomeEvidence(cfg, records, request, history, outcome).
+```
+
+The exported event theorem then obtains these premises from the Broker contract
+invariant and proves
+
+```text
+BrokerInvariant(cfg, broker)
+and broker.core.evidence.records == pi_journal(events)
+and broker.physical.physical == pi_physical(events)
+and terminal(events, request) == Some(outcome)
+implies OutcomeEvidence(
+  cfg, broker.core.evidence.records,
+  request, pi_adapter(events, request), outcome).
+```
+
+The proof establishes soundness of the duplicate-rejecting terminal selector,
+exact reconstruction of referenced Outcome records, prefix preservation of
+durable Outcome-to-delivery causality, the per-attempt delivery-count bound
+implied by physical uniqueness, unique latest-delivery selection, and exact
+preservation of delivery counts and observations by the request-local adapter
+projection. Thus Commit and Fail terminal records resolve an exact Outcome in
+their strict prefix and select the unique corresponding physical delivery.
+Unknown obtains the exact prefix `StructuralEnabled` rule and reason-specific
+durable anchor from Journal legality; it makes no claim that unpersisted
+physical outcomes are absent.
+
+T6-E0 verifies 817 cumulative obligations with zero errors, adding 18 over its
+T6-D0 parent. Both the focused source check and the retained 38-target run pass;
+the retained report records 17,390 summed target obligations and 857
+dependency-aware non-duplicated obligations.
+The result does not use an `ExternalRun`, `AdapterRely`, or adapter effect
+relation, and it does not prove `BrokerOutcomeCompatible`, `Refines`, an
+`AdapterVerified` instance, T6-S0, either Journal/WAL wrapper, or external-effect
+refinement. T6-C0 is next; T6-S0 retains responsibility for combining evidence
+and compatibility and discharging the backend wrappers.
 
 ## Reproducible verification
 
@@ -826,7 +876,9 @@ official rustup distribution endpoints. It records and rechecks a deterministic
 tree hash of that installation, restores the caller's environment, serializes
 shared-download access, and rejects unsupported platforms. The Rust tree hash
 is observed evidence; the Rust component tree is not independently pre-hashed
-in `toolchain.lock.json`.
+in `toolchain.lock.json`. The driver queries the rustup executable with no
+selected toolchain, then performs the pinned toolchain installation explicitly;
+the version query therefore cannot populate the fresh Rust home implicitly.
 
 Before verification, every registered `.rs` file is copied into an exact flat,
 read-only per-run snapshot. Verus is invoked only on snapshot paths. The runner
@@ -885,7 +937,8 @@ T5-R0 verified obligations: 769
 T5-C0 verified obligations: 783
 H1 verified obligations: 786
 T6-D0 verified obligations: 799
-Non-duplicated verified artifact obligations: 839
+T6-E0 verified obligations: 817
+Non-duplicated verified artifact obligations: 857
 ```
 
 C1's 128 obligations include the 86 R1 and 39 B1 obligations imported into the
@@ -939,15 +992,20 @@ T5-C0 directly and adds 16 definition-boundary obligations for the three
 evidence branches, three compatibility branches, empty/singleton/duplicate
 terminal selection, unique/duplicate delivery cases, exact Unknown-rule
 decomposition, and adapter-rely and adapter-verification unfolding.
+T6-E0 imports T6-D0 directly and adds 18 terminal-evidence obligations for
+terminal-selector soundness, exact Outcome projection, durable-causality prefix
+closure, physical-delivery uniqueness and selection, request-local projection
+preservation, Commit/Fail/Unknown evidence, and the generic history/event
+exports.
 The non-duplicated total therefore
 counts M0, C1, each independent D1/Q1 delta, the B2-R delta over Q1, and the
 B2-C through T5-C0 deltas along their dependency chain, plus the independent H1
-and T6-D0 deltas over T5-C0. The registry now contains 37 Verus targets and 839
-non-duplicated obligations. At the historical H1 checkpoint, 36 targets
-contained 823 non-duplicated obligations; at T5-C0, 35 targets contained 820;
-at T5-R0, 34 targets contained 806.
+and T6-D0 deltas over T5-C0, plus the T6-E0 delta over T6-D0. The registry now
+contains 38 Verus targets and 857 non-duplicated obligations. At the historical
+T6-D0 checkpoint, 37 targets contained 839 non-duplicated obligations; H1 had
+36 targets and 823; T5-C0 had 35 targets and 820; and T5-R0 had 34 targets and
+806.
 
-The next checkpoint is T6-E0: derive the configuration-explicit terminal
-`OutcomeEvidence` half from the completed T1--T5 record-reference and physical-
-provenance stack. T6-C0 will prove compatibility, and T6-S0 will combine both
-halves and discharge the Journal/WAL wrappers.
+The next checkpoint is T6-C0: derive `BrokerOutcomeCompatible` by retry-class
+case analysis under `AdapterRelyTrace`. T6-S0 will then combine C0 with the
+completed T6-E0 evidence half and discharge the Journal/WAL wrappers.

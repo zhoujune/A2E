@@ -272,6 +272,11 @@ already proves durable commit provenance. T6-E0 now proves that, under the
 Broker invariant and exact event projections, a terminal Commit carries an
 exact strict-prefix successful Outcome reference and the unique matching
 request-local delivery. This is causal `OutcomeEvidence`, not the adapter's
-`result_spec` or one-effect relation. T6-C0, T6-S0, and adapter refinement remain
-open. Neither T1 nor T6-E0 covers delivery to the agent; `ReturnResult` remains
-outside theorem V1.
+`result_spec` or one-effect relation. T6-C0 now derives
+`BrokerOutcomeCompatible` for Commit from that exact successful delivery and,
+for `Uncontrolled`, proves that it belongs to the only invoked attempt. This
+does not establish `Refines`, `AdapterVerified`, value semantics over the
+external pre/post-state, the combined T6-S0 theorem, or Journal/WAL wrappers.
+T6-S0 is next and adapter-effect refinement follows later. Neither T1, T6-E0,
+nor T6-C0 covers delivery to the agent; `ReturnResult` remains outside theorem
+V1.

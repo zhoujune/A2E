@@ -122,6 +122,30 @@ anchor. This proof consumes no adapter run or semantic effect relation. It does
 not establish `BrokerOutcomeCompatible`, `Refines`, an `AdapterVerified`
 instance, the Journal/WAL T6-S0 wrappers, or an external-effect theorem.
 
+T6-C0 proves `BrokerOutcomeCompatible` at the event level under the frozen
+`PaperConfigWF`, Broker-invariant, exact-projection, `AdapterRely`, and terminal
+premises. It invokes T6-E0 for causal evidence and discharges the compatibility
+case split as follows:
+
+- Commit selects the exact successful delivery; `Uncontrolled` additionally
+  proves that its attempt is the only invoked attempt.
+- Fail selects the exact failure delivery. `ReadOnly` needs no further retry
+  condition. `Idempotent` proves that every invoked attempt has a selected
+  Failure delivery. `Deduplicated` uses pairwise observation consistency to
+  exclude Success and InvalidResult from a history containing the selected
+  failure. `Uncontrolled` proves one invocation and that invocation's failure.
+- Unknown proves Journal legality, the exact unique `UnknownRec`, and the
+  reason-specific guard over its strict pre-terminal prefix;
+  `Uncontrolled` additionally has at most one invocation.
+
+These are broker/history compatibility facts. T6-C0 does not interpret the
+external pre/post-state run, prove `Refines` or `AdapterVerified`, establish an
+adapter effect, combine the evidence and compatibility conclusions into T6-S0,
+or instantiate the Journal/WAL wrappers. T6-S0 is next; adapter-effect proofs
+follow later. T6-C0 verifies 834 cumulative obligations, 17 beyond T6-E0. The
+39-target registry contains 874 dependency-aware non-duplicated obligations,
+with cumulative-target sum 18,224.
+
 ## 4. Abstract effect summary
 
 For adapter class `c`, let

@@ -252,6 +252,12 @@ $targets = @(
         SourcePath = Join-Path $scriptDir "t6_terminal_evidence.rs"
         ExtraArguments = @()
         ContributionParent = "T6-D0"
+    },
+    [pscustomobject]@{
+        Name = "T6-C0"
+        SourcePath = Join-Path $scriptDir "t6_terminal_compatibility.rs"
+        ExtraArguments = @()
+        ContributionParent = "T6-E0"
     }
 )
 

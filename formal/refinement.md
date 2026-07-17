@@ -275,7 +275,11 @@ T6-E0 proves the generic Broker-side evidence half. Broker invariant and exact
 Journal/physical event projections, together with a selected terminal outcome,
 imply `OutcomeEvidence` over the request-local adapter projection. This result
 does not consume adapter semantics and does not prove compatibility or either
-backend wrapper.
+backend wrapper. T6-C0 proves the complementary generic compatibility half
+under `AdapterRely`. It reuses the exact T6-E0 evidence, preserves invocation
+counts through the request-local projection, and discharges Commit, Fail, and
+Unknown for every retry class. It does not combine evidence and compatibility,
+transport the result through either backend, or interpret an external effect.
 Adapter laws are explicit `AdapterRely` assumptions, not unrestricted Journal
 legality.
 
@@ -299,6 +303,7 @@ The normative proof layers are:
 | [H1](mechanization-contract.md#h1-artifact-and-nonvacuity-checkpoint) | A concrete total well-formed configuration unconditionally inhabits the cumulative T5-C0 premise/conclusion package, and the source-hashed artifact records the checked inputs |
 | [T6-D0](mechanization-contract.md#t6-d0-terminal-and-adapter-definition-freeze) | Adapter and terminal vocabulary, duplicate-rejecting selectors, evidence/compatibility branches, and Journal/WAL bridge statement interfaces are frozen without claiming the bridge theorem |
 | [T6-E0](mechanization-contract.md#t6-e0-terminal-evidence) | Broker invariants and exact event projections imply configuration-explicit terminal `OutcomeEvidence` over the request-local adapter history |
+| [T6-C0](mechanization-contract.md#t6-c0-terminal-compatibility) | Under `AdapterRely`, Broker invariants and exact projections imply retry-class-specific `BrokerOutcomeCompatible` for the selected terminal outcome |
 | [T6](mechanization-contract.md#t6-conditional-end-to-end-theorem) | Under persistence, mediation, context, and adapter relies, each terminal request refines its class-specific abstract effect |
 
 T1--T5 are machine checked. T3 includes
@@ -316,9 +321,10 @@ equality. T5-C0 supplies exact delta commutation, all-prefix mapped
 `alpha_commit` equality, and contextual recovery endpoint export. T6-D0 fixes
 the complete terminal/adapter interface and separate backend statement
 boundaries. T6-E0 proves the `OutcomeEvidence` half of the generic bridge from
-the Broker invariant and exact event projections. T6 remains open; T6-C0
-compatibility is the next checkpoint, followed by T6-S0 composition and backend
-wrapper discharge. H1 adds an unconditional
+the Broker invariant and exact event projections. T6-C0 proves the
+`BrokerOutcomeCompatible` half by terminal-outcome and retry-class analysis.
+T6 remains open; T6-S0 composition and backend-wrapper discharge are next. H1
+adds an unconditional
 configuration/package inhabitance theorem and artifact evidence, not an
 external semantic interpretation. None of the completed results yet interprets the
 physical history as an external tool effect.
@@ -389,9 +395,10 @@ correctness.
 | Verus H1 artifact nonvacuity | 786 obligations verified transitively with no admitted proof bodies: the historical T5-C0 closure plus 3 obligations for a concrete total `FullConfig`, an unconditional concrete T5-C0 premise/conclusion package, and the existential cumulative-artifact inhabitance theorem |
 | Verus T6-D0 terminal-definition freeze | 799 obligations verified transitively with no admitted proof bodies: the historical T5-C0 closure plus 16 obligations for evidence/compatibility branch unfolding, empty/singleton/duplicate terminal selection, unique/duplicate delivery cases, exact replay-Unknown decomposition, and adapter-rely/verification projections; it freezes statement interfaces but does not prove the T6 bridge |
 | Verus T6-E0 terminal evidence | 817 obligations verified transitively with no admitted proof bodies: the T6-D0 closure plus 18 obligations for terminal-selector soundness, exact Outcome projection, causal-prefix preservation, physical-delivery uniqueness and selection, request-local projection preservation, the three terminal-evidence branches, and generic history/event exports; compatibility and backend wrappers remain excluded |
+| Verus T6-C0 terminal compatibility | 834 obligations verified transitively with no admitted proof bodies: the T6-E0 closure plus 17 obligations for request-local invocation accounting, delivery-to-invocation selection, acknowledged-invocation witnesses, Deduplicated observation exclusion, Idempotent all-attempt failure coverage, Unknown-cause reconstruction, Uncontrolled invocation bounds, and the generic event/core compatibility exports; combined evidence, backend wrappers, and adapter effects remain excluded |
 | Byte decoding and checksum correctness | Not yet modeled |
 | Actual flush/fsync and filesystem contract | Assumed below the typed WAL |
-| Parameterized proof | The current 38 registered Verus targets verify 857 dependency-aware non-duplicated obligations; the historical T5-C0 checkpoint was 783 cumulative obligations across 35 targets and 820 non-duplicated obligations; T1--T5, H1, T6-D0, and T6-E0 are complete, while T6-C0 and T6-S0 remain open |
+| Parameterized proof | The current 39 registered Verus targets verify 874 dependency-aware non-duplicated obligations, with 18,224 summed target obligations; the historical T5-C0 checkpoint was 783 cumulative obligations across 35 targets and 820 non-duplicated obligations; T1--T5, H1, T6-D0, T6-E0, and T6-C0 are complete, while T6-S0 remains open |
 
 The TLA+ results are model-checking evidence for the architecture and theorem
 statements. The TLC runner first validates exact manifest structure, unique
@@ -440,5 +447,5 @@ exact first-`FinishRecover` equality. T5-C0 completes contextual mapped
 committed-history preservation. H1 proves the cumulative T5-C0 package is
 inhabited under a concrete total configuration and records the hardened
 artifact boundary. Adapter effect refinement and end-to-end T6 remain open;
-T6-C0 compatibility is next, followed by T6-S0 composition and wrapper
-discharge.
+T6-C0 compatibility is complete, and T6-S0 composition and wrapper discharge
+are next.

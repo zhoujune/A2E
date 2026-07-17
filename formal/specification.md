@@ -621,18 +621,36 @@ and select the unique matching delivery. Unknown reuses the exact prefix
 `StructuralEnabled` rule and its durable reason-specific anchor. The result is
 independent of an external run or adapter effect relation. T6-E0 verifies 817
 cumulative obligations with zero errors, 18 beyond T6-D0. Together with H1's
-independent 3-obligation delta, the current 38 registered targets contain 857
+independent 3-obligation delta, its historical 38-target registry contained 857
 dependency-aware non-duplicated obligations.
+
+T6-C0 proves the compatibility half of the frozen Broker statement under
+`PaperConfigWF`, the Broker contract invariant, exact Journal and physical
+event projections, `AdapterRely`, and a selected terminal outcome. It reuses
+T6-E0's evidence theorem and proves the class-specific branches of
+`BrokerOutcomeCompatible`. Commit requires the exact successful delivery and,
+for `Uncontrolled`, that it belongs to the only invoked attempt. Fail requires
+the exact failure delivery; `ReadOnly` adds no retry condition, `Idempotent`
+requires a selected failure for every physical invocation, `Deduplicated`
+requires a resolved failure with no Success or InvalidResult observation, and
+`Uncontrolled` requires a single failure on its only invoked attempt. Unknown
+requires a legal Journal, the exact unique `UnknownRec`, and its reason guard
+over the strict pre-terminal prefix; an `Uncontrolled` history must additionally
+contain at most one invocation. T6-C0 verifies 834 cumulative obligations with
+zero errors, 17 beyond T6-E0. The current 39 registered targets contain 874
+dependency-aware non-duplicated obligations, and the sum of their cumulative
+target obligations is 18,224.
 
 The complete hierarchy is T1 parameterized Broker safety, T2 independent
 atomic-Journal runtime simulation, T3 typed-WAL simulation, completed T4-C0
 closed-machine composition, completed T4-C1 context observation and structural
 plugging, completed T4-C2 contextual replacement and composition, T5 committed-
 history prefix preservation, and T6 conditional end-to-end per-request effect
-refinement. T1--T5, H1, T6-D0, and the T6-E0 `OutcomeEvidence` half of
-`TerminalEvidenceAndCompatibility` are now complete. T6-C0 compatibility is
-the next open proof frontier; T6-S0 composition and the separate Journal/WAL
-wrappers remain open.
+refinement. T1--T5, H1, T6-D0, T6-E0 evidence, and T6-C0 compatibility are now
+complete. T6-C0 does not prove `Refines`, `AdapterVerified`, an adapter effect
+theorem, the combined T6-S0 statement, or its separate Journal/WAL wrappers.
+T6-S0 composition is the next proof checkpoint; adapter-effect refinement
+follows later.
 Under the complete stated
 persistence, mediation, context, and adapter rely conditions, the broker
 provides authorized, per-internal-request at-most-once logical completion and

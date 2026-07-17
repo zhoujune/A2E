@@ -170,7 +170,7 @@ physical at-most-once behavior.
 | Abstract transition system | Model checked in finite instances; arbitrary finite request-to-capability maps are configuration parameters | TLA+ exploration plus machine-checked T1 Broker safety and T2 atomic-Journal simulation |
 | Rust broker core | To be verified | Verus functional-correctness proof |
 | Adapter retry declaration | Trusted per adapter | Replaced by an adapter refinement proof |
-| Abstract Journal interface | T2 proves atomic-Journal-to-Broker simulation; T4-C0 closes WAL-to-Broker composition; T4-C1 establishes structural three-backend plugging; T4-C2 proves storage-parametric finite forward contextual replacement; T5-S0 proves exact one-step committed-history laws; T5-E0 proves finite execution-interval monotonicity; T5-R0 proves exact first-Finish recovery equality; T5-C0 exports the equality through the canonical contextual map and completes T5; H1 proves the cumulative package inhabited under a concrete total configuration; T6-D0 freezes the terminal/adapter evidence interface; T6-E0 derives generic Broker terminal evidence from the invariant and exact event projections | T6-C0 compatibility, T6-S0 composition and backend wrappers, and subsequent adapter/effect refinement remain |
+| Abstract Journal interface | T2 proves atomic-Journal-to-Broker simulation; T4-C0 closes WAL-to-Broker composition; T4-C1 establishes structural three-backend plugging; T4-C2 proves storage-parametric finite forward contextual replacement; T5-S0 proves exact one-step committed-history laws; T5-E0 proves finite execution-interval monotonicity; T5-R0 proves exact first-Finish recovery equality; T5-C0 exports the equality through the canonical contextual map and completes T5; H1 proves the cumulative package inhabited under a concrete total configuration; T6-D0 freezes the terminal/adapter evidence interface; T6-E0 derives generic Broker terminal evidence from the invariant and exact event projections; T6-C0 proves the frozen class-specific Broker compatibility branches | T6-S0 composition and backend wrappers remain; adapter/effect refinement follows later |
 | WAL model and implementation | Bounded typed-frame refinement with interruptible scan checked; implementation unverified | Extend `WAL -> Journal` to byte decoding, checksums, partial truncation, flush/fsync, atomic-write, and filesystem assumptions |
 | Rust compiler and Verus toolchain | Trusted; the Verus and rustup archives are hash pinned, while the exact Rust version is freshly installed from the official rustup service and recorded by tree hash | Document versions and soundness assumptions; retain source-hashed verification reports |
 | Verification evidence pipeline | Verus runs on an exact source snapshot and reports schema/source/runner/lock/tool hashes and counts; TLC runs from isolated model/tool snapshots and reports them by hash | Preserve complete source/import and configuration-manifest coverage; reports do not remove trust in Verus, TLC, Rust distribution services, Java, PowerShell, or SHA-256 implementations |
@@ -251,8 +251,16 @@ for 786 cumulative obligations; its historical 36-target registry contained
 freezes the configuration-explicit evidence and compatibility interface and
 verifies 799 cumulative obligations, 16 beyond T5-C0. T6-E0 verifies 817
 cumulative obligations, 18 beyond T6-D0, and proves the generic/event
-`OutcomeEvidence` implication. The current 38-target registry contains 857
-dependency-aware non-duplicated obligations; T6-C0 is next.
+`OutcomeEvidence` implication. Its historical 38-target registry contained 857
+dependency-aware non-duplicated obligations. T6-C0 verifies 834 cumulative
+obligations, 17 beyond T6-E0. Its Broker theorem combines that evidence with
+`AdapterRely` and the invariant to prove `BrokerOutcomeCompatible`: Commit has
+an exact success and an only-invocation condition for `Uncontrolled`; Fail has
+an exact failure plus the `ReadOnly`, all-idempotent-invocations-failed,
+deduplicated-resolved-failure, or uncontrolled-single-failure branch; Unknown
+has an exact legal reason-guarded record and at most one invocation for
+`Uncontrolled`. The current 39-target registry contains 874 dependency-aware
+non-duplicated obligations; the cumulative-target sum is 18,224.
 This is mapped configuration-prefix equality, not a transported target Broker
 `RecoveryEpisode`; it uses `mu[finish + 1]`, not `mu[finish]`, and proves no
 liveness, full-state equality, external-effect refinement, or byte-level
@@ -448,8 +456,13 @@ current open semantic layer. T6-D0 freezes the request-local adapter rely, uniqu
 terminal/delivery selectors, configuration-explicit outcome evidence,
 compatibility branches, and separate backend statement boundaries. T6-E0 now
 proves the generic Broker evidence half over the request-local event projection,
-without trusting or interpreting an adapter effect. T6-C0 is the next theorem
-checkpoint; T6-S0 and its backend wrappers remain open. H1 additionally
+without trusting or interpreting an adapter effect. T6-C0 now proves the
+Broker compatibility half: exact Commit/Fail delivery compatibility, the
+retry-class-specific Fail conditions, strict-prefix Unknown cause, and the
+required uncontrolled invocation bounds. It does not prove `Refines`,
+`AdapterVerified`, adapter effects, the combined T6-S0 statement, or the
+Journal/WAL wrappers. T6-S0 is the next checkpoint; adapter-effect refinement
+follows later. H1 additionally
 supplies a concrete total configuration/package witness and hardened evidence
 capture: the Verus runner
 checks an exact read-only source snapshot around every target and records its

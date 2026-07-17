@@ -22,7 +22,8 @@ T6-D0 freezes the request-local adapter interpretation, unique terminal and
 delivery selectors, evidence and compatibility branches, and shared-core plus
 backend-specific bridge statement interfaces. T6-E0 proves the generic/event
 Broker `OutcomeEvidence` implication over the request-local adapter projection.
-T4 and T5 are complete; T6-C0 compatibility, T6-S0 composition and backend
+T6-C0 proves the complementary `BrokerOutcomeCompatible` implication under the
+frozen adapter rely. T4 and T5 are complete; T6-S0 composition and backend
 wrappers, and the end-to-end effect theorem remain open.
 
 ## M0: reduced atomic-Journal safety
@@ -840,8 +841,55 @@ dependency-aware non-duplicated obligations.
 The result does not use an `ExternalRun`, `AdapterRely`, or adapter effect
 relation, and it does not prove `BrokerOutcomeCompatible`, `Refines`, an
 `AdapterVerified` instance, T6-S0, either Journal/WAL wrapper, or external-effect
-refinement. T6-C0 is next; T6-S0 retains responsibility for combining evidence
-and compatibility and discharging the backend wrappers.
+refinement. The subsequent T6-C0 checkpoint supplies compatibility without
+retroactively strengthening T6-E0; T6-S0 retains responsibility for combining
+the two results and discharging the backend wrappers.
+
+## T6-C0: terminal compatibility
+
+`t6_terminal_compatibility.rs` imports T6-E0 directly and proves the
+compatibility half of the frozen terminal bridge:
+
+```text
+PaperConfigWf(paper)
+and BrokerInvariant(paper_broker_config(paper), broker)
+and broker.records == pi_journal(events)
+and broker.physical == pi_physical(events)
+and AdapterRely(paper, events, request, run)
+and terminal(events, request) == Some(outcome)
+implies BrokerOutcomeCompatible(
+  paper_broker_config(paper), broker.records, request,
+  pi_adapter(events, request), outcome).
+```
+
+The proof consumes T6-E0's exact terminal evidence and closes every frozen
+compatibility branch. Request-local projection preserves per-attempt and
+aggregate invocation counts, and a selected ordered delivery establishes that
+its attempt was invoked. The Broker retry bound therefore gives Uncontrolled
+Unknown at most one invocation, while an exact Commit or Fail delivery makes
+that invocation unique. For an Idempotent Fail, terminal replay provenance
+establishes `all_attempts_failed`; acknowledged invocation refinement then
+places every invoked attempt in the durable attempt range, and durable
+Outcome-to-delivery causality selects its Failure delivery. For a Deduplicated
+Fail, the adapter's pairwise observation-consistency rely excludes any Success
+or InvalidResult delivery. For Unknown, exact T6-E0 evidence plus Journal
+legality recovers the reason guard and durable cause required by
+`unknown_cause`.
+
+T6-C0 verifies 834 cumulative obligations with zero errors, adding 17 over its
+T6-E0 parent. The retained 39-target run passes and records 18,224 summed target
+obligations and 874 dependency-aware non-duplicated obligations. Historical
+T6-E0 remains 817 cumulative obligations, 38 targets, 17,390 summed target
+obligations, and 857 dependency-aware non-duplicated obligations.
+
+This checkpoint proves no adapter effect relation, `Refines`, or
+`AdapterVerified` instance. It also does not state the combined T6-S0 theorem
+or discharge either the atomic-Journal or typed-WAL wrapper. T6-S0 is next and
+retains responsibility for combining the completed E0 and C0 halves and
+proving those backend wrappers. H1's concrete witness is inert and does not
+inhabit this terminal `AdapterRely` antecedent, so T6-C0 remains a conditional
+theorem; a concrete terminal adapter/run witness belongs to the later adapter
+checkpoint.
 
 ## Reproducible verification
 
@@ -938,7 +986,8 @@ T5-C0 verified obligations: 783
 H1 verified obligations: 786
 T6-D0 verified obligations: 799
 T6-E0 verified obligations: 817
-Non-duplicated verified artifact obligations: 857
+T6-C0 verified obligations: 834
+Non-duplicated verified artifact obligations: 874
 ```
 
 C1's 128 obligations include the 86 R1 and 39 B1 obligations imported into the
@@ -997,15 +1046,23 @@ terminal-selector soundness, exact Outcome projection, durable-causality prefix
 closure, physical-delivery uniqueness and selection, request-local projection
 preservation, Commit/Fail/Unknown evidence, and the generic history/event
 exports.
+T6-C0 imports T6-E0 directly and adds 17 compatibility obligations for
+request-local invocation-count preservation, selected-delivery invocation
+ancestry, acknowledged-invocation witnesses and durable ranges, Idempotent
+all-invocations-failed closure, Deduplicated conflicting-observation exclusion,
+Uncontrolled invocation bounds, Unknown-cause reconstruction, and the generic
+event/core compatibility exports.
 The non-duplicated total therefore
 counts M0, C1, each independent D1/Q1 delta, the B2-R delta over Q1, and the
 B2-C through T5-C0 deltas along their dependency chain, plus the independent H1
-and T6-D0 deltas over T5-C0, plus the T6-E0 delta over T6-D0. The registry now
-contains 38 Verus targets and 857 non-duplicated obligations. At the historical
-T6-D0 checkpoint, 37 targets contained 839 non-duplicated obligations; H1 had
-36 targets and 823; T5-C0 had 35 targets and 820; and T5-R0 had 34 targets and
-806.
+and T6-D0 deltas over T5-C0, the T6-E0 delta over T6-D0, and the T6-C0 delta
+over T6-E0. The registry now contains 39 Verus targets and 874 non-duplicated
+obligations; the retained run sums 18,224 target obligations. At the historical
+T6-E0 checkpoint, 38 targets contained 857 non-duplicated obligations; T6-D0
+had 37 targets and 839; H1 had 36 targets and 823; T5-C0 had 35 targets and
+820; and T5-R0 had 34 targets and 806.
 
-The next checkpoint is T6-C0: derive `BrokerOutcomeCompatible` by retry-class
-case analysis under `AdapterRelyTrace`. T6-S0 will then combine C0 with the
-completed T6-E0 evidence half and discharge the Journal/WAL wrappers.
+The next checkpoint is T6-S0: combine the completed T6-E0 evidence and T6-C0
+compatibility halves, then discharge the atomic-Journal and typed-WAL wrapper
+statements. Adapter effects, `Refines`, and `AdapterVerified` remain outside
+T6-S0.

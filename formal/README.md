@@ -82,11 +82,14 @@ statement interfaces. Its target verifies 799 cumulative obligations, 16
 beyond its T5-C0 parent. T6-E0 then proves the generic/event Broker
 `OutcomeEvidence` implication from the Broker invariant, exact Journal and
 physical projections, and a unique terminal outcome. It verifies 817
-cumulative obligations, 18 beyond T6-D0; the current registry contains 38
-targets and 857 dependency-aware non-duplicated obligations. T6-C0
-compatibility, T6-S0 composition and backend wrappers, adapter-specific
-external effects, and the proved end-to-end T6 theorem remain outside the
-completed claims.
+cumulative obligations, 18 beyond T6-D0. T6-C0 then proves the corresponding
+generic/event `BrokerOutcomeCompatible` implication under `AdapterRely`, by
+terminal-outcome and retry-class case analysis. It verifies 834 cumulative
+obligations, 17 beyond T6-E0; the current registry contains 39 targets, 874
+dependency-aware non-duplicated obligations, and 18,224 summed target
+obligations. T6-S0 composition and backend wrappers, adapter-specific external
+effects, and the proved end-to-end T6 theorem remain outside the completed
+claims.
 The adversary, trusted base, guarantees, and non-goals are fixed in
 [threat-model.md](threat-model.md).
 Adapter-specific trace interpretation and proof obligations are defined in
@@ -480,7 +483,12 @@ T1--T5 premise/conclusion package inhabited under a concrete total
 configuration and hardens the source-hashed verification artifact. T5 is
 complete. T6-D0 freezes the terminal and adapter definition boundary, and
 T6-E0 proves the generic `OutcomeEvidence` half without proving compatibility
-or the combined bridge. T6-C0 is next. T4
+or the combined bridge. T6-C0 proves the compatibility half: Commit uses the
+selected success delivery; Fail discharges ReadOnly, Idempotent,
+Deduplicated, and Uncontrolled separately; and Unknown reconstructs its
+durable cause while bounding Uncontrolled invocation multiplicity. It does
+not combine the two halves or prove a backend or adapter-effect theorem.
+T6-S0 is next. T4
 does not prove reverse contextual equivalence, liveness, autonomous context
 steps, protected-handle exclusivity, adapter effect refinement, or byte-level
 WAL correctness. The WAL is still a symbolic typed-frame model, not a byte
@@ -506,14 +514,14 @@ The theorem roadmap is [T1 parameterized Broker safety](mechanization-contract.m
 [T5 committed-history recovery preservation](mechanization-contract.md#t5-recovery-and-committed-history-prefix-preservation),
 [T6-D0 terminal and adapter definition freeze](mechanization-contract.md#t6-d0-terminal-and-adapter-definition-freeze),
 [T6-E0 terminal evidence](mechanization-contract.md#t6-e0-terminal-evidence),
+[T6-C0 terminal compatibility](mechanization-contract.md#t6-c0-terminal-compatibility),
 and [T6 conditional end-to-end effect refinement](mechanization-contract.md#t6-conditional-end-to-end-theorem).
 
 ## Next formal increments
 
-1. Prove T6-C0 `BrokerOutcomeCompatible` by retry-class case analysis, then
-   combine it with the completed T6-E0 evidence half in T6-S0 and discharge the
-   atomic-Journal and typed-WAL wrappers before adding verified adapter
-   instances.
+1. Combine the completed T6-E0 evidence and T6-C0 compatibility halves in
+   T6-S0, then discharge the atomic-Journal and typed-WAL wrappers before
+   adding verified adapter instances.
 2. Extend the current bounded typed-frame `WAL -> Journal` check to concrete
    record bytes, checksums, flush/fsync semantics, and a verified parser under
    crash injection at every record boundary.

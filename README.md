@@ -32,8 +32,11 @@ and separate Journal/WAL bridge statement boundaries without claiming the
 bridge theorem. T6-E0 proves the generic Broker-side evidence half: an
 invariant Broker snapshot whose Journal and physical histories equal the event
 projections and whose trace has a unique terminal outcome satisfies
-`OutcomeEvidence` over the request-local adapter projection. Compatibility,
-backend wrapper discharge, and external-effect interpretation remain open.
+`OutcomeEvidence` over the request-local adapter projection. T6-C0 now proves
+the complementary `BrokerOutcomeCompatible` implication under the frozen
+`AdapterRely` assumptions, by a complete retry-class and terminal-outcome case
+analysis. T6-S0 composition, backend wrapper discharge, and external-effect
+interpretation remain open.
 
 The first research target is deliberately smaller than a complete agent
 runtime. T1 establishes the Broker-side form of the claim:
@@ -64,7 +67,7 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   B1, C1, D1, Q1, B2-R, B2-C, B2-P0, B2-P1, B2-P2, B2-P3, B2-L, B2-A,
   G0, G1-P, G1-E, T1, T2-J0, T2-J1, T2-E, T2-R, T2, T3-W0,
   T3-W1-T, T3-W1-E, T3-W1-R, T3, T4-C0, T4-C1, T4-C2, T5-S0, T5-E0,
-  T5-R0, T5-C0, H1, T6-D0, and T6-E0.
+  T5-R0, T5-C0, H1, T6-D0, T6-E0, and T6-C0.
   M0 checks a reduced atomic-Journal safety slice; R1 checks the complete typed record language and
   replay invariants; B1 checks a
   generic crash-reset append protocol and acknowledgment trace; C1 composes B1
@@ -128,7 +131,13 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   `OutcomeEvidence` conclusion from the Broker invariant and exact Journal and
   physical projection equalities, including strict-prefix Commit/Fail
   references, uniquely selected deliveries, and exact Unknown structural
-  evidence.
+  evidence. T6-C0 imports that evidence theorem and proves
+  `BrokerOutcomeCompatible`: ReadOnly needs only exact evidence; Idempotent
+  failure covers every invocation with a durable Failure delivery;
+  Deduplicated failure excludes a Success or InvalidResult observation by the
+  adapter consistency law; and Uncontrolled outcomes inherit the Broker's
+  single-invocation retry bound. Unknown outcomes additionally recover their
+  exact reason guard and durable cause from Journal legality.
 - [Adapter refinement](formal/adapter-refinement.md) defines how concrete
   retries and outcomes denote abstract effects for each adapter class.
 - [Value refinement](formal/value-refinement.md) specifies and model-checks
@@ -169,10 +178,11 @@ The current result is M0 21, R1 86, B1 39, C1 128,
   T2-J0 475, T2-J1 486, T2-E 508, T2-R 520, T2 531, T3-W0 577,
   T3-W1-T 588, T3-W1-E 626, T3-W1-R 641, T3 659, T4-C0 676, T4-C1 720,
   T4-C2 734, T5-S0 743, T5-E0 747, T5-R0 769, T5-C0 783, H1 786, T6-D0
-  799, and T6-E0 817 obligations, all with zero errors. At T5-R0, 34 registered
+  799, T6-E0 817, and T6-C0 834 obligations, all with zero errors. At T5-R0, 34 registered
   targets contained 806 dependency-aware non-duplicated obligations; T5-C0 had
   35 targets and 820; H1 had 36 targets and 823; T6-D0 had 37 targets and 839;
-  the current T6-E0 registry has 38 targets and 857.
+  T6-E0 had 38 targets and 857; the current T6-C0 registry has 39 targets and
+  874. The retained run sums 18,224 target obligations.
 
 ## Current boundary
 
@@ -339,6 +349,9 @@ boundary with isolated model/tool snapshots for TLC, strict manifest coverage,
 exact source snapshots and source-hashed Verus reports, immediate-parent import
 validation, and complete proof-policy scanning. T6-D0 fixes the terminal
 definitions, and T6-E0 now proves the generic `OutcomeEvidence` half over the
-event-level request projection. T6-C0 compatibility is next; T6-S0 composition
-and the Journal/WAL wrapper proofs remain open, as do adapter-specific external
-effects.
+event-level request projection. T6-C0 now proves the complementary
+`BrokerOutcomeCompatible` half under `AdapterRely`, including the Idempotent,
+Deduplicated, and Uncontrolled retry obligations and Unknown-cause recovery.
+It does not prove adapter effects, `Refines`, or `AdapterVerified`, and it does
+not combine the two halves or discharge the Journal/WAL wrappers. T6-S0 is the
+next checkpoint; adapter-specific external effects remain later work.

@@ -294,6 +294,31 @@ not inhabit that rely premise. It establishes neither `Refines` nor
 `AdapterVerified`, external one-effect semantics, a concrete terminal witness
 or premise-inhabitation result, or the unmodeled `ReturnResult` action.
 
+### T6-A0: current semantic boundary
+
+T6-A0 closes that semantic gap for one idempotent adapter. Generically,
+`AdapterVerified`, Journal legality, `AdapterRely`, and T6-S0's
+`TerminalEvidenceAndCompatibility` conclusion imply `Refines`; the event,
+atomic-Journal, and typed-WAL exports then imply per-request effect refinement.
+The concrete `EnsureMember` contract interprets the external state as a set and
+the operation as inserting the request's resource. Its rely separates
+environment additions from broker-linearized attempts, forbids the environment
+from inserting the target, and makes any nonempty set of recorded linearizations
+observationally one effect. A premise-free theorem instantiates a nonempty
+20-event typed-WAL Commit execution, its represented Broker, the request-local
+success history, a relying external run, and a strict one-effect/not-zero
+post-state. This is adapter-contract and model inhabitation, not verification of
+executable adapter or service code.
+
+The auxiliary `Success`-then-retry-`Failure` history is an adapter-level
+classification check with crash erased; it is not asserted to be a realizable
+Broker crash trace. The premise-free witness instead uses one successful
+invocation. Its total synthetic configuration gives capabilities universal
+resource and argument scope, so it is not a least-privilege configuration.
+T6-A0 adds no byte/filesystem or flush/fsync refinement, `CompleteMediation` or
+protected-handle theorem, `ReturnResult`, multi-request/global-effect
+linearizability, or liveness theorem.
+
 ## 6. Theorem Roadmap
 
 The normative proof layers are:
@@ -316,6 +341,7 @@ The normative proof layers are:
 | [T6-E0](mechanization-contract.md#t6-e0-terminal-evidence) | Broker invariants and exact event projections imply configuration-explicit terminal `OutcomeEvidence` over the request-local adapter history |
 | [T6-C0](mechanization-contract.md#t6-c0-terminal-compatibility) | Under `AdapterRely`, Broker invariants and exact projections imply retry-class-specific `BrokerOutcomeCompatible` for the selected terminal outcome |
 | [T6-S0](mechanization-contract.md#t6-s0-terminal-evidence-and-compatibility-bridge) | The generic terminal conclusions compose, and existing final-prefix agreement plus Journal/WAL representation discharge the frozen backend wrappers without a new simulation invariant |
+| [T6-A0](mechanization-contract.md#t6-a0-concrete-adapter-semantic-closure) | `AdapterVerified` closes the frozen terminal bridge to `Refines`; a concrete idempotent set-insert adapter and nonempty typed-WAL Commit execution inhabit the complete semantic package |
 | [T6](mechanization-contract.md#t6-conditional-end-to-end-theorem) | Under persistence, mediation, context, and adapter relies, each terminal request refines its class-specific abstract effect |
 
 T1--T5 are machine checked. T3 includes
@@ -337,12 +363,14 @@ the Broker invariant and exact event projections. T6-C0 proves the
 `BrokerOutcomeCompatible` half by terminal-outcome and retry-class analysis.
 T6-S0 completes their conjunction and the two frozen backend wrappers by
 reusing final-prefix trace agreement and the existing representation
-relations. It introduces no new simulation invariant. T6 remains open. H1 adds
-an unconditional
+relations. It introduces no new simulation invariant. T6-A0 then applies an
+`AdapterVerified` interpretation to obtain generic `Refines` and per-request
+effect-refinement exports and inhabits them with `EnsureMember` plus a terminal
+typed-WAL execution. Full conditional T6 remains open. H1 adds an unconditional
 configuration/package inhabitance theorem and artifact evidence, not an
 external semantic interpretation; its inert witness does not inhabit a
-terminal `AdapterRely` execution. None of the completed results yet interprets
-the physical history as an external tool effect.
+terminal `AdapterRely` execution. T6-A0's separate witness now interprets one
+request-local physical history as an external set-insertion effect.
 
 T1--T5 are proved safety and refinement results, and T6 is a planned refinement
 result, for arbitrary finite executions with
@@ -371,6 +399,7 @@ correctness.
 | Exact recovery-episode committed history | Completed T5-R0 for all three closed executions: event-only first-Finish predicate, derived recovery-repair classification, per-step zero delta and stuttering, exact pre-Crash/post-Finish equality, and inhabited minimal plus repeated-Crash witnesses |
 | Contextual mapped committed history | Completed T5-C0: exact T3/T2/T4 delta refinement, WAL/Broker `alpha_commit` equality at every canonical mapped prefix, four source/mapped recovery endpoint equalities, exported storage-parametric contextual theorem, and a combined inert-context six-event/seven-state witness; no target Broker episode is concluded |
 | Terminal evidence and compatibility bridge | Completed T6-S0: T6-E0 evidence and T6-C0 compatibility compose at the Broker boundary; final-prefix trace agreement and the existing atomic-Journal/WAL representation relations discharge both frozen wrappers without a new simulation invariant; adapter effects and a concrete terminal `AdapterRely` witness remain excluded |
+| Concrete adapter semantic closure | Completed T6-A0: the frozen bridge plus `AdapterVerified` implies `Refines` and per-request effect refinement; `EnsureMember` supplies an idempotent set-insert interpretation, nondegeneracy facts, and a premise-free nonempty 20-event typed-WAL Commit package satisfying `AdapterRely` |
 | Direct BrokerContext[WAL]-to-Broker refinement | Temporal projections checked with phased recovery in bounded uncontrolled and idempotent-retry products |
 | Two-request/two-capability composed prefix | Checked for cross-request interleavings and recovery quarantine; the five-record bound does not reach normal terminal records |
 | Verus M0 parameterized safety slice | 21 obligations verified with no admitted proof bodies; reduced atomic-Journal language only |
@@ -390,32 +419,33 @@ correctness.
 | Verus G0 global event closure | 342 obligations verified transitively with no admitted proof bodies: the B2-A closure plus 7 obligations for the 22-constructor global event ADT, exact 11 accepted/11 rejected Broker boundary, and encode/decode inversion |
 | Verus G1-P global projections | 410 obligations verified transitively with no admitted proof bodies: the G0 closure plus 68 obligations defining and relating all normative global projections without changing prefix indices |
 | Verus G1-E relational execution | 429 obligations verified transitively with no admitted proof bodies: the G1-P closure plus 19 obligations for relational configuration-sequence `Exec`, prefix closure, backend-event rejection, and exact correspondence with the local verified runner |
-| Verus T1 parameterized Broker safety | 461 obligations verified transitively with no admitted proof bodies: the G1-E closure plus 32 obligations for exact per-prefix `TraceAgreement`, including Invoke cut agreement, all thirteen invariant clauses, append/recovery structure, invocation and retry safety, terminal uniqueness, committed-value provenance, and the exported generic theorem |
-| Verus T2-J0 independent atomic runtime | 475 obligations verified transitively with no admitted proof bodies: the T1 closure plus 14 obligations for the replay-shadow-free concrete state, exact 11-constructor runtime boundary, direct transitions, relational execution, Journal legality, and append-invariant preservation |
-| Verus T2-J1 atomic trace agreement | 486 obligations verified transitively with no admitted proof bodies: the T2-J0 closure plus 11 obligations for operational trace admissibility, exact per-prefix Journal/physical/acknowledgment and Invoke-cut agreement, successful cuts, and prefix closure |
-| Verus T2-E event refinement | 508 obligations verified transitively with no admitted proof bodies: the T2-J1 closure plus 22 obligations for the one-label linearization renaming, non-silence of every accepted source step, trace translation, and equality of every normative T2 projection |
-| Verus T2-R exact representation | 520 obligations verified transitively with no admitted proof bodies: the T2-E closure plus 12 obligations for proof-only abstraction, exact acknowledgment and source predicates, the full-history-to-acknowledged-prefix Start bridge, same-payload invalid-result provenance, and derivation from the local inductive invariant |
-| Verus T2 atomic-Journal simulation | 531 obligations verified transitively with no admitted proof bodies: the T2-R closure plus 11 obligations for step commutation, constructed Broker execution, reusable weak-index shape, identity weak-index map, per-prefix representation/projection agreement, and the exported generic existential theorem |
-| Verus T3-W0 typed-WAL runtime invariant | 577 obligations verified transitively with no admitted proof bodies: the T2 closure plus 46 obligations for LSN-sensitive Full/Torn parsing, exact 17-constructor runtime closure, direct crash/scan/recovery transitions, all eight `WALInvariant` clauses, B1/ghost coupling, parsed-history monotonicity, acknowledged-prefix durability, execution-prefix closure, and every-state preservation |
-| Verus T3-W1-T WAL trace agreement | 588 obligations verified transitively with no admitted proof bodies: the T3-W0 closure plus 11 obligations for operational admissibility, exact successful-return cuts, per-prefix parsed-history agreement, Invoke cut agreement, and prefix closure |
-| Verus T3-W1-E WAL event compression | 626 obligations verified transitively with no admitted proof bodies: the T3-W1-T closure plus 38 obligations for exact 12-match/5-stutter translation, compressed-prefix arithmetic, Journal closure, exact silence, and equality of every normalized T3 projection except the private `pi_wal` view |
-| Verus T3-W1-R WAL/Journal representation | 641 obligations verified transitively with no admitted proof bodies: the T3-W1-E closure plus 15 obligations for the field-explicit parse relation, initial representation, projected invariants, visible-step commutation, and internal-step projection preservation |
-| Verus T3 typed-WAL simulation | 659 obligations verified transitively with no admitted proof bodies: the T3-W1-R closure plus 18 obligations for the deterministic compressed Journal execution, reused weak-index shape, exact step matching, per-prefix representation/projection agreement, cross-prefix acknowledged durability, and the exported generic existential theorem |
-| Verus T4-C0 closed WAL-to-Broker composition | 676 obligations verified transitively with no admitted proof bodies: the T3 closure plus 17 obligations for generic weak-index and weak-simulation composition, T2 lockstep collapse, composed representation and normalized projection agreement, the canonical WAL-to-Broker witness, and T1 safety for the target and every mapped prefix |
-| Verus T4-C1 context observation and plugging | 720 obligations verified transitively with no admitted proof bodies: the T4-C0 closure plus 44 obligations for ordered normalized observations, exact append-I/O recovery, masked endpoint views, T2/T3 whole-history compatibility, three structural plugged products, erasure, hidden stuttering, prefix closure, and shared zero-step and visible-`Crash` witnesses |
-| Verus T4-C2 contextual replacement and composition | 734 obligations verified transitively with no admitted proof bodies: the T4-C1 closure plus 14 obligations for T3-selected context compression, canonical plugged Journal/Broker construction, transferred context acceptance, exact mapped context-state and ordered endpoint-view equality, and the exported storage-parametric forward replacement theorem |
-| Verus T5-S0 exact one-step committed history | 743 obligations verified transitively with no admitted proof bodies: the T4-C2 closure plus 9 obligations for exact Broker/Journal/WAL commit deltas, prefix monotonicity, and exact WAL parsed-view behavior under the runtime `wal_invariant` |
-| Verus T5-E0 execution-interval monotonicity | 747 obligations verified transitively with no admitted proof bodies: the T5-S0 closure plus 4 obligations for generic prefix transitivity and Broker/Journal/WAL interval induction; the WAL export requires only `Exec` |
-| Verus T5-R0 recovery-episode equality | 769 obligations verified transitively with no admitted proof bodies: the T5-E0 closure plus 22 obligations for recovery completeness/nonvacuity, generic repair and sequence facts, three-backend mode confinement, non-Online and per-episode step stuttering, prefix invariants, and endpoint equality; at this checkpoint 34 registered targets contained 806 non-duplicated obligations |
-| Verus T5-C0 contextual mapped recovery | 783 obligations verified transitively with no admitted proof bodies: the T5-R0 closure plus 13 delta-translation, weak-step, representation, mapped-prefix, recovery-endpoint, canonical, contextual, and paper-export obligations, plus 1 combined inert-context nonvacuity witness |
-| Verus H1 artifact nonvacuity | 786 obligations verified transitively with no admitted proof bodies: the historical T5-C0 closure plus 3 obligations for a concrete total `FullConfig`, an unconditional concrete T5-C0 premise/conclusion package, and the existential cumulative-artifact inhabitance theorem |
-| Verus T6-D0 terminal-definition freeze | 799 obligations verified transitively with no admitted proof bodies: the historical T5-C0 closure plus 16 obligations for evidence/compatibility branch unfolding, empty/singleton/duplicate terminal selection, unique/duplicate delivery cases, exact replay-Unknown decomposition, and adapter-rely/verification projections; it freezes statement interfaces but does not prove the T6 bridge |
-| Verus T6-E0 terminal evidence | 817 obligations verified transitively with no admitted proof bodies: the T6-D0 closure plus 18 obligations for terminal-selector soundness, exact Outcome projection, causal-prefix preservation, physical-delivery uniqueness and selection, request-local projection preservation, the three terminal-evidence branches, and generic history/event exports; compatibility and backend wrappers remain excluded |
-| Verus T6-C0 terminal compatibility | 834 obligations verified transitively with no admitted proof bodies: the T6-E0 closure plus 17 obligations for request-local invocation accounting, delivery-to-invocation selection, acknowledged-invocation witnesses, Deduplicated observation exclusion, Idempotent all-attempt failure coverage, Unknown-cause reconstruction, Uncontrolled invocation bounds, and the generic event/core compatibility exports; combined evidence, backend wrappers, and adapter effects remain excluded |
-| Verus T6-S0 terminal bridge | 840 obligations verified transitively with no admitted proof bodies: the T6-C0 closure plus 6 obligations that combine T6-E0 evidence with T6-C0 compatibility, export the frozen core implication, and discharge the atomic-Journal and typed-WAL wrappers from their assumed execution, admissibility, final-prefix trace-agreement, and representation premises; no simulation invariant, adapter effect theorem, terminal `AdapterRely` witness, or caller-result action is added |
+| Verus T1 parameterized Broker safety | 462 obligations verified transitively with no admitted proof bodies: the G1-E closure plus 33 obligations for exact per-prefix `TraceAgreement`, including Invoke cut agreement, all thirteen invariant clauses, append/recovery structure, invocation and retry safety, terminal uniqueness, committed-value provenance, the exported generic theorem, and the conservative configuration-accessor lemma |
+| Verus T2-J0 independent atomic runtime | 476 obligations verified transitively with no admitted proof bodies: the T1 closure plus 14 obligations for the replay-shadow-free concrete state, exact 11-constructor runtime boundary, direct transitions, relational execution, Journal legality, and append-invariant preservation |
+| Verus T2-J1 atomic trace agreement | 487 obligations verified transitively with no admitted proof bodies: the T2-J0 closure plus 11 obligations for operational trace admissibility, exact per-prefix Journal/physical/acknowledgment and Invoke-cut agreement, successful cuts, and prefix closure |
+| Verus T2-E event refinement | 509 obligations verified transitively with no admitted proof bodies: the T2-J1 closure plus 22 obligations for the one-label linearization renaming, non-silence of every accepted source step, trace translation, and equality of every normative T2 projection |
+| Verus T2-R exact representation | 521 obligations verified transitively with no admitted proof bodies: the T2-E closure plus 12 obligations for proof-only abstraction, exact acknowledgment and source predicates, the full-history-to-acknowledged-prefix Start bridge, same-payload invalid-result provenance, and derivation from the local inductive invariant |
+| Verus T2 atomic-Journal simulation | 532 obligations verified transitively with no admitted proof bodies: the T2-R closure plus 11 obligations for step commutation, constructed Broker execution, reusable weak-index shape, identity weak-index map, per-prefix representation/projection agreement, and the exported generic existential theorem |
+| Verus T3-W0 typed-WAL runtime invariant | 578 obligations verified transitively with no admitted proof bodies: the T2 closure plus 46 obligations for LSN-sensitive Full/Torn parsing, exact 17-constructor runtime closure, direct crash/scan/recovery transitions, all eight `WALInvariant` clauses, B1/ghost coupling, parsed-history monotonicity, acknowledged-prefix durability, execution-prefix closure, and every-state preservation |
+| Verus T3-W1-T WAL trace agreement | 589 obligations verified transitively with no admitted proof bodies: the T3-W0 closure plus 11 obligations for operational admissibility, exact successful-return cuts, per-prefix parsed-history agreement, Invoke cut agreement, and prefix closure |
+| Verus T3-W1-E WAL event compression | 627 obligations verified transitively with no admitted proof bodies: the T3-W1-T closure plus 38 obligations for exact 12-match/5-stutter translation, compressed-prefix arithmetic, Journal closure, exact silence, and equality of every normalized T3 projection except the private `pi_wal` view |
+| Verus T3-W1-R WAL/Journal representation | 642 obligations verified transitively with no admitted proof bodies: the T3-W1-E closure plus 15 obligations for the field-explicit parse relation, initial representation, projected invariants, visible-step commutation, and internal-step projection preservation |
+| Verus T3 typed-WAL simulation | 660 obligations verified transitively with no admitted proof bodies: the T3-W1-R closure plus 18 obligations for the deterministic compressed Journal execution, reused weak-index shape, exact step matching, per-prefix representation/projection agreement, cross-prefix acknowledged durability, and the exported generic existential theorem |
+| Verus T4-C0 closed WAL-to-Broker composition | 677 obligations verified transitively with no admitted proof bodies: the T3 closure plus 17 obligations for generic weak-index and weak-simulation composition, T2 lockstep collapse, composed representation and normalized projection agreement, the canonical WAL-to-Broker witness, and T1 safety for the target and every mapped prefix |
+| Verus T4-C1 context observation and plugging | 721 obligations verified transitively with no admitted proof bodies: the T4-C0 closure plus 44 obligations for ordered normalized observations, exact append-I/O recovery, masked endpoint views, T2/T3 whole-history compatibility, three structural plugged products, erasure, hidden stuttering, prefix closure, and shared zero-step and visible-`Crash` witnesses |
+| Verus T4-C2 contextual replacement and composition | 735 obligations verified transitively with no admitted proof bodies: the T4-C1 closure plus 14 obligations for T3-selected context compression, canonical plugged Journal/Broker construction, transferred context acceptance, exact mapped context-state and ordered endpoint-view equality, and the exported storage-parametric forward replacement theorem |
+| Verus T5-S0 exact one-step committed history | 744 obligations verified transitively with no admitted proof bodies: the T4-C2 closure plus 9 obligations for exact Broker/Journal/WAL commit deltas, prefix monotonicity, and exact WAL parsed-view behavior under the runtime `wal_invariant` |
+| Verus T5-E0 execution-interval monotonicity | 748 obligations verified transitively with no admitted proof bodies: the T5-S0 closure plus 4 obligations for generic prefix transitivity and Broker/Journal/WAL interval induction; the WAL export requires only `Exec` |
+| Verus T5-R0 recovery-episode equality | 770 obligations verified transitively with no admitted proof bodies: the T5-E0 closure plus 22 obligations for recovery completeness/nonvacuity, generic repair and sequence facts, three-backend mode confinement, non-Online and per-episode step stuttering, prefix invariants, and endpoint equality; in the current report the first 34 registered targets contain 807 non-duplicated obligations |
+| Verus T5-C0 contextual mapped recovery | 784 obligations verified transitively with no admitted proof bodies: the T5-R0 closure plus 13 delta-translation, weak-step, representation, mapped-prefix, recovery-endpoint, canonical, contextual, and paper-export obligations, plus 1 combined inert-context nonvacuity witness |
+| Verus H1 artifact nonvacuity | 787 obligations verified transitively with no admitted proof bodies: the T5-C0 closure plus 3 obligations for a concrete total `FullConfig`, an unconditional concrete T5-C0 premise/conclusion package, and the existential cumulative-artifact inhabitance theorem |
+| Verus T6-D0 terminal-definition freeze | 800 obligations verified transitively with no admitted proof bodies: the T5-C0 closure plus 16 obligations for evidence/compatibility branch unfolding, empty/singleton/duplicate terminal selection, unique/duplicate delivery cases, exact replay-Unknown decomposition, and adapter-rely/verification projections; it freezes statement interfaces but does not prove the T6 bridge |
+| Verus T6-E0 terminal evidence | 818 obligations verified transitively with no admitted proof bodies: the T6-D0 closure plus 18 obligations for terminal-selector soundness, exact Outcome projection, causal-prefix preservation, physical-delivery uniqueness and selection, request-local projection preservation, the three terminal-evidence branches, and generic history/event exports; compatibility and backend wrappers remain excluded |
+| Verus T6-C0 terminal compatibility | 835 obligations verified transitively with no admitted proof bodies: the T6-E0 closure plus 17 obligations for request-local invocation accounting, delivery-to-invocation selection, acknowledged-invocation witnesses, Deduplicated observation exclusion, Idempotent all-attempt failure coverage, Unknown-cause reconstruction, Uncontrolled invocation bounds, and the generic event/core compatibility exports; combined evidence, backend wrappers, and adapter effects remain excluded |
+| Verus T6-S0 terminal bridge | 841 obligations verified transitively with no admitted proof bodies: the T6-C0 closure plus 6 obligations that combine T6-E0 evidence with T6-C0 compatibility, export the frozen core implication, and discharge the atomic-Journal and typed-WAL wrappers from their assumed execution, admissibility, final-prefix trace-agreement, and representation premises; no simulation invariant, adapter effect theorem, terminal `AdapterRely` witness, or caller-result action is added |
+| Verus T6-A0 concrete semantic closure | 864 obligations verified transitively with no admitted proof bodies and zero errors: the current T6-S0 closure is 841 obligations after a conservative definitional T1 accessor, and A0 adds 23 obligations for generic `Refines`/per-request exports, the `EnsureMember` semantic contract and `AdapterVerified` proof, nondegeneracy and mixed-history semantic checks, the concrete 20-event WAL execution, its terminal rely/refinement package, and premise-free existential inhabitation |
 | Byte decoding and checksum correctness | Not yet modeled |
 | Actual flush/fsync and filesystem contract | Assumed below the typed WAL |
-| Parameterized proof | The current 40 registered Verus targets verify 880 dependency-aware non-duplicated obligations, with 19,064 summed target obligations; T6-S0 verifies 840 cumulative obligations, 6 beyond T6-C0; the historical T5-C0 checkpoint was 783 cumulative obligations across 35 targets and 820 non-duplicated obligations; T1--T5, H1, T6-D0, T6-E0, T6-C0, and T6-S0 are complete, while adapter-specific semantics and end-to-end T6 remain open |
+| Parameterized proof | The current 41/41 registered Verus targets pass and verify 904 dependency-aware non-duplicated obligations, with 19,951 summed target obligations; current T6-S0 is 841 cumulative obligations and T6-A0 is 864, a delta of 23; the historical retained T6-S0 checkpoint was 840 across 40 targets with 880 non-duplicated obligations; T1--T5, H1, T6-D0, T6-E0, T6-C0, T6-S0, and the T6-A0 single-adapter semantic closure are complete, while full end-to-end T6 remains open |
 
 The TLA+ results are model-checking evidence for the architecture and theorem
 statements. The TLC runner first validates exact manifest structure, unique
@@ -466,5 +496,7 @@ inhabited under a concrete total configuration and records the hardened
 artifact boundary. T6-E0 and T6-C0 establish the two generic terminal halves;
 T6-S0 combines them and discharges both backend wrappers through the existing
 trace-agreement and representation premises, without a new simulation
-invariant. Adapter effect refinement, a concrete terminal `AdapterRely`
-witness, and end-to-end T6 remain open.
+invariant. T6-A0 closes the generic result to `Refines` under
+`AdapterVerified` and supplies the concrete `EnsureMember` semantic contract
+and terminal `AdapterRely` witness. Executable-adapter verification and full
+end-to-end T6 remain open.

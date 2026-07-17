@@ -169,8 +169,8 @@ physical at-most-once behavior.
 |---|---|---|
 | Abstract transition system | Model checked in finite instances; arbitrary finite request-to-capability maps are configuration parameters | TLA+ exploration plus machine-checked T1 Broker safety and T2 atomic-Journal simulation |
 | Rust broker core | To be verified | Verus functional-correctness proof |
-| Adapter retry declaration | Trusted per adapter | Replaced by an adapter refinement proof |
-| Abstract Journal interface | T2 proves atomic-Journal-to-Broker simulation; T4-C0 closes WAL-to-Broker composition; T4-C1 establishes structural three-backend plugging; T4-C2 proves storage-parametric finite forward contextual replacement; T5-S0 proves exact one-step committed-history laws; T5-E0 proves finite execution-interval monotonicity; T5-R0 proves exact first-Finish recovery equality; T5-C0 exports the equality through the canonical contextual map and completes T5; H1 proves the cumulative package inhabited under a concrete total configuration; T6-D0 freezes the terminal/adapter evidence interface; T6-E0 derives generic Broker terminal evidence from the invariant and exact event projections; T6-C0 proves the frozen class-specific Broker compatibility branches; T6-S0 combines both halves and transports the conjunction through atomic-Journal and typed-WAL representations | Adapter/effect refinement and concrete adapter instances follow later |
+| Adapter retry declaration | Trusted for executable adapters and services; T6-A0 proves the abstract `EnsureMember` interpretation is `AdapterVerified` assuming its declared `AdapterRely` | Refine executable protocol/service behavior to that rely for each deployment and discharge the same contract for each additional adapter |
+| Abstract Journal interface | T2 proves atomic-Journal-to-Broker simulation; T4-C0 closes WAL-to-Broker composition; T4-C1 establishes structural three-backend plugging; T4-C2 proves storage-parametric finite forward contextual replacement; T5-S0 proves exact one-step committed-history laws; T5-E0 proves finite execution-interval monotonicity; T5-R0 proves exact first-Finish recovery equality; T5-C0 exports the equality through the canonical contextual map and completes T5; H1 proves the cumulative package inhabited under a concrete total configuration; T6-D0 freezes the terminal/adapter evidence interface; T6-E0 derives generic Broker terminal evidence from the invariant and exact event projections; T6-C0 proves the frozen class-specific Broker compatibility branches; T6-S0 combines both halves and transports the conjunction through atomic-Journal and typed-WAL representations; T6-A0 closes that bridge to `Refines` under `AdapterVerified` and inhabits one concrete semantic instance | Extend from the `EnsureMember` semantic instance to executable adapters, deployment mediation, and additional adapter classes |
 | WAL model and implementation | Bounded typed-frame refinement with interruptible scan checked; implementation unverified | Extend `WAL -> Journal` to byte decoding, checksums, partial truncation, flush/fsync, atomic-write, and filesystem assumptions |
 | Rust compiler and Verus toolchain | Trusted; the Verus and rustup archives are hash pinned, while the exact Rust version is freshly installed from the official rustup service and recorded by tree hash | Document versions and soundness assumptions; retain source-hashed verification reports |
 | Verification evidence pipeline | Verus runs on an exact source snapshot and reports schema/source/runner/lock/tool hashes and counts; TLC runs from isolated model/tool snapshots and reports them by hash | Preserve complete source/import and configuration-manifest coverage; reports do not remove trust in Verus, TLC, Rust distribution services, Java, PowerShell, or SHA-256 implementations |
@@ -267,9 +267,28 @@ frozen `TerminalEvidenceAndCompatibility` conclusion. Its atomic-Journal and
 typed-WAL wrappers derive the exact final evidence projections through their
 respective execution, trace-agreement, and representation boundaries and
 transport that conjunction without adding a backend simulation. T6-S0 verifies
-840 cumulative obligations, 6 beyond T6-C0. The current 40-target registry
-contains 880 dependency-aware non-duplicated obligations; the
-cumulative-target sum is 19,064.
+840 cumulative obligations, 6 beyond T6-C0. At that historical checkpoint, the
+40-target registry contained 880 dependency-aware non-duplicated obligations
+and the cumulative-target sum was 19,064.
+
+### T6-A0 current semantic boundary
+
+T6-A0 then proves the generic closure from Journal legality, `AdapterRely`,
+`AdapterVerified`, and `TerminalEvidenceAndCompatibility` to `Refines` and
+per-request effect refinement. Its concrete `EnsureMember` semantic contract
+models an idempotent insertion into a resource set, with environment additions
+separated from broker-linearized attempts. A premise-free package constructs a
+nonempty 20-event typed-WAL execution, its represented final Broker, a terminal
+Commit, a relying external run, and the strict one-effect/not-zero conclusion.
+All 41/41 registered targets pass in the current retained run. A conservative
+definitional T1 accessor makes the current T6-S0 cumulative closure 841
+obligations; T6-A0
+verifies 864 with zero errors, a delta of 23. The current registry contains 904
+dependency-aware non-duplicated obligations and sums to 19,951 target
+obligations.
+
+### Residual boundary and model assumptions
+
 The T5-C0 result is mapped configuration-prefix equality, not a transported
 target Broker
 `RecoveryEpisode`; it uses `mu[finish + 1]`, not `mu[finish]`, and proves no
@@ -278,7 +297,16 @@ WAL/filesystem correctness. H1 is only an inhabitance result: its minimal
 witness does not demonstrate a nonempty pre-crash commit history or a real
 adapter effect or a concrete terminal `AdapterRely` premise. T6-S0 likewise
 does not establish `Refines`, `AdapterVerified`, a concrete adapter instance,
-`ReturnResult`, or broader security or liveness claims. The
+`ReturnResult`, or broader security or liveness claims. T6-A0 supplies
+`Refines`, the fixed `EnsureMember` `AdapterVerified` instance, and a concrete
+terminal `AdapterRely` witness, but it does not verify executable adapter or
+remote-service code. Its synthetic configuration gives every capability
+universal resource and argument scope, so it is a consistency witness rather
+than a least-privilege deployment. Its mixed `Success`-retry-`Failure` history
+is an adapter-level, crash-erased semantic check, not a realizable Broker/WAL
+crash trace. T6-A0 also proves no byte/filesystem or flush/fsync behavior,
+`CompleteMediation` or protected-handle exclusivity, caller-visible
+`ReturnResult`, multi-request/global-effect linearizability, or liveness. The
 product checks `BrokerDurable = Replay(Parse(media))`, synchronized WAL/Broker
 crash control, Broker-stuttering scan/truncation/abort phases, recovery-only
 terminal staging, WAL-quiescence-gated response acceptance, and acknowledged
@@ -475,10 +503,12 @@ required uncontrolled invocation bounds. T6-S0 now combines these halves into
 the frozen `TerminalEvidenceAndCompatibility` conclusion and proves separate
 atomic-Journal and typed-WAL wrapper statements by transporting exact final
 evidence through trace agreement and representation. This completes the
-Broker/history bridge, but not `Refines`, `AdapterVerified`, adapter effects,
-concrete adapter instances, a concrete terminal `AdapterRely` witness,
-`ReturnResult`, or broader security or liveness properties. Adapter-effect
-refinement follows later. H1 additionally
+Broker/history bridge. T6-A0 now applies `AdapterVerified` to that bridge,
+proves the generic `Refines` and per-request-effect exports, and supplies the
+concrete `EnsureMember` contract plus a premise-free terminal typed-WAL
+`AdapterRely` witness. It remains a semantic instance, not executable
+adapter/service verification, deployment mediation, `ReturnResult`, or a
+broader security, global-linearizability, or liveness result. H1 additionally
 supplies a concrete total configuration/package witness and hardened evidence
 capture: the Verus runner
 checks an exact read-only source snapshot around every target and records its
@@ -495,4 +525,5 @@ The parameterized proof is organized as
 [T4-C1 context observation and plugging](mechanization-contract.md#t4-c1-context-observation-and-plugging-foundation),
 [T4-C2 contextual composition](mechanization-contract.md#t4-c2-contextual-replacement-and-composition),
 [T5 recovery preservation](mechanization-contract.md#t5-recovery-and-committed-history-prefix-preservation),
+[T6-A0 concrete adapter semantic closure](mechanization-contract.md#t6-a0-concrete-adapter-semantic-closure),
 and [T6 conditional end-to-end refinement](mechanization-contract.md#t6-conditional-end-to-end-theorem).

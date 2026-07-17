@@ -652,22 +652,53 @@ Neither wrapper proves a new backend simulation invariant: both consume the
 already-stated execution, admissibility, trace-agreement, and representation
 premises and rewrite the core conclusion to the final backend evidence records.
 
-T6-S0 adds 6 obligations beyond T6-C0 and verifies 840 cumulative obligations
-with zero errors. The current 40 registered targets contain 880 dependency-
-aware non-duplicated obligations, and the sum of their cumulative target
-obligations is 19,064. T6-S0 does not establish `Refines`, `AdapterVerified`,
+T6-S0 added 6 obligations beyond T6-C0 and its historical retained target
+verified 840 cumulative obligations with zero errors. That 40-target registry
+contained 880 dependency-aware non-duplicated obligations, and the sum of its
+cumulative target obligations was 19,064. T6-S0 does not establish `Refines`, `AdapterVerified`,
 external one-effect semantics, a concrete terminal witness or premise-
 inhabitation theorem, or `ReturnResult`. H1's inert witness does not inhabit
 the terminal `AdapterRely` premise.
+
+T6-A0 closes the first adapter-semantic instance. Its generic theorem combines
+`AdapterVerified` with T6-S0's `TerminalEvidenceAndCompatibility` conclusion,
+Journal legality, and `AdapterRely` to derive `Refines`; selected-terminal
+event, Journal, and WAL wrappers derive `PerRequestEffectRefinement`. The
+concrete idempotent `EnsureMember` interpretation models an external resource
+set. Environment additions define the interference baseline, zero effect leaves
+that baseline unchanged, and one effect adds the request's target. Recorded
+linearized attempts must have been invoked; their set selects the one-effect
+branch when nonempty and the zero-effect branch otherwise. The proof establishes
+`AdapterVerified` for the fixed concrete paper and nondegeneracy on an exact
+empty-to-singleton run.
+
+The concrete package contains a 20-event, 21-configuration typed-WAL execution
+with six acknowledged records (`Authorize`, `Prepare`, `Arm`, `Start`,
+`Outcome`, `Commit`), one Invoke, one delivered Success, exact final
+representation, and a selected Commit. The premise-free existential fixes the
+paper, request, run, outcome, records, and physical history. T6-A0 verifies 864
+cumulative obligations with zero errors, 23 beyond the current 841-obligation
+T6-S0 closure. The 41 registered targets contain 904 dependency-aware
+non-duplicated obligations and sum 19,951 target obligations. The current T6-S0
+count is one above its historical checkpoint because T6-A0 adds a conservative
+definitional configuration-accessor lemma at T1.
+
+T6-A0 verifies a semantic adapter contract, not an executable adapter or remote
+service. Its crash-erased Invoke/Success/Invoke/Failure example is an adapter
+sequence law, not a realizable Broker/WAL crash trace. It does not prove
+byte/fsync persistence, `CompleteMediation`, protected handles, `ReturnResult`,
+multi-request/global linearizability, liveness, or least privilege for the
+synthetic full-capability witness.
 
 The complete hierarchy is T1 parameterized Broker safety, T2 independent
 atomic-Journal runtime simulation, T3 typed-WAL simulation, completed T4-C0
 closed-machine composition, completed T4-C1 context observation and structural
 plugging, completed T4-C2 contextual replacement and composition, T5 committed-
 history prefix preservation, and T6 conditional end-to-end per-request effect
-refinement. T1--T5, H1, T6-D0, T6-E0 evidence, T6-C0 compatibility, and T6-S0
-composition plus backend wrappers are now complete. Adapter-effect refinement
-and the full end-to-end T6 theorem follow later.
+refinement. T1--T5, H1, T6-D0, T6-E0 evidence, T6-C0 compatibility, T6-S0
+composition plus backend wrappers, and the first concrete T6-A0 adapter
+semantics are now complete. Executable-adapter refinement and the full
+conditional end-to-end T6 theorem follow later.
 Under the complete stated
 persistence, mediation, context, and adapter rely conditions, the broker
 provides authorized, per-internal-request at-most-once logical completion and
@@ -691,9 +722,11 @@ from T4, adapter effect refinement from T4, or byte-level WAL correctness.
 | Contextual replacement | Well-formed configuration, storage-parametric context, a plugged WAL execution, and the completed T4-C0/T4-C1 results | Completed T4-C2: canonical plugged Broker construction; T3-translation-selected context compression; exact context-state and ordered endpoint-view equality at every canonical mapped prefix; inherited C0 simulation, projection, T1, and mapped-prefix T1 conclusions |
 | Byte-level WAL implementation | Encoding, checksum, partial-truncation, flush/fsync, atomic-write, and filesystem assumptions | Concrete bytes and recovery parsing refine the typed WAL/Journal contract |
 | Scheduler | One globally serialized executor slot in V1 | No simultaneous invocation; multi-worker ownership is deferred |
-| Adapter | Declared retry and environment contract | Concrete protocol traces refine one abstract tool operation |
+| Adapter semantics | Declared retry and environment contract | T6-A0 proves the first concrete `EnsureMember` semantic interpretation refines zero or one abstract set insertion |
+| Executable adapter | Concrete adapter/service protocol steps | Executions refine the T6-A0 semantic contract; this remains open |
 | Recovery | Durable journal is readable | Committed history is preserved; unsafe retries are rejected |
 | Terminal bridge | `AdapterRely`, a selected terminal, and the existing Journal/WAL execution, admissibility, trace-agreement, and representation premises | T6-S0 combines terminal evidence with compatibility and transports the result to each backend's final evidence records without adding a simulation invariant |
+| Adapter closure | `AdapterVerified`, Journal legality, `AdapterRely`, and terminal evidence/compatibility | T6-A0 derives `Refines` and per-request effect refinement and supplies an exact nonempty typed-WAL witness |
 
 The proof hierarchy is therefore:
 

@@ -280,11 +280,48 @@ is combined by T6-S0 with `OutcomeEvidence` into the frozen
 conjunction through the atomic-Journal and typed-WAL final-state
 representations, preserving the exact evidence records selected at the backend
 boundary. It verifies 840 cumulative obligations, 6 beyond T6-C0; the
-40-target registry contains 880 dependency-aware non-duplicated obligations
-with cumulative-target sum 19,064.
+historical 40-target registry contains 880 dependency-aware non-duplicated
+obligations with cumulative-target sum 19,064.
 
 This transport does not establish `Refines`, `AdapterVerified`, value semantics
 over the external pre/post-state, any adapter effect, a concrete adapter
 instance or terminal `AdapterRely` witness, or broader security or liveness
-claims. Adapter-effect refinement follows later. Neither T1 nor T6-E0 through
-T6-S0 covers delivery to the agent; `ReturnResult` remains outside theorem V1.
+claims. Those statements remain the exact boundary of the historical T6-S0
+checkpoint.
+
+### T6-A0 value and effect closure
+
+T6-A0 proves the generic semantic step from T6-S0 to value/effect refinement:
+Journal legality, `AdapterRely`, `AdapterVerified`, and
+`TerminalEvidenceAndCompatibility` imply `Refines`, and the event,
+atomic-Journal, and typed-WAL exports imply per-request effect refinement. Its
+concrete `EnsureMember` adapter accepts a successful value only when its
+identifier is 1 and the corresponding attempt is recorded as externally
+linearized. The result specification additionally requires the post-state set
+to contain the request's target resource. The set-insert postcondition is
+idempotent, and the proof distinguishes a genuine one-effect state from zero
+effect.
+
+The premise-free package uses a nonempty 20-event typed-WAL execution with one
+physical invocation, one successful delivery, a durable successful Outcome,
+and a Commit carrying that value. It proves the concrete `AdapterRely`, exact
+terminal evidence and compatibility, `Refines`, per-request effect refinement,
+and one-effect/not-zero conclusion together. An auxiliary mixed
+`Success`-retry-`Failure` lemma checks only adapter-level classification after
+crash erasure; that sequence is not claimed to be a realizable Broker/WAL crash
+trace.
+
+All 41/41 registered targets pass in the current retained run. A conservative
+definitional T1 accessor raises the current T6-S0 cumulative closure from its
+historical 840 to
+841 obligations. T6-A0 verifies 864 obligations with zero errors, adding 23
+over that parent; the current non-duplicated total is 904 and the summed target
+total is 19,951.
+
+The `EnsureMember` relation is a semantic specification, not verified
+executable adapter or service code. Its synthetic total configuration grants
+universal resource and argument scope and therefore does not establish least
+privilege. T6-A0 proves no byte encoding or flush/fsync behavior, no
+`CompleteMediation` or protected-handle property, no multi-request/global
+linearizability, and no liveness. Neither T1 nor T6-A0 covers delivery to the
+agent; caller-visible `ReturnResult` remains outside theorem V1.

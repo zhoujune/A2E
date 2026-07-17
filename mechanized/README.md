@@ -25,8 +25,12 @@ Broker `OutcomeEvidence` implication over the request-local adapter projection.
 T6-C0 proves the complementary `BrokerOutcomeCompatible` implication under the
 frozen adapter rely. T6-S0 combines both implications and discharges the atomic-
 Journal and typed-WAL bridge statements through their verified trace-agreement
-and representation boundaries. T4, T5, and the T6 terminal bridge are complete;
-the adapter-specific end-to-end effect theorem remains open.
+and representation boundaries. T6-A0 closes the first concrete semantic adapter
+instance: it derives `Refines` and per-request refinement from the frozen bridge,
+proves an idempotent `EnsureMember` set-insertion contract, and supplies an exact
+nonempty typed-WAL terminal witness. T4, T5, the T6 terminal bridge, and the
+first adapter-semantic closure are complete; executable adapter refinement and
+the full conditional end-to-end theorem remain open.
 
 ## M0: reduced atomic-Journal safety
 
@@ -925,6 +929,51 @@ witness or caller-visible `ReturnResult` property. In particular, H1's inert
 recovery witness does not inhabit the terminal `AdapterRely` antecedent. Those
 obligations belong to the subsequent adapter checkpoint.
 
+## T6-A0: concrete adapter semantic closure
+
+`t6_adapter_semantic_closure.rs` imports only T6-S0. Its generic closure lemmas
+show that `AdapterVerified`, Journal legality, `AdapterRely`, and T6-S0's frozen
+`TerminalEvidenceAndCompatibility` conclusion entail `Refines`. Event,
+atomic-Journal, and typed-WAL wrappers select the terminal outcome and derive
+`PerRequestEffectRefinement`; the outcome-free wrappers case-split on whether a
+terminal exists.
+
+The concrete `EnsureMember` instance uses an external set of resources. For a
+request `r`, its target is the resource named by `r.id`; the interference
+baseline is the pre-state union the environment's additions. Zero effect is
+exactly that baseline and one effect additionally contains the target. The rely
+forbids environment insertion of the target, requires every witness-marked
+linearized attempt to have been invoked, and selects the one-effect relation
+when that set is nonempty and the zero-effect relation otherwise. A successful
+value with id 1 marks its
+attempt as linearized, while Failure marks it as non-linearized. All requests
+are Idempotent with at most two attempts. The proof establishes
+`AdapterVerified` for this fixed well-formed paper configuration, proves that
+one effect differs from zero on a concrete run, and proves retry collapse for a
+crash-erased Invoke/Success/Invoke/Failure adapter history.
+
+The nonvacuity theorem is not an inert trace. It constructs a 20-event,
+21-configuration typed-WAL execution containing six acknowledged records
+(`Authorize`, `Prepare`, `Arm`, `Start`, `Outcome`, and `Commit`), one physical
+Invoke, and one delivered Success. The exact terminal Commit, final
+representation, adapter history, external run, and one-effect/not-zero result
+are exported by a premise-free existential package.
+
+T6-A0 verifies 864 cumulative obligations with zero errors, adding 23 over the
+current 841-obligation T6-S0 closure. The retained 41-target run records 19,951
+summed target obligations and 904 dependency-aware non-duplicated obligations.
+T6-S0's originally retained checkpoint remains 840 cumulative obligations over
+40 targets and 880 non-duplicated obligations; the current closure is one larger
+because T6-A0 adds a conservative definitional `PaperConfig` accessor lemma in
+the shared T1 layer.
+
+The result verifies a semantic adapter contract, not executable adapter code or
+the external service. The mixed retry example is not a realizable Broker/WAL
+crash trace. The checkpoint also does not establish byte/fsync persistence,
+`CompleteMediation` or protected-handle exclusivity, `ReturnResult`,
+multi-request/global linearizability, or liveness. Its full-capability
+configuration is a consistency witness rather than a least-privilege design.
+
 ## Reproducible verification
 
 The toolchain is locked in `toolchain.lock.json`:
@@ -999,30 +1048,31 @@ B2-A verified obligations: 335
 G0 verified obligations: 342
 G1-P verified obligations: 410
 G1-E verified obligations: 429
-T1 verified obligations: 461
-T2-J0 verified obligations: 475
-T2-J1 verified obligations: 486
-T2-E verified obligations: 508
-T2-R verified obligations: 520
-T2 verified obligations: 531
-T3-W0 verified obligations: 577
-T3-W1-T verified obligations: 588
-T3-W1-E verified obligations: 626
-T3-W1-R verified obligations: 641
-T3 verified obligations: 659
-T4-C0 verified obligations: 676
-T4-C1 verified obligations: 720
-T4-C2 verified obligations: 734
-T5-S0 verified obligations: 743
-T5-E0 verified obligations: 747
-T5-R0 verified obligations: 769
-T5-C0 verified obligations: 783
-H1 verified obligations: 786
-T6-D0 verified obligations: 799
-T6-E0 verified obligations: 817
-T6-C0 verified obligations: 834
-T6-S0 verified obligations: 840
-Non-duplicated verified artifact obligations: 880
+T1 verified obligations: 462
+T2-J0 verified obligations: 476
+T2-J1 verified obligations: 487
+T2-E verified obligations: 509
+T2-R verified obligations: 521
+T2 verified obligations: 532
+T3-W0 verified obligations: 578
+T3-W1-T verified obligations: 589
+T3-W1-E verified obligations: 627
+T3-W1-R verified obligations: 642
+T3 verified obligations: 660
+T4-C0 verified obligations: 677
+T4-C1 verified obligations: 721
+T4-C2 verified obligations: 735
+T5-S0 verified obligations: 744
+T5-E0 verified obligations: 748
+T5-R0 verified obligations: 770
+T5-C0 verified obligations: 784
+H1 verified obligations: 787
+T6-D0 verified obligations: 800
+T6-E0 verified obligations: 818
+T6-C0 verified obligations: 835
+T6-S0 verified obligations: 841
+T6-A0 verified obligations: 864
+Non-duplicated verified artifact obligations: 904
 ```
 
 C1's 128 obligations include the 86 R1 and 39 B1 obligations imported into the
@@ -1038,7 +1088,8 @@ recovery-repair, derived Failure/Unknown provenance, and all-prefix
 obligations. B2-L adds 18 exact-contract obligations; B2-A adds 25 append-bridge
 and crash-free-epoch obligations; G0 adds 7 global-event closure obligations;
 G1-P adds 68 global-projection obligations; G1-E adds 19 relational-execution
-obligations; T1 adds 32 paper-theorem obligations; T2-J0 adds 14 independent
+obligations; T1 adds 33 paper-theorem and configuration-accessor obligations;
+T2-J0 adds 14 independent
 runtime obligations; T2-J1 adds 11 trace obligations; T2-E adds 22 event and
 projection obligations; T2-R adds 12 exact-representation obligations; and T2
 adds 11 step/execution simulation obligations. T3-W0 adds 46 typed-frame parser,
@@ -1090,18 +1141,21 @@ event/core compatibility exports.
 T6-S0 imports T6-C0 directly and adds 6 composition and backend-transport
 obligations: the generic conjunction and frozen core statement, plus the
 requires-style and implication-style atomic-Journal and typed-WAL wrappers.
+T6-A0 imports T6-S0 directly and adds 23 obligations for generic refinement
+closure, the concrete `EnsureMember` adapter laws and `AdapterVerified` instance,
+the typed-WAL execution/rely witness, exact terminal package, and premise-free
+semantic nonvacuity theorem.
 The non-duplicated total therefore
 counts M0, C1, each independent D1/Q1 delta, the B2-R delta over Q1, and the
 B2-C through T5-C0 deltas along their dependency chain, plus the independent H1
-and T6-D0 deltas over T5-C0, the T6-E0 delta over T6-D0, and the T6-C0 delta
-over T6-E0, and the T6-S0 delta over T6-C0. The registry now contains 40 Verus
-targets and 880 non-duplicated obligations; the retained run sums 19,064 target
-obligations. At the historical T6-C0 checkpoint, 39 targets contained 874 non-
-duplicated obligations; T6-E0 had 38 targets and 857; T6-D0 had 37 targets and
-839; H1 had 36 targets and 823; T5-C0 had 35 targets and 820; and T5-R0 had 34
-targets and 806.
+and T6-D0 deltas over T5-C0, the T6-E0 delta over T6-D0, the T6-C0 delta over
+T6-E0, the T6-S0 delta over T6-C0, and the T6-A0 delta over T6-S0. The registry
+now contains 41 Verus targets and 904 non-duplicated obligations; the retained
+run sums 19,951 target obligations. The historical retained T6-S0 checkpoint
+had 40 targets, 880 non-duplicated obligations, and a 19,064 target sum before
+the conservative definitional T1 accessor lemma was added.
 
-The next checkpoint is a concrete adapter theorem: define an adapter-specific
-external-effect interpretation and prove the corresponding `Refines` and
-`AdapterVerified` obligations. T6-S0 intentionally supplies neither that
-interpretation nor a concrete terminal `AdapterRely` witness.
+The next adapter checkpoint should refine executable adapter and external-
+service protocol steps to the T6-A0 semantic contract and construct a realizable
+crash/retry execution. After that, complete mediation and protected-handle
+exclusivity can connect this adapter instance to the full conditional T6 theorem.

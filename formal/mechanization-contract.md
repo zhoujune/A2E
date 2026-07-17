@@ -7,10 +7,16 @@ mechanization. The TLA+ modules remain executable finite models of the design;
 where their finite constants or proof shadows differ from this document, this
 document defines the unbounded theorem statement.
 
-The cumulative Verus target at the completed T6-S0 terminal-bridge checkpoint
-verifies 840 proof obligations with zero errors, 6 beyond its T6-C0 parent.
-Across 40 registered targets, the dependency-aware non-duplicated total is 880
-obligations and the sum of all target obligations is 19,064. The preceding
+The historical retained T6-S0 terminal-bridge checkpoint verified 840 proof
+obligations with zero errors, 6 beyond its T6-C0 parent. Across its 40 registered
+targets, the dependency-aware non-duplicated total was 880 obligations and the
+sum of all target obligations was 19,064. T6-A0 completes the first concrete
+adapter-semantic closure. Its target verifies 864 cumulative obligations with
+zero errors, 23 beyond the current 841-obligation T6-S0 closure. Across the
+current 41 registered targets, the non-duplicated total is 904 and the sum of
+all target obligations is 19,951. The one-obligation increase in the imported
+T6-S0 closure is a conservative definitional `PaperConfig` accessor lemma added
+at T1 for the concrete package. The preceding
 T6-C0 compatibility checkpoint verified 834 cumulative obligations across 39
 targets and 874 non-duplicated obligations; T6-E0 verified 817 cumulative
 obligations across 38 targets and 857 non-duplicated obligations; T6-D0
@@ -29,7 +35,10 @@ and adapter definition boundary, T6-E0 proves the generic Broker-side
 `OutcomeEvidence` implication, and T6-C0 proves the corresponding
 `BrokerOutcomeCompatible` implication under `AdapterRely`. T6-S0 combines
 those conclusions and proves the frozen atomic-Journal and typed-WAL wrapper
-statements. Adapter-specific effect refinement remains open.
+statements. T6-A0 derives `Refines` from that conjunction and proves a concrete
+idempotent `EnsureMember` adapter instance with a nonempty terminal typed-WAL
+witness. Executable adapter refinement and the full conditional T6 theorem
+remain open.
 
 Theorem V1 is a safety and refinement theorem for arbitrary **finite**
 executions. It assumes one globally serialized WAL writer and one globally
@@ -2045,15 +2054,81 @@ wrappers only transport the core result through assumed execution,
 admissibility, trace-agreement, and representation facts. They neither prove
 nor require an additional backend simulation invariant.
 
-T6-S0 adds 6 obligations beyond T6-C0. Its cumulative target verifies 840
-obligations with zero errors. The current 40-target registry contains 880
+T6-S0 added 6 obligations beyond T6-C0. Its historical retained target verified
+840 obligations with zero errors. That 40-target registry contained 880
 dependency-aware non-duplicated obligations, and the sum of all registered
-target obligations is 19,064. This checkpoint does not prove `Refines`, an
+target obligations was 19,064. This checkpoint does not prove `Refines`, an
 `AdapterVerified` instance, adapter-specific one-effect semantics, a concrete
 terminal witness, terminal-premise inhabitation, or delivery of a result to a
 caller (`ReturnResult`). In particular, H1's inert witness does not inhabit
 `AdapterRely` for a terminal execution. Those obligations remain outside the
 T6-S0 bridge.
+
+### T6-A0. Concrete adapter semantic closure
+
+T6-A0 imports only T6-S0. First, it discharges the generic semantic step that
+T6-S0 intentionally left abstract. For
+`Cfg = paper_broker_config(P)`, it proves:
+
+```text
+AdapterVerified(P)
+and JournalLegal(erase(Cfg), j)
+and AdapterRely(P, tau, r, run)
+and TerminalEvidenceAndCompatibility(Cfg, tau, j, r, o)
+implies Refines(P, r, pi_adapter(tau, r), run, o).
+```
+
+If `terminal(tau,r)=Some(o)`, the definition of
+`PerRequestEffectRefinement` then yields per-request refinement. The event,
+atomic-Journal, and typed-WAL exports obtain the frozen conjunction from their
+corresponding T6-S0 theorem under the existing Broker-invariant or execution,
+admissibility, trace-agreement, and representation premises. Their outcome-free
+forms case-split on `terminal`; the `None` branch is the definitional trivial
+case of `PerRequestEffectRefinement`.
+
+The concrete instance is `EnsureMember`, with external state
+`x : Set<Resource>` and target `target(r) = Resource{id = r.id}`. An external
+run carries a set `E` of environment additions and a set `L` of attempt numbers
+recorded as linearized. Its baseline and abstract effects are:
+
+```text
+baseline(x0,E) = x0 union E
+ZeroEffect(x0,x1,E) iff x1 = baseline(x0,E)
+OneEffect(r,x0,x1,E) iff x1 = baseline(x0,E) union {target(r)}.
+```
+
+The environment rely excludes `target(r)` from `E`, requires every attempt in
+`L` to occur in the physical invocation history, and selects `OneEffect` when
+`L` is nonempty and `ZeroEffect` otherwise. Success with the unique valid
+`Value{id=1}` classifies its attempt as a member of `L`; Failure classifies its
+attempt outside `L`; Ambiguous and InvalidResult remain unconstrained by this
+classification clause. Every request in the fixed concrete paper is Idempotent,
+has no stable key, and permits at most two attempts. The proof establishes
+`AdapterVerified(ensure_member_paper())` uniformly over the legal records,
+histories, runs, and outcomes quantified by that predicate. It also proves
+nondegeneracy on an empty-baseline singleton run and shows that a crash-erased
+Invoke/Success/Invoke/Failure adapter history denotes one effect. The latter is
+an adapter-level sequence rule, not a proof that a matching Broker/WAL crash
+execution is reachable.
+
+The exact nonvacuity witness is a 20-event, 21-configuration typed-WAL
+execution. It acknowledges six records in order--`Authorize`, `Prepare`, `Arm`,
+`Start(attempt=1)`, `Outcome(Success(Value{id=1}))`, and `Commit`--using a
+stage/full-write/flush triple for each append, and contains one Invoke and one
+delivered Success. Its final WAL state represents the constructed Broker state;
+the selected terminal is the exact Commit; and the exported premise-free
+existential fixes the paper, request, external run, outcome, records, and
+physical history while proving `Refines`, one effect, and not zero effect.
+
+T6-A0 adds 23 obligations over the current T6-S0 closure and verifies 864 with
+zero errors. The retained 41-target report contains 904 dependency-aware
+non-duplicated obligations and sums 19,951 target obligations. This checkpoint
+verifies a semantic adapter contract. It does not verify executable adapter or
+external-service code, produce a realizable crash execution for the mixed
+adapter history, prove byte-level/fsync persistence, discharge
+`CompleteMediation` or protected-handle exclusivity, add `ReturnResult`, prove
+multi-request/global linearizability or liveness, or establish least privilege
+for its synthetic full-capability witness.
 
 ### T6. Conditional end-to-end theorem
 
@@ -2087,6 +2162,12 @@ crash-prefix, failure-provenance, and value-provenance properties hold for
 committed mutating request refines one authorized abstract effect, every
 committed read refines zero protected mutations and one valid observation, and
 no request contributes two commit-log entries.
+
+This is the remaining conditional end-to-end theorem statement, not a completed
+T6 claim. T6-A0 supplies its generic adapter-semantic implication and one closed
+typed-WAL witness, but it does not yet lift that result through the
+storage-parametric plugged execution or discharge `CompleteMediation` and
+protected-handle exclusivity.
 
 The conclusion is conditional on adapter semantics, complete mediation, and
 the typed persistence contract. It does not conclude that a committed value
@@ -2166,12 +2247,18 @@ group has only backward dependencies.
     discharge the atomic-Journal and typed-WAL wrapper statements using the
     existing execution, admissibility, trace-agreement, and representation
     premises, without adding a simulation invariant.
-17. **Adapters:** prove class-specific adapter lemmas, successful-value
-    refinement, and `AdapterVerified` instances.
-18. **End to end:** combine T1--T5, the terminal bridge, and each adapter
-    instance to prove T6.
+17. **First adapter semantics (completed T6-A0):** prove the generic frozen-
+    bridge-to-`Refines` closure, a concrete idempotent `EnsureMember`
+    `AdapterVerified` instance, and an exact nonempty typed-WAL terminal package.
+18. **Executable adapter refinement:** prove that executable adapter/service
+    protocol steps implement the T6-A0 semantics, including a realizable
+    crash/retry execution.
+19. **End to end:** lift the adapter closure through the storage-parametric
+    plugged execution and discharge or expose the `CompleteMediation` and
+    protected-handle premises to prove conditional T6.
 
 The first executable proof checkpoint is groups 1--5 over the atomic Journal
-runtime. The first publishable end-to-end checkpoint is T6 for one
-Uncontrolled and one Deduplicated adapter, followed by Idempotent and ReadOnly
+runtime. The first publishable semantic-adapter checkpoint is now T6-A0 for one
+Idempotent instance. The next publishable end-to-end checkpoint is conditional
+T6 for an executable adapter protocol, followed by Deduplicated and ReadOnly
 instances without changing the generic theorem.

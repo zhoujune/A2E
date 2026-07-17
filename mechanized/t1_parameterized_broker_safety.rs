@@ -35,6 +35,11 @@ pub closed spec fn paper_broker_config<A>(cfg: PaperConfig<A>)
     cfg.broker
 }
 
+pub proof fn paper_broker_config_is_broker<A>(cfg: PaperConfig<A>)
+    ensures paper_broker_config(cfg) == cfg.broker,
+{
+}
+
 pub open spec fn paper_config_wf<A>(cfg: PaperConfig<A>) -> bool {
     config_layer::full_config_wf(paper_broker_config(cfg))
 }

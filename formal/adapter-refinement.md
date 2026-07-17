@@ -90,8 +90,9 @@ Theorem V1 makes the rely explicit as
 `Refines(P,r,eta_r,run,o)`. Here `P : PaperConfig<Adapter<X,I>>` contains the
 adapter interpretation and `Cfg = paper_broker_config(P) : FullConfig` is the
 derived broker configuration. A concrete adapter theorem must establish
-`AdapterVerified(P)` uniformly over every compatible well-formed `P`; an
-end-to-end instance then assumes it for its selected `P`. T6 then
+`AdapterVerified(P)` for its selected well-formed paper configuration; a
+reusable family theorem may quantify over a class of compatible `P` values. An
+end-to-end instance assumes the theorem for its selected `P`. T6 then
 concludes `PerRequestEffectRefinement` for every terminal request. This is a
 per-request result, not global linearizability across adapters or requests.
 
@@ -152,15 +153,68 @@ projections from Journal execution, trace agreement, and final-state
 representation; the typed-WAL wrapper does the same through WAL execution,
 trace agreement, and `WalBrokerRepresentation`. These are wrapper/transport
 theorems over the already verified representations, not new backend
-simulations. T6-S0 verifies 840 cumulative obligations, 6 beyond T6-C0. The
-40-target registry contains 880 dependency-aware non-duplicated obligations,
-with cumulative-target sum 19,064.
+simulations. At the retained T6-S0 checkpoint, the target verified 840
+cumulative obligations, 6 beyond T6-C0; that historical 40-target registry
+contained 880 dependency-aware non-duplicated obligations, with cumulative-
+target sum 19,064.
 
 T6-S0 still does not interpret the external pre/post-state run, prove
 `Refines` or `AdapterVerified`, establish any adapter effect, supply a concrete
 terminal `AdapterRely` witness, cover `ReturnResult`, or establish broader
 security, liveness, or global-linearizability claims. Adapter-effect proofs and
-concrete adapter instances follow later.
+concrete adapter instances were deferred to a later checkpoint.
+
+### T6-A0: concrete semantic closure
+
+T6-A0 closes the next, deliberately semantic, layer. Its generic theorem takes
+Journal legality, `AdapterRely`, `AdapterVerified`, and T6-S0's exact
+`TerminalEvidenceAndCompatibility` conjunction and derives
+`Refines(P,r,pi_adapter(tau,r),run,o)`. Selected-terminal event, atomic-Journal,
+and typed-WAL exports also derive `PerRequestEffectRefinement`; outcome-free
+exports case split on the unique terminal selector. Thus the adapter proof and
+the Broker/history proof meet through the frozen T6-D0 interface rather than a
+new storage simulation.
+
+The concrete instance is the idempotent `EnsureMember` operation. Its external
+state is a set of resources. For request `r`, the protected operation inserts
+`target(r)` into the set. The interference witness records environment
+additions and the broker attempts that linearized at the external service. The
+rely excludes an environment insertion of `target(r)` and requires every
+recorded linearized attempt to have an invocation in the request-local history.
+`ZeroEffect` is equality with the pre-state plus environment additions;
+`OneEffect` additionally inserts `target(r)`. Set insertion makes any positive
+number of recorded linearized attempts observationally one effect. A successful
+observation is classified only when its attempt linearized and its value has
+identifier 1; the result relation additionally requires the post-state to
+contain the target. A failure is classified only for a non-linearized attempt.
+The proof establishes `AdapterVerified` and separately shows that the one-effect
+model is nontrivial, including a state satisfying one effect but not zero.
+
+The inhabitation result is exact and premise free. It constructs a well-formed
+paper configuration, a 20-event/21-state typed-WAL execution with six durable
+records, one physical invocation and one successful delivery, the represented
+final Broker, a Commit outcome, and an external run that satisfies
+`AdapterRely`. The resulting package contains WAL execution, admissibility,
+trace agreement, representation, Broker invariant, Journal legality, terminal
+evidence and compatibility, `Refines`, per-request effect refinement, and the
+strict one-effect/not-zero conclusion. The final existential theorem fixes all
+of those witnesses rather than merely asserting that compatible premises might
+exist.
+
+The retained current run verifies 41/41 registered targets. Because a shared
+conservative definitional T1 accessor adds one transitive obligation, the
+current T6-S0 target is 841
+rather than its historical 840. T6-A0 verifies 864 obligations with zero
+errors, a delta of 23 over that current T6-S0 parent. The dependency-aware non-
+duplicated total is 904 and the sum of all target obligations is 19,951.
+
+This checkpoint verifies a mathematical adapter contract, not executable Rust
+adapter code or the remote membership service. Its total synthetic
+configuration grants every capability universal resource and argument scope;
+it witnesses consistency, not least-privilege deployment. It adds no byte
+encoding, checksum, filesystem, or flush/fsync proof, no `CompleteMediation` or
+protected-handle theorem, no caller-visible `ReturnResult`, and no multi-request
+or global-effect linearizability or liveness result.
 
 ## 4. Abstract effect summary
 
@@ -283,15 +337,16 @@ Consider:
 Invoke, Success, Crash, Invoke, Failure
 ```
 
-The external projection is `Invoke, Success, Invoke, Failure`.
-One broker-level realization is
-`ReserveAttempt(r)` yielding `a1`, `SendAttempt(r,a1)`,
-`DeliverOK(r,a1,v)`, and `Crash` before `PersistOK`, followed after recovery by
-`ReserveAttempt(r)` yielding `a2`, `SendAttempt(r,a2)`,
-`DeliverErr(r,a2)`, and `PersistErr(r)`. The first success remains physical
-history but is absent from durable broker knowledge.
+The adapter projection erases `Crash`, leaving
+`Invoke, Success, Invoke, Failure`. T6-A0 checks this mixed sequence only as an
+adapter-level semantic history: when the successful attempt is the sole
+linearized attempt, the idempotent contract classifies the history as one
+effect, not zero. It is not claimed to be a reachable crash/recovery trace of
+the verified Broker or typed-WAL runtime. In particular, the concrete 20-event
+T6-A0 witness contains one invocation and one successful delivery, not this
+mixed retry history.
 
-| Adapter class | Valid history? | Abstract mutation | Permitted broker outcome |
+| Adapter class | Contract-admissible history? | Abstract mutation | Semantic consequence |
 |---|---|---|---|
 | `ReadOnly` | Yes | Zero | Commit an observed read result or record failure according to result policy |
 | `Idempotent` | Yes | Exactly one | Reconcile/retry if budget remains, commit a reobserved success, or return `Unknown`; never clean `Failed` |

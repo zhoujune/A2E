@@ -85,10 +85,13 @@ physical projections, and a unique terminal outcome. It verifies 817
 cumulative obligations, 18 beyond T6-D0. T6-C0 then proves the corresponding
 generic/event `BrokerOutcomeCompatible` implication under `AdapterRely`, by
 terminal-outcome and retry-class case analysis. It verifies 834 cumulative
-obligations, 17 beyond T6-E0; the current registry contains 39 targets, 874
-dependency-aware non-duplicated obligations, and 18,224 summed target
-obligations. T6-S0 composition and backend wrappers, adapter-specific external
-effects, and the proved end-to-end T6 theorem remain outside the completed
+obligations, 17 beyond T6-E0. T6-S0 combines the evidence and compatibility
+implications into the frozen conjunction and transports it through the atomic-
+Journal and typed-WAL backend statements. It verifies 840 cumulative
+obligations, 6 beyond T6-C0; the current registry contains 40 targets, 880
+dependency-aware non-duplicated obligations, and 19,064 summed target
+obligations. Adapter-specific external effects, `Refines`, `AdapterVerified`,
+and a concrete terminal adapter/run witness remain outside the completed
 claims.
 The adversary, trusted base, guarantees, and non-goals are fixed in
 [threat-model.md](threat-model.md).
@@ -96,8 +99,8 @@ Adapter-specific trace interpretation and proof obligations are defined in
 [adapter-refinement.md](adapter-refinement.md).
 Successful payload provenance and replay consistency are defined in
 [value-refinement.md](value-refinement.md).
-The checked mappings, bounded product, completed T1--T5 theorems, and remaining
-T6 layer are summarized in
+The checked mappings, bounded product, completed T1--T5 theorems, completed
+T6-S0 terminal bridge, and remaining adapter-effect layer are summarized in
 [refinement.md](refinement.md).
 `EffectBrokerJournal.tla` defines the typed append-only Journal and replay
 function. `EffectBrokerWAL.tla` defines a bounded Full/Torn-frame WAL with
@@ -486,9 +489,12 @@ T6-E0 proves the generic `OutcomeEvidence` half without proving compatibility
 or the combined bridge. T6-C0 proves the compatibility half: Commit uses the
 selected success delivery; Fail discharges ReadOnly, Idempotent,
 Deduplicated, and Uncontrolled separately; and Unknown reconstructs its
-durable cause while bounding Uncontrolled invocation multiplicity. It does
-not combine the two halves or prove a backend or adapter-effect theorem.
-T6-S0 is next. T4
+durable cause while bounding Uncontrolled invocation multiplicity. T6-S0 then
+combines both halves as `OutcomeEvidence && BrokerOutcomeCompatible` and proves
+the frozen atomic-Journal and typed-WAL statements by transporting final-prefix
+trace agreement through their existing representation relations. It proves no
+adapter effect, `Refines`, `AdapterVerified`, or concrete terminal witness; H1's
+inert witness does not inhabit terminal `AdapterRely`. T4
 does not prove reverse contextual equivalence, liveness, autonomous context
 steps, protected-handle exclusivity, adapter effect refinement, or byte-level
 WAL correctness. The WAL is still a symbolic typed-frame model, not a byte
@@ -515,13 +521,14 @@ The theorem roadmap is [T1 parameterized Broker safety](mechanization-contract.m
 [T6-D0 terminal and adapter definition freeze](mechanization-contract.md#t6-d0-terminal-and-adapter-definition-freeze),
 [T6-E0 terminal evidence](mechanization-contract.md#t6-e0-terminal-evidence),
 [T6-C0 terminal compatibility](mechanization-contract.md#t6-c0-terminal-compatibility),
+[T6-S0 terminal bridge composition and backend transport](mechanization-contract.md#t6-s0-terminal-evidence-and-compatibility-bridge),
 and [T6 conditional end-to-end effect refinement](mechanization-contract.md#t6-conditional-end-to-end-theorem).
 
 ## Next formal increments
 
-1. Combine the completed T6-E0 evidence and T6-C0 compatibility halves in
-   T6-S0, then discharge the atomic-Journal and typed-WAL wrappers before
-   adding verified adapter instances.
+1. Define a concrete adapter-specific external-effect interpretation, exhibit a
+   terminal `AdapterRely` witness, and prove the corresponding `Refines` and
+   `AdapterVerified` obligations on top of the completed T6-S0 bridge.
 2. Extend the current bounded typed-frame `WAL -> Journal` check to concrete
    record bytes, checksums, flush/fsync semantics, and a verified parser under
    crash injection at every record boundary.

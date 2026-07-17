@@ -275,8 +275,16 @@ request-local delivery. This is causal `OutcomeEvidence`, not the adapter's
 `result_spec` or one-effect relation. T6-C0 now derives
 `BrokerOutcomeCompatible` for Commit from that exact successful delivery and,
 for `Uncontrolled`, proves that it belongs to the only invoked attempt. This
-does not establish `Refines`, `AdapterVerified`, value semantics over the
-external pre/post-state, the combined T6-S0 theorem, or Journal/WAL wrappers.
-T6-S0 is next and adapter-effect refinement follows later. Neither T1, T6-E0,
-nor T6-C0 covers delivery to the agent; `ReturnResult` remains outside theorem
-V1.
+is combined by T6-S0 with `OutcomeEvidence` into the frozen
+`TerminalEvidenceAndCompatibility` conclusion. T6-S0 also transports that
+conjunction through the atomic-Journal and typed-WAL final-state
+representations, preserving the exact evidence records selected at the backend
+boundary. It verifies 840 cumulative obligations, 6 beyond T6-C0; the
+40-target registry contains 880 dependency-aware non-duplicated obligations
+with cumulative-target sum 19,064.
+
+This transport does not establish `Refines`, `AdapterVerified`, value semantics
+over the external pre/post-state, any adapter effect, a concrete adapter
+instance or terminal `AdapterRely` witness, or broader security or liveness
+claims. Adapter-effect refinement follows later. Neither T1 nor T6-E0 through
+T6-S0 covers delivery to the agent; `ReturnResult` remains outside theorem V1.

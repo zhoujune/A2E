@@ -608,7 +608,7 @@ the configuration explicitly because Unknown evidence checks the exact
 configuration-dependent structural rule. Commit, Fail, and Unknown evidence
 and compatibility are separate named branches. One shared broker-state
 statement and separate Journal/WAL wrappers fix the shape of the later T6-S0
-proof without establishing it.
+proof without establishing it at D0; T6-S0 now discharges that frozen shape.
 The T6-D0 target verifies 799 cumulative obligations with zero errors, 16
 beyond T5-C0.
 
@@ -637,20 +637,37 @@ requires a resolved failure with no Success or InvalidResult observation, and
 requires a legal Journal, the exact unique `UnknownRec`, and its reason guard
 over the strict pre-terminal prefix; an `Uncontrolled` history must additionally
 contain at most one invocation. T6-C0 verifies 834 cumulative obligations with
-zero errors, 17 beyond T6-E0. The current 39 registered targets contain 874
+zero errors, 17 beyond T6-E0. Its 39 registered targets contain 874
 dependency-aware non-duplicated obligations, and the sum of their cumulative
 target obligations is 18,224.
+
+T6-S0 combines the T6-E0 and T6-C0 conclusions into the frozen
+`TerminalEvidenceAndCompatibility` predicate. Its atomic-Journal wrapper uses
+the assumed runtime execution, trace admissibility, final-prefix trace
+agreement, and existing Journal-to-Broker representation to recover the core
+Broker invariant and exact Journal/physical projection equalities. Its typed-
+WAL wrapper performs the same transport through the existing WAL-to-Broker
+representation, which exposes the Journal projection of the final WAL state.
+Neither wrapper proves a new backend simulation invariant: both consume the
+already-stated execution, admissibility, trace-agreement, and representation
+premises and rewrite the core conclusion to the final backend evidence records.
+
+T6-S0 adds 6 obligations beyond T6-C0 and verifies 840 cumulative obligations
+with zero errors. The current 40 registered targets contain 880 dependency-
+aware non-duplicated obligations, and the sum of their cumulative target
+obligations is 19,064. T6-S0 does not establish `Refines`, `AdapterVerified`,
+external one-effect semantics, a concrete terminal witness or premise-
+inhabitation theorem, or `ReturnResult`. H1's inert witness does not inhabit
+the terminal `AdapterRely` premise.
 
 The complete hierarchy is T1 parameterized Broker safety, T2 independent
 atomic-Journal runtime simulation, T3 typed-WAL simulation, completed T4-C0
 closed-machine composition, completed T4-C1 context observation and structural
 plugging, completed T4-C2 contextual replacement and composition, T5 committed-
 history prefix preservation, and T6 conditional end-to-end per-request effect
-refinement. T1--T5, H1, T6-D0, T6-E0 evidence, and T6-C0 compatibility are now
-complete. T6-C0 does not prove `Refines`, `AdapterVerified`, an adapter effect
-theorem, the combined T6-S0 statement, or its separate Journal/WAL wrappers.
-T6-S0 composition is the next proof checkpoint; adapter-effect refinement
-follows later.
+refinement. T1--T5, H1, T6-D0, T6-E0 evidence, T6-C0 compatibility, and T6-S0
+composition plus backend wrappers are now complete. Adapter-effect refinement
+and the full end-to-end T6 theorem follow later.
 Under the complete stated
 persistence, mediation, context, and adapter rely conditions, the broker
 provides authorized, per-internal-request at-most-once logical completion and
@@ -676,6 +693,7 @@ from T4, adapter effect refinement from T4, or byte-level WAL correctness.
 | Scheduler | One globally serialized executor slot in V1 | No simultaneous invocation; multi-worker ownership is deferred |
 | Adapter | Declared retry and environment contract | Concrete protocol traces refine one abstract tool operation |
 | Recovery | Durable journal is readable | Committed history is preserved; unsafe retries are rejected |
+| Terminal bridge | `AdapterRely`, a selected terminal, and the existing Journal/WAL execution, admissibility, trace-agreement, and representation premises | T6-S0 combines terminal evidence with compatibility and transports the result to each backend's final evidence records without adding a simulation invariant |
 
 The proof hierarchy is therefore:
 

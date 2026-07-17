@@ -23,8 +23,10 @@ delivery selectors, evidence and compatibility branches, and shared-core plus
 backend-specific bridge statement interfaces. T6-E0 proves the generic/event
 Broker `OutcomeEvidence` implication over the request-local adapter projection.
 T6-C0 proves the complementary `BrokerOutcomeCompatible` implication under the
-frozen adapter rely. T4 and T5 are complete; T6-S0 composition and backend
-wrappers, and the end-to-end effect theorem remain open.
+frozen adapter rely. T6-S0 combines both implications and discharges the atomic-
+Journal and typed-WAL bridge statements through their verified trace-agreement
+and representation boundaries. T4, T5, and the T6 terminal bridge are complete;
+the adapter-specific end-to-end effect theorem remains open.
 
 ## M0: reduced atomic-Journal safety
 
@@ -841,9 +843,9 @@ dependency-aware non-duplicated obligations.
 The result does not use an `ExternalRun`, `AdapterRely`, or adapter effect
 relation, and it does not prove `BrokerOutcomeCompatible`, `Refines`, an
 `AdapterVerified` instance, T6-S0, either Journal/WAL wrapper, or external-effect
-refinement. The subsequent T6-C0 checkpoint supplies compatibility without
-retroactively strengthening T6-E0; T6-S0 retains responsibility for combining
-the two results and discharging the backend wrappers.
+refinement. T6-C0 subsequently supplies compatibility without retroactively
+strengthening T6-E0, and T6-S0 combines the results and discharges the backend
+wrappers.
 
 ## T6-C0: terminal compatibility
 
@@ -884,12 +886,44 @@ obligations, and 857 dependency-aware non-duplicated obligations.
 
 This checkpoint proves no adapter effect relation, `Refines`, or
 `AdapterVerified` instance. It also does not state the combined T6-S0 theorem
-or discharge either the atomic-Journal or typed-WAL wrapper. T6-S0 is next and
-retains responsibility for combining the completed E0 and C0 halves and
-proving those backend wrappers. H1's concrete witness is inert and does not
-inhabit this terminal `AdapterRely` antecedent, so T6-C0 remains a conditional
-theorem; a concrete terminal adapter/run witness belongs to the later adapter
-checkpoint.
+or discharge either the atomic-Journal or typed-WAL wrapper. T6-S0 subsequently
+combines the completed E0 and C0 halves and proves those backend wrappers. H1's
+concrete witness is inert and does not inhabit this terminal `AdapterRely`
+antecedent, so the compatibility result remains conditional; a concrete
+terminal adapter/run witness belongs to the later adapter checkpoint.
+
+## T6-S0: terminal bridge composition
+
+`t6_terminal_bridge.rs` imports T6-C0 directly and completes the frozen
+terminal bridge. Its generic event theorem invokes T6-E0 and T6-C0 under their
+shared Broker invariant, exact Journal/physical projection, `AdapterRely`, and
+unique-terminal premises, proving the conjunction
+
+```text
+OutcomeEvidence(cfg, records, request, pi_adapter(events, request), outcome)
+and BrokerOutcomeCompatible(
+  cfg, records, request, pi_adapter(events, request), outcome).
+```
+
+The exported `t6_s0_core` theorem proves the implication fixed in T6-D0. The
+atomic-Journal wrapper takes the final trace-agreement prefix, uses the T2
+representation to equate the Broker ghost Journal and physical histories with
+the final runtime evidence, and transports the core conjunction to the frozen
+`journal_t6_s0_statement`. The typed-WAL wrapper follows the same argument using
+WAL trace agreement and T4-C0's composed WAL-to-Broker representation, whose
+Journal projection carries the same evidence, to prove the frozen
+`wal_t6_s0_statement`.
+
+T6-S0 verifies 840 cumulative obligations with zero errors, adding 6 over its
+T6-C0 parent. The retained 40-target run passes and records 19,064 summed target
+obligations and 880 dependency-aware non-duplicated obligations.
+
+This is a conditional composition and backend-transport result. It defines no
+adapter-specific external effect, proves no `Refines` relation or
+`AdapterVerified` instance, and supplies no concrete terminal adapter/run
+witness or caller-visible `ReturnResult` property. In particular, H1's inert
+recovery witness does not inhabit the terminal `AdapterRely` antecedent. Those
+obligations belong to the subsequent adapter checkpoint.
 
 ## Reproducible verification
 
@@ -987,7 +1021,8 @@ H1 verified obligations: 786
 T6-D0 verified obligations: 799
 T6-E0 verified obligations: 817
 T6-C0 verified obligations: 834
-Non-duplicated verified artifact obligations: 874
+T6-S0 verified obligations: 840
+Non-duplicated verified artifact obligations: 880
 ```
 
 C1's 128 obligations include the 86 R1 and 39 B1 obligations imported into the
@@ -1052,17 +1087,21 @@ ancestry, acknowledged-invocation witnesses and durable ranges, Idempotent
 all-invocations-failed closure, Deduplicated conflicting-observation exclusion,
 Uncontrolled invocation bounds, Unknown-cause reconstruction, and the generic
 event/core compatibility exports.
+T6-S0 imports T6-C0 directly and adds 6 composition and backend-transport
+obligations: the generic conjunction and frozen core statement, plus the
+requires-style and implication-style atomic-Journal and typed-WAL wrappers.
 The non-duplicated total therefore
 counts M0, C1, each independent D1/Q1 delta, the B2-R delta over Q1, and the
 B2-C through T5-C0 deltas along their dependency chain, plus the independent H1
 and T6-D0 deltas over T5-C0, the T6-E0 delta over T6-D0, and the T6-C0 delta
-over T6-E0. The registry now contains 39 Verus targets and 874 non-duplicated
-obligations; the retained run sums 18,224 target obligations. At the historical
-T6-E0 checkpoint, 38 targets contained 857 non-duplicated obligations; T6-D0
-had 37 targets and 839; H1 had 36 targets and 823; T5-C0 had 35 targets and
-820; and T5-R0 had 34 targets and 806.
+over T6-E0, and the T6-S0 delta over T6-C0. The registry now contains 40 Verus
+targets and 880 non-duplicated obligations; the retained run sums 19,064 target
+obligations. At the historical T6-C0 checkpoint, 39 targets contained 874 non-
+duplicated obligations; T6-E0 had 38 targets and 857; T6-D0 had 37 targets and
+839; H1 had 36 targets and 823; T5-C0 had 35 targets and 820; and T5-R0 had 34
+targets and 806.
 
-The next checkpoint is T6-S0: combine the completed T6-E0 evidence and T6-C0
-compatibility halves, then discharge the atomic-Journal and typed-WAL wrapper
-statements. Adapter effects, `Refines`, and `AdapterVerified` remain outside
-T6-S0.
+The next checkpoint is a concrete adapter theorem: define an adapter-specific
+external-effect interpretation and prove the corresponding `Refines` and
+`AdapterVerified` obligations. T6-S0 intentionally supplies neither that
+interpretation nor a concrete terminal `AdapterRely` witness.

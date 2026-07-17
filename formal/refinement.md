@@ -282,6 +282,17 @@ Unknown for every retry class. It does not combine evidence and compatibility,
 transport the result through either backend, or interpret an external effect.
 Adapter laws are explicit `AdapterRely` assumptions, not unrestricted Journal
 legality.
+T6-S0 completes the frozen generic bridge by conjoining the T6-E0 evidence and
+T6-C0 compatibility results. Its atomic-Journal and typed-WAL wrappers derive
+the core Broker premises from final-prefix trace agreement and the existing
+representation relations, then rewrite the core result to the final backend
+evidence records. The wrappers transport through assumed execution,
+admissibility, trace agreement, and representation; they add no simulation
+invariant. T6-S0 does not supply an adapter effect interpretation or a terminal
+execution satisfying `AdapterRely`. In particular, the inert H1 witness does
+not inhabit that rely premise. It establishes neither `Refines` nor
+`AdapterVerified`, external one-effect semantics, a concrete terminal witness
+or premise-inhabitation result, or the unmodeled `ReturnResult` action.
 
 ## 6. Theorem Roadmap
 
@@ -304,6 +315,7 @@ The normative proof layers are:
 | [T6-D0](mechanization-contract.md#t6-d0-terminal-and-adapter-definition-freeze) | Adapter and terminal vocabulary, duplicate-rejecting selectors, evidence/compatibility branches, and Journal/WAL bridge statement interfaces are frozen without claiming the bridge theorem |
 | [T6-E0](mechanization-contract.md#t6-e0-terminal-evidence) | Broker invariants and exact event projections imply configuration-explicit terminal `OutcomeEvidence` over the request-local adapter history |
 | [T6-C0](mechanization-contract.md#t6-c0-terminal-compatibility) | Under `AdapterRely`, Broker invariants and exact projections imply retry-class-specific `BrokerOutcomeCompatible` for the selected terminal outcome |
+| [T6-S0](mechanization-contract.md#t6-s0-terminal-evidence-and-compatibility-bridge) | The generic terminal conclusions compose, and existing final-prefix agreement plus Journal/WAL representation discharge the frozen backend wrappers without a new simulation invariant |
 | [T6](mechanization-contract.md#t6-conditional-end-to-end-theorem) | Under persistence, mediation, context, and adapter relies, each terminal request refines its class-specific abstract effect |
 
 T1--T5 are machine checked. T3 includes
@@ -323,11 +335,14 @@ the complete terminal/adapter interface and separate backend statement
 boundaries. T6-E0 proves the `OutcomeEvidence` half of the generic bridge from
 the Broker invariant and exact event projections. T6-C0 proves the
 `BrokerOutcomeCompatible` half by terminal-outcome and retry-class analysis.
-T6 remains open; T6-S0 composition and backend-wrapper discharge are next. H1
-adds an unconditional
+T6-S0 completes their conjunction and the two frozen backend wrappers by
+reusing final-prefix trace agreement and the existing representation
+relations. It introduces no new simulation invariant. T6 remains open. H1 adds
+an unconditional
 configuration/package inhabitance theorem and artifact evidence, not an
-external semantic interpretation. None of the completed results yet interprets the
-physical history as an external tool effect.
+external semantic interpretation; its inert witness does not inhabit a
+terminal `AdapterRely` execution. None of the completed results yet interprets
+the physical history as an external tool effect.
 
 T1--T5 are proved safety and refinement results, and T6 is a planned refinement
 result, for arbitrary finite executions with
@@ -355,6 +370,7 @@ correctness.
 | Finite execution committed-history monotonicity | Completed T5-E0 for Broker, atomic-Journal, and typed-WAL executions: for all `i <= j < configs.len()`, the history at `i` is a prefix of the history at `j`; WAL exposes only `Exec` and discharges its runtime invariant internally |
 | Exact recovery-episode committed history | Completed T5-R0 for all three closed executions: event-only first-Finish predicate, derived recovery-repair classification, per-step zero delta and stuttering, exact pre-Crash/post-Finish equality, and inhabited minimal plus repeated-Crash witnesses |
 | Contextual mapped committed history | Completed T5-C0: exact T3/T2/T4 delta refinement, WAL/Broker `alpha_commit` equality at every canonical mapped prefix, four source/mapped recovery endpoint equalities, exported storage-parametric contextual theorem, and a combined inert-context six-event/seven-state witness; no target Broker episode is concluded |
+| Terminal evidence and compatibility bridge | Completed T6-S0: T6-E0 evidence and T6-C0 compatibility compose at the Broker boundary; final-prefix trace agreement and the existing atomic-Journal/WAL representation relations discharge both frozen wrappers without a new simulation invariant; adapter effects and a concrete terminal `AdapterRely` witness remain excluded |
 | Direct BrokerContext[WAL]-to-Broker refinement | Temporal projections checked with phased recovery in bounded uncontrolled and idempotent-retry products |
 | Two-request/two-capability composed prefix | Checked for cross-request interleavings and recovery quarantine; the five-record bound does not reach normal terminal records |
 | Verus M0 parameterized safety slice | 21 obligations verified with no admitted proof bodies; reduced atomic-Journal language only |
@@ -396,9 +412,10 @@ correctness.
 | Verus T6-D0 terminal-definition freeze | 799 obligations verified transitively with no admitted proof bodies: the historical T5-C0 closure plus 16 obligations for evidence/compatibility branch unfolding, empty/singleton/duplicate terminal selection, unique/duplicate delivery cases, exact replay-Unknown decomposition, and adapter-rely/verification projections; it freezes statement interfaces but does not prove the T6 bridge |
 | Verus T6-E0 terminal evidence | 817 obligations verified transitively with no admitted proof bodies: the T6-D0 closure plus 18 obligations for terminal-selector soundness, exact Outcome projection, causal-prefix preservation, physical-delivery uniqueness and selection, request-local projection preservation, the three terminal-evidence branches, and generic history/event exports; compatibility and backend wrappers remain excluded |
 | Verus T6-C0 terminal compatibility | 834 obligations verified transitively with no admitted proof bodies: the T6-E0 closure plus 17 obligations for request-local invocation accounting, delivery-to-invocation selection, acknowledged-invocation witnesses, Deduplicated observation exclusion, Idempotent all-attempt failure coverage, Unknown-cause reconstruction, Uncontrolled invocation bounds, and the generic event/core compatibility exports; combined evidence, backend wrappers, and adapter effects remain excluded |
+| Verus T6-S0 terminal bridge | 840 obligations verified transitively with no admitted proof bodies: the T6-C0 closure plus 6 obligations that combine T6-E0 evidence with T6-C0 compatibility, export the frozen core implication, and discharge the atomic-Journal and typed-WAL wrappers from their assumed execution, admissibility, final-prefix trace-agreement, and representation premises; no simulation invariant, adapter effect theorem, terminal `AdapterRely` witness, or caller-result action is added |
 | Byte decoding and checksum correctness | Not yet modeled |
 | Actual flush/fsync and filesystem contract | Assumed below the typed WAL |
-| Parameterized proof | The current 39 registered Verus targets verify 874 dependency-aware non-duplicated obligations, with 18,224 summed target obligations; the historical T5-C0 checkpoint was 783 cumulative obligations across 35 targets and 820 non-duplicated obligations; T1--T5, H1, T6-D0, T6-E0, and T6-C0 are complete, while T6-S0 remains open |
+| Parameterized proof | The current 40 registered Verus targets verify 880 dependency-aware non-duplicated obligations, with 19,064 summed target obligations; T6-S0 verifies 840 cumulative obligations, 6 beyond T6-C0; the historical T5-C0 checkpoint was 783 cumulative obligations across 35 targets and 820 non-duplicated obligations; T1--T5, H1, T6-D0, T6-E0, T6-C0, and T6-S0 are complete, while adapter-specific semantics and end-to-end T6 remain open |
 
 The TLA+ results are model-checking evidence for the architecture and theorem
 statements. The TLC runner first validates exact manifest structure, unique
@@ -446,6 +463,8 @@ laws, T5-E0 proves finite execution-interval monotonicity, and T5-R0 proves
 exact first-`FinishRecover` equality. T5-C0 completes contextual mapped
 committed-history preservation. H1 proves the cumulative T5-C0 package is
 inhabited under a concrete total configuration and records the hardened
-artifact boundary. Adapter effect refinement and end-to-end T6 remain open;
-T6-C0 compatibility is complete, and T6-S0 composition and wrapper discharge
-are next.
+artifact boundary. T6-E0 and T6-C0 establish the two generic terminal halves;
+T6-S0 combines them and discharges both backend wrappers through the existing
+trace-agreement and representation premises, without a new simulation
+invariant. Adapter effect refinement, a concrete terminal `AdapterRely`
+witness, and end-to-end T6 remain open.

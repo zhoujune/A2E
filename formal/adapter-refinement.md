@@ -138,13 +138,29 @@ case split as follows:
   reason-specific guard over its strict pre-terminal prefix;
   `Uncontrolled` additionally has at most one invocation.
 
-These are broker/history compatibility facts. T6-C0 does not interpret the
-external pre/post-state run, prove `Refines` or `AdapterVerified`, establish an
-adapter effect, combine the evidence and compatibility conclusions into T6-S0,
-or instantiate the Journal/WAL wrappers. T6-S0 is next; adapter-effect proofs
-follow later. T6-C0 verifies 834 cumulative obligations, 17 beyond T6-E0. The
-39-target registry contains 874 dependency-aware non-duplicated obligations,
-with cumulative-target sum 18,224.
+These are broker/history compatibility facts. T6-S0 now combines T6-E0 and
+T6-C0 into the frozen `TerminalEvidenceAndCompatibility` conclusion: under a
+well-formed paper configuration, the Broker invariant, exact Journal and
+physical projections, `AdapterRely`, and a selected terminal outcome, both
+`OutcomeEvidence` and `BrokerOutcomeCompatible` hold for that request-local
+history. Separate implication-form core and direct event-level theorems expose
+the same result.
+
+T6-S0 also transports this conjunction through both verified storage
+boundaries. The atomic-Journal wrapper derives the exact final evidence
+projections from Journal execution, trace agreement, and final-state
+representation; the typed-WAL wrapper does the same through WAL execution,
+trace agreement, and `WalBrokerRepresentation`. These are wrapper/transport
+theorems over the already verified representations, not new backend
+simulations. T6-S0 verifies 840 cumulative obligations, 6 beyond T6-C0. The
+40-target registry contains 880 dependency-aware non-duplicated obligations,
+with cumulative-target sum 19,064.
+
+T6-S0 still does not interpret the external pre/post-state run, prove
+`Refines` or `AdapterVerified`, establish any adapter effect, supply a concrete
+terminal `AdapterRely` witness, cover `ReturnResult`, or establish broader
+security, liveness, or global-linearizability claims. Adapter-effect proofs and
+concrete adapter instances follow later.
 
 ## 4. Abstract effect summary
 

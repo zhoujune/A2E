@@ -41,8 +41,11 @@ through both the atomic-Journal and typed-WAL representation boundaries. T6-A0
 closes the first concrete adapter instance: it proves the generic
 terminal-bridge-to-`Refines` implication, verifies an idempotent `EnsureMember`
 set-insertion contract, and inhabits that contract with a nonempty terminal
-typed-WAL execution. Executable adapter and external-service implementations
-remain outside the verified boundary.
+typed-WAL execution. T6-A1 refines an explicit adapter/service protocol machine
+to that semantic contract, derives `AdapterRely` from its transition invariant,
+and composes it with a reachable crash/recovery/retry WAL execution ending in
+`Unknown(NonConclusiveFailure)`. Production adapter, network, and remote-service
+implementations remain outside the verified boundary.
 
 The first research target is deliberately smaller than a complete agent
 runtime. T1 establishes the Broker-side form of the claim:
@@ -73,7 +76,7 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   B1, C1, D1, Q1, B2-R, B2-C, B2-P0, B2-P1, B2-P2, B2-P3, B2-L, B2-A,
   G0, G1-P, G1-E, T1, T2-J0, T2-J1, T2-E, T2-R, T2, T3-W0,
   T3-W1-T, T3-W1-E, T3-W1-R, T3, T4-C0, T4-C1, T4-C2, T5-S0, T5-E0,
-  T5-R0, T5-C0, H1, T6-D0, T6-E0, T6-C0, T6-S0, and T6-A0.
+  T5-R0, T5-C0, H1, T6-D0, T6-E0, T6-C0, T6-S0, T6-A0, and T6-A1.
   M0 checks a reduced atomic-Journal safety slice; R1 checks the complete typed record language and
   replay invariants; B1 checks a
   generic crash-reset append protocol and acknowledgment trace; C1 composes B1
@@ -153,13 +156,21 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   idempotent `EnsureMember` adapter interprets an external run as set insertion,
   proves zero/one-effect nondegeneracy and retry-collapse laws, and supplies an
   exact 20-event typed-WAL terminal witness plus a premise-free package theorem.
+  T6-A1 adds an operational adapter state machine with explicit invocation,
+  service-linearization, crash/recovery, and environment steps. Its premise-free
+  witness couples 32 adapter events (one silent linearization) to 31 WAL events
+  and seven durable records: attempt 1 succeeds and linearizes, recovery retries
+  attempt 2, attempt 2 fails without linearizing, and the selected terminal is
+  `Unknown(NonConclusiveFailure)`. The proof derives `AdapterRely`, `Refines`,
+  per-request effect refinement, exact one effect, and impossibility of `Fail`.
 - [Adapter refinement](formal/adapter-refinement.md) defines how concrete
   retries and outcomes denote abstract effects for each adapter class.
 - [Value refinement](formal/value-refinement.md) specifies and model-checks
   provenance of committed successful payloads.
 - [Refinement structure](formal/refinement.md) records the checked mappings,
   completed T1--T5 theorems, the bounded composed product, the completed T6-S0
-  terminal bridge, and the completed first concrete T6-A0 adapter instance.
+  terminal bridge, the T6-A0 semantic instance, and the completed T6-A1
+  operational adapter refinement.
 - [TLA+ model](formal/EffectBroker.tla) is an executable finite-state version
   of the broker protocol.
 - [Typed Journal](formal/EffectBrokerJournal.tla) defines record legality,
@@ -193,13 +204,13 @@ B2-P3 292, B2-L 310, B2-A 335, G0 342, G1-P 410, G1-E 429, T1 462,
 T2-J0 476, T2-J1 487, T2-E 509, T2-R 521, T2 532, T3-W0 578,
 T3-W1-T 589, T3-W1-E 627, T3-W1-R 642, T3 660, T4-C0 677, T4-C1 721,
 T4-C2 735, T5-S0 744, T5-E0 748, T5-R0 770, T5-C0 784, H1 787, T6-D0
-800, T6-E0 818, T6-C0 835, T6-S0 841, and T6-A0 864 obligations, all with
+800, T6-E0 818, T6-C0 835, T6-S0 841, T6-A0 864, and T6-A1 916 obligations, all with
 zero errors. The new conservative definitional `PaperConfig` accessor lemma
 lives in T1, so every cumulative target from T1 is one obligation above its
 historical checkpoint count. The original T6-S0 checkpoint had 40 targets, 840
 cumulative obligations, and 880 dependency-aware non-duplicated obligations.
-The current retained T6-A0 run has 41 targets, 904 non-duplicated obligations,
-and 19,951 summed target obligations.
+The current retained T6-A1 run has 42 targets, 956 non-duplicated obligations,
+and 20,867 summed target obligations.
 
 ## Current boundary
 
@@ -352,8 +363,11 @@ plus the source episode premise. A minimal six-event WAL recovery trace with
 seven identical inert context states proves that this premise conjunction and
 the final conclusion are inhabited. T5 does not transport `RecoveryEpisode` to
 the Broker event trace, equate full machine or context state across recovery,
-or interpret physical invocations as external effects. The adapter-effect part
-of the end-to-end T6 semantic theorem remains open.
+or interpret physical invocations as external effects. That adapter-effect
+obligation was the historical T5-C0 boundary. T6-A0 and T6-A1 now discharge it
+for the semantic and operational `EnsureMember` instance, respectively; lifting
+that result through the storage-parametric plugged execution and the mediation
+premises of the full conditional T6 theorem remains open.
 
 H1 is complete. Its concrete configuration maps every request to an
 uncontrolled, single-attempt request with no stable key and gives every
@@ -375,10 +389,13 @@ statements by transporting final execution evidence through their existing
 trace-agreement and representation boundaries. T6-A0 adds the first concrete
 semantic closure: a verified idempotent set-insertion adapter, generic
 bridge-to-`Refines` lemmas, a nonempty 20-event typed-WAL terminal execution,
-and an exact premise-free package/nonvacuity theorem. The mixed
-Success--retry--Failure law is an adapter-level crash-erased physical history;
-it is not yet a realizable Broker/WAL crash trace. T6-A0 verifies a semantic
-contract, not executable adapter code or the external service. It also does not
-prove byte/fsync persistence, protected-handle mediation, `ReturnResult`,
-multi-request linearizability, or liveness; its full-capability witness is a
-consistency construction, not a least-privilege configuration.
+and an exact premise-free package/nonvacuity theorem. T6-A1 adds the explicit
+operational adapter/service protocol and a realizable typed-WAL sequence
+`Invoke1, Success1, Crash, recover, Invoke2, Failure2`. The first attempt's
+success is not journaled before the crash; the second attempt becomes current,
+its failure is nonconclusive because the first invocation succeeded, and the
+seven-record execution therefore terminates `Unknown`, not `Fail`, while
+denoting exactly one abstract set-insertion effect. This verifies the protocol
+model and its coupling to the typed WAL, not production adapter/network/service
+code. Byte/fsync persistence, protected-handle mediation, `ReturnResult`,
+multi-request linearizability, least privilege, and liveness remain open.

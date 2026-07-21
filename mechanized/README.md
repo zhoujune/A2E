@@ -28,9 +28,14 @@ Journal and typed-WAL bridge statements through their verified trace-agreement
 and representation boundaries. T6-A0 closes the first concrete semantic adapter
 instance: it derives `Refines` and per-request refinement from the frozen bridge,
 proves an idempotent `EnsureMember` set-insertion contract, and supplies an exact
-nonempty typed-WAL terminal witness. T4, T5, the T6 terminal bridge, and the
-first adapter-semantic closure are complete; executable adapter refinement and
-the full conditional end-to-end theorem remain open.
+nonempty typed-WAL terminal witness. T6-A1 refines an explicit operational
+adapter/service protocol to that semantic contract, derives `AdapterRely` from
+the protocol execution, and supplies an exact crash/recovery/retry execution
+whose terminal Unknown coexists with one abstract external effect. T4, T5, the
+T6 terminal bridge, semantic adapter closure, and single-request executable
+adapter refinement are complete. Complete mediation, caller-visible return
+refinement, concurrency, and the full conditional end-to-end theorem remain
+open.
 
 ## M0: reduced atomic-Journal safety
 
@@ -927,7 +932,9 @@ adapter-specific external effect, proves no `Refines` relation or
 `AdapterVerified` instance, and supplies no concrete terminal adapter/run
 witness or caller-visible `ReturnResult` property. In particular, H1's inert
 recovery witness does not inhabit the terminal `AdapterRely` antecedent. Those
-obligations belong to the subsequent adapter checkpoint.
+effect/refinement and concrete-witness obligations are subsequently discharged
+for `EnsureMember` by T6-A0, and T6-A1 derives the rely from an operational
+adapter/service execution. Caller-visible `ReturnResult` remains open.
 
 ## T6-A0: concrete adapter semantic closure
 
@@ -973,6 +980,75 @@ crash trace. The checkpoint also does not establish byte/fsync persistence,
 `CompleteMediation` or protected-handle exclusivity, `ReturnResult`,
 multi-request/global linearizability, or liveness. Its full-capability
 configuration is a consistency witness rather than a least-privilege design.
+
+## T6-A1: executable adapter refinement
+
+`t6_adapter_executable_refinement.rs` imports only T6-A0 and gives the
+`EnsureMember` instance an explicit small-step adapter/service protocol. Its
+state records the online, crashed, or recovering mode; the active attempt;
+observed global and physical histories; service linearizations; environment
+additions; and the resulting external membership set. Protocol events separate
+observable global events from silent service linearization and environment
+interference. Enabledness requires canonical positive and unique invocations,
+responses after their invocations, Success only after service linearization,
+Failure only before service linearization, no linearization after Failure,
+well-bracketed crash/recovery transitions, and non-target environment additions.
+Service linearization is guarded by a previously invoked, still-undelivered,
+not-yet-linearized, nonfailed remote attempt; it deliberately does not require
+the local adapter to remain Online or active, because an already-sent remote
+request may take effect after a local crash.
+`a1_service_linearize_step_has_remote_provenance` exports this guard as a
+checked causal theorem and proves that the silent step inserts the target while
+leaving observed global and physical history unchanged.
+
+The inductive machine invariant establishes exact global/physical projection,
+request locality, invocation uniqueness and ordering, observation
+classification, exact zero-or-one-effect membership, and linearization
+provenance. Finite-execution induction then proves
+`ensure_member_exec_derives_adapter_rely`: `AdapterRely` is derived from the
+operational transition system rather than assumed as an enabledness premise.
+The generic `ensure_member_executable_wal_terminal_refines` theorem composes an
+executable adapter execution, exact full-global-trace coupling, a typed-WAL
+execution, and its selected terminal outcome to derive `AdapterRely`, `Refines`,
+and `PerRequestEffectRefinement`.
+
+The concrete witness contains 32 adapter events, including one silent
+`ServiceLinearize(1)`, whose projection is exactly 31 global events. The coupled
+typed-WAL execution has exactly 32 configurations and seven acknowledged
+records: `Authorize`, `Prepare`, `Arm`, `Start(1)`, `Start(2)`,
+`Outcome(2, Failure)`, and `Unknown(2, NonConclusiveFailure)`. Operationally it
+executes `Invoke(1)`, `Success(1)`, Crash, recovery, `Invoke(2)`, and
+`Failure(2)`. Attempt 1 linearizes and inserts the target, but its Success is not
+journaled before the crash; attempt 2 becomes current after recovery and fails
+without linearizing. The selected terminal is therefore
+`UnknownOutcome { attempt: Some(2), reason: NonConclusiveFailure }`, while the
+external run satisfies the one-effect relation and not the zero-effect relation.
+The proof also establishes that no `Fail` terminal can be selected: the
+Idempotent failure branch requires every invocation to have failed, which the
+delivered Success for attempt 1 contradicts. The exported premise-free package
+and `t6_a1_executable_crash_retry_nonvacuity` theorem jointly expose the exact
+operational execution, terminal selection, derived rely, semantic refinement,
+single abstract effect, and Fail impossibility.
+
+`a1_retry_has_explicit_crash_recovery_shape` separately proves the exact
+31-event ordering of Crash, scan/truncation, recovery, the three-step durable
+`Start(2)` append, `Invoke(2)`, and `Failure(2)`. Thus the advertised recovery
+sequence is fixed directly, not only through projections that erase control
+events.
+
+T6-A1 verifies 916 cumulative obligations with zero errors, adding 52 over its
+T6-A0 parent. The retained 42-target run records 20,867 summed target
+obligations and 956 dependency-aware non-duplicated obligations.
+
+This is an executable operational protocol model, not production Rust adapter,
+network, operating-system, or external-service code. Persistence remains at the
+typed-record abstraction and does not model byte layout or fsync behavior. The
+checkpoint does not prove complete mediation or protected-handle exclusivity,
+does not connect a terminal outcome to caller-visible `ReturnResult`, and does
+not address multi-request concurrency, global linearizability, or liveness. The
+generic A1 theorem assumes exact equality of the complete observed adapter and
+typed-WAL traces; it does not yet provide a prefix-indexed stuttering simulation
+or combined adapter/WAL state invariant.
 
 ## Reproducible verification
 
@@ -1072,7 +1148,8 @@ T6-E0 verified obligations: 818
 T6-C0 verified obligations: 835
 T6-S0 verified obligations: 841
 T6-A0 verified obligations: 864
-Non-duplicated verified artifact obligations: 904
+T6-A1 verified obligations: 916
+Non-duplicated verified artifact obligations: 956
 ```
 
 C1's 128 obligations include the 86 R1 and 39 B1 obligations imported into the
@@ -1145,17 +1222,30 @@ T6-A0 imports T6-S0 directly and adds 23 obligations for generic refinement
 closure, the concrete `EnsureMember` adapter laws and `AdapterVerified` instance,
 the typed-WAL execution/rely witness, exact terminal package, and premise-free
 semantic nonvacuity theorem.
+T6-A1 imports T6-A0 directly and adds 50 obligations for the operational
+adapter/service transition system, its inductive invariant and finite-execution
+closure, derivation of `AdapterRely`, generic executable-to-WAL refinement,
+exact crash/recovery/retry executions, the seven-record Unknown terminal,
+one-effect refinement, Fail impossibility, and the premise-free executable
+nonvacuity package.
 The non-duplicated total therefore
 counts M0, C1, each independent D1/Q1 delta, the B2-R delta over Q1, and the
 B2-C through T5-C0 deltas along their dependency chain, plus the independent H1
 and T6-D0 deltas over T5-C0, the T6-E0 delta over T6-D0, the T6-C0 delta over
-T6-E0, the T6-S0 delta over T6-C0, and the T6-A0 delta over T6-S0. The registry
-now contains 41 Verus targets and 904 non-duplicated obligations; the retained
-run sums 19,951 target obligations. The historical retained T6-S0 checkpoint
+T6-E0, the T6-S0 delta over T6-C0, the T6-A0 delta over T6-S0, and the T6-A1
+delta over T6-A0. The registry now contains 42 Verus targets and 956
+non-duplicated obligations; the retained run sums 20,867 target obligations.
+The historical retained T6-A0 checkpoint had 41 targets, 904 non-duplicated
+obligations, and a 19,951 target sum. The historical retained T6-S0 checkpoint
 had 40 targets, 880 non-duplicated obligations, and a 19,064 target sum before
 the conservative definitional T1 accessor lemma was added.
 
-The next adapter checkpoint should refine executable adapter and external-
-service protocol steps to the T6-A0 semantic contract and construct a realizable
-crash/retry execution. After that, complete mediation and protected-handle
-exclusivity can connect this adapter instance to the full conditional T6 theorem.
+The next checkpoint is T6-M0: define a first-class protected-service execution,
+make protected-handle exclusivity structural, and prove that every target-
+affecting service action originates from an authorized adapter invocation with
+no unmodeled mutation path. It must derive `CompleteMediation` from the two
+independently defined traces rather than choose a protected trace equal to the
+Broker projection. The following end-to-end checkpoint should add the prefix-
+indexed adapter/WAL relation and lift the result through the storage-parametric
+plugged execution. Caller-visible `ReturnResult`, multi-request concurrency,
+and liveness remain explicit subsequent extensions.

@@ -311,17 +311,40 @@ and one-effect/not-zero conclusion together. An auxiliary mixed
 crash erasure; that sequence is not claimed to be a realizable Broker/WAL crash
 trace.
 
-All 41/41 registered targets pass in the current retained run. A conservative
-definitional T1 accessor raises the current T6-S0 cumulative closure from its
-historical 840 to
-841 obligations. T6-A0 verifies 864 obligations with zero errors, adding 23
-over that parent; the current non-duplicated total is 904 and the summed target
-total is 19,951.
+At the historical T6-A0 checkpoint, all 41 registered targets passed. A
+conservative definitional T1 accessor raises the current T6-S0 cumulative
+closure from its historical 840 to 841 obligations. T6-A0 verifies 864
+obligations with zero errors, adding 23 over that parent; that registry contained
+904 dependency-aware non-duplicated obligations and summed 19,951 target
+obligations.
 
-The `EnsureMember` relation is a semantic specification, not verified
-executable adapter or service code. Its synthetic total configuration grants
-universal resource and argument scope and therefore does not establish least
-privilege. T6-A0 proves no byte encoding or flush/fsync behavior, no
+### T6-A1 operational value/effect witness
+
+T6-A1 derives the same `EnsureMember` semantic contract from an explicit
+adapter/service execution rather than assuming `AdapterRely`. The operational
+machine tracks external membership exactly and permits a silent
+`ServiceLinearize(attempt)` only for a previously invoked, still-undelivered,
+nonfailed remote attempt. The guard intentionally does not require the local
+adapter to remain online or active: a request already sent to the service may
+linearize after a local crash. Its invariant proves that the final external
+pre/post-state and the projected physical history agree with the T6-A0
+zero-or-one-effect interpretation.
+
+The premise-free witness realizes `Invoke1, Success1, Crash, recover, Invoke2,
+Failure2`. Attempt 1 performs the unique set insertion before its success is
+lost at the Journal boundary; attempt 2 returns a nonconclusive failure without
+linearizing. Consequently `all_invocations_failed` is false, the durable
+terminal must be Unknown rather than Fail, and the external run satisfies the
+one-effect branch but not the zero-effect branch. All 42/42 retained targets
+pass. T6-A1 verifies 916 obligations with zero errors, 52 beyond T6-A0; the
+registry contains 956 dependency-aware non-duplicated obligations and sums to
+20,867 target obligations.
+
+The T6-A1 adapter is executable as an explicit finite transition system with a
+mechanized reachable execution; it is not verified production Rust, network,
+or remote-service code. Its synthetic total configuration grants universal
+resource and argument scope and therefore does not establish least privilege.
+T6-A0/A1 prove no byte encoding or flush/fsync behavior, no
 `CompleteMediation` or protected-handle property, no multi-request/global
 linearizability, and no liveness. Neither T1 nor T6-A0 covers delivery to the
 agent; caller-visible `ReturnResult` remains outside theorem V1.

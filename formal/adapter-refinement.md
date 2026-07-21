@@ -201,12 +201,12 @@ strict one-effect/not-zero conclusion. The final existential theorem fixes all
 of those witnesses rather than merely asserting that compatible premises might
 exist.
 
-The retained current run verifies 41/41 registered targets. Because a shared
-conservative definitional T1 accessor adds one transitive obligation, the
-current T6-S0 target is 841
-rather than its historical 840. T6-A0 verifies 864 obligations with zero
-errors, a delta of 23 over that current T6-S0 parent. The dependency-aware non-
-duplicated total is 904 and the sum of all target obligations is 19,951.
+At the retained T6-A0 checkpoint, 41/41 registered targets verified. Because a
+shared conservative definitional T1 accessor adds one transitive obligation,
+the imported T6-S0 target is 841 rather than its historical 840. T6-A0 verifies
+864 obligations with zero errors, a delta of 23 over that current T6-S0 parent.
+That checkpoint's dependency-aware non-duplicated total is 904 and the sum of
+all target obligations is 19,951.
 
 This checkpoint verifies a mathematical adapter contract, not executable Rust
 adapter code or the remote membership service. Its total synthetic
@@ -215,6 +215,105 @@ it witnesses consistency, not least-privilege deployment. It adds no byte
 encoding, checksum, filesystem, or flush/fsync proof, no `CompleteMediation` or
 protected-handle theorem, no caller-visible `ReturnResult`, and no multi-request
 or global-effect linearizability or liveness result.
+
+### T6-A1: executable protocol refinement
+
+T6-A1 supplies an explicit operational refinement for the T6-A0
+`EnsureMember` semantics. The adapter machine observes the global WAL/Broker
+event stream and adds two adapter-only steps: `ServiceLinearize(attempt)` and
+`EnvironmentAdd(resource)`. Its state tracks the initial and current membership
+sets, environment additions, linearized and failed attempts, the complete
+observed global trace, its request-local physical projection, the active
+attempt, and an `Online`/`Crashed`/`Recovering` mode. Silent adapter-only steps
+are erased by `a1_global_trace`; every observed global event is preserved
+exactly.
+
+The transition guards make classification operational. An invocation must be
+online, canonical, positive, within budget, unique for its attempt, and issued
+with no active attempt. A Success must answer the active attempt after that
+attempt has linearized and must carry `Value{id=1}`. A Failure must answer the
+active attempt before it has linearized, and a failed attempt cannot linearize
+later. A service linearization requires a prior undelivered, nonfailed
+invocation and inserts `target(r)`. Environment steps may add only nontarget
+resources. Crash clears the active attempt, and the observed recovery events
+move the machine through its explicit recovery modes.
+
+The service-linearization guard deliberately does not require the local adapter
+mode to be Online or the attempt to remain in the volatile active slot. This
+models a remote request that was invoked before a local crash and can still
+linearize afterward. The required provenance is instead the durable physical
+condition: the attempt was invoked, has no delivery, has not already
+linearized, and has not failed. A production transport refinement must justify
+this late-linearization behavior or prove stronger cancellation semantics.
+
+The machine-checked `a1_service_linearize_step_has_remote_provenance` theorem
+exports this boundary directly: every service-linearization step starts in the
+named pending-remote condition, inserts the target, records the attempt as
+linearized, and leaves both observed global and physical history unchanged.
+
+The inductive invariant proves exact global and request-local history
+projections, request locality, canonical invocation payloads, positive unique
+ordered attempts, observation classification, linearization provenance, and
+the exact set equation
+
+```text
+members = initial_members union environment_additions
+          union ({target(r)} if any attempt linearized else empty).
+```
+
+Thus `ensure_member_exec_derives_adapter_rely` derives the complete T6-A0
+`AdapterRely` predicate from every finite adapter-machine execution. The
+composition theorem `ensure_member_executable_wal_terminal_refines` needs only
+an adapter execution, exact equality between its observed global trace and a
+typed-WAL execution, WAL execution, and a selected terminal. It obtains
+`AdapterRely`, then concludes `Refines` and
+`PerRequestEffectRefinement` through the already verified T6-A0 closure.
+
+The premise-free T6-A1 witness couples 32 adapter events, including one silent
+service linearization, to exactly 31 global WAL events and 32 WAL
+configurations. Seven full, acknowledged Journal records survive in order:
+
+```text
+Authorize, Prepare, Arm, Start(1), Start(2),
+Outcome(2, Failure, start_ref=5),
+Unknown(attempt=Some(2), NonConclusiveFailure, evidence_ref=6).
+```
+
+Its physical history is exactly
+
+```text
+Invoke(1, journal_cut=4, ack_cut=4),
+Success(1, Value{id=1}, journal_cut=4),
+Invoke(2, journal_cut=5, ack_cut=5),
+Failure(2, journal_cut=5).
+```
+
+Attempt 1 is the sole service linearization. Its Success is delivered but not
+journaled before the crash. After `BeginScan`, `FinishScan`, `TruncateTail`,
+`BeginRecover`, and `FinishRecover`, the durable four-record prefix permits
+`Start(2)`. Attempt 2 fails without linearizing, its Failure is persisted, and
+the terminal record is `Unknown(NonConclusiveFailure)`. The exact package proves
+`AdapterRely`, `Refines`, per-request effect refinement, one abstract effect and
+not zero, and that terminal Fail is impossible because not every invocation
+failed. `t6_a1_executable_crash_retry_nonvacuity` inhabits the combined
+operational and semantic package without premises.
+
+The public `a1_retry_has_explicit_crash_recovery_shape` theorem additionally
+fixes the concrete event ordering itself, including Crash, scan/truncation,
+recovery, the three-step durable `Start(2)` append, `Invoke(2)`, and
+`Failure(2)`. The crash/retry claim therefore does not depend only on Journal
+or physical projections that erase those control events.
+
+The retained T6-A1 run verifies 42/42 registered targets. T6-A1 verifies 916
+obligations with zero errors, 52 beyond T6-A0; the dependency-aware
+non-duplicated total is 956 and the sum of all target obligations is 20,867.
+
+Here executable denotes a mechanized operational adapter/service model and a
+reachable execution of that model coupled to the typed WAL. It is not a proof
+of production Rust adapter code, network behavior, or the remote membership
+service. Byte/fsync persistence, complete mediation, protected-handle
+exclusivity, caller-visible `ReturnResult`, multi-request linearizability,
+least privilege, and liveness remain outside this checkpoint.
 
 ## 4. Abstract effect summary
 
@@ -331,31 +430,42 @@ physical `Invoke` events.
 
 ## 6. Example sequence
 
-Consider:
+T6-A1 now mechanizes the previously semantic-only mixed sequence as a reachable
+adapter/WAL execution. Suppressing record-append substeps, its observable
+control flow is:
 
 ```text
-Invoke, Success, Crash, Invoke, Failure
+Invoke(1), Success(1), Crash, recover, Invoke(2), Failure(2)
 ```
 
-The adapter projection erases `Crash`, leaving
-`Invoke, Success, Invoke, Failure`. T6-A0 checks this mixed sequence only as an
-adapter-level semantic history: when the successful attempt is the sole
-linearized attempt, the idempotent contract classifies the history as one
-effect, not zero. It is not claimed to be a reachable crash/recovery trace of
-the verified Broker or typed-WAL runtime. In particular, the concrete 20-event
-T6-A0 witness contains one invocation and one successful delivery, not this
-mixed retry history.
+The full adapter projection erases the crash and recovery events and is exactly
+`Invoke(1), Success(1), Invoke(2), Failure(2)`. The operational machine also
+contains one silent `ServiceLinearize(1)` between the first invocation and its
+Success. There is no `ServiceLinearize(2)`. Consequently, from an initially
+empty membership set, the post-state contains `target(r)` and satisfies
+`OneEffect` but not `ZeroEffect`.
 
-| Adapter class | Contract-admissible history? | Abstract mutation | Semantic consequence |
-|---|---|---|---|
-| `ReadOnly` | Yes | Zero | Commit an observed read result or record failure according to result policy |
-| `Idempotent` | Yes | Exactly one | Reconcile/retry if budget remains, commit a reobserved success, or return `Unknown`; never clean `Failed` |
-| `Deduplicated` | No | Contract violation | Adapter/service is outside its declared specification |
-| `Uncontrolled` | No | Not applicable | Second `Invoke` violates broker safety |
+The first attempt starts under the four-record durable prefix
+`Authorize, Prepare, Arm, Start(1)`. Its successful response is delivered but
+no `Outcome(1,Success)` is appended before the crash. Recovery scans and
+retains that prefix, then appends `Start(2)`. Attempt 2 uses
+`journal_cut=ack_cut=5`, delivers Failure, and records
+`Outcome(2,Failure,start_ref=5)`. The final append is
+`Unknown(Some(2),NonConclusiveFailure,evidence_ref=6)`.
 
-This example demonstrates why idempotence alone is insufficient for reliable
-result replay. It protects external state from duplicate mutation but does not
-make contradictory responses impossible.
+This terminal is forced by the distinction between current durable evidence
+and the full physical history. Commit lacks a durable successful Outcome.
+Idempotent Fail is also unavailable: its compatibility rule requires every
+physical invocation to have a Failure delivery, but attempt 1 delivered
+Success, so `all_invocations_failed` is false. Attempt 2's definitive local
+Failure therefore does not establish zero effect for the whole request. The
+legal terminal is Unknown, while the external effect is exactly one insertion.
+
+The witness contains 31 global events and 32 WAL configurations; the coupled
+adapter execution contains 32 events because service linearization is silent in
+the global projection. This reachability and refinement result is about the A1
+operational protocol model. It does not establish that production adapter,
+network, or remote-service code implements that model.
 
 ## 7. Adapter proof obligations
 

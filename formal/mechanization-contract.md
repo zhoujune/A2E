@@ -10,13 +10,14 @@ document defines the unbounded theorem statement.
 The historical retained T6-S0 terminal-bridge checkpoint verified 840 proof
 obligations with zero errors, 6 beyond its T6-C0 parent. Across its 40 registered
 targets, the dependency-aware non-duplicated total was 880 obligations and the
-sum of all target obligations was 19,064. T6-A0 completes the first concrete
-adapter-semantic closure. Its target verifies 864 cumulative obligations with
-zero errors, 23 beyond the current 841-obligation T6-S0 closure. Across the
-current 41 registered targets, the non-duplicated total is 904 and the sum of
-all target obligations is 19,951. The one-obligation increase in the imported
-T6-S0 closure is a conservative definitional `PaperConfig` accessor lemma added
-at T1 for the concrete package. The preceding
+sum of all target obligations was 19,064. T6-A0 completed the first concrete
+adapter-semantic closure at 864 cumulative obligations. T6-A1 completes the
+first executable adapter-protocol refinement. Its target verifies 916
+cumulative obligations with zero errors, 52 beyond T6-A0. Across the current 42
+registered targets, the dependency-aware non-duplicated total is 956 and the
+sum of all target obligations is 20,867. The one-obligation increase in the
+imported T6-S0 closure is a conservative definitional `PaperConfig` accessor
+lemma added at T1 for the concrete package. The preceding
 T6-C0 compatibility checkpoint verified 834 cumulative obligations across 39
 targets and 874 non-duplicated obligations; T6-E0 verified 817 cumulative
 obligations across 38 targets and 857 non-duplicated obligations; T6-D0
@@ -37,8 +38,10 @@ and adapter definition boundary, T6-E0 proves the generic Broker-side
 those conclusions and proves the frozen atomic-Journal and typed-WAL wrapper
 statements. T6-A0 derives `Refines` from that conjunction and proves a concrete
 idempotent `EnsureMember` adapter instance with a nonempty terminal typed-WAL
-witness. Executable adapter refinement and the full conditional T6 theorem
-remain open.
+witness. T6-A1 gives that instance an operational adapter/service protocol,
+derives `AdapterRely` from its transition invariant, and composes it with an
+exact reachable crash/recovery/retry typed-WAL execution. The full conditional
+T6 theorem remains open.
 
 Theorem V1 is a safety and refinement theorem for arbitrary **finite**
 executions. It assumes one globally serialized WAL writer and one globally
@@ -2130,6 +2133,122 @@ adapter history, prove byte-level/fsync persistence, discharge
 multi-request/global linearizability or liveness, or establish least privilege
 for its synthetic full-capability witness.
 
+### T6-A1. Executable adapter protocol refinement
+
+T6-A1 imports only T6-A0 and replaces the remaining adapter-semantic rely
+assumption for `EnsureMember` with an explicit operational transition system.
+Its adapter events are an observed global WAL/Broker event, a silent
+`ServiceLinearize(attempt)` event, or an `EnvironmentAdd(resource)` event. Its
+state records the initial and current membership sets, environment additions,
+linearized and failed attempts, the observed global trace, its exact
+request-local physical projection, an `Online`/`Crashed`/`Recovering` mode, and
+the active attempt. `A1AdapterExecution` is a finite initial-state execution of
+these enabled steps.
+
+The operational guards require every target-request invocation to be positive,
+within budget, canonical, unique, and issued online with no active attempt. A
+Success delivery must name the active invocation, carry the unique valid
+`Value{id=1}`, and follow a service linearization of that attempt. A Failure
+delivery must name the active invocation before any such linearization; after
+Failure, that attempt cannot linearize. A service linearization must refer to an
+invoked, undelivered, nonfailed attempt and inserts the target into the external
+membership set. Environment additions may insert only nontarget resources.
+Crash clears the active adapter slot, while the recovery observations move the
+adapter through the explicit crash and recovery modes.
+
+The service-linearization guard intentionally does not require local Online
+mode or a volatile active-attempt slot. It therefore admits the standard remote
+call behavior in which an invocation sent before a local crash may linearize at
+the service afterward. Its causal authority is the invoked, undelivered,
+not-yet-linearized, nonfailed remote-attempt condition. Refinement of a concrete
+transport must justify that behavior or establish a stronger cancellation
+guarantee.
+
+`a1_service_linearize_step_has_remote_provenance` exposes that assumption as a
+checked step theorem: a service linearization starts from the named pending-
+remote condition, inserts the target and the attempt into the corresponding
+sets, and stutters both observed global and physical history.
+
+The inductive invariant proves exact equality between stored global history and
+the observed-event projection, exact equality between stored physical history
+and `pi_adapter`, request locality, canonical calls, positive unique ordered
+attempts, response classification, and linearization provenance. It also proves
+the functional state equation
+
+```text
+members = initial_members union environment_additions
+          union ({target(r)} if some attempt linearized else empty),
+```
+
+with the environment forbidden from adding `target(r)`. Consequently
+`ensure_member_exec_derives_adapter_rely` derives `AdapterRely` for the final
+external run of every A1 execution; `AdapterRely` is no longer an enabledness
+premise of this protocol. The generic composition theorem
+`ensure_member_executable_wal_terminal_refines` takes an A1 execution, exact
+equality of its observed global trace with a typed-WAL execution, WAL execution,
+and a selected terminal outcome. It derives `AdapterRely`, invokes the T6-A0
+semantic closure, and concludes both `Refines` and
+`PerRequestEffectRefinement`.
+
+The closed crash/retry witness starts from an empty membership set and has 31
+global WAL events, 32 WAL configurations, and 32 adapter events; the additional
+adapter event is the silent `ServiceLinearize(1)`. Each record append expands to
+`WalStage`, `WalWriteFull`, and `WalFlushAck`. The seven acknowledged records
+are, in order:
+
+```text
+Authorize, Prepare, Arm, Start(1), Start(2),
+Outcome(2, Failure, start_ref=5),
+Unknown(attempt=Some(2), NonConclusiveFailure, evidence_ref=6).
+```
+
+The exact physical history is
+
+```text
+Invoke(1, journal_cut=4, ack_cut=4),
+Success(1, Value{id=1}, journal_cut=4),
+Invoke(2, journal_cut=5, ack_cut=5),
+Failure(2, journal_cut=5).
+```
+
+Between the first Success and `Start(2)`, the global execution performs
+`Crash`, `BeginScan`, `FinishScan`, `TruncateTail`, `BeginRecover`, and
+`FinishRecover`. The first Success is delivered after its service
+linearization but is not journaled before the crash. Recovery therefore retains
+only the four-record prefix through `Start(1)`, and the retry makes attempt 2
+current. Attempt 2 fails without linearizing; its durable Failure cannot justify
+terminal Fail because the Idempotent Fail rule requires every invocation to
+have failed, while attempt 1 delivered Success. There is no durable successful
+Outcome from which to Commit. The legal terminal is therefore exactly
+`UnknownOutcome{attempt=Some(2), reason=NonConclusiveFailure}`. The external
+run denotes exactly one abstract insertion, not zero, because attempt 1
+linearized and attempt 2 did not.
+
+`a1_retry_has_explicit_crash_recovery_shape` proves the exact positions of the
+Crash, scan/truncation, recovery, three-step `Start(2)` append, `Invoke(2)`, and
+`Failure(2)` events in the 31-event trace. This makes the crash/retry execution
+shape an exported theorem rather than an inference from projections that erase
+control events.
+
+`t6_a1_executable_crash_retry_refines` proves `AdapterRely`, `Refines`,
+per-request effect refinement, exact one effect, not zero effect, the selected
+Unknown terminal, and failure of `all_invocations_failed`. The exact operational
+and semantic package is inhabited without premises by
+`t6_a1_executable_crash_retry_nonvacuity`. T6-A1 verifies 916 obligations with
+zero errors, 52 beyond T6-A0. The retained 42-target report contains 956
+dependency-aware non-duplicated obligations and sums 20,867 target obligations.
+
+Here executable means that the adapter/service protocol is an explicit finite
+transition system with a mechanized reachable execution. T6-A1 does not verify
+production Rust adapter code, network transport, or the remote membership
+service. It also does not add byte-level/fsync persistence, protected-handle
+mediation, `ReturnResult`, least privilege, multi-request/global
+linearizability, or liveness. Its generic composition premise is exact equality
+of the complete observed adapter trace and typed-WAL event trace; T6-A1 does not
+yet prove a prefix-indexed stuttering simulation or combined adapter/WAL state
+invariant. That cross-component relation belongs to T6-M0 and the conditional
+end-to-end lift.
+
 ### T6. Conditional end-to-end theorem
 
 For every `P : PaperConfig<Adapter<X,I>>`, let
@@ -2164,10 +2283,10 @@ committed read refines zero protected mutations and one valid observation, and
 no request contributes two commit-log entries.
 
 This is the remaining conditional end-to-end theorem statement, not a completed
-T6 claim. T6-A0 supplies its generic adapter-semantic implication and one closed
-typed-WAL witness, but it does not yet lift that result through the
-storage-parametric plugged execution or discharge `CompleteMediation` and
-protected-handle exclusivity.
+T6 claim. T6-A1 supplies an operational `EnsureMember` adapter refinement and a
+closed crash/retry typed-WAL witness without assuming `AdapterRely`, but it does
+not yet lift that result through the storage-parametric plugged execution or
+discharge `CompleteMediation` and protected-handle exclusivity.
 
 The conclusion is conditional on adapter semantics, complete mediation, and
 the typed persistence contract. It does not conclude that a committed value
@@ -2250,15 +2369,24 @@ group has only backward dependencies.
 17. **First adapter semantics (completed T6-A0):** prove the generic frozen-
     bridge-to-`Refines` closure, a concrete idempotent `EnsureMember`
     `AdapterVerified` instance, and an exact nonempty typed-WAL terminal package.
-18. **Executable adapter refinement:** prove that executable adapter/service
-    protocol steps implement the T6-A0 semantics, including a realizable
-    crash/retry execution.
-19. **End to end:** lift the adapter closure through the storage-parametric
-    plugged execution and discharge or expose the `CompleteMediation` and
-    protected-handle premises to prove conditional T6.
+18. **Executable adapter refinement (completed T6-A1):** define the operational
+    `EnsureMember` adapter/service machine, derive `AdapterRely` from its
+    invariant, compose it with T6-A0 and the typed-WAL runtime, and prove the
+    exact reachable crash/retry Unknown package without premises.
+19. **Mediation and exclusivity (T6-M0):** define a first-class protected-
+    service execution and a context whose interface structurally excludes
+    out-of-band protected invocations; prove exact target-mutation provenance,
+    equality with the Broker/WAL invocation projection, and a premise-free A1
+    mediation witness.
+20. **End to end:** establish the prefix-indexed combined adapter/WAL relation,
+    lift the adapter closure through the storage-parametric plugged execution,
+    and derive or explicitly expose the remaining T6 premises to prove the
+    conditional theorem.
 
 The first executable proof checkpoint is groups 1--5 over the atomic Journal
-runtime. The first publishable semantic-adapter checkpoint is now T6-A0 for one
-Idempotent instance. The next publishable end-to-end checkpoint is conditional
-T6 for an executable adapter protocol, followed by Deduplicated and ReadOnly
-instances without changing the generic theorem.
+runtime. T6-A0 is the first publishable semantic-adapter checkpoint for one
+Idempotent instance, and T6-A1 is the completed operational refinement of that
+instance. T6-M0 is the immediate technical checkpoint. The next publishable
+checkpoint is conditional T6 lifted through the storage-parametric plugged
+execution, followed by Deduplicated and ReadOnly instances without changing the
+generic theorem.

@@ -1257,7 +1257,7 @@ pub proof fn t6_a0_zero_wal_execution_exec(
 {
 }
 
-proof fn t6_a0_extend_wal_execution_exec(
+pub proof fn t6_a0_extend_wal_execution_exec(
     cfg: config_layer::FullConfig,
     execution: wal_runtime_layer::WalExecution,
     local: wal_runtime_layer::WalEvent,
@@ -1338,7 +1338,7 @@ pub open spec fn t6_a0_append_full_wal_execution(
     )
 }
 
-proof fn t6_a0_append_full_wal_execution_exec(
+pub proof fn t6_a0_append_full_wal_execution_exec(
     cfg: config_layer::FullConfig,
     execution: wal_runtime_layer::WalExecution,
     record: replay_layer::JournalRecord,

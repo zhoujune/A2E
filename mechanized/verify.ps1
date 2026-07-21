@@ -270,6 +270,12 @@ $targets = @(
         SourcePath = Join-Path $scriptDir "t6_adapter_semantic_closure.rs"
         ExtraArguments = @()
         ContributionParent = "T6-S0"
+    },
+    [pscustomobject]@{
+        Name = "T6-A1"
+        SourcePath = Join-Path $scriptDir "t6_adapter_executable_refinement.rs"
+        ExtraArguments = @()
+        ContributionParent = "T6-A0"
     }
 )
 

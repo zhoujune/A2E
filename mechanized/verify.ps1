@@ -276,6 +276,30 @@ $targets = @(
         SourcePath = Join-Path $scriptDir "t6_adapter_executable_refinement.rs"
         ExtraArguments = @()
         ContributionParent = "T6-A0"
+    },
+    [pscustomobject]@{
+        Name = "T6-M0"
+        SourcePath = Join-Path $scriptDir "t6_mediation_exclusivity.rs"
+        ExtraArguments = @()
+        ContributionParent = "T6-A1"
+    },
+    [pscustomobject]@{
+        Name = "T6-P0"
+        SourcePath = Join-Path $scriptDir "t6_prefix_simulation.rs"
+        ExtraArguments = @()
+        ContributionParent = "T6-M0"
+    },
+    [pscustomobject]@{
+        Name = "T6-X0"
+        SourcePath = Join-Path $scriptDir "t6_contextual_end_to_end.rs"
+        ExtraArguments = @()
+        ContributionParent = "T6-P0"
+    },
+    [pscustomobject]@{
+        Name = "T6-RO0"
+        SourcePath = Join-Path $scriptDir "t6_readonly_operational.rs"
+        ExtraArguments = @()
+        ContributionParent = "T6-X0"
     }
 )
 
@@ -399,6 +423,9 @@ function Get-DirectPathImports {
     }
     if ($sourceText -match '\binclude(?:_str|_bytes)?\s*!') {
         throw "Unsupported include-style module loading in $SourcePath"
+    }
+    if ($sourceText -match '(?im)^\s*(?:pub\s+)?use\b[^;]*?\binclude(?:_str|_bytes)?\b') {
+        throw "Aliasing include-style macros is not admitted in $SourcePath"
     }
     $pathOccurrenceCount = [regex]::Matches(
         $sourceText,
@@ -724,7 +751,7 @@ else {
     $null
 }
 $driverHash = Get-Sha256Lower -Path $MyInvocation.MyCommand.Path
-$forbiddenProofPattern = '\b(assume|admit|external_body|external_fn_specification|assume_specification|axiom|get_Some|recommends|rlimit|resource_limit|spinoff|spinoff_prover)\b|verifier\s*::\s*external'
+$forbiddenProofPattern = '\b(assume|admit|external_body|external_fn_specification|assume_specification|axiom|get_Some|recommends|rlimit|resource_limit|spinoff|spinoff_prover)\b|verifier\s*::\s*external|verifier\s*\('
 $forbiddenArgumentPattern = '(?s).+'
 $targetReports = @()
 foreach ($target in $targets) {
@@ -913,74 +940,6 @@ if ($sourceCoverageDifference.Count -ne 0) {
         }
     }
 
-    $declaredSourceLookup = @{}
-    foreach ($target in $targets) {
-        $declaredSourceLookup[[System.IO.Path]::GetFullPath(
-            $target.SourcePath).ToLowerInvariant()] = $target.Name
-    }
-    $validatedParentImports = 0
-    for ($targetIndex = 0; $targetIndex -lt $targets.Count; $targetIndex++) {
-        $target = $targets[$targetIndex]
-        $targetReport = $targetReports[$targetIndex]
-        $imports = @(Get-DirectPathImports -SourcePath $target.SourcePath)
-        $targetReport.direct_path_imports = @(
-            $imports | ForEach-Object { $_.DeclaredPath })
-        foreach ($import in $imports) {
-            $importKey = $import.FullPath.ToLowerInvariant()
-            if (-not $declaredSourceLookup.ContainsKey($importKey)) {
-                throw ("$($target.Name) directly imports an unregistered source: " +
-                    $import.DeclaredPath)
-            }
-        }
-
-        if ($target.ContributionParent -ne "__full__" -and
-            $target.ContributionParent -ne "__skip__") {
-            $parentName = $target.ContributionParent
-            $parentIndex = -1
-            for ($candidateIndex = 0; $candidateIndex -lt $targetIndex; $candidateIndex++) {
-                if ($targets[$candidateIndex].Name -eq $parentName) {
-                    $parentIndex = $candidateIndex
-                    break
-                }
-            }
-            if ($parentIndex -lt 0) {
-                throw "$($target.Name) contribution parent is not an earlier target: $parentName"
-            }
-            if ($imports.Count -ne 1) {
-                throw ("$($target.Name) must directly import exactly its declared " +
-                    "contribution parent $parentName; found $($imports.Count) path imports")
-            }
-            $expectedParentPath = [System.IO.Path]::GetFullPath(
-                $targets[$parentIndex].SourcePath)
-            if (-not $imports[0].FullPath.Equals(
-                    $expectedParentPath,
-                    [System.StringComparison]::OrdinalIgnoreCase)) {
-                throw ("$($target.Name) contribution parent $parentName does not match " +
-                    "its sole direct path import $($imports[0].DeclaredPath)")
-            }
-            $targetReport.immediate_parent_import_validated = $true
-            $validatedParentImports++
-        }
-    }
-    $report.policy.all_direct_path_imports_registered = $true
-    $report.policy.cumulative_parent_imports_validated = $validatedParentImports
-    $report.policy.simple_path_module_grammar_enforced = $true
-
-    foreach ($target in $targets) {
-        if (@($target.ExtraArguments).Count -ne 0) {
-            throw "$($target.Name) contains nonempty ExtraArguments"
-        }
-        $forbidden = @(Select-String -LiteralPath $target.SourcePath `
-            -CaseSensitive:$false `
-            -Pattern $forbiddenProofPattern)
-        if ($forbidden.Count -ne 0) {
-            throw ("$($target.Name) contains a forbidden proof construct: " +
-                $forbidden[0].Line.Trim())
-        }
-    }
-    $report.policy.nonempty_extra_arguments_rejected = $true
-    $report.policy.status = "passed"
-
     if (-not (Test-Path -LiteralPath $lockPath)) {
         throw "The pinned toolchain lock is missing: $lockPath"
     }
@@ -1051,6 +1010,81 @@ if ($sourceCoverageDifference.Count -ne 0) {
     Assert-RegisteredSourceHashes `
         -RegisteredTargets $targets `
         -ReportsByName $targetReportByName
+
+    # Policy scans run on the hash-validated read-only snapshot rather than the
+    # live tree, so the scanned bytes are exactly the bytes Verus verifies and
+    # a concurrent writer cannot present different content to the scan and to
+    # the verifier.
+    $declaredSourceLookup = @{}
+    foreach ($target in $targets) {
+        $declaredSourceLookup[[System.IO.Path]::GetFullPath(
+            $snapshotSourceByName[$target.Name]).ToLowerInvariant()] = $target.Name
+    }
+    $validatedParentImports = 0
+    for ($targetIndex = 0; $targetIndex -lt $targets.Count; $targetIndex++) {
+        $target = $targets[$targetIndex]
+        $targetReport = $targetReports[$targetIndex]
+        $imports = @(Get-DirectPathImports `
+            -SourcePath $snapshotSourceByName[$target.Name])
+        $targetReport.direct_path_imports = @(
+            $imports | ForEach-Object { $_.DeclaredPath })
+        foreach ($import in $imports) {
+            $importKey = $import.FullPath.ToLowerInvariant()
+            if (-not $declaredSourceLookup.ContainsKey($importKey)) {
+                throw ("$($target.Name) directly imports an unregistered source: " +
+                    $import.DeclaredPath)
+            }
+        }
+
+        if ($target.ContributionParent -ne "__full__" -and
+            $target.ContributionParent -ne "__skip__") {
+            $parentName = $target.ContributionParent
+            $parentIndex = -1
+            for ($candidateIndex = 0; $candidateIndex -lt $targetIndex; $candidateIndex++) {
+                if ($targets[$candidateIndex].Name -eq $parentName) {
+                    $parentIndex = $candidateIndex
+                    break
+                }
+            }
+            if ($parentIndex -lt 0) {
+                throw "$($target.Name) contribution parent is not an earlier target: $parentName"
+            }
+            if ($imports.Count -ne 1) {
+                throw ("$($target.Name) must directly import exactly its declared " +
+                    "contribution parent $parentName; found $($imports.Count) path imports")
+            }
+            $expectedParentPath = [System.IO.Path]::GetFullPath(
+                $snapshotSourceByName[$parentName])
+            if (-not $imports[0].FullPath.Equals(
+                    $expectedParentPath,
+                    [System.StringComparison]::OrdinalIgnoreCase)) {
+                throw ("$($target.Name) contribution parent $parentName does not match " +
+                    "its sole direct path import $($imports[0].DeclaredPath)")
+            }
+            $targetReport.immediate_parent_import_validated = $true
+            $validatedParentImports++
+        }
+    }
+    $report.policy.all_direct_path_imports_registered = $true
+    $report.policy.cumulative_parent_imports_validated = $validatedParentImports
+    $report.policy.simple_path_module_grammar_enforced = $true
+
+    foreach ($target in $targets) {
+        if (@($target.ExtraArguments).Count -ne 0) {
+            throw "$($target.Name) contains nonempty ExtraArguments"
+        }
+        $forbidden = @(Select-String `
+            -LiteralPath $snapshotSourceByName[$target.Name] `
+            -CaseSensitive:$false `
+            -Pattern $forbiddenProofPattern)
+        if ($forbidden.Count -ne 0) {
+            throw ("$($target.Name) contains a forbidden proof construct: " +
+                $forbidden[0].Line.Trim())
+        }
+    }
+    $report.policy.nonempty_extra_arguments_rejected = $true
+    $report.policy.status = "passed"
+
     $snapshotMetadata = Assert-SourceSnapshot `
         -SnapshotRoot $sourceSnapshotRoot `
         -RegisteredTargets $targets `
@@ -1475,6 +1509,10 @@ function Invoke-NativeCaptured {
                     -Inputs $boundArtifactInputs `
                     -Description "Bound artifact input"
                 $verified = [int]$result.Groups[1].Value
+                if ($verified -le 0) {
+                    throw ("Could not confirm a nonzero Verus obligation count for " +
+                        $target.Name)
+                }
                 $verifiedCounts[$target.Name] = $verified
                 $delta = 0
                 if ($target.ContributionParent -eq "__full__") {

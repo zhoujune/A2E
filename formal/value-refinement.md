@@ -344,7 +344,84 @@ The T6-A1 adapter is executable as an explicit finite transition system with a
 mechanized reachable execution; it is not verified production Rust, network,
 or remote-service code. Its synthetic total configuration grants universal
 resource and argument scope and therefore does not establish least privilege.
-T6-A0/A1 prove no byte encoding or flush/fsync behavior, no
+T6-A0/A1 alone prove no byte encoding or flush/fsync behavior, no
 `CompleteMediation` or protected-handle property, no multi-request/global
-linearizability, and no liveness. Neither T1 nor T6-A0 covers delivery to the
-agent; caller-visible `ReturnResult` remains outside theorem V1.
+linearizability, and no liveness.
+
+### T6-M0 mediated value/effect provenance
+
+T6-M0 leaves the T6-A0/A1 value relation unchanged and closes a different
+boundary around the same witness. It introduces a first-class protected-
+service execution whose accepted calls store a call descriptor, proof cuts, and
+source index. Eventwise coupling proves those fields equal the canonical A1/WAL
+Invoke and maps each Broker Invoke to one protected call and each silent service
+linearization to a
+call-indexed target action. Induction, rather than a final-trace premise,
+derives equality between the service-generated call trace and the Broker/WAL
+invocation projection.
+
+Only `ServiceLinearize` can change membership of the protected target, and an
+environment addition cannot name that target. For every target action covered
+by the coupled deployment relation, the referenced call maps through T4-C0 to
+the exact Broker Invoke; T1 then yields its earlier acknowledged authorized
+Start, matching capability and digest, and successful Journal acknowledgment.
+In the concrete 32-step service execution, two calls are mediated and durably
+authorized, attempt 1 supplies the sole target insertion, and attempt 2 returns
+Failure without linearizing. Thus M0 strengthens the provenance of the already
+proved one-effect/Unknown result; it does not change what counts as a value or
+abstract effect. Its cumulative target verifies 977 obligations with zero
+errors, 61 beyond T6-A1. At the retained M0 checkpoint, all 43 targets passed,
+with 1,017 dependency-aware non-duplicated obligations and 21,844 summed target
+obligations.
+
+### T6-P0 prefix-indexed value/effect agreement
+
+T6-P0 leaves the value relation and the A0/A1 zero-or-one-effect interpretation
+unchanged. It strengthens where the effect interpretation is known to agree.
+For every weakly related A1 and WAL prefix, the A1 accumulated global trace and
+request-local adapter history equal the mapped WAL prefix. At the same A1
+index, `p0_effect_state_agreement` equates the adapter and independently
+executed protected service on initial and current membership, environment
+additions, and the exact set of linearized attempts reconstructed from valid
+call references. Protected accepted calls also equal the mapped WAL invocation
+projection, so `CompleteMediation` holds at that prefix.
+
+The product and its execution-pair premise are closed under truncating the A1
+and protected executions and taking the mapped WAL prefix. The 32/32/31-event
+crash/retry witness instantiates this relation with a 33-point canonical map
+whose attempt-1 service linearization stutters. T6-P0 verifies 1,000 cumulative
+obligations with zero errors, 23 beyond T6-M0. This is a conditional
+single-request `EnsureMember` execution product; it does not construct a WAL
+execution for every adapter execution.
+
+### T6-X0 contextual value/effect transport
+
+T6-X0 leaves the adapter value relation and the zero-or-one-effect
+interpretation unchanged. It composes P0's adapter-to-WAL map with T4-C2's
+canonical WAL-to-Broker map and proves, at every composed prefix, equality of
+the request-local adapter history with the Broker projection together with
+exact context-state/view transport and mapped-prefix T1 safety. The final P0
+effect-state relation grounds `a1_external_run` in the protected-service
+membership, environment additions, and linearized-attempt set.
+
+For a terminal source execution, normalized projection agreement transports
+the exact terminal and adapter history to the Broker trace; X0 therefore derives
+the same `Refines` and per-request effect-refinement judgments at both
+boundaries. Physical-projection equality similarly transports
+`CompleteMediation`. The concrete 32/32/31-event witness has the exact
+`Unknown(NonConclusiveFailure)` terminal, denotes one rather than zero effects,
+reaches target membership through exactly one protected linearization, and
+retains durable authorization and mediation at the canonical Broker endpoint.
+
+T6-X0 verifies 1,022 cumulative obligations with zero errors, 22 beyond T6-P0.
+The current retained run passes all 45/45 targets, contains 1,062
+dependency-aware non-duplicated obligations, and sums to 23,866 target
+obligations.
+
+M0's mediation boundary remains a closed-alphabet, model-level no-bypass
+theorem, not verified production handle distribution, process isolation,
+network policy, or service authentication. The aggregate result still proves no byte encoding or
+flush/fsync behavior, caller-visible `ReturnResult`, least privilege,
+multi-request/global linearizability, matching-WAL existence for arbitrary
+adapter runs, or liveness. Neither T1 nor T6-X0 covers delivery to the agent;
+`ReturnResult` remains outside theorem V1.

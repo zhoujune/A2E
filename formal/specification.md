@@ -454,7 +454,7 @@ shared context-state and complete ordered
 endpoint `ContextView` equality at every prefix named by the canonical composed
 map. Under the exported `StorageParametricContext` premise, the Broker product
 retains C0 weak simulation, normalized projection agreement, full T1 safety,
-and mapped-prefix T1 safety. The cumulative target verifies 734 obligations.
+and mapped-prefix T1 safety. The cumulative target verifies 735 obligations.
 
 The completed T5-S0 checkpoint then proves exact one-step committed-history
 laws for all three machines. `alpha_B` is the Broker durable `commit_log`;
@@ -466,7 +466,7 @@ laws for all three machines. `alpha_B` is the Broker durable `commit_log`;
 only the runtime `wal_invariant`, excluding ghost-evidence agreement, and proves
 exact parsed-view behavior first, including `WalWriteTorn` stuttering and
 equality across `TruncateTail`. Reachable states derive that premise from
-T3-W0's `basic_invariant`. The cumulative target verifies 743 obligations; the
+T3-W0's `basic_invariant`. The cumulative target verifies 744 obligations; the
 T5-S0 dependency delta is 9.
 
 Consequently every accepted theorem-machine step extends committed history by
@@ -490,7 +490,7 @@ states, for each backend execution `tau` and indices
 
 Its only machine premise is the corresponding `Exec`; the WAL proof derives
 `basic_invariant` for reachable configurations and discharges `wal_invariant`
-internally. T5-E0 verifies 747 cumulative obligations, 4 beyond T5-S0; the 33
+internally. T5-E0 verifies 748 cumulative obligations, 4 beyond T5-S0; the 33
 targets registered through T5-E0 contained 784 dependency-aware non-duplicated
 obligations.
 
@@ -523,7 +523,7 @@ The restriction to `FailRec` and recovery `UnknownRec` is derived from machine
 enabledness, not assumed by `RecoveryEpisode`. The WAL theorem derives its
 invariants from `Exec`. Minimal Broker and Journal episodes, a complete
 scan/truncate WAL episode, and a repeated-`Crash` Broker episode prove
-nonvacuity. T5-R0 verifies 769 cumulative obligations, 22 beyond T5-E0; the 34
+nonvacuity. T5-R0 verifies 770 cumulative obligations, 22 beyond T5-E0; the 34
 registered targets contain 806 dependency-aware non-duplicated obligations.
 
 For T5-C0, let `tau_W^S` be the source plugged WAL execution, `tau_B^S` be
@@ -567,7 +567,7 @@ witness uses the six WAL events
 machine configurations, and seven equal context states; it proves the complete
 C0 premise conjunction and conclusion are inhabited.
 
-T5-C0 verifies 783 cumulative obligations, 14 beyond T5-R0: 13 commit-delta,
+T5-C0 verifies 784 cumulative obligations, 14 beyond T5-R0: 13 commit-delta,
 representation, mapped-prefix, and contextual bridge/export obligations plus
 the combined witness. At that historical checkpoint, 35 registered targets
 contained 820 dependency-aware non-duplicated obligations. The oracle actions
@@ -584,7 +584,7 @@ that configuration, the inert context, and the six-event minimal contextual WAL
 recovery execution at `crash = 0`, `finish = 5`, and establishes the entire
 T5-C0 premise conjunction and conclusion. H1 adds 3 obligations: the total
 configuration witness, the concrete T5-C0 package, and its existential
-inhabitation theorem. The cumulative result is 786 verified obligations with
+inhabitation theorem. The cumulative result is 787 verified obligations with
 zero errors; 36 registered targets contain 823 dependency-aware non-duplicated
 obligations.
 
@@ -609,7 +609,7 @@ configuration-dependent structural rule. Commit, Fail, and Unknown evidence
 and compatibility are separate named branches. One shared broker-state
 statement and separate Journal/WAL wrappers fix the shape of the later T6-S0
 proof without establishing it at D0; T6-S0 now discharges that frozen shape.
-The T6-D0 target verifies 799 cumulative obligations with zero errors, 16
+The T6-D0 target verifies 800 cumulative obligations with zero errors, 16
 beyond T5-C0.
 
 T6-E0 proves the generic terminal-evidence implication. Given a Broker contract
@@ -619,7 +619,7 @@ corresponding event projections, and `terminal(tau,r)=Some(o)`, it derives
 Fail references name exact Outcome records in the strict pre-terminal prefix
 and select the unique matching delivery. Unknown reuses the exact prefix
 `StructuralEnabled` rule and its durable reason-specific anchor. The result is
-independent of an external run or adapter effect relation. T6-E0 verifies 817
+independent of an external run or adapter effect relation. T6-E0 verifies 818
 cumulative obligations with zero errors, 18 beyond T6-D0. Together with H1's
 independent 3-obligation delta, its historical 38-target registry contained 857
 dependency-aware non-duplicated obligations.
@@ -636,7 +636,7 @@ requires a resolved failure with no Success or InvalidResult observation, and
 `Uncontrolled` requires a single failure on its only invoked attempt. Unknown
 requires a legal Journal, the exact unique `UnknownRec`, and its reason guard
 over the strict pre-terminal prefix; an `Uncontrolled` history must additionally
-contain at most one invocation. T6-C0 verifies 834 cumulative obligations with
+contain at most one invocation. T6-C0 verifies 835 cumulative obligations with
 zero errors, 17 beyond T6-E0. Its 39 registered targets contain 874
 dependency-aware non-duplicated obligations, and the sum of their cumulative
 target obligations is 18,224.
@@ -699,14 +699,118 @@ recover, Invoke2, Failure2`: attempt 1 linearizes but its success is not
 journaled before the crash, while attempt 2 fails without linearizing. The
 terminal is Unknown, not Fail, and the run denotes exactly one abstract
 insertion. T6-A1 verifies 916 obligations with zero errors, 52 beyond T6-A0.
-All 42/42 current targets pass, with 956 dependency-aware non-duplicated
-obligations and 20,867 summed target obligations.
+At that retained checkpoint, all 42/42 targets passed, with 956 dependency-aware
+non-duplicated obligations and 20,867 summed target obligations.
 
 T6-A1 verifies an operational transition system and reachable execution, not
-production Rust, network transport, or remote-service code. T6-A0/A1 do not
-prove byte/fsync persistence, `CompleteMediation`, protected handles,
-`ReturnResult`, multi-request/global linearizability, liveness, or least
-privilege for the synthetic full-capability witness.
+production Rust, network transport, or remote-service code. T6-A0/A1 by
+themselves do not prove byte/fsync persistence, `CompleteMediation`, protected
+handles, `ReturnResult`, multi-request/global linearizability, liveness, or
+least privilege for the synthetic full-capability witness.
+
+T6-M0 adds a separately defined protected-service execution. Each accepted
+call stores its request, attempt, descriptor, Journal and acknowledged cuts,
+and source index; eventwise coupling proves these equal the canonical A1/WAL
+Invoke. `BrokerInvoke` also requires a request-local, fresh attempt key. Service linearization and return
+transitions reference that call by sequence index. Only
+`ServiceLinearize(call_ref)` can mutate the target; nontarget environment
+additions are separate, and the service alphabet contains no raw or
+context-owned target-mutation constructor.
+
+The A1 and protected executions are related event by event, but final protected
+trace equality is not assumed by the coupling definition. Prefix induction
+derives that the service-generated, cut-erased calls equal `pi_invocations` of
+the observed global trace. A second execution induction proves that stored
+service calls are precisely those generated calls. Thus `CompleteMediation` is
+derived across independently defined executions rather than made true by
+choosing the protected trace to equal the Broker projection.
+
+T6-M0 also supplies a separate storage-parametric T4-C1 context. Its state audits
+only `ContextEvent::Invoke` labels exposed through the masked storage view; its
+interface contains no protected-service state, handle, invocation primitive, or
+mutation field. Every admitted plugged WAL execution under this context derives
+the same invocation-projection equality. This is a closed-alphabet no-bypass
+property in the formal model, not verification of descriptor distribution,
+process isolation, network ACLs, or production service authentication.
+
+Under the coupled deployment relation, every protected call's source index names
+an exact WAL Invoke. T4-C0 maps that
+nonsilent event into the canonical Broker execution, and T1's
+`invoke_temporal_at` proves canonicality, positive and bounded acknowledged
+cuts, acknowledged authorized Start ancestry, unique Authorize and Start
+counts, and a successful append return strictly before invocation. The coupled
+linearization theorem applies this durable-authorization provenance to each
+target action without an added semantic premise.
+
+The reusable `m0_deployment_exec` relation packages the well-formed
+configuration, A1/protected eventwise coupling, typed-WAL execution, and exact
+A1/WAL trace agreement. From it, T6-M0 generically derives the quantified property
+that every `ServiceLinearize` references a durably authorized call. A bare
+protected-service execution defines only the service transition grammar and is
+not, on its own, an authorization judgment.
+
+The premise-free T6-M0 witness reuses A1's 32 adapter events and 31 typed-WAL
+events, and independently constructs a 32-step protected execution. It accepts
+two calls originating at zero-based WAL indices 12 and 23; attempt 1 is the sole
+linearization and returns Success, while attempt 2 returns Failure without
+linearizing. Both calls are durably authorized, no environment addition occurs,
+and the protected-service and audit-context traces both equal the WAL
+invocation projection. The T6-M0 target verifies 977 cumulative obligations
+with zero errors, 61 beyond T6-A1. At the retained T6-M0 checkpoint, all 43/43
+registered targets passed, with 1,017 dependency-aware non-duplicated
+obligations and 21,844 summed target obligations. The historical A1 totals
+above remain labeled as checkpoint values.
+
+T6-M0 does not verify production Rust, transport, OS isolation, or remote-
+service code; byte/fsync persistence; `ReturnResult`; least privilege;
+multi-request/global linearizability; or liveness. It also does not establish a
+general prefix-indexed A1-to-WAL stuttering simulation or the contextual T6
+lift. Its completed prefix arguments concern the protected call trace and
+closed-interface audit context.
+
+T6-P0 adds that prefix-indexed relation for the fixed single-request
+`EnsureMember` model. A weak map relates each A1 configuration to a typed-WAL
+configuration: `Observe(global)` consumes exactly one identical WAL label,
+while `ServiceLinearize` and `EnvironmentAdd` stutter. From valid A1,
+protected-service, and WAL executions satisfying this step coupling, the
+generic T6-P0 theorem derives at every mapped prefix exact global-trace and
+request-history agreement, valid truncated executions, equality between
+accepted protected calls and the WAL invocation projection,
+`CompleteMediation`, and agreement on membership, environment additions, and
+linearized attempts.
+
+Both the execution-pair relation and the full product are closed under taking
+an A1/protected prefix and its mapped WAL prefix. A canonical map counts the
+observed global events in each A1 prefix and recovers the step relation when
+whole-trace equality is already supplied. T6-P0 is therefore a conditional
+execution-pair theorem, not a theorem constructing a matching typed-WAL
+execution for every A1 execution.
+
+The T6-P0 witness uses the existing 32 A1 events, the separately constructed 32
+protected events, and 31 WAL events. Its 33-point map stutters across the
+attempt-1 service linearization at points 13 and 14 and retains complete
+mediation and final effect-state agreement. T6-P0 verifies 1,000 cumulative
+obligations with zero errors, 23 beyond T6-M0.
+
+T6-X0 supplies the storage-parametric contextual lift. It composes the T6-P0
+adapter-to-WAL map with T4-C2's canonical WAL-to-Broker map and proves an exact
+all-prefix relation: request-local adapter history agrees with the mapped Broker
+projection, plugged context state and masked view agree at the composed points,
+the external run is grounded in the protected-service state, and each mapped
+Broker prefix satisfies T1. Given a selected terminal, the conditional theorem
+transports the exact terminal, `Refines`, per-request effect refinement, and
+`CompleteMediation` from the WAL trace to the canonical Broker trace.
+
+The concrete X0 theorem reuses the 32-adapter/32-protected/31-WAL execution and
+T6-M0's exclusive audit context. Its exact terminal is
+`Unknown(NonConclusiveFailure)`; the run denotes one rather than zero effects;
+the protected target changes through exactly one durably authorized
+linearization; and mediation holds at the canonical Broker endpoint.
+`t6_x0_contextual_end_to_end_nonvacuity` exports this package without premises.
+T6-X0 verifies 1,022 cumulative obligations with zero errors, 22 beyond T6-P0.
+The current retained run passes all 45/45 registered targets, contains 1,062
+dependency-aware non-duplicated obligations, and sums to 23,866 target
+obligations.
 
 The complete hierarchy is T1 parameterized Broker safety, T2 independent
 atomic-Journal runtime simulation, T3 typed-WAL simulation, completed T4-C0
@@ -715,16 +819,18 @@ plugging, completed T4-C2 contextual replacement and composition, T5 committed-
 history prefix preservation, and T6 conditional end-to-end per-request effect
 refinement. T1--T5, H1, T6-D0, T6-E0 evidence, T6-C0 compatibility, T6-S0
 composition plus backend wrappers, the first concrete T6-A0 adapter semantics,
-and the T6-A1 operational refinement are now complete. The full conditional
-end-to-end T6 theorem follows next.
+the T6-A1 operational refinement, and T6-M0 model-level mediation and no-bypass
+and T6-P0 prefix-indexed execution product, and the conditional single-request
+T6-X0 contextual end-to-end theorem are now complete.
 Under the complete stated
 persistence, mediation, context, and adapter rely conditions, the broker
 provides authorized, per-internal-request at-most-once logical completion and
 crash-stable abstract history. It does **not** claim physical exactly-once
 execution, coalescing of separately admitted equal payloads, liveness, returned
 result delivery, global linearizability of effects across requests, reverse
-contextual equivalence, autonomous context steps, protected-handle exclusivity
-from T4, adapter effect refinement from T4, or byte-level WAL correctness.
+contextual equivalence, autonomous context steps, production protected-handle
+isolation, matching-WAL construction for arbitrary adapter runs, additional
+adapter classes, or byte-level WAL correctness.
 
 ## 8. Component proof obligations
 
@@ -742,6 +848,9 @@ from T4, adapter effect refinement from T4, or byte-level WAL correctness.
 | Scheduler | One globally serialized executor slot in V1 | No simultaneous invocation; multi-worker ownership is deferred |
 | Adapter semantics | Declared retry and environment contract | T6-A0 proves the first concrete `EnsureMember` semantic interpretation refines zero or one abstract set insertion |
 | Executable adapter model | Concrete adapter/service protocol steps | T6-A1 proves the operational `EnsureMember` execution refines the T6-A0 semantic contract; refinement of production Rust/network/service code remains open |
+| Protected-service mediation | Eventwise A1/service coupling plus the structurally restricted storage-parametric audit context | T6-M0 derives the independent service and context traces from the WAL invocation projection, proves that only a prior call can cause a target action, and connects each such action to T1 durable authorization; production OS/network isolation remains open |
+| Prefix execution product | Valid A1/protected and typed-WAL executions plus weak event coupling | T6-P0 proves exact mapped-prefix trace/history, mediation, and effect-state agreement and prefix closure for conditionally paired executions; T6-P0 alone neither constructs a matching WAL execution nor includes a contextual lift |
+| Contextual end-to-end composition | Storage-parametric context, plugged WAL execution, T6-P0 prefix product, and selected terminal | T6-X0 composes the adapter/WAL and WAL/Broker maps, proves exact all-prefix history/context/view and T1 transport, and transports terminal refinement and complete mediation to the canonical Broker trace; the premise-free 32/32/31 witness ends Unknown with one abstract effect and one durably authorized protected linearization |
 | Recovery | Durable journal is readable | Committed history is preserved; unsafe retries are rejected |
 | Terminal bridge | `AdapterRely`, a selected terminal, and the existing Journal/WAL execution, admissibility, trace-agreement, and representation premises | T6-S0 combines terminal evidence with compatibility and transports the result to each backend's final evidence records without adding a simulation invariant |
 | Adapter closure | `AdapterVerified`, Journal legality, `AdapterRely`, and terminal evidence/compatibility | T6-A0 derives `Refines` and per-request effect refinement and supplies an exact nonempty typed-WAL witness |

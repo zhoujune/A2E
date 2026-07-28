@@ -62,6 +62,24 @@ $targets = @(
         ContributionParent = "C1"
     },
     [pscustomobject]@{
+        Name = "K1"
+        SourcePath = Join-Path $scriptDir "k1_executable_kernel.rs"
+        ExtraArguments = @()
+        ContributionParent = "Q1"
+    },
+    [pscustomobject]@{
+        Name = "K2-G0"
+        SourcePath = Join-Path $scriptDir "k2_executable_kernel_refinement.rs"
+        ExtraArguments = @()
+        ContributionParent = "K1"
+    },
+    [pscustomobject]@{
+        Name = "K2-T0"
+        SourcePath = Join-Path $scriptDir "k2_durable_record_kernel.rs"
+        ExtraArguments = @()
+        ContributionParent = "K2-G0"
+    },
+    [pscustomobject]@{
         Name = "B2-R"
         SourcePath = Join-Path $scriptDir "t1_broker_records.rs"
         ExtraArguments = @()
@@ -300,6 +318,12 @@ $targets = @(
         SourcePath = Join-Path $scriptDir "t6_readonly_operational.rs"
         ExtraArguments = @()
         ContributionParent = "T6-X0"
+    },
+    [pscustomobject]@{
+        Name = "T6-DD0"
+        SourcePath = Join-Path $scriptDir "t6_deduplicated_operational.rs"
+        ExtraArguments = @()
+        ContributionParent = "T6-RO0"
     }
 )
 

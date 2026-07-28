@@ -45,10 +45,19 @@ second executable adapter instance, for the ReadOnly retry class: it samples
 an environment-owned Boolean at an explicit environment-history cut, derives
 `AdapterRely` from its transition invariant, and proves a premise-free
 crash/retry witness whose conclusive `Fail` terminal makes the `zero_effect`
-branch of `Refines` operationally non-vacuous. T4, T5, the T6 terminal
-bridge, semantic adapter closure, executable adapter refinement, and model-level
-mediation/no-bypass, prefix product, the X0 single-request contextual theorem,
-and the RO0 read-only operational instance are complete. Production
+branch of `Refines` operationally non-vacuous. T6-DD0 begins a third,
+Deduplicated instance by defining its memoized keyed-decision semantics,
+well-formed fixed configuration, and transition system; its inductive proof
+and coupled terminal witness are later DD milestones. In a separate
+implementation-refinement track, K1 and K2 connect concrete `u64`/vector
+durable-summary code to Q1: K1 verifies Authorize and Start, K2-G0 completes
+all nine reference-erased record guards, and K2-T0 couples accepted-record
+mutations exactly to `apply_record` and legal-prefix `replay_push`. T4, T5,
+the T6 terminal bridge, semantic adapter closure, executable adapter
+refinement, model-level mediation/no-bypass, prefix product, the X0
+single-request contextual theorem,
+the RO0 read-only operational instance, and the K2-T0 durable-summary mutation
+layer are complete. Production
 deployment isolation, caller-visible return refinement, concurrency, and
 generalization to arbitrary adapters and all requests remain open.
 
@@ -192,6 +201,41 @@ state and proves every structurally enabled Journal record satisfies that
 operational durable guard. Exact LSN references remain proof-side obligations;
 the converse implication is intentionally false. Q1 supplies the missing
 ghost-free guards needed by the full record-side Broker checkpoint.
+
+## K1/K2: executable durable-summary refinement
+
+`k1_executable_kernel.rs` imports Q1 and replaces its unbounded durable maps
+with an executable `KDurable` summary backed by vectors of `u64` request and
+capability entries. For a fixed demo configuration whose request IDs select
+ReadOnly, Idempotent, Deduplicated, and Uncontrolled lanes, K1 verifies the
+empty initial coupling, total vector lookup, conclusive-failure scanning, and
+the Authorize and Start guards. Each guard's postcondition is equality with
+Q1's reference-erased `abstract_record_enabled`, not merely a one-way safety
+implication. K1 verifies 159 cumulative obligations with zero errors, adding
+15 over Q1.
+
+`k2_executable_kernel_refinement.rs` adds executable Revoke, Prepare, Arm,
+Outcome, Commit, Fail, and Unknown decisions. Together with K1, K2-G0 covers
+all nine record forms in `abstract_record_enabled`, including retry-class,
+latest-attempt, uncertainty, terminal, digest, and stable-key branches. K2-G0
+is guard-only: it verifies 179 cumulative obligations with zero errors, adding
+20 over K1, but does not mutate `KDurable`.
+
+`k2_durable_record_kernel.rs` adds the mutation side. Its strengthened coupling
+excludes outcomes beyond the recorded started-attempt prefix. Verified helpers
+insert fresh request/capability entries and update authorization, revocation,
+Start and Outcome data, plus the Prepare, Arm, Commit, Fail, and Unknown phases.
+Accepted-record wrappers cover all nine record forms. Their postconditions are
+exact `replay_layer::apply_record` coupling, and the legal-extension lemma lifts
+that coupling through `replay_push`. K2-T0 verifies 208 cumulative obligations
+with zero errors, adding 29 over K2-G0. `kernel/kernel_core.rs` re-exports this
+latest checked layer.
+
+K2-T0 is not a complete executable Broker. It uses the fixed demo
+configuration and a durable summary only; exact LSN/reference admission,
+append Call--Linearize--Return control, executor slots, physical invocation,
+crash/recovery, byte persistence, transport, MCP integration, and production
+deployment remain later milestones.
 
 ## B2-R: record-side Broker safety
 
@@ -1317,16 +1361,39 @@ A1, whose Idempotent class made `Fail` impossible and terminated `Unknown`.
 and semantic crash/retry package.
 
 T6-RO0 verifies 1,083 cumulative obligations with zero errors, adding 61 over
-its T6-X0 parent. The current retained run passes all 46/46 targets, contains
-1,123 dependency-aware non-duplicated obligations, and sums to 24,949 target
-obligations.
+its T6-X0 parent. The retained RO0 checkpoint passed all 46/46 targets,
+contained 1,123 dependency-aware non-duplicated obligations, and summed to
+24,949 target obligations.
 
 The theorem deliberately stops at the WAL/Broker boundary: `ServiceRead` and
 `EnvironmentSet` are adapter-local events that stutter in the global trace, so
 a deployment-level service/transport refinement remains a separate obligation.
 T6-RO0 also does not couple a separate protected-service execution, construct
 an M0-style audit context, or instantiate the P0 prefix product or X0
-contextual lift for the ReadOnly instance. A Deduplicated operational
+contextual lift for the ReadOnly instance.
+
+## T6-DD0: deduplicated operational adapter definitions
+
+`t6_deduplicated_operational.rs` imports T6-RO0 and begins the third executable
+adapter instance, for the Deduplicated retry class. Its protected target is a
+service-owned keyed slot. A silent `ServiceDecide` transition can apply and
+memoize one value or memoize rejection; later deliveries replay that decision.
+The recorded decision includes an invocation-history cut so the intended
+Invoke--decide--delivery provenance is explicit without exposing the silent
+service action as a Broker/WAL event.
+
+DD0 defines the adapter interpretation, the fixed all-Deduplicated
+configuration and its well-formedness proof, and the operational modes,
+events, state, enabledness, transition, execution, and prefix relations. This
+is milestone one only. It does not yet prove an inductive machine invariant,
+derive `AdapterRely` or the deduplication service law from executions, or build
+the planned crash/recovery/retry witness. Those are DD milestones two and
+three, so DD0 must not yet be cited as a completed operational refinement.
+
+T6-DD0 verifies 1,085 cumulative obligations with zero errors, adding 2 over
+T6-RO0. Together with K1, K2-G0, and K2-T0, the current retained suite passes
+all 50/50 targets, contains 1,189 dependency-aware non-duplicated obligations,
+and sums to 26,580 target obligations. A completed Deduplicated operational
 instance, a request-indexed family of external runs, caller-visible
 `ReturnResult`, byte/fsync persistence, multi-request concurrency, and
 liveness remain open.
@@ -1386,7 +1453,7 @@ checks target/source counts, parent-delta arithmetic, running totals, and final
 summary consistency before assigning `status: "passed"`.
 
 The cumulative target counts and aggregates below come from the current
-retained 46-target full suite:
+retained 50-target full suite:
 
 ```text
 M0 verified obligations: 21
@@ -1395,6 +1462,9 @@ B1 verified obligations: 39
 C1 verified obligations: 128
 D1 verified obligations: 144
 Q1 verified obligations: 144
+K1 verified obligations: 159
+K2-G0 verified obligations: 179
+K2-T0 verified obligations: 208
 B2-R verified obligations: 169
 B2-C verified obligations: 175
 B2-P0 verified obligations: 193
@@ -1434,22 +1504,29 @@ T6-A1 verified obligations: 916
 T6-M0 verified obligations: 977
 T6-P0 verified obligations: 1,000
 T6-P0 target delta over T6-M0: 23
-T6-P0 non-duplicated verified artifact obligations: 1,040
-T6-P0 summed target obligations: 22,844
+T6-P0 non-duplicated verified artifact obligations: 1,104
+T6-P0 summed target obligations: 23,390
 T6-X0 verified obligations: 1,022
 T6-X0 target delta over T6-P0: 22
-T6-X0 non-duplicated verified artifact obligations: 1,062
-T6-X0 summed target obligations: 23,866
+T6-X0 non-duplicated verified artifact obligations: 1,126
+T6-X0 summed target obligations: 24,412
 T6-RO0 verified obligations: 1,083
 T6-RO0 target delta over T6-X0: 61
-T6-RO0 non-duplicated verified artifact obligations: 1,123
-T6-RO0 summed target obligations: 24,949
+T6-RO0 non-duplicated verified artifact obligations: 1,187
+T6-RO0 summed target obligations: 25,495
+T6-DD0 verified obligations: 1,085
+T6-DD0 target delta over T6-RO0: 2
+T6-DD0 non-duplicated verified artifact obligations: 1,189
+T6-DD0 summed target obligations: 26,580
 ```
 
 C1's 128 obligations include the 86 R1 and 39 B1 obligations imported into the
 composition crate, plus 3 composition-specific obligations. D1 and Q1 each
-include that same C1 closure plus 16 new obligations. B2-R includes Q1 and adds
-25 record-side Broker obligations. B2-C includes B2-R and adds 6 rich
+include that same C1 closure plus 16 new obligations. K1 imports Q1 and adds 15
+executable-summary and guard obligations; K2-G0 imports K1 and adds 20 guard
+obligations; and K2-T0 imports K2-G0 and adds 29 mutation/coupling obligations.
+B2-R independently includes Q1 and adds 25 record-side Broker obligations.
+B2-C includes B2-R and adds 6 rich
 configuration-refinement obligations. B2-P0 includes B2-C and adds 18 physical
 transition/projection obligations. B2-P1 includes P0 and adds 58
 physical-causality, live-source, and all-prefix obligations. B2-P2 includes P1
@@ -1548,6 +1625,10 @@ derivation of `AdapterRely`, the coupled crash/retry adapter and typed-WAL
 executions, the seven-record conclusive `Fail` terminal and disabled
 nonconclusive Unknown, zero-effect refinement, and the premise-free executable
 nonvacuity package.
+T6-DD0 imports T6-RO0 directly and adds 2 obligations for the fixed
+Deduplicated configuration's well-formedness. The adapter interpretation and
+memoizing operational transition system are defined, while their invariant,
+rely derivation, and concrete terminal witness remain future obligations.
 The historical T6-A1 non-duplicated total
 counts M0, C1, each independent D1/Q1 delta, the B2-R delta over Q1, and the
 B2-C through T5-C0 deltas along their dependency chain, plus the independent H1
@@ -1561,17 +1642,20 @@ obligations. The historical T6-P0 registry contained 44 targets and 1,040
 dependency-aware non-duplicated obligations and summed to 22,844 target
 obligations. The historical T6-X0 registry contained 45 targets and 1,062
 dependency-aware non-duplicated obligations and summed to 23,866 target
-obligations. The current T6-RO0 registry contains 46 targets and 1,123
-dependency-aware non-duplicated obligations; the retained run sums to 24,949
-target obligations.
+obligations. The historical T6-RO0 registry contained 46 targets and 1,123
+dependency-aware non-duplicated obligations and summed to 24,949 target
+obligations. The current registry adds K1, K2-G0, K2-T0, and T6-DD0: it contains
+50 targets and 1,189 dependency-aware non-duplicated obligations, and the
+retained run sums to 26,580 target obligations.
 The historical retained T6-A0 checkpoint had 41 targets, 904 non-duplicated
 obligations, and a 19,951 target sum. The historical retained T6-S0 checkpoint
 had 40 targets, 880 non-duplicated obligations, and a 19,064 target sum before
 the conservative definitional T1 accessor lemma was added.
 
 T6-X0 completes the conditional end-to-end contextual lift for the operational
-`EnsureMember` instance, and T6-RO0 adds the ReadOnly operational instance.
-The next theorem generalization is to add a Deduplicated operational instance
-and a request-indexed family of external runs. Caller-visible `ReturnResult`,
+`EnsureMember` instance, T6-RO0 adds the ReadOnly operational instance, and
+T6-DD0 defines the first Deduplicated operational milestone. The next theorem
+steps are DD0's invariant/rely proof and coupled witness, followed by a
+request-indexed family of external runs. Caller-visible `ReturnResult`,
 production deployment isolation, byte/fsync refinement, multi-request
 concurrency, and liveness remain explicit subsequent extensions.

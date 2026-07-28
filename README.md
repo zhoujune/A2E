@@ -75,7 +75,22 @@ factors the post-state as the initial state plus those transitions. Its
 premise-free 33-event adapter/31-event WAL crash/retry witness terminates in
 a conclusive `Fail` on attempt 2 despite attempt 1's delivered Success,
 making the ReadOnly branch of `Refines` non-vacuous with an operational
-model.
+model. T6-DD0 starts the third instance, for the Deduplicated retry class: it
+defines the keyed decision/memoization semantics, a well-formed fixed
+configuration, and the operational transition system. Its inductive
+invariant, `AdapterRely` derivation, and coupled crash/retry witness remain the
+next DD milestones.
+
+K1 and K2 add a separate executable-kernel refinement track at the durable
+Journal boundary. K1 implements a concrete `u64`/vector durable summary and
+proves its Authorize and Start decisions equal Q1's specification guards for a
+fixed four-lane demo configuration. K2-G0 completes all nine reference-erased
+record guards. K2-T0 adds accepted-record mutations, including fresh
+request/capability insertion, and proves exact coupling to `apply_record` and
+legal-prefix `replay_push`. This is an executable durable-summary layer, not a
+complete broker event loop: exact LSN references, append control, executor
+slots, invocation, crash/recovery, transport, and deployment remain outside
+K2-T0.
 
 The first research target is deliberately smaller than a complete agent
 runtime. T1 establishes the Broker-side form of the claim:
@@ -103,17 +118,21 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   statement of theorem V1, including the independent abstract and concrete
   machines, labeled executions, rely conditions, and theorem layers T1--T6.
 - [Verified mechanization checkpoints](mechanized/README.md) document M0, R1,
-  B1, C1, D1, Q1, B2-R, B2-C, B2-P0, B2-P1, B2-P2, B2-P3, B2-L, B2-A,
+  B1, C1, D1, Q1, K1, K2-G0, K2-T0, B2-R, B2-C, B2-P0, B2-P1, B2-P2,
+  B2-P3, B2-L, B2-A,
   G0, G1-P, G1-E, T1, T2-J0, T2-J1, T2-E, T2-R, T2, T3-W0,
   T3-W1-T, T3-W1-E, T3-W1-R, T3, T4-C0, T4-C1, T4-C2, T5-S0, T5-E0,
   T5-R0, T5-C0, H1, T6-D0, T6-E0, T6-C0, T6-S0, T6-A0, T6-A1, T6-M0,
-  T6-P0, T6-X0, and T6-RO0.
+  T6-P0, T6-X0, T6-RO0, and T6-DD0.
   M0 checks a reduced atomic-Journal safety slice; R1 checks the complete typed record language and
   replay invariants; B1 checks a
   generic crash-reset append protocol and acknowledgment trace; C1 composes B1
   record eligibility with R1 structural legality; D1 couples that trace to a
   separately stored durable replay state; Q1 proves the durable retry and
-  recovery queries used by executable Broker guards; and B2-R proves the
+  recovery queries used by executable Broker guards. K1 implements and refines
+  the Authorize/Start guards over a concrete durable summary; K2-G0 completes
+  all nine reference-erased record guards; and K2-T0 refines accepted-record
+  mutations to exact durable replay updates. B2-R proves the
   record-side Broker, executor-slot, and recovery invariant for every finite
   prefix; B2-C refines full immutable requests, capabilities, and canonical
   call descriptors into R1's verified configuration; B2-P0 adds verified
@@ -210,7 +229,10 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   premise-free 33-adapter-event/31-WAL-event crash/retry witness selects the
   conclusive terminal `Fail` on attempt 2 despite attempt 1's delivered
   Success, which the ReadOnly class permits because only Idempotent failure
-  requires every invocation to have failed.
+  requires every invocation to have failed. T6-DD0 defines the Deduplicated
+  adapter interpretation, fixed configuration, and memoizing service machine;
+  it is the first of three planned DD milestones and does not yet prove that
+  machine's invariant, rely condition, or terminal witness.
 - [Adapter refinement](formal/adapter-refinement.md) defines how concrete
   retries and outcomes denote abstract effects for each adapter class.
 - [Value refinement](formal/value-refinement.md) specifies and model-checks
@@ -248,15 +270,17 @@ toolchain into a fresh per-run environment, verify from an exact read-only
 source snapshot, enforce the proof/import policy, and emit a source-hashed
 verification report with the observed Rust tree digest.
 The current result is M0 21, R1 86, B1 39, C1 128,
-D1 144, Q1 144, B2-R 169, B2-C 175, B2-P0 193, B2-P1 251, B2-P2 276,
+D1 144, Q1 144, K1 159, K2-G0 179, K2-T0 208, B2-R 169, B2-C 175,
+B2-P0 193, B2-P1 251, B2-P2 276,
 B2-P3 292, B2-L 310, B2-A 335, G0 342, G1-P 410, G1-E 429, T1 462,
 T2-J0 476, T2-J1 487, T2-E 509, T2-R 521, T2 532, T3-W0 578,
 T3-W1-T 589, T3-W1-E 627, T3-W1-R 642, T3 660, T4-C0 677, T4-C1 721,
 T4-C2 735, T5-S0 744, T5-E0 748, T5-R0 770, T5-C0 784, H1 787, T6-D0
 800, T6-E0 818, T6-C0 835, T6-S0 841, T6-A0 864, T6-A1 916, T6-M0 977,
-T6-P0 1,000, T6-X0 1,022, and T6-RO0 1,083 obligations, all with zero errors.
-T6-X0 adds 22 obligations beyond T6-P0, and T6-RO0 adds 61 obligations beyond
-T6-X0. The new conservative definitional
+T6-P0 1,000, T6-X0 1,022, T6-RO0 1,083, and T6-DD0 1,085 obligations, all
+with zero errors. K1 adds 15 obligations beyond Q1, K2-G0 adds 20 beyond K1,
+K2-T0 adds 29 beyond K2-G0, T6-X0 adds 22 beyond T6-P0, T6-RO0 adds 61 beyond
+T6-X0, and T6-DD0 adds 2 beyond T6-RO0. The new conservative definitional
 `PaperConfig` accessor lemma
 lives in T1, so every cumulative target from T1 is one obligation above its
 historical checkpoint count. The original T6-S0 checkpoint had 40 targets, 840
@@ -264,9 +288,9 @@ cumulative obligations, and 880 dependency-aware non-duplicated obligations.
 The historical retained T6-A1 run had 42 targets, 956 non-duplicated
 obligations, and 20,867 summed target obligations. The historical retained
 T6-X0 run had 45 targets, 1,062 non-duplicated obligations, and 23,866 summed
-target obligations. The current retained T6-RO0 run passes all 46/46
-registered targets, contains 1,123 dependency-aware non-duplicated
-obligations, and sums to 24,949 target obligations.
+target obligations. The current retained run passes all 50/50 registered
+targets, contains 1,189 dependency-aware non-duplicated obligations, and sums
+to 26,580 target obligations.
 
 ## Current boundary
 

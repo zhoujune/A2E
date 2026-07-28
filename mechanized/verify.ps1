@@ -330,6 +330,12 @@ $targets = @(
         SourcePath = Join-Path $scriptDir "t6_deduplicated_operational.rs"
         ExtraArguments = @()
         ContributionParent = "T6-RO0"
+    },
+    [pscustomobject]@{
+        Name = "T6-DD1"
+        SourcePath = Join-Path $scriptDir "t6_deduplicated_invariant.rs"
+        ExtraArguments = @()
+        ContributionParent = "T6-DD0"
     }
 )
 

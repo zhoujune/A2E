@@ -672,6 +672,17 @@ Deduplicated adapters additionally prove:
   on replay;
 - namespace separation between principals or capabilities where required.
 
+T6-DD0 instantiates these assumptions as a keyed memoizing service machine,
+and T6-DD1 proves its model-level safety boundary. The invariant ties the
+unique decision to an invocation-backed, delivery-free history cut, factors
+the protected slot through that decision, and requires every delivered
+Success or Failure to replay the memo. Consequently every finite DD execution
+satisfies the Deduplicated service law and `AdapterRely`, and the adapter
+discharges `AdapterVerified`: Commit has one applied effect and the selected
+result, Fail has a rejected memo and zero effects, and Unknown has zero or one
+effect. This is not yet a production service/transport refinement or the DD2
+coupled crash/retry terminal witness.
+
 Idempotent adapters additionally prove that all relevant secondary effects are
 idempotent. A nominally idempotent resource update that also sends a new email
 or charges a payment on every call is not idempotent under the broker's

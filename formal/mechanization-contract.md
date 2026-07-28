@@ -2685,13 +2685,24 @@ group has only backward dependencies.
     product through a storage-parametric plugged execution, transport terminal
     refinement and mediation to the canonical Broker trace, and inhabit the
     conditional `EnsureMember` theorem with the crash/retry execution.
+22. **ReadOnly operational instance (completed T6-RO0):** define sampled reads
+    and environment transitions, prove the transition invariant and
+    execution-to-`AdapterRely` theorem, and close a conclusive-Fail crash/retry
+    witness with zero abstract effect.
+23. **Deduplicated operational safety (completed T6-DD0/T6-DD1):** define the
+    keyed memoizing service machine; prove unique decision and history-cut
+    provenance, slot factoring, delivered-result consistency, finite-execution
+    invariant closure, the deduplication service law, execution-to-
+    `AdapterRely`, and the generic `AdapterVerified` terminal refinement.
 
 The first executable proof checkpoint is groups 1--5 over the atomic Journal
 runtime. T6-A0 is the first publishable semantic-adapter checkpoint for one
 Idempotent instance, and T6-A1 is the completed operational refinement of that
 instance. T6-M0 completes the mediation/model-no-bypass checkpoint, T6-P0
 completes the prefix product, and T6-X0 completes its storage-parametric
-conditional end-to-end lift for `EnsureMember`. The next generalization is to
-add Deduplicated and ReadOnly operational instances without changing the X0
-contextual composition argument; production-code and byte/fsync refinements
-remain separate implementation layers.
+conditional end-to-end lift for `EnsureMember`. T6-RO0 completes the ReadOnly
+operational instance, while T6-DD1 completes the Deduplicated invariant,
+`AdapterRely`, and `AdapterVerified` boundary. The next Deduplicated step is a
+concrete coupled crash/retry terminal witness and its WAL/Broker composition;
+production-code and byte/fsync refinements remain separate implementation
+layers.

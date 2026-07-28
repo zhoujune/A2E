@@ -81,16 +81,23 @@ configuration, and the operational transition system. Its inductive
 invariant, `AdapterRely` derivation, and coupled crash/retry witness remain the
 next DD milestones.
 
-K1 and K2 add a separate executable-kernel refinement track at the durable
+K1, K2, and K3 add a separate executable-kernel refinement track at the durable
 Journal boundary. K1 implements a concrete `u64`/vector durable summary and
 proves its Authorize and Start decisions equal Q1's specification guards for a
 fixed four-lane demo configuration. K2-G0 completes all nine reference-erased
 record guards. K2-T0 adds accepted-record mutations, including fresh
 request/capability insertion, and proves exact coupling to `apply_record` and
-legal-prefix `replay_push`. This is an executable durable-summary layer, not a
-complete broker event loop: exact LSN references, append control, executor
-slots, invocation, crash/recovery, transport, and deployment remain outside
-K2-T0.
+legal-prefix `replay_push`. K3-A0 adds an executable nine-variant Journal record
+whose LSN references remain exact `u64` values, resolves those references by
+scanning the concrete Journal, and implements a serialized
+`Call`/`Linearize`/`Return` append loop. Every successful concrete trace from
+the initial state has exact projections to B1's `pi_append`, `pi_journal`, and
+`pi_ack`. `u64` LSN-space exhaustion or structural-admission rejection at
+`Call`, a mismatched or out-of-phase `Linearize`, and an out-of-phase `Return`
+leave the concrete state unchanged.
+K3-A0 is still not a complete broker event loop: concurrent writers, executor
+slots, invocation, crash/recovery, transport, physical persistence, and
+deployment remain outside this executable kernel.
 
 The first research target is deliberately smaller than a complete agent
 runtime. T1 establishes the Broker-side form of the claim:
@@ -118,7 +125,7 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   statement of theorem V1, including the independent abstract and concrete
   machines, labeled executions, rely conditions, and theorem layers T1--T6.
 - [Verified mechanization checkpoints](mechanized/README.md) document M0, R1,
-  B1, C1, D1, Q1, K1, K2-G0, K2-T0, B2-R, B2-C, B2-P0, B2-P1, B2-P2,
+  B1, C1, D1, Q1, K1, K2-G0, K2-T0, K3-A0, B2-R, B2-C, B2-P0, B2-P1, B2-P2,
   B2-P3, B2-L, B2-A,
   G0, G1-P, G1-E, T1, T2-J0, T2-J1, T2-E, T2-R, T2, T3-W0,
   T3-W1-T, T3-W1-E, T3-W1-R, T3, T4-C0, T4-C1, T4-C2, T5-S0, T5-E0,
@@ -131,8 +138,10 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   separately stored durable replay state; Q1 proves the durable retry and
   recovery queries used by executable Broker guards. K1 implements and refines
   the Authorize/Start guards over a concrete durable summary; K2-G0 completes
-  all nine reference-erased record guards; and K2-T0 refines accepted-record
-  mutations to exact durable replay updates. B2-R proves the
+  all nine reference-erased record guards; K2-T0 refines accepted-record
+  mutations to exact durable replay updates; and K3-A0 adds exact concrete LSN
+  reference validation, serialized append control, unchanged rejection paths,
+  and exact successful-trace refinement to B1. B2-R proves the
   record-side Broker, executor-slot, and recovery invariant for every finite
   prefix; B2-C refines full immutable requests, capabilities, and canonical
   call descriptors into R1's verified configuration; B2-P0 adds verified
@@ -270,7 +279,7 @@ toolchain into a fresh per-run environment, verify from an exact read-only
 source snapshot, enforce the proof/import policy, and emit a source-hashed
 verification report with the observed Rust tree digest.
 The current result is M0 21, R1 86, B1 39, C1 128,
-D1 144, Q1 144, K1 159, K2-G0 179, K2-T0 208, B2-R 169, B2-C 175,
+D1 144, Q1 144, K1 159, K2-G0 179, K2-T0 208, K3-A0 248, B2-R 169, B2-C 175,
 B2-P0 193, B2-P1 251, B2-P2 276,
 B2-P3 292, B2-L 310, B2-A 335, G0 342, G1-P 410, G1-E 429, T1 462,
 T2-J0 476, T2-J1 487, T2-E 509, T2-R 521, T2 532, T3-W0 578,
@@ -279,18 +288,18 @@ T4-C2 735, T5-S0 744, T5-E0 748, T5-R0 770, T5-C0 784, H1 787, T6-D0
 800, T6-E0 818, T6-C0 835, T6-S0 841, T6-A0 864, T6-A1 916, T6-M0 977,
 T6-P0 1,000, T6-X0 1,022, T6-RO0 1,083, and T6-DD0 1,085 obligations, all
 with zero errors. K1 adds 15 obligations beyond Q1, K2-G0 adds 20 beyond K1,
-K2-T0 adds 29 beyond K2-G0, T6-X0 adds 22 beyond T6-P0, T6-RO0 adds 61 beyond
-T6-X0, and T6-DD0 adds 2 beyond T6-RO0. The new conservative definitional
-`PaperConfig` accessor lemma
+K2-T0 adds 29 beyond K2-G0, K3-A0 adds 40 beyond K2-T0, T6-X0 adds 22 beyond
+T6-P0, T6-RO0 adds 61 beyond T6-X0, and T6-DD0 adds 2 beyond T6-RO0. The new
+conservative definitional `PaperConfig` accessor lemma
 lives in T1, so every cumulative target from T1 is one obligation above its
 historical checkpoint count. The original T6-S0 checkpoint had 40 targets, 840
 cumulative obligations, and 880 dependency-aware non-duplicated obligations.
 The historical retained T6-A1 run had 42 targets, 956 non-duplicated
 obligations, and 20,867 summed target obligations. The historical retained
 T6-X0 run had 45 targets, 1,062 non-duplicated obligations, and 23,866 summed
-target obligations. The current retained run passes all 50/50 registered
-targets, contains 1,189 dependency-aware non-duplicated obligations, and sums
-to 26,580 target obligations.
+target obligations. The current retained run passes all 51/51 registered
+targets, contains 1,229 dependency-aware non-duplicated obligations, and sums
+to 26,828 target obligations.
 
 ## Current boundary
 
@@ -325,7 +334,12 @@ linearization preserves R1 Journal legality and replay safety at every prefix.
 D1 proves that a separately stored durable state changes exactly at such a
 linearization and remains equal to replay. Q1 proves total durable attempt and
 outcome queries, ghost-free recovery guards, and the implication from full
-structural record legality to the reference-erased executable guard. B2-R adds
+structural record legality to the reference-erased executable guard. The
+separate K1--K3 executable track instantiates those guards over a concrete
+durable summary, applies accepted records, preserves exact `u64` references,
+and refines its serialized successful append traces to B1. K3-A0 does not yet
+add executor, invocation, crash/recovery, transport, or physical-storage
+behavior. B2-R adds
 the actual record-side Broker modes, complete slot ADT and record transformer,
 append/recovery control, durable slot agreement, and all-prefix trace theorem.
 Its local event language omits Invoke and Deliver. B2-C supplies rich

@@ -49,17 +49,19 @@ branch of `Refines` operationally non-vacuous. T6-DD0 begins a third,
 Deduplicated instance by defining its memoized keyed-decision semantics,
 well-formed fixed configuration, and transition system; its inductive proof
 and coupled terminal witness are later DD milestones. In a separate
-implementation-refinement track, K1 and K2 connect concrete `u64`/vector
-durable-summary code to Q1: K1 verifies Authorize and Start, K2-G0 completes
-all nine reference-erased record guards, and K2-T0 couples accepted-record
-mutations exactly to `apply_record` and legal-prefix `replay_push`. T4, T5,
+implementation-refinement track, K1, K2, and K3 connect concrete `u64`/vector
+durable-summary and Journal code to Q1, R1, and B1: K1 verifies Authorize and
+Start, K2-G0 completes all nine reference-erased record guards, K2-T0 couples
+accepted-record mutations exactly to `apply_record` and legal-prefix
+`replay_push`, and K3-A0 adds exact `u64` references plus a serialized concrete
+append loop whose successful traces project exactly to B1. T4, T5,
 the T6 terminal bridge, semantic adapter closure, executable adapter
 refinement, model-level mediation/no-bypass, prefix product, the X0
 single-request contextual theorem,
-the RO0 read-only operational instance, and the K2-T0 durable-summary mutation
-layer are complete. Production
-deployment isolation, caller-visible return refinement, concurrency, and
-generalization to arbitrary adapters and all requests remain open.
+the RO0 read-only operational instance, and the K3-A0 concrete append layer are
+complete. Production deployment isolation, caller-visible return refinement,
+concurrency, crash/recovery in the concrete kernel, and generalization to
+arbitrary adapters and all requests remain open.
 
 ## M0: reduced atomic-Journal safety
 
@@ -202,7 +204,7 @@ operational durable guard. Exact LSN references remain proof-side obligations;
 the converse implication is intentionally false. Q1 supplies the missing
 ghost-free guards needed by the full record-side Broker checkpoint.
 
-## K1/K2: executable durable-summary refinement
+## K1/K2/K3: executable durable-summary and append refinement
 
 `k1_executable_kernel.rs` imports Q1 and replaces its unbounded durable maps
 with an executable `KDurable` summary backed by vectors of `u64` request and
@@ -228,14 +230,37 @@ Start and Outcome data, plus the Prepare, Arm, Commit, Fail, and Unknown phases.
 Accepted-record wrappers cover all nine record forms. Their postconditions are
 exact `replay_layer::apply_record` coupling, and the legal-extension lemma lifts
 that coupling through `replay_push`. K2-T0 verifies 208 cumulative obligations
-with zero errors, adding 29 over K2-G0. `kernel/kernel_core.rs` re-exports this
-latest checked layer.
+with zero errors, adding 29 over K2-G0.
 
-K2-T0 is not a complete executable Broker. It uses the fixed demo
-configuration and a durable summary only; exact LSN/reference admission,
-append Call--Linearize--Return control, executor slots, physical invocation,
-crash/recovery, byte persistence, transport, MCP integration, and production
-deployment remain later milestones.
+`k3_append_linearization_kernel.rs` imports K2-T0 and adds an executable
+nine-form `KJournalRecord` whose identifiers, attempts, and exact record
+references are represented by `u64`. A shared reverse scanner searches the
+concrete Journal itself for Authorize, Prepare, Arm, Start, and Outcome evidence
+and proves that each result is the corresponding one-based replay LSN. The
+executable exact-reference checker also covers every Unknown evidence branch.
+Combining that checker with the K2 semantic guard is proved equivalent to R1
+`StructuralEnabled` for every legal concrete Journal.
+
+K3-A0 stores the concrete durable summary, Journal, acknowledgment cuts, and a
+serialized Idle/Called/Linearized control. An enabled Call stores the exact
+record without changing durable or Journal state; Linearize accepts only that
+called record, applies the record's exact durable transition, pushes it exactly
+once, and returns the one-based LSN `old Journal length + 1`; Return records the
+exact current Journal cut and resets control to Idle without changing the durable
+summary or Journal. A structurally invalid Call while Idle, a mismatched or
+non-Called Linearize, and a Return outside Linearized leave the complete state
+unchanged. The replay-push coupling proves the post-linearization durable
+summary equals replay of the extended Journal. Over concrete successful traces,
+the executable append history, Journal, and acknowledgment cuts agree exactly
+with B1 `pi_append`, `pi_journal`, and `pi_ack`. K3-A0 verifies 248 cumulative
+obligations with zero errors, adding 40 over K2-T0.
+
+`kernel/kernel_core.rs` re-exports K3-A0 as the latest checked layer. K3-A0 is
+not a complete executable Broker: it retains the fixed demo configuration and
+a serialized successful append path. DiskFull, crash/recovery, concurrent
+callers, executor slots, physical Invoke/Deliver, caller-visible Broker results,
+byte/fsync persistence, transport, MCP integration, and production deployment
+remain later milestones.
 
 ## B2-R: record-side Broker safety
 
@@ -1391,10 +1416,10 @@ the planned crash/recovery/retry witness. Those are DD milestones two and
 three, so DD0 must not yet be cited as a completed operational refinement.
 
 T6-DD0 verifies 1,085 cumulative obligations with zero errors, adding 2 over
-T6-RO0. Together with K1, K2-G0, and K2-T0, the current retained suite passes
-all 50/50 targets, contains 1,189 dependency-aware non-duplicated obligations,
-and sums to 26,580 target obligations. A completed Deduplicated operational
-instance, a request-indexed family of external runs, caller-visible
+T6-RO0. Together with K1, K2-G0, K2-T0, and K3-A0, the current retained suite
+passes all 51/51 targets, contains 1,229 dependency-aware non-duplicated
+obligations, and sums to 26,828 target obligations. A completed Deduplicated
+operational instance, a request-indexed family of external runs, caller-visible
 `ReturnResult`, byte/fsync persistence, multi-request concurrency, and
 liveness remain open.
 
@@ -1453,7 +1478,7 @@ checks target/source counts, parent-delta arithmetic, running totals, and final
 summary consistency before assigning `status: "passed"`.
 
 The cumulative target counts and aggregates below come from the current
-retained 50-target full suite:
+retained 51-target full suite:
 
 ```text
 M0 verified obligations: 21
@@ -1465,6 +1490,8 @@ Q1 verified obligations: 144
 K1 verified obligations: 159
 K2-G0 verified obligations: 179
 K2-T0 verified obligations: 208
+K3-A0 verified obligations: 248
+K3-A0 target delta over K2-T0: 40
 B2-R verified obligations: 169
 B2-C verified obligations: 175
 B2-P0 verified obligations: 193
@@ -1504,27 +1531,29 @@ T6-A1 verified obligations: 916
 T6-M0 verified obligations: 977
 T6-P0 verified obligations: 1,000
 T6-P0 target delta over T6-M0: 23
-T6-P0 non-duplicated verified artifact obligations: 1,104
-T6-P0 summed target obligations: 23,390
+T6-P0 non-duplicated verified artifact obligations: 1,144
+T6-P0 summed target obligations: 23,638
 T6-X0 verified obligations: 1,022
 T6-X0 target delta over T6-P0: 22
-T6-X0 non-duplicated verified artifact obligations: 1,126
-T6-X0 summed target obligations: 24,412
+T6-X0 non-duplicated verified artifact obligations: 1,166
+T6-X0 summed target obligations: 24,660
 T6-RO0 verified obligations: 1,083
 T6-RO0 target delta over T6-X0: 61
-T6-RO0 non-duplicated verified artifact obligations: 1,187
-T6-RO0 summed target obligations: 25,495
+T6-RO0 non-duplicated verified artifact obligations: 1,227
+T6-RO0 summed target obligations: 25,743
 T6-DD0 verified obligations: 1,085
 T6-DD0 target delta over T6-RO0: 2
-T6-DD0 non-duplicated verified artifact obligations: 1,189
-T6-DD0 summed target obligations: 26,580
+T6-DD0 non-duplicated verified artifact obligations: 1,229
+T6-DD0 summed target obligations: 26,828
 ```
 
 C1's 128 obligations include the 86 R1 and 39 B1 obligations imported into the
 composition crate, plus 3 composition-specific obligations. D1 and Q1 each
 include that same C1 closure plus 16 new obligations. K1 imports Q1 and adds 15
 executable-summary and guard obligations; K2-G0 imports K1 and adds 20 guard
-obligations; and K2-T0 imports K2-G0 and adds 29 mutation/coupling obligations.
+obligations; K2-T0 imports K2-G0 and adds 29 mutation/coupling obligations; and
+K3-A0 imports K2-T0 and adds 40 exact-reference, append-state, replay-coupling,
+and B1 projection obligations.
 B2-R independently includes Q1 and adds 25 record-side Broker obligations.
 B2-C includes B2-R and adds 6 rich
 configuration-refinement obligations. B2-P0 includes B2-C and adds 18 physical
@@ -1644,9 +1673,9 @@ obligations. The historical T6-X0 registry contained 45 targets and 1,062
 dependency-aware non-duplicated obligations and summed to 23,866 target
 obligations. The historical T6-RO0 registry contained 46 targets and 1,123
 dependency-aware non-duplicated obligations and summed to 24,949 target
-obligations. The current registry adds K1, K2-G0, K2-T0, and T6-DD0: it contains
-50 targets and 1,189 dependency-aware non-duplicated obligations, and the
-retained run sums to 26,580 target obligations.
+obligations. The current registry adds K1, K2-G0, K2-T0, K3-A0, and T6-DD0: it
+contains 51 targets and 1,229 dependency-aware non-duplicated obligations, and
+the retained run sums to 26,828 target obligations.
 The historical retained T6-A0 checkpoint had 41 targets, 904 non-duplicated
 obligations, and a 19,951 target sum. The historical retained T6-S0 checkpoint
 had 40 targets, 880 non-duplicated obligations, and a 19,064 target sum before

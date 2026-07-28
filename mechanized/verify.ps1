@@ -80,6 +80,12 @@ $targets = @(
         ContributionParent = "K2-G0"
     },
     [pscustomobject]@{
+        Name = "K3-A0"
+        SourcePath = Join-Path $scriptDir "k3_append_linearization_kernel.rs"
+        ExtraArguments = @()
+        ContributionParent = "K2-T0"
+    },
+    [pscustomobject]@{
         Name = "B2-R"
         SourcePath = Join-Path $scriptDir "t1_broker_records.rs"
         ExtraArguments = @()

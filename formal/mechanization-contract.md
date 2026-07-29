@@ -2694,6 +2694,12 @@ group has only backward dependencies.
     provenance, slot factoring, delivered-result consistency, finite-execution
     invariant closure, the deduplication service law, execution-to-
     `AdapterRely`, and the generic `AdapterVerified` terminal refinement.
+24. **Deduplicated coupled witness (completed T6-DD2):** construct exact
+    adapter and typed-WAL executions in which attempt 1 silently applies and
+    memoizes a value, crashes before delivery, and attempt 2 replays that value
+    under the same stable key and commits it; prove exact projection, closed
+    WAL/Broker representation, terminal and per-request effect refinement, one
+    effect, and premise-free operational and semantic nonvacuity packages.
 
 The first executable proof checkpoint is groups 1--5 over the atomic Journal
 runtime. T6-A0 is the first publishable semantic-adapter checkpoint for one
@@ -2702,7 +2708,9 @@ instance. T6-M0 completes the mediation/model-no-bypass checkpoint, T6-P0
 completes the prefix product, and T6-X0 completes its storage-parametric
 conditional end-to-end lift for `EnsureMember`. T6-RO0 completes the ReadOnly
 operational instance, while T6-DD1 completes the Deduplicated invariant,
-`AdapterRely`, and `AdapterVerified` boundary. The next Deduplicated step is a
-concrete coupled crash/retry terminal witness and its WAL/Broker composition;
-production-code and byte/fsync refinements remain separate implementation
-layers.
+`AdapterRely`, and `AdapterVerified` boundary, and T6-DD2 completes its concrete
+coupled crash/retry terminal witness at the adapter/WAL/Broker boundary. A
+separate protected-service execution, mediation/prefix/contextual composition
+for the Deduplicated instance, and a request-indexed family of external runs
+remain later theorem layers; production-code and byte/fsync refinements remain
+separate implementation layers.

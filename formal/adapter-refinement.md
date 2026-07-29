@@ -680,8 +680,17 @@ Success or Failure to replay the memo. Consequently every finite DD execution
 satisfies the Deduplicated service law and `AdapterRely`, and the adapter
 discharges `AdapterVerified`: Commit has one applied effect and the selected
 result, Fail has a rejected memo and zero effects, and Unknown has zero or one
-effect. This is not yet a production service/transport refinement or the DD2
-coupled crash/retry terminal witness.
+effect. T6-DD2 then constructs the coupled terminal witness. Attempt 1 invokes
+the keyed operation and silently records its applied decision; a crash occurs
+before any delivery or Outcome is durable. Recovery retries the same stable
+key, attempt 2 receives the memoized Success, and the Broker records Outcome
+and Commit for attempt 2. The exact physical history is Invoke 1, Invoke 2,
+Delivered Success 2, while the protected slot changes from `None` to the one
+memoized value. The premise-free package proves the 31-event adapter execution
+projects to the 30-event typed-WAL execution, the terminal Commit refines one
+effect through the canonical WAL/Broker representation, and attempt 1 has no
+delivery. This remains a model-level keyed-service contract, not a production
+service/transport refinement.
 
 Idempotent adapters additionally prove that all relevant secondary effects are
 idempotent. A nominally idempotent resource update that also sends a new email

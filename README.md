@@ -283,11 +283,13 @@ copy the selected TLA+ inputs into an isolated read-only, hash-checked temporary
 snapshot, and explore the smoke and full state spaces. The runner emits a
 source-hashed JSON report by default. Add `-Suite smoke` for a fast regression
 run or `-Coverage` for TLC coverage data.
-Run `powershell -ExecutionPolicy Bypass -File mechanized/verify.ps1` to fetch
-the hash-pinned Verus and rustup artifacts plus the version-pinned Rust
-toolchain into a fresh per-run environment, verify from an exact read-only
-source snapshot, enforce the proof/import policy, and emit a source-hashed
-verification report with the observed Rust tree digest.
+Run `powershell -ExecutionPolicy Bypass -File mechanized/verify.ps1` on Windows,
+or `pwsh -NoLogo -NoProfile -File mechanized/verify.ps1` on Linux, to fetch the
+platform-selected hash-pinned Verus and rustup artifacts plus the
+version-pinned Rust toolchain into a fresh per-run environment. The driver
+verifies from an exact read-only source snapshot, enforces the proof/import
+policy, and emits a source-hashed verification report with the observed Rust
+tree digest.
 The current result is M0 21, R1 86, B1 39, C1 128,
 D1 144, Q1 144, K1 159, K2-G0 179, K2-T0 208, K3-A0 248, B2-R 169, B2-C 175,
 B2-P0 193, B2-P1 251, B2-P2 276,

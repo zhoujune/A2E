@@ -2,7 +2,9 @@
 
 Running `mechanized/verify.ps1` writes `verification-report.json` here by
 default. The JSON document uses schema `vetra.verus-verification-report`,
-version 1, defined by `verification-report.schema.v1.json`. The report records:
+version 1, defined by `verification-report.schema.v1.json`. The driver selects
+the Windows-x64 or Linux-x64 entry from `toolchain.lock.json`; the report
+records:
 
 - overall and per-target status, UTC timestamps, and durations;
 - SHA256 hashes for the schema, every registered Verus source, `verify.ps1`,

@@ -1,19 +1,44 @@
 {
-  "verus": {
-    "version": "0.2026.07.05.49b8806",
-    "platform": "x86_64-pc-windows-msvc",
-    "archive": "verus-0.2026.07.05.49b8806-x86-win.zip",
-    "url": "https://github.com/verus-lang/verus/releases/download/release/0.2026.07.05.49b8806/verus-0.2026.07.05.49b8806-x86-win.zip",
-    "sha256": "c45489d535f85de6d6f3204a70462ba437fbf98875361d84ff5213d89e3d8130"
-  },
-  "rustup": {
-    "version": "1.29.0",
-    "platform": "x86_64-pc-windows-msvc",
-    "archive": "rustup-init.exe",
-    "url": "https://static.rust-lang.org/rustup/archive/1.29.0/x86_64-pc-windows-msvc/rustup-init.exe",
-    "sha256": "86478e53f769379d7f0ebfa7c9aa97cb76ca92233f79aa2cc0dbee2efaac73c7"
-  },
-  "rust": {
-    "toolchain": "1.96.0-x86_64-pc-windows-msvc"
+  "schema": "vetra.verus-toolchain-lock",
+  "schema_version": 2,
+  "platforms": {
+    "windows-x64": {
+      "verus": {
+        "version": "0.2026.07.05.49b8806",
+        "platform": "x86_64-pc-windows-msvc",
+        "archive": "verus-0.2026.07.05.49b8806-x86-win.zip",
+        "url": "https://github.com/verus-lang/verus/releases/download/release/0.2026.07.05.49b8806/verus-0.2026.07.05.49b8806-x86-win.zip",
+        "sha256": "c45489d535f85de6d6f3204a70462ba437fbf98875361d84ff5213d89e3d8130"
+      },
+      "rustup": {
+        "version": "1.29.0",
+        "platform": "x86_64-pc-windows-msvc",
+        "archive": "rustup-init.exe",
+        "url": "https://static.rust-lang.org/rustup/archive/1.29.0/x86_64-pc-windows-msvc/rustup-init.exe",
+        "sha256": "86478e53f769379d7f0ebfa7c9aa97cb76ca92233f79aa2cc0dbee2efaac73c7"
+      },
+      "rust": {
+        "toolchain": "1.96.0-x86_64-pc-windows-msvc"
+      }
+    },
+    "linux-x64": {
+      "verus": {
+        "version": "0.2026.07.05.49b8806",
+        "platform": "x86_64-unknown-linux-gnu",
+        "archive": "verus-0.2026.07.05.49b8806-x86-linux.zip",
+        "url": "https://github.com/verus-lang/verus/releases/download/release/0.2026.07.05.49b8806/verus-0.2026.07.05.49b8806-x86-linux.zip",
+        "sha256": "cb4fe7db423fdda5e9aa77b2c3e632f8a618b6a991509283aae591f0a914d34c"
+      },
+      "rustup": {
+        "version": "1.29.0",
+        "platform": "x86_64-unknown-linux-gnu",
+        "archive": "rustup-init",
+        "url": "https://static.rust-lang.org/rustup/archive/1.29.0/x86_64-unknown-linux-gnu/rustup-init",
+        "sha256": "4acc9acc76d5079515b46346a485974457b5a79893cfb01112423c89aeb5aa10"
+      },
+      "rust": {
+        "toolchain": "1.96.0-x86_64-unknown-linux-gnu"
+      }
+    }
   }
 }

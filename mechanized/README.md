@@ -1475,19 +1475,30 @@ multi-request concurrency, and liveness remain open.
 
 ## Reproducible verification
 
-The toolchain is locked in `toolchain.lock.json`:
-
-- Verus `0.2026.07.05.49b8806`, Windows x86-64 release archive, SHA256
-  `c45489d535f85de6d6f3204a70462ba437fbf98875361d84ff5213d89e3d8130`;
-- rustup `1.29.0`, Windows MSVC archive, SHA256
-  `86478e53f769379d7f0ebfa7c9aa97cb76ca92233f79aa2cc0dbee2efaac73c7`;
-- Rust `1.96.0-x86_64-pc-windows-msvc`, matching the Verus release metadata.
+The platform-specific toolchains are locked in `toolchain.lock.json`. The
+Windows-x64 entry uses Verus `0.2026.07.05.49b8806` and Rust
+`1.96.0-x86_64-pc-windows-msvc`; the Linux-x64 entry uses the matching Verus
+release and Rust `1.96.0-x86_64-unknown-linux-gnu`. The Linux Verus archive is
+SHA256 `cb4fe7db423fdda5e9aa77b2c3e632f8a618b6a991509283aae591f0a914d34c`,
+and the Linux rustup installer is SHA256
+`4acc9acc76d5079515b46346a485974457b5a79893cfb01112423c89aeb5aa10`.
 
 Run from the repository root:
 
 ```powershell
 .\mechanized\verify.ps1
 ```
+
+On Linux with PowerShell 7:
+
+```bash
+pwsh -NoLogo -NoProfile -File mechanized/verify.ps1
+```
+
+The Linux runner requires `chmod` and `unzip`, and explicitly binds Verus to
+the Z3 executable inside the hash-checked Verus tree. The retained Linux run
+uses PowerShell 7.6.4 and passes all 53/53 targets with 1,287 dependency-aware
+non-duplicated obligations and 29,082 summed target obligations.
 
 By default the run atomically writes the machine-readable evidence file
 `mechanized/results/verification-report.json`. `-ReportPath <path>` selects a
@@ -1528,7 +1539,7 @@ checks target/source counts, parent-delta arithmetic, running totals, and final
 summary consistency before assigning `status: "passed"`.
 
 The cumulative target counts and aggregates below come from the current
-retained 51-target full suite:
+retained 53-target full suite:
 
 ```text
 M0 verified obligations: 21

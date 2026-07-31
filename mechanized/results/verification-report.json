@@ -1,1530 +1,1524 @@
 {
-    "schema":  "vetra.verus-verification-report",
-    "schema_version":  1,
-    "schema_path":  "mechanized/results/verification-report.schema.v1.json",
-    "schema_sha256":  "3d559e705ce05f346cc965c13fa9400ab6f49c51f8f361807a29165ae2a3ff9a",
-    "status":  "passed",
-    "started_at_utc":  "2026-07-29T02:06:43.0007984+00:00",
-    "completed_at_utc":  "2026-07-29T03:13:13.6812586+00:00",
-    "duration_ms":  3990680,
-    "error":  null,
-    "environment":  {
-                        "os_description":  "Microsoft Windows 10.0.26200 ",
-                        "os_architecture":  "X64",
-                        "process_architecture":  "X64",
-                        "powershell_version":  "5.1.26100.8875"
-                    },
-    "policy":  {
-                   "status":  "passed",
-                   "no_cheating":  true,
-                   "source_scan_is_case_insensitive":  true,
-                   "forbidden_source_pattern":  "\\b(assume|admit|external_body|external_fn_specification|assume_specification|axiom|get_Some|recommends|rlimit|resource_limit|spinoff|spinoff_prover)\\b|verifier\\s*::\\s*external|verifier\\s*\\(",
-                   "forbidden_extra_argument_pattern":  "(?s).+",
-                   "nonempty_extra_arguments_rejected":  true,
-                   "simple_path_module_grammar_enforced":  true,
-                   "complete_registered_source_coverage":  true,
-                   "all_direct_path_imports_registered":  true,
-                   "cumulative_parent_imports_validated":  49
-               },
-    "source_snapshot":  {
-                            "kind":  "isolated-read-only-copy",
-                            "run_id":  "458b9d21d5b14aff9988bfdea599232e",
-                            "created_at_utc":  "2026-07-29T02:06:46.5302099+00:00",
-                            "source_file_count":  53,
-                            "manifest_sha256":  "234f8bb116924339ef023a4e3e26868d15ad2acb8ed9f58875f9cfc173ac874e",
-                            "exact_membership_validated":  true,
-                            "source_hashes_match_registry":  true,
-                            "all_files_read_only":  true,
-                            "pre_target_validation_count":  53,
-                            "post_target_validation_count":  53,
-                            "final_validation_passed":  true,
-                            "removed_after_run":  true
-                        },
-    "toolchain":  {
-                      "lock_path":  "mechanized/toolchain.lock.json",
-                      "lock_sha256":  "8bd7cdd775fe0a44382ee43eee18539c51b3fc3a24437f6945b4581d757d39eb",
-                      "verification_driver_path":  "mechanized/verify.ps1",
-                      "verification_driver_sha256":  "97c16b56e830a86be2f0b5d09f13e1e6b0779143b48ea6e26c1db326e6898030",
-                      "declared":  {
-                                       "verus":  {
-                                                     "version":  "0.2026.07.05.49b8806",
-                                                     "platform":  "x86_64-pc-windows-msvc",
-                                                     "archive":  "verus-0.2026.07.05.49b8806-x86-win.zip",
-                                                     "url":  "https://github.com/verus-lang/verus/releases/download/release/0.2026.07.05.49b8806/verus-0.2026.07.05.49b8806-x86-win.zip",
-                                                     "sha256":  "c45489d535f85de6d6f3204a70462ba437fbf98875361d84ff5213d89e3d8130"
-                                                 },
-                                       "rustup":  {
-                                                      "version":  "1.29.0",
-                                                      "platform":  "x86_64-pc-windows-msvc",
-                                                      "archive":  "rustup-init.exe",
-                                                      "url":  "https://static.rust-lang.org/rustup/archive/1.29.0/x86_64-pc-windows-msvc/rustup-init.exe",
-                                                      "sha256":  "86478e53f769379d7f0ebfa7c9aa97cb76ca92233f79aa2cc0dbee2efaac73c7"
-                                                  },
-                                       "rust":  {
-                                                    "toolchain":  "1.96.0-x86_64-pc-windows-msvc"
-                                                }
-                                   },
-                      "observed":  {
-                                       "verus_archive_sha256":  "c45489d535f85de6d6f3204a70462ba437fbf98875361d84ff5213d89e3d8130",
-                                       "verus_executable_sha256":  "3b9c2385b69d592fd1873f058d8efbd650a883cb85434cef70eb122328e6f32c",
-                                       "verus_tree_sha256":  "91f3307625958ff401ae6c4862dc7a5a4f5a9d63d11125e260c75a597c60af00",
-                                       "verus_tree_file_count":  187,
-                                       "verus_tree_unchanged":  true,
-                                       "verus_version":  "0.2026.07.05.49b8806",
-                                       "rustup_archive_sha256":  "86478e53f769379d7f0ebfa7c9aa97cb76ca92233f79aa2cc0dbee2efaac73c7",
-                                       "rustup_executable_sha256":  "86478e53f769379d7f0ebfa7c9aa97cb76ca92233f79aa2cc0dbee2efaac73c7",
-                                       "rustup_version":  "rustup 1.29.0 (28d1352db 2026-03-05)",
-                                       "rustc_executable_sha256":  "acb138286bbe20c6cf3ec39a7e0a68c3fab0cd949baa2912cf466514d0d531ab",
-                                       "rustc_version":  "rustc 1.96.0 (ac68faa20 2026-05-25)",
-                                       "cargo_executable_sha256":  "122f18d28a63fa358f3db266abee1ff1d8aabf0ab7f2dd9ac38a38da99977ae5",
-                                       "rust_toolchain_tree_sha256":  "805370b705454a1c0a1c45b8c7ab37a7304e2b305ba5180cd9daa9c7f88f00af",
-                                       "rust_toolchain_file_count":  153,
-                                       "rust_toolchain_tree_unchanged":  true,
-                                       "fresh_rust_environment":  true,
-                                       "rustup_dist_server":  "https://static.rust-lang.org",
-                                       "rustup_update_root":  "https://static.rust-lang.org/rustup"
-                                   }
-                  },
-    "summary":  {
-                    "registered_target_count":  53,
-                    "registered_source_count":  53,
-                    "present_source_count":  53,
-                    "verified_target_count":  53,
-                    "sum_of_target_obligations":  29082,
-                    "non_duplicated_verified_obligations":  1287
-                },
-    "targets":  [
-                    {
-                        "name":  "M0",
-                        "source_path":  "mechanized/m0.rs",
-                        "source_sha256":  "622588edbe84c95f51dfb4ed72b69aa69598d4ef51926617551f343b70cc0c4f",
-                        "snapshot_source_path":  "sources/m0.rs",
-                        "direct_path_imports":  [
-
-                                                ],
-                        "contribution_mode":  "full",
-                        "contribution_parent":  null,
-                        "immediate_parent_import_validated":  null,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:08:08.4736807+00:00",
-                        "completed_at_utc":  "2026-07-29T02:08:11.0081673+00:00",
-                        "duration_ms":  2534,
-                        "verified_obligations_total":  21,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  21,
-                        "non_duplicated_total_after":  21,
-                        "error":  null
-                    },
-                    {
-                        "name":  "R1",
-                        "source_path":  "mechanized/t1_replay.rs",
-                        "source_sha256":  "cb7a6bac965462b78aad2fa8766f1ef461a286d0abbdfc7b251fa70f77b01758",
-                        "snapshot_source_path":  "sources/t1_replay.rs",
-                        "direct_path_imports":  [
-
-                                                ],
-                        "contribution_mode":  "excluded",
-                        "contribution_parent":  null,
-                        "immediate_parent_import_validated":  null,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:08:11.0292097+00:00",
-                        "completed_at_utc":  "2026-07-29T02:08:14.7821160+00:00",
-                        "duration_ms":  3753,
-                        "verified_obligations_total":  86,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  0,
-                        "non_duplicated_total_after":  21,
-                        "error":  null
-                    },
-                    {
-                        "name":  "B1",
-                        "source_path":  "mechanized/t1_append.rs",
-                        "source_sha256":  "a349b59944011514a15f697f5295c512fbca2a731e2feffd73fcd583811c1dab",
-                        "snapshot_source_path":  "sources/t1_append.rs",
-                        "direct_path_imports":  [
-
-                                                ],
-                        "contribution_mode":  "excluded",
-                        "contribution_parent":  null,
-                        "immediate_parent_import_validated":  null,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:08:14.7821160+00:00",
-                        "completed_at_utc":  "2026-07-29T02:08:16.8228728+00:00",
-                        "duration_ms":  2041,
-                        "verified_obligations_total":  39,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  0,
-                        "non_duplicated_total_after":  21,
-                        "error":  null
-                    },
-                    {
-                        "name":  "C1",
-                        "source_path":  "mechanized/t1_replay_append.rs",
-                        "source_sha256":  "f7836b78548b79a4303108222cd138eff43808ea6571edfabe5ca479272b6f9d",
-                        "snapshot_source_path":  "sources/t1_replay_append.rs",
-                        "direct_path_imports":  [
-                                                    "t1_replay.rs",
-                                                    "t1_append.rs"
-                                                ],
-                        "contribution_mode":  "full",
-                        "contribution_parent":  null,
-                        "immediate_parent_import_validated":  null,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:08:16.8228728+00:00",
-                        "completed_at_utc":  "2026-07-29T02:08:21.1807347+00:00",
-                        "duration_ms":  4358,
-                        "verified_obligations_total":  128,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  128,
-                        "non_duplicated_total_after":  149,
-                        "error":  null
-                    },
-                    {
-                        "name":  "D1",
-                        "source_path":  "mechanized/t1_durable_append.rs",
-                        "source_sha256":  "d11a42a7d4553f3547d56e80686ea74dade7c3139921867473cd2911cc916a4c",
-                        "snapshot_source_path":  "sources/t1_durable_append.rs",
-                        "direct_path_imports":  [
-                                                    "t1_replay_append.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "C1",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:08:21.1807347+00:00",
-                        "completed_at_utc":  "2026-07-29T02:08:26.1162815+00:00",
-                        "duration_ms":  4936,
-                        "verified_obligations_total":  144,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  16,
-                        "non_duplicated_total_after":  165,
-                        "error":  null
-                    },
-                    {
-                        "name":  "Q1",
-                        "source_path":  "mechanized/t1_durable_queries.rs",
-                        "source_sha256":  "4e971c779d8fc3cce96b1a6b028411b07456f75b6354ca0ff79f56bf6a1f644c",
-                        "snapshot_source_path":  "sources/t1_durable_queries.rs",
-                        "direct_path_imports":  [
-                                                    "t1_replay_append.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "C1",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:08:26.1162815+00:00",
-                        "completed_at_utc":  "2026-07-29T02:08:31.0385859+00:00",
-                        "duration_ms":  4922,
-                        "verified_obligations_total":  144,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  16,
-                        "non_duplicated_total_after":  181,
-                        "error":  null
-                    },
-                    {
-                        "name":  "K1",
-                        "source_path":  "mechanized/k1_executable_kernel.rs",
-                        "source_sha256":  "0192173a7b3e3b3b48a7aa812582d8cf1239ece2e2cdd4a8f339b6e16211d0ed",
-                        "snapshot_source_path":  "sources/k1_executable_kernel.rs",
-                        "direct_path_imports":  [
-                                                    "t1_durable_queries.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "Q1",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:08:31.0395863+00:00",
-                        "completed_at_utc":  "2026-07-29T02:08:36.4749689+00:00",
-                        "duration_ms":  5435,
-                        "verified_obligations_total":  159,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  15,
-                        "non_duplicated_total_after":  196,
-                        "error":  null
-                    },
-                    {
-                        "name":  "K2-G0",
-                        "source_path":  "mechanized/k2_executable_kernel_refinement.rs",
-                        "source_sha256":  "a906e4f5bb09c6b88af7a1fcd8fbe3d5243c1759824d43623e8f189fc52048dd",
-                        "snapshot_source_path":  "sources/k2_executable_kernel_refinement.rs",
-                        "direct_path_imports":  [
-                                                    "k1_executable_kernel.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "K1",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:08:36.4749689+00:00",
-                        "completed_at_utc":  "2026-07-29T02:08:42.2500694+00:00",
-                        "duration_ms":  5775,
-                        "verified_obligations_total":  179,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  20,
-                        "non_duplicated_total_after":  216,
-                        "error":  null
-                    },
-                    {
-                        "name":  "K2-T0",
-                        "source_path":  "mechanized/k2_durable_record_kernel.rs",
-                        "source_sha256":  "ddb13695ac148f22ecb53b74383a2931fe6c5f7758f1db1500663e0b08ac93a3",
-                        "snapshot_source_path":  "sources/k2_durable_record_kernel.rs",
-                        "direct_path_imports":  [
-                                                    "k2_executable_kernel_refinement.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "K2-G0",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:08:42.2500694+00:00",
-                        "completed_at_utc":  "2026-07-29T02:08:48.8540526+00:00",
-                        "duration_ms":  6604,
-                        "verified_obligations_total":  208,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  29,
-                        "non_duplicated_total_after":  245,
-                        "error":  null
-                    },
-                    {
-                        "name":  "K3-A0",
-                        "source_path":  "mechanized/k3_append_linearization_kernel.rs",
-                        "source_sha256":  "d3b1c6ca643595b137fe45b889164c5c444ccbcb6f97a9bb808d9638cd0224ca",
-                        "snapshot_source_path":  "sources/k3_append_linearization_kernel.rs",
-                        "direct_path_imports":  [
-                                                    "k2_durable_record_kernel.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "K2-T0",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:08:48.8540526+00:00",
-                        "completed_at_utc":  "2026-07-29T02:08:58.1236218+00:00",
-                        "duration_ms":  9270,
-                        "verified_obligations_total":  248,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  40,
-                        "non_duplicated_total_after":  285,
-                        "error":  null
-                    },
-                    {
-                        "name":  "B2-R",
-                        "source_path":  "mechanized/t1_broker_records.rs",
-                        "source_sha256":  "7f038281667d7e0fa0e3d2d738c51705b46b6c88b404b00963423e35aa417a28",
-                        "snapshot_source_path":  "sources/t1_broker_records.rs",
-                        "direct_path_imports":  [
-                                                    "t1_durable_queries.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "Q1",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:08:58.1236218+00:00",
-                        "completed_at_utc":  "2026-07-29T02:09:06.4028020+00:00",
-                        "duration_ms":  8279,
-                        "verified_obligations_total":  169,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  25,
-                        "non_duplicated_total_after":  310,
-                        "error":  null
-                    },
-                    {
-                        "name":  "B2-C",
-                        "source_path":  "mechanized/t1_full_config.rs",
-                        "source_sha256":  "a9279199478c247d79796d3d9c651dc36c1cb6fa2b423661e4e5155c21afba0b",
-                        "snapshot_source_path":  "sources/t1_full_config.rs",
-                        "direct_path_imports":  [
-                                                    "t1_broker_records.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "B2-R",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:09:06.4028020+00:00",
-                        "completed_at_utc":  "2026-07-29T02:09:14.9955518+00:00",
-                        "duration_ms":  8593,
-                        "verified_obligations_total":  175,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  6,
-                        "non_duplicated_total_after":  316,
-                        "error":  null
-                    },
-                    {
-                        "name":  "B2-P0",
-                        "source_path":  "mechanized/t1_broker_physical.rs",
-                        "source_sha256":  "fca1f456ea2ce48534920a49f6befe63f7f0685564df6ab1a4c384f83aca9adf",
-                        "snapshot_source_path":  "sources/t1_broker_physical.rs",
-                        "direct_path_imports":  [
-                                                    "t1_full_config.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "B2-C",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:09:14.9955518+00:00",
-                        "completed_at_utc":  "2026-07-29T02:09:24.3047975+00:00",
-                        "duration_ms":  9309,
-                        "verified_obligations_total":  193,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  18,
-                        "non_duplicated_total_after":  334,
-                        "error":  null
-                    },
-                    {
-                        "name":  "B2-P1",
-                        "source_path":  "mechanized/t1_broker_physical_causality.rs",
-                        "source_sha256":  "c6cf1c93292839bca964b950030afa3ca3621dd0ad5858d1b27b7fbf37a63039",
-                        "snapshot_source_path":  "sources/t1_broker_physical_causality.rs",
-                        "direct_path_imports":  [
-                                                    "t1_broker_physical.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "B2-P0",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:09:24.3047975+00:00",
-                        "completed_at_utc":  "2026-07-29T02:09:41.6764048+00:00",
-                        "duration_ms":  17372,
-                        "verified_obligations_total":  251,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  58,
-                        "non_duplicated_total_after":  392,
-                        "error":  null
-                    },
-                    {
-                        "name":  "B2-P2",
-                        "source_path":  "mechanized/t1_broker_physical_refinement.rs",
-                        "source_sha256":  "497c018707e9e17701583aacaf1b38bbf3d9826bfed72283666d3b95007567c6",
-                        "snapshot_source_path":  "sources/t1_broker_physical_refinement.rs",
-                        "direct_path_imports":  [
-                                                    "t1_broker_physical_causality.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "B2-P1",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:09:41.6764048+00:00",
-                        "completed_at_utc":  "2026-07-29T02:10:00.7684194+00:00",
-                        "duration_ms":  19092,
-                        "verified_obligations_total":  276,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  25,
-                        "non_duplicated_total_after":  417,
-                        "error":  null
-                    },
-                    {
-                        "name":  "B2-P3",
-                        "source_path":  "mechanized/t1_broker_terminal_provenance.rs",
-                        "source_sha256":  "055b873d3727bb9a821ecfc71666da612324865a6ac86097ca182cb91a56f5dd",
-                        "snapshot_source_path":  "sources/t1_broker_terminal_provenance.rs",
-                        "direct_path_imports":  [
-                                                    "t1_broker_physical_refinement.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "B2-P2",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:10:00.7684194+00:00",
-                        "completed_at_utc":  "2026-07-29T02:10:22.4436978+00:00",
-                        "duration_ms":  21675,
-                        "verified_obligations_total":  292,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  16,
-                        "non_duplicated_total_after":  433,
-                        "error":  null
-                    },
-                    {
-                        "name":  "B2-L",
-                        "source_path":  "mechanized/t1_broker_contract.rs",
-                        "source_sha256":  "517f02b1afb2c4f36303b4f611b66ceec18f292c9a7225639dd8567c4b73fd1e",
-                        "snapshot_source_path":  "sources/t1_broker_contract.rs",
-                        "direct_path_imports":  [
-                                                    "t1_broker_terminal_provenance.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "B2-P3",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:10:22.4436978+00:00",
-                        "completed_at_utc":  "2026-07-29T02:10:43.9031173+00:00",
-                        "duration_ms":  21459,
-                        "verified_obligations_total":  310,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  18,
-                        "non_duplicated_total_after":  451,
-                        "error":  null
-                    },
-                    {
-                        "name":  "B2-A",
-                        "source_path":  "mechanized/t1_broker_append_bridge.rs",
-                        "source_sha256":  "147267cae418c6774c1cd8017a4f47bb50db6257fbd2c03eedc3489271d97bee",
-                        "snapshot_source_path":  "sources/t1_broker_append_bridge.rs",
-                        "direct_path_imports":  [
-                                                    "t1_broker_contract.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "B2-L",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:10:43.9031173+00:00",
-                        "completed_at_utc":  "2026-07-29T02:11:04.7380711+00:00",
-                        "duration_ms":  20835,
-                        "verified_obligations_total":  335,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  25,
-                        "non_duplicated_total_after":  476,
-                        "error":  null
-                    },
-                    {
-                        "name":  "G0",
-                        "source_path":  "mechanized/t1_global_event.rs",
-                        "source_sha256":  "4328e52861162ad184dea8f1c2165737b8418b8dab598898d096bebc6c39b0d6",
-                        "snapshot_source_path":  "sources/t1_global_event.rs",
-                        "direct_path_imports":  [
-                                                    "t1_broker_append_bridge.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "B2-A",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:11:04.7380711+00:00",
-                        "completed_at_utc":  "2026-07-29T02:11:25.7107303+00:00",
-                        "duration_ms":  20973,
-                        "verified_obligations_total":  342,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  7,
-                        "non_duplicated_total_after":  483,
-                        "error":  null
-                    },
-                    {
-                        "name":  "G1-P",
-                        "source_path":  "mechanized/t1_global_projections.rs",
-                        "source_sha256":  "bdde56d476f42ceddda8bd9fe695b2e9cf5d18a5fc07f4244461b6e1e93eb044",
-                        "snapshot_source_path":  "sources/t1_global_projections.rs",
-                        "direct_path_imports":  [
-                                                    "t1_global_event.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "G0",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:11:25.7107303+00:00",
-                        "completed_at_utc":  "2026-07-29T02:11:47.6813128+00:00",
-                        "duration_ms":  21971,
-                        "verified_obligations_total":  410,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  68,
-                        "non_duplicated_total_after":  551,
-                        "error":  null
-                    },
-                    {
-                        "name":  "G1-E",
-                        "source_path":  "mechanized/t1_broker_execution.rs",
-                        "source_sha256":  "0d28c1e66badcffaf13d26f14bdea25a0efe7072919a34655bafc16b087f1e31",
-                        "snapshot_source_path":  "sources/t1_broker_execution.rs",
-                        "direct_path_imports":  [
-                                                    "t1_global_projections.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "G1-P",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:11:47.6813128+00:00",
-                        "completed_at_utc":  "2026-07-29T02:12:08.8499076+00:00",
-                        "duration_ms":  21169,
-                        "verified_obligations_total":  429,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  19,
-                        "non_duplicated_total_after":  570,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T1",
-                        "source_path":  "mechanized/t1_parameterized_broker_safety.rs",
-                        "source_sha256":  "ad1c22646abeda022738d9e00f3357cd9730988ea6adc3df12f17d985ec30b44",
-                        "snapshot_source_path":  "sources/t1_parameterized_broker_safety.rs",
-                        "direct_path_imports":  [
-                                                    "t1_broker_execution.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "G1-E",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:12:08.8509115+00:00",
-                        "completed_at_utc":  "2026-07-29T02:12:37.3203406+00:00",
-                        "duration_ms":  28469,
-                        "verified_obligations_total":  462,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  33,
-                        "non_duplicated_total_after":  603,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T2-J0",
-                        "source_path":  "mechanized/t2_atomic_runtime.rs",
-                        "source_sha256":  "ca242ebbb12b61f009c8d339362899456b31e7e1dab7d1094a97430fc836cdff",
-                        "snapshot_source_path":  "sources/t2_atomic_runtime.rs",
-                        "direct_path_imports":  [
-                                                    "t1_parameterized_broker_safety.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T1",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:12:37.3203406+00:00",
-                        "completed_at_utc":  "2026-07-29T02:13:04.0416651+00:00",
-                        "duration_ms":  26721,
-                        "verified_obligations_total":  476,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  14,
-                        "non_duplicated_total_after":  617,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T2-J1",
-                        "source_path":  "mechanized/t2_atomic_trace.rs",
-                        "source_sha256":  "083bdf9def59507168c135b57b86394d0c25c5e336040b386eb020a54e43b39d",
-                        "snapshot_source_path":  "sources/t2_atomic_trace.rs",
-                        "direct_path_imports":  [
-                                                    "t2_atomic_runtime.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T2-J0",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:13:04.0416651+00:00",
-                        "completed_at_utc":  "2026-07-29T02:13:33.0911226+00:00",
-                        "duration_ms":  29049,
-                        "verified_obligations_total":  487,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  11,
-                        "non_duplicated_total_after":  628,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T2-E",
-                        "source_path":  "mechanized/t2_event_projection.rs",
-                        "source_sha256":  "0f8ed115a133c65806428a7f7d15fd586464b0d624a08715190ad367c0ced8e4",
-                        "snapshot_source_path":  "sources/t2_event_projection.rs",
-                        "direct_path_imports":  [
-                                                    "t2_atomic_trace.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T2-J1",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:13:33.0921156+00:00",
-                        "completed_at_utc":  "2026-07-29T02:14:05.7641310+00:00",
-                        "duration_ms":  32672,
-                        "verified_obligations_total":  509,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  22,
-                        "non_duplicated_total_after":  650,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T2-R",
-                        "source_path":  "mechanized/t2_representation.rs",
-                        "source_sha256":  "dd5d97dbad15ae4339c5c454cba6fded854312c58d5337c4bffd6ff63c7645af",
-                        "snapshot_source_path":  "sources/t2_representation.rs",
-                        "direct_path_imports":  [
-                                                    "t2_event_projection.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T2-E",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:14:05.7646396+00:00",
-                        "completed_at_utc":  "2026-07-29T02:14:40.3340138+00:00",
-                        "duration_ms":  34569,
-                        "verified_obligations_total":  521,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  12,
-                        "non_duplicated_total_after":  662,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T2",
-                        "source_path":  "mechanized/t2_atomic_journal_simulation.rs",
-                        "source_sha256":  "68f658e9e29dbe19dec986d045a4235139cbf022aa9c15d4e65bf6fbe3b49aa9",
-                        "snapshot_source_path":  "sources/t2_atomic_journal_simulation.rs",
-                        "direct_path_imports":  [
-                                                    "t2_representation.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T2-R",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:14:40.3340138+00:00",
-                        "completed_at_utc":  "2026-07-29T02:15:14.6139920+00:00",
-                        "duration_ms":  34280,
-                        "verified_obligations_total":  532,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  11,
-                        "non_duplicated_total_after":  673,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T3-W0",
-                        "source_path":  "mechanized/t3_wal_runtime.rs",
-                        "source_sha256":  "3269d8e5cc8650df0dcbdaa6645844c3b6c726f0a4efc13a14d630bda5a0045d",
-                        "snapshot_source_path":  "sources/t3_wal_runtime.rs",
-                        "direct_path_imports":  [
-                                                    "t2_atomic_journal_simulation.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T2",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:15:14.6139920+00:00",
-                        "completed_at_utc":  "2026-07-29T02:15:49.5879926+00:00",
-                        "duration_ms":  34974,
-                        "verified_obligations_total":  578,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  46,
-                        "non_duplicated_total_after":  719,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T3-W1-T",
-                        "source_path":  "mechanized/t3_wal_trace.rs",
-                        "source_sha256":  "ff835832932e90c968d625a87a7d54bca5d9420e0f25fb74cd2690be9a163192",
-                        "snapshot_source_path":  "sources/t3_wal_trace.rs",
-                        "direct_path_imports":  [
-                                                    "t3_wal_runtime.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T3-W0",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:15:49.5879926+00:00",
-                        "completed_at_utc":  "2026-07-29T02:16:23.0751034+00:00",
-                        "duration_ms":  33487,
-                        "verified_obligations_total":  589,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  11,
-                        "non_duplicated_total_after":  730,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T3-W1-E",
-                        "source_path":  "mechanized/t3_wal_event_projection.rs",
-                        "source_sha256":  "fe0a167a8a5d5057f7603e51fdad5f9a2fa843c5f4dc284c43772473b85796d7",
-                        "snapshot_source_path":  "sources/t3_wal_event_projection.rs",
-                        "direct_path_imports":  [
-                                                    "t3_wal_trace.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T3-W1-T",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:16:23.0761058+00:00",
-                        "completed_at_utc":  "2026-07-29T02:17:01.8024068+00:00",
-                        "duration_ms":  38726,
-                        "verified_obligations_total":  627,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  38,
-                        "non_duplicated_total_after":  768,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T3-W1-R",
-                        "source_path":  "mechanized/t3_wal_representation.rs",
-                        "source_sha256":  "1419d522601772b9796b328565066bc53d959ed312f37c505d29b928c63bf088",
-                        "snapshot_source_path":  "sources/t3_wal_representation.rs",
-                        "direct_path_imports":  [
-                                                    "t3_wal_event_projection.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T3-W1-E",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:17:01.8024068+00:00",
-                        "completed_at_utc":  "2026-07-29T02:17:38.4697905+00:00",
-                        "duration_ms":  36667,
-                        "verified_obligations_total":  642,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  15,
-                        "non_duplicated_total_after":  783,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T3",
-                        "source_path":  "mechanized/t3_wal_journal_simulation.rs",
-                        "source_sha256":  "3ab560c14b2f5501ba5236bdc16057a30bfec3dd200a8ab900412339cba460aa",
-                        "snapshot_source_path":  "sources/t3_wal_journal_simulation.rs",
-                        "direct_path_imports":  [
-                                                    "t3_wal_representation.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T3-W1-R",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:17:38.4697905+00:00",
-                        "completed_at_utc":  "2026-07-29T02:18:20.9300798+00:00",
-                        "duration_ms":  42460,
-                        "verified_obligations_total":  660,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  18,
-                        "non_duplicated_total_after":  801,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T4-C0",
-                        "source_path":  "mechanized/t4_closed_composition.rs",
-                        "source_sha256":  "d01b835b248ea904eb5a45bf73f13ae7b2fc8552e86208460dd09bf00f0a94ef",
-                        "snapshot_source_path":  "sources/t4_closed_composition.rs",
-                        "direct_path_imports":  [
-                                                    "t3_wal_journal_simulation.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T3",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:18:20.9300798+00:00",
-                        "completed_at_utc":  "2026-07-29T02:19:03.0036989+00:00",
-                        "duration_ms":  42074,
-                        "verified_obligations_total":  677,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  17,
-                        "non_duplicated_total_after":  818,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T4-C1",
-                        "source_path":  "mechanized/t4_context_interface.rs",
-                        "source_sha256":  "9ec0aaac0ef6ae6336e443ac18084b510e17645616626834157657abb570fe31",
-                        "snapshot_source_path":  "sources/t4_context_interface.rs",
-                        "direct_path_imports":  [
-                                                    "t4_closed_composition.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T4-C0",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:19:03.0036989+00:00",
-                        "completed_at_utc":  "2026-07-29T02:19:49.5621257+00:00",
-                        "duration_ms":  46558,
-                        "verified_obligations_total":  721,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  44,
-                        "non_duplicated_total_after":  862,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T4-C2",
-                        "source_path":  "mechanized/t4_contextual_composition.rs",
-                        "source_sha256":  "1f51140d07397bfe42167dcb7aa2b34ce824028923d63e88345d1348e04631fc",
-                        "snapshot_source_path":  "sources/t4_contextual_composition.rs",
-                        "direct_path_imports":  [
-                                                    "t4_context_interface.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T4-C1",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:19:49.5621257+00:00",
-                        "completed_at_utc":  "2026-07-29T02:20:31.2477936+00:00",
-                        "duration_ms":  41686,
-                        "verified_obligations_total":  735,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  14,
-                        "non_duplicated_total_after":  876,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T5-S0",
-                        "source_path":  "mechanized/t5_commit_step.rs",
-                        "source_sha256":  "5c09764ffa45da64dc9767b43b5d74262cb943480b300e49cb411a4642436cec",
-                        "snapshot_source_path":  "sources/t5_commit_step.rs",
-                        "direct_path_imports":  [
-                                                    "t4_contextual_composition.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T4-C2",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:20:31.2477936+00:00",
-                        "completed_at_utc":  "2026-07-29T02:21:11.9914749+00:00",
-                        "duration_ms":  40744,
-                        "verified_obligations_total":  744,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  9,
-                        "non_duplicated_total_after":  885,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T5-E0",
-                        "source_path":  "mechanized/t5_commit_execution.rs",
-                        "source_sha256":  "f67dd2aa1db972f6b250e329ea12b4b0223ace8f96db2b0002548bfa750fa4e7",
-                        "snapshot_source_path":  "sources/t5_commit_execution.rs",
-                        "direct_path_imports":  [
-                                                    "t5_commit_step.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T5-S0",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:21:11.9914749+00:00",
-                        "completed_at_utc":  "2026-07-29T02:21:59.6725646+00:00",
-                        "duration_ms":  47681,
-                        "verified_obligations_total":  748,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  4,
-                        "non_duplicated_total_after":  889,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T5-R0",
-                        "source_path":  "mechanized/t5_commit_recovery.rs",
-                        "source_sha256":  "b10d521d2e0c45273bb3857b3a440d304ef0bd224174eaacc508cc66445d4d58",
-                        "snapshot_source_path":  "sources/t5_commit_recovery.rs",
-                        "direct_path_imports":  [
-                                                    "t5_commit_execution.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T5-E0",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:21:59.6725646+00:00",
-                        "completed_at_utc":  "2026-07-29T02:22:51.9900458+00:00",
-                        "duration_ms":  52317,
-                        "verified_obligations_total":  770,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  22,
-                        "non_duplicated_total_after":  911,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T5-C0",
-                        "source_path":  "mechanized/t5_commit_contextual.rs",
-                        "source_sha256":  "76a1cd602e5ab426bb20a515f7a266751d817adefd488eb05ef59f80b5647d76",
-                        "snapshot_source_path":  "sources/t5_commit_contextual.rs",
-                        "direct_path_imports":  [
-                                                    "t5_commit_recovery.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T5-R0",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:22:51.9900458+00:00",
-                        "completed_at_utc":  "2026-07-29T02:23:38.9989430+00:00",
-                        "duration_ms":  47009,
-                        "verified_obligations_total":  784,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  14,
-                        "non_duplicated_total_after":  925,
-                        "error":  null
-                    },
-                    {
-                        "name":  "H1",
-                        "source_path":  "mechanized/h1_artifact_nonvacuity.rs",
-                        "source_sha256":  "6b95f5e3fddd5f3f805827b451e4d49094fd8e896a0381694253d73460743372",
-                        "snapshot_source_path":  "sources/h1_artifact_nonvacuity.rs",
-                        "direct_path_imports":  [
-                                                    "t5_commit_contextual.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T5-C0",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:23:38.9989430+00:00",
-                        "completed_at_utc":  "2026-07-29T02:24:27.7342357+00:00",
-                        "duration_ms":  48735,
-                        "verified_obligations_total":  787,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  3,
-                        "non_duplicated_total_after":  928,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T6-D0",
-                        "source_path":  "mechanized/t6_terminal_definitions.rs",
-                        "source_sha256":  "ea4b22879ecd199d2f73f472f1536194f07e11de4bdc0df873779468614b8f8a",
-                        "snapshot_source_path":  "sources/t6_terminal_definitions.rs",
-                        "direct_path_imports":  [
-                                                    "t5_commit_contextual.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T5-C0",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:24:27.7342357+00:00",
-                        "completed_at_utc":  "2026-07-29T02:25:15.1718131+00:00",
-                        "duration_ms":  47438,
-                        "verified_obligations_total":  800,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  16,
-                        "non_duplicated_total_after":  944,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T6-E0",
-                        "source_path":  "mechanized/t6_terminal_evidence.rs",
-                        "source_sha256":  "3284ddc98e15fd8b37c43ab0cbafcccc0db2e54ac78d1dc1351ee20b130c46b5",
-                        "snapshot_source_path":  "sources/t6_terminal_evidence.rs",
-                        "direct_path_imports":  [
-                                                    "t6_terminal_definitions.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T6-D0",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:25:15.1718131+00:00",
-                        "completed_at_utc":  "2026-07-29T02:26:05.4899755+00:00",
-                        "duration_ms":  50318,
-                        "verified_obligations_total":  818,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  18,
-                        "non_duplicated_total_after":  962,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T6-C0",
-                        "source_path":  "mechanized/t6_terminal_compatibility.rs",
-                        "source_sha256":  "b931b118bb269de49ff9b0a917595460b585fd50a6e5253c330f74d97279fa49",
-                        "snapshot_source_path":  "sources/t6_terminal_compatibility.rs",
-                        "direct_path_imports":  [
-                                                    "t6_terminal_evidence.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T6-E0",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:26:05.4899755+00:00",
-                        "completed_at_utc":  "2026-07-29T02:26:54.3971303+00:00",
-                        "duration_ms":  48907,
-                        "verified_obligations_total":  835,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  17,
-                        "non_duplicated_total_after":  979,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T6-S0",
-                        "source_path":  "mechanized/t6_terminal_bridge.rs",
-                        "source_sha256":  "2cadd60e4e7004ab16edd908b95a5b687a8fdc0c47ecc608ecca387963e299e3",
-                        "snapshot_source_path":  "sources/t6_terminal_bridge.rs",
-                        "direct_path_imports":  [
-                                                    "t6_terminal_compatibility.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T6-C0",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:26:54.3971303+00:00",
-                        "completed_at_utc":  "2026-07-29T02:27:42.4681869+00:00",
-                        "duration_ms":  48071,
-                        "verified_obligations_total":  841,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  6,
-                        "non_duplicated_total_after":  985,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T6-A0",
-                        "source_path":  "mechanized/t6_adapter_semantic_closure.rs",
-                        "source_sha256":  "90c9d52be89fac950bc319df8226678b65c2acdf512d40f58824132a36831ea8",
-                        "snapshot_source_path":  "sources/t6_adapter_semantic_closure.rs",
-                        "direct_path_imports":  [
-                                                    "t6_terminal_bridge.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T6-S0",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:27:42.4681869+00:00",
-                        "completed_at_utc":  "2026-07-29T02:28:53.3291633+00:00",
-                        "duration_ms":  70861,
-                        "verified_obligations_total":  864,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  23,
-                        "non_duplicated_total_after":  1008,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T6-A1",
-                        "source_path":  "mechanized/t6_adapter_executable_refinement.rs",
-                        "source_sha256":  "9ceb909da835c8646ffb84e8a2ad0b641b85b810dfe20afe5016ee1bb65a435b",
-                        "snapshot_source_path":  "sources/t6_adapter_executable_refinement.rs",
-                        "direct_path_imports":  [
-                                                    "t6_adapter_semantic_closure.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T6-A0",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:28:53.3291633+00:00",
-                        "completed_at_utc":  "2026-07-29T02:34:03.5570004+00:00",
-                        "duration_ms":  310228,
-                        "verified_obligations_total":  916,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  52,
-                        "non_duplicated_total_after":  1060,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T6-M0",
-                        "source_path":  "mechanized/t6_mediation_exclusivity.rs",
-                        "source_sha256":  "9674948baf5fb82c49098831802011734217c207c076e764725a0713aab27a8b",
-                        "snapshot_source_path":  "sources/t6_mediation_exclusivity.rs",
-                        "direct_path_imports":  [
-                                                    "t6_adapter_executable_refinement.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T6-A1",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:34:03.5570004+00:00",
-                        "completed_at_utc":  "2026-07-29T02:39:22.6510461+00:00",
-                        "duration_ms":  319094,
-                        "verified_obligations_total":  977,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  61,
-                        "non_duplicated_total_after":  1121,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T6-P0",
-                        "source_path":  "mechanized/t6_prefix_simulation.rs",
-                        "source_sha256":  "38341bf6dfb9a957d480f5cd1afdc9452963cfc667708655e7e29f105a298a23",
-                        "snapshot_source_path":  "sources/t6_prefix_simulation.rs",
-                        "direct_path_imports":  [
-                                                    "t6_mediation_exclusivity.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T6-M0",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:39:22.6510461+00:00",
-                        "completed_at_utc":  "2026-07-29T02:44:26.8890298+00:00",
-                        "duration_ms":  304238,
-                        "verified_obligations_total":  1000,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  23,
-                        "non_duplicated_total_after":  1144,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T6-X0",
-                        "source_path":  "mechanized/t6_contextual_end_to_end.rs",
-                        "source_sha256":  "88c0ac60ba23dc8d03001b3f4a779a990e49c6fe3f674773f029207cf7efcbbf",
-                        "snapshot_source_path":  "sources/t6_contextual_end_to_end.rs",
-                        "direct_path_imports":  [
-                                                    "t6_prefix_simulation.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T6-P0",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:44:26.8890298+00:00",
-                        "completed_at_utc":  "2026-07-29T02:49:33.6860301+00:00",
-                        "duration_ms":  306797,
-                        "verified_obligations_total":  1022,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  22,
-                        "non_duplicated_total_after":  1166,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T6-RO0",
-                        "source_path":  "mechanized/t6_readonly_operational.rs",
-                        "source_sha256":  "8f27fb113d0db2ceeacfab17f15eca10d67b9cd8fd7a3d122fcd6dbfd796516a",
-                        "snapshot_source_path":  "sources/t6_readonly_operational.rs",
-                        "direct_path_imports":  [
-                                                    "t6_contextual_end_to_end.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T6-X0",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:49:33.6860301+00:00",
-                        "completed_at_utc":  "2026-07-29T02:55:42.2351480+00:00",
-                        "duration_ms":  368549,
-                        "verified_obligations_total":  1083,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  61,
-                        "non_duplicated_total_after":  1227,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T6-DD0",
-                        "source_path":  "mechanized/t6_deduplicated_operational.rs",
-                        "source_sha256":  "91391e9fb25389fdff6729434f101d9db10ecffe08f591eecc330e88be07e082",
-                        "snapshot_source_path":  "sources/t6_deduplicated_operational.rs",
-                        "direct_path_imports":  [
-                                                    "t6_readonly_operational.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T6-RO0",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T02:55:42.2351480+00:00",
-                        "completed_at_utc":  "2026-07-29T03:01:30.8566532+00:00",
-                        "duration_ms":  348622,
-                        "verified_obligations_total":  1085,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  2,
-                        "non_duplicated_total_after":  1229,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T6-DD1",
-                        "source_path":  "mechanized/t6_deduplicated_invariant.rs",
-                        "source_sha256":  "8c942c5dcce89422885d0188eaad8223923cef637f20a45e1d0d036868cf9924",
-                        "snapshot_source_path":  "sources/t6_deduplicated_invariant.rs",
-                        "direct_path_imports":  [
-                                                    "t6_deduplicated_operational.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T6-DD0",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T03:01:30.8566532+00:00",
-                        "completed_at_utc":  "2026-07-29T03:07:06.3374295+00:00",
-                        "duration_ms":  335481,
-                        "verified_obligations_total":  1111,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  26,
-                        "non_duplicated_total_after":  1255,
-                        "error":  null
-                    },
-                    {
-                        "name":  "T6-DD2",
-                        "source_path":  "mechanized/t6_deduplicated_witness.rs",
-                        "source_sha256":  "3b57e3d9374ba1b93210128375d32fb07aba91ed2ad68591de4a81f326bd9566",
-                        "snapshot_source_path":  "sources/t6_deduplicated_witness.rs",
-                        "direct_path_imports":  [
-                                                    "t6_deduplicated_invariant.rs"
-                                                ],
-                        "contribution_mode":  "parent_delta",
-                        "contribution_parent":  "T6-DD1",
-                        "immediate_parent_import_validated":  true,
-                        "verus_arguments":  [
-                                                "--crate-type",
-                                                "lib",
-                                                "--no-cheating"
-                                            ],
-                        "status":  "passed",
-                        "started_at_utc":  "2026-07-29T03:07:06.3374295+00:00",
-                        "completed_at_utc":  "2026-07-29T03:13:07.3186129+00:00",
-                        "duration_ms":  360981,
-                        "verified_obligations_total":  1143,
-                        "verus_errors":  0,
-                        "verus_exit_code":  0,
-                        "contribution_delta":  32,
-                        "non_duplicated_total_after":  1287,
-                        "error":  null
-                    }
-                ]
+  "schema": "vetra.verus-verification-report",
+  "schema_version": 1,
+  "schema_path": "mechanized/results/verification-report.schema.v1.json",
+  "schema_sha256": "39e37c52477abd7b9acfbda95a3ffd32f3c1c6ee801a788430d326013e0553e7",
+  "status": "passed",
+  "started_at_utc": "2026-07-30T16:25:46.7299390+00:00",
+  "completed_at_utc": "2026-07-30T16:57:45.0995298+00:00",
+  "duration_ms": 1918370,
+  "error": null,
+  "environment": {
+    "os_description": "Ubuntu 24.04.2 LTS",
+    "os_architecture": "X64",
+    "process_architecture": "X64",
+    "powershell_version": "7.6.4"
+  },
+  "policy": {
+    "status": "passed",
+    "no_cheating": true,
+    "source_scan_is_case_insensitive": true,
+    "forbidden_source_pattern": "\\b(assume|admit|external_body|external_fn_specification|assume_specification|axiom|get_Some|recommends|rlimit|resource_limit|spinoff|spinoff_prover)\\b|verifier\\s*::\\s*external|verifier\\s*\\(",
+    "forbidden_extra_argument_pattern": "(?s).+",
+    "nonempty_extra_arguments_rejected": true,
+    "simple_path_module_grammar_enforced": true,
+    "complete_registered_source_coverage": true,
+    "all_direct_path_imports_registered": true,
+    "cumulative_parent_imports_validated": 49
+  },
+  "source_snapshot": {
+    "kind": "isolated-read-only-copy",
+    "run_id": "f3fd98288a604f51b35bcf598997c656",
+    "created_at_utc": "2026-07-30T16:25:46.9339529+00:00",
+    "source_file_count": 53,
+    "manifest_sha256": "930b24a5b8c71a92945ccce287064abe1a476e83276c2d4046fe2581bf5711d7",
+    "exact_membership_validated": true,
+    "source_hashes_match_registry": true,
+    "all_files_read_only": true,
+    "pre_target_validation_count": 53,
+    "post_target_validation_count": 53,
+    "final_validation_passed": true,
+    "removed_after_run": true
+  },
+  "toolchain": {
+    "lock_path": "mechanized/toolchain.lock.json",
+    "lock_sha256": "1efb79ae6c17914d3f51aaaf4c9663600d3c9713b662e6da6bc23efcc603e6f5",
+    "verification_driver_path": "mechanized/verify.ps1",
+    "verification_driver_sha256": "30ef0007a8e70c2b16766ce78c7462e486485e39dbb9ec8ff85ab09d1f9ec8a5",
+    "declared": {
+      "verus": {
+        "version": "0.2026.07.05.49b8806",
+        "platform": "x86_64-unknown-linux-gnu",
+        "archive": "verus-0.2026.07.05.49b8806-x86-linux.zip",
+        "url": "https://github.com/verus-lang/verus/releases/download/release/0.2026.07.05.49b8806/verus-0.2026.07.05.49b8806-x86-linux.zip",
+        "sha256": "cb4fe7db423fdda5e9aa77b2c3e632f8a618b6a991509283aae591f0a914d34c"
+      },
+      "rustup": {
+        "version": "1.29.0",
+        "platform": "x86_64-unknown-linux-gnu",
+        "archive": "rustup-init",
+        "url": "https://static.rust-lang.org/rustup/archive/1.29.0/x86_64-unknown-linux-gnu/rustup-init",
+        "sha256": "4acc9acc76d5079515b46346a485974457b5a79893cfb01112423c89aeb5aa10"
+      },
+      "rust": {
+        "toolchain": "1.96.0-x86_64-unknown-linux-gnu"
+      }
+    },
+    "observed": {
+      "verus_archive_sha256": "cb4fe7db423fdda5e9aa77b2c3e632f8a618b6a991509283aae591f0a914d34c",
+      "verus_executable_sha256": "1f730173d4c771c2817c1e9979ab52fa3f394d4965a92d343b1428abb9b69eaa",
+      "verus_tree_sha256": "451245d772d0cb01a17d6fda6f8536c9af507a71f564cf2b7eaafdbbdf1874bf",
+      "verus_tree_file_count": 187,
+      "verus_tree_unchanged": true,
+      "verus_version": "0.2026.07.05.49b8806",
+      "rustup_archive_sha256": "4acc9acc76d5079515b46346a485974457b5a79893cfb01112423c89aeb5aa10",
+      "rustup_executable_sha256": "4acc9acc76d5079515b46346a485974457b5a79893cfb01112423c89aeb5aa10",
+      "rustup_version": "rustup 1.29.0 (28d1352db 2026-03-05)",
+      "rustc_executable_sha256": "ba4b837efb6612dfa8d941c5a72b8a50d1d03a0f36216743b173949aa8d9eb75",
+      "rustc_version": "rustc 1.96.0 (ac68faa20 2026-05-25)",
+      "cargo_executable_sha256": "f30f9fd1b1d0b8fd10dc33219eb4cd4bec3543f40e434ac71f5a03fd0359063f",
+      "rust_toolchain_tree_sha256": "0f9b7b127baa101039eaedc43c839c4b33a39bf225df515f82e72577bfa1629a",
+      "rust_toolchain_file_count": 154,
+      "rust_toolchain_tree_unchanged": true,
+      "fresh_rust_environment": true,
+      "rustup_dist_server": "https://static.rust-lang.org",
+      "rustup_update_root": "https://static.rust-lang.org/rustup"
+    }
+  },
+  "summary": {
+    "registered_target_count": 53,
+    "registered_source_count": 53,
+    "present_source_count": 53,
+    "verified_target_count": 53,
+    "sum_of_target_obligations": 29082,
+    "non_duplicated_verified_obligations": 1287
+  },
+  "targets": [
+    {
+      "name": "M0",
+      "source_path": "mechanized/m0.rs",
+      "source_sha256": "956b045e911a284ee19ff233c7cdb20260c6b173fa2d587e849ad1e86f8e1d25",
+      "snapshot_source_path": "sources/m0.rs",
+      "direct_path_imports": [],
+      "contribution_mode": "full",
+      "contribution_parent": null,
+      "immediate_parent_import_validated": null,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:26:57.6270307+00:00",
+      "completed_at_utc": "2026-07-30T16:26:58.8931798+00:00",
+      "duration_ms": 1266,
+      "verified_obligations_total": 21,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 21,
+      "non_duplicated_total_after": 21,
+      "error": null
+    },
+    {
+      "name": "R1",
+      "source_path": "mechanized/t1_replay.rs",
+      "source_sha256": "9fa59520c553477407d0a603569158238f076e56f1f9ecb0e55eaefc93a3197b",
+      "snapshot_source_path": "sources/t1_replay.rs",
+      "direct_path_imports": [],
+      "contribution_mode": "excluded",
+      "contribution_parent": null,
+      "immediate_parent_import_validated": null,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:26:58.8978210+00:00",
+      "completed_at_utc": "2026-07-30T16:27:02.4899729+00:00",
+      "duration_ms": 3592,
+      "verified_obligations_total": 86,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 0,
+      "non_duplicated_total_after": 21,
+      "error": null
+    },
+    {
+      "name": "B1",
+      "source_path": "mechanized/t1_append.rs",
+      "source_sha256": "44c30dbcca39db63ce212cb3d7a1bc244fc1afe39539949fbb380da871d6443c",
+      "snapshot_source_path": "sources/t1_append.rs",
+      "direct_path_imports": [],
+      "contribution_mode": "excluded",
+      "contribution_parent": null,
+      "immediate_parent_import_validated": null,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:27:02.4901672+00:00",
+      "completed_at_utc": "2026-07-30T16:27:03.8384254+00:00",
+      "duration_ms": 1348,
+      "verified_obligations_total": 39,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 0,
+      "non_duplicated_total_after": 21,
+      "error": null
+    },
+    {
+      "name": "C1",
+      "source_path": "mechanized/t1_replay_append.rs",
+      "source_sha256": "6084b9cfd6da1e0a3569d3dd83c6654e3cd92cac3f6529a87d8a52a05b52c514",
+      "snapshot_source_path": "sources/t1_replay_append.rs",
+      "direct_path_imports": [
+        "t1_replay.rs",
+        "t1_append.rs"
+      ],
+      "contribution_mode": "full",
+      "contribution_parent": null,
+      "immediate_parent_import_validated": null,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:27:03.8385395+00:00",
+      "completed_at_utc": "2026-07-30T16:27:07.8320938+00:00",
+      "duration_ms": 3994,
+      "verified_obligations_total": 128,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 128,
+      "non_duplicated_total_after": 149,
+      "error": null
+    },
+    {
+      "name": "D1",
+      "source_path": "mechanized/t1_durable_append.rs",
+      "source_sha256": "475bcf50973f6cb6528fd008a8bd74c802f299fc9d5261991a73d32ee380f25d",
+      "snapshot_source_path": "sources/t1_durable_append.rs",
+      "direct_path_imports": [
+        "t1_replay_append.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "C1",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:27:07.8322506+00:00",
+      "completed_at_utc": "2026-07-30T16:27:12.2350516+00:00",
+      "duration_ms": 4403,
+      "verified_obligations_total": 144,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 16,
+      "non_duplicated_total_after": 165,
+      "error": null
+    },
+    {
+      "name": "Q1",
+      "source_path": "mechanized/t1_durable_queries.rs",
+      "source_sha256": "dc647a0c26d71e1b4b51f098af89abf2aa7311c60608882d36787f8735c5d980",
+      "snapshot_source_path": "sources/t1_durable_queries.rs",
+      "direct_path_imports": [
+        "t1_replay_append.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "C1",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:27:12.2351328+00:00",
+      "completed_at_utc": "2026-07-30T16:27:16.3696920+00:00",
+      "duration_ms": 4135,
+      "verified_obligations_total": 144,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 16,
+      "non_duplicated_total_after": 181,
+      "error": null
+    },
+    {
+      "name": "K1",
+      "source_path": "mechanized/k1_executable_kernel.rs",
+      "source_sha256": "17c49e73c5dfe8b95af6ea4880137f85c5808b4da8651cc213011607ba6c2851",
+      "snapshot_source_path": "sources/k1_executable_kernel.rs",
+      "direct_path_imports": [
+        "t1_durable_queries.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "Q1",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:27:16.3697729+00:00",
+      "completed_at_utc": "2026-07-30T16:27:21.1591607+00:00",
+      "duration_ms": 4789,
+      "verified_obligations_total": 159,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 15,
+      "non_duplicated_total_after": 196,
+      "error": null
+    },
+    {
+      "name": "K2-G0",
+      "source_path": "mechanized/k2_executable_kernel_refinement.rs",
+      "source_sha256": "a906e4f5bb09c6b88af7a1fcd8fbe3d5243c1759824d43623e8f189fc52048dd",
+      "snapshot_source_path": "sources/k2_executable_kernel_refinement.rs",
+      "direct_path_imports": [
+        "k1_executable_kernel.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "K1",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:27:21.1592479+00:00",
+      "completed_at_utc": "2026-07-30T16:27:25.8722464+00:00",
+      "duration_ms": 4713,
+      "verified_obligations_total": 179,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 20,
+      "non_duplicated_total_after": 216,
+      "error": null
+    },
+    {
+      "name": "K2-T0",
+      "source_path": "mechanized/k2_durable_record_kernel.rs",
+      "source_sha256": "ddb13695ac148f22ecb53b74383a2931fe6c5f7758f1db1500663e0b08ac93a3",
+      "snapshot_source_path": "sources/k2_durable_record_kernel.rs",
+      "direct_path_imports": [
+        "k2_executable_kernel_refinement.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "K2-G0",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:27:25.8723280+00:00",
+      "completed_at_utc": "2026-07-30T16:27:31.7080450+00:00",
+      "duration_ms": 5836,
+      "verified_obligations_total": 208,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 29,
+      "non_duplicated_total_after": 245,
+      "error": null
+    },
+    {
+      "name": "K3-A0",
+      "source_path": "mechanized/k3_append_linearization_kernel.rs",
+      "source_sha256": "d3b1c6ca643595b137fe45b889164c5c444ccbcb6f97a9bb808d9638cd0224ca",
+      "snapshot_source_path": "sources/k3_append_linearization_kernel.rs",
+      "direct_path_imports": [
+        "k2_durable_record_kernel.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "K2-T0",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:27:31.7081618+00:00",
+      "completed_at_utc": "2026-07-30T16:27:39.1772193+00:00",
+      "duration_ms": 7469,
+      "verified_obligations_total": 248,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 40,
+      "non_duplicated_total_after": 285,
+      "error": null
+    },
+    {
+      "name": "B2-R",
+      "source_path": "mechanized/t1_broker_records.rs",
+      "source_sha256": "167a0278b250ec8d41d5b6deb405bc70dfefe3fed92c5ceb4bec781667610683",
+      "snapshot_source_path": "sources/t1_broker_records.rs",
+      "direct_path_imports": [
+        "t1_durable_queries.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "Q1",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:27:39.1773031+00:00",
+      "completed_at_utc": "2026-07-30T16:27:46.1922810+00:00",
+      "duration_ms": 7015,
+      "verified_obligations_total": 169,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 25,
+      "non_duplicated_total_after": 310,
+      "error": null
+    },
+    {
+      "name": "B2-C",
+      "source_path": "mechanized/t1_full_config.rs",
+      "source_sha256": "d990b93ef62025130ea682b02f5eaa00e035578bfe8ba6555c32981f2ef1b08d",
+      "snapshot_source_path": "sources/t1_full_config.rs",
+      "direct_path_imports": [
+        "t1_broker_records.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "B2-R",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:27:46.1923645+00:00",
+      "completed_at_utc": "2026-07-30T16:27:53.4298742+00:00",
+      "duration_ms": 7238,
+      "verified_obligations_total": 175,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 6,
+      "non_duplicated_total_after": 316,
+      "error": null
+    },
+    {
+      "name": "B2-P0",
+      "source_path": "mechanized/t1_broker_physical.rs",
+      "source_sha256": "4e4e364d4bdc51214c2cd7fb582ab769b371347bc65a7c833bad9ea12115e91f",
+      "snapshot_source_path": "sources/t1_broker_physical.rs",
+      "direct_path_imports": [
+        "t1_full_config.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "B2-C",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:27:53.4299568+00:00",
+      "completed_at_utc": "2026-07-30T16:28:00.8569317+00:00",
+      "duration_ms": 7427,
+      "verified_obligations_total": 193,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 18,
+      "non_duplicated_total_after": 334,
+      "error": null
+    },
+    {
+      "name": "B2-P1",
+      "source_path": "mechanized/t1_broker_physical_causality.rs",
+      "source_sha256": "c566ebd036fd048950d5a5653e16d65210fca404eab667b68f22b9380df3e3cd",
+      "snapshot_source_path": "sources/t1_broker_physical_causality.rs",
+      "direct_path_imports": [
+        "t1_broker_physical.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "B2-P0",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:28:00.8570278+00:00",
+      "completed_at_utc": "2026-07-30T16:28:10.3583903+00:00",
+      "duration_ms": 9501,
+      "verified_obligations_total": 251,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 58,
+      "non_duplicated_total_after": 392,
+      "error": null
+    },
+    {
+      "name": "B2-P2",
+      "source_path": "mechanized/t1_broker_physical_refinement.rs",
+      "source_sha256": "1e3fe048e86b9d8ee317365e4348b7cb307de0b09625983500b5952edbbc0ff7",
+      "snapshot_source_path": "sources/t1_broker_physical_refinement.rs",
+      "direct_path_imports": [
+        "t1_broker_physical_causality.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "B2-P1",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:28:10.3584718+00:00",
+      "completed_at_utc": "2026-07-30T16:28:20.2607768+00:00",
+      "duration_ms": 9902,
+      "verified_obligations_total": 276,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 25,
+      "non_duplicated_total_after": 417,
+      "error": null
+    },
+    {
+      "name": "B2-P3",
+      "source_path": "mechanized/t1_broker_terminal_provenance.rs",
+      "source_sha256": "d41e6090c425ba9142249a4505d2e20828c0473f2c720b1bf75a3c867f652c52",
+      "snapshot_source_path": "sources/t1_broker_terminal_provenance.rs",
+      "direct_path_imports": [
+        "t1_broker_physical_refinement.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "B2-P2",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:28:20.2608660+00:00",
+      "completed_at_utc": "2026-07-30T16:28:30.9646910+00:00",
+      "duration_ms": 10704,
+      "verified_obligations_total": 292,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 16,
+      "non_duplicated_total_after": 433,
+      "error": null
+    },
+    {
+      "name": "B2-L",
+      "source_path": "mechanized/t1_broker_contract.rs",
+      "source_sha256": "eaadb915a94bf628cdc87bc546c60987095e7bb6ac47d3e0ce4ede3c7717849d",
+      "snapshot_source_path": "sources/t1_broker_contract.rs",
+      "direct_path_imports": [
+        "t1_broker_terminal_provenance.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "B2-P3",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:28:30.9647778+00:00",
+      "completed_at_utc": "2026-07-30T16:28:42.4415060+00:00",
+      "duration_ms": 11477,
+      "verified_obligations_total": 310,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 18,
+      "non_duplicated_total_after": 451,
+      "error": null
+    },
+    {
+      "name": "B2-A",
+      "source_path": "mechanized/t1_broker_append_bridge.rs",
+      "source_sha256": "b007b601e23197ed6d9f34c791b09552c84b6fa9d243b1f065ee581aaff9d4a6",
+      "snapshot_source_path": "sources/t1_broker_append_bridge.rs",
+      "direct_path_imports": [
+        "t1_broker_contract.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "B2-L",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:28:42.4416235+00:00",
+      "completed_at_utc": "2026-07-30T16:28:53.6933456+00:00",
+      "duration_ms": 11252,
+      "verified_obligations_total": 335,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 25,
+      "non_duplicated_total_after": 476,
+      "error": null
+    },
+    {
+      "name": "G0",
+      "source_path": "mechanized/t1_global_event.rs",
+      "source_sha256": "2665d7d08b626ca92685bf3975619b3fc9ee0b9d0f60a28799b4339d15830d93",
+      "snapshot_source_path": "sources/t1_global_event.rs",
+      "direct_path_imports": [
+        "t1_broker_append_bridge.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "B2-A",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:28:53.6934949+00:00",
+      "completed_at_utc": "2026-07-30T16:29:04.7849904+00:00",
+      "duration_ms": 11091,
+      "verified_obligations_total": 342,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 7,
+      "non_duplicated_total_after": 483,
+      "error": null
+    },
+    {
+      "name": "G1-P",
+      "source_path": "mechanized/t1_global_projections.rs",
+      "source_sha256": "532f8e7c79c5d197ea68690df9fe51e8c6b71426b586d59c46c22460638447b5",
+      "snapshot_source_path": "sources/t1_global_projections.rs",
+      "direct_path_imports": [
+        "t1_global_event.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "G0",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:29:04.7850520+00:00",
+      "completed_at_utc": "2026-07-30T16:29:16.0989144+00:00",
+      "duration_ms": 11314,
+      "verified_obligations_total": 410,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 68,
+      "non_duplicated_total_after": 551,
+      "error": null
+    },
+    {
+      "name": "G1-E",
+      "source_path": "mechanized/t1_broker_execution.rs",
+      "source_sha256": "e417f9536d80d262195000312c5b02c4e89bf3a3e28218d7353551d25e2cd3e8",
+      "snapshot_source_path": "sources/t1_broker_execution.rs",
+      "direct_path_imports": [
+        "t1_global_projections.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "G1-P",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:29:16.0989766+00:00",
+      "completed_at_utc": "2026-07-30T16:29:27.8075840+00:00",
+      "duration_ms": 11709,
+      "verified_obligations_total": 429,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 19,
+      "non_duplicated_total_after": 570,
+      "error": null
+    },
+    {
+      "name": "T1",
+      "source_path": "mechanized/t1_parameterized_broker_safety.rs",
+      "source_sha256": "c3f3dd77e2d2014e3326deec8b7ac7545d0d39ef1576bb2fe684e94e7eee0edc",
+      "snapshot_source_path": "sources/t1_parameterized_broker_safety.rs",
+      "direct_path_imports": [
+        "t1_broker_execution.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "G1-E",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:29:27.8076692+00:00",
+      "completed_at_utc": "2026-07-30T16:29:45.8000499+00:00",
+      "duration_ms": 17992,
+      "verified_obligations_total": 462,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 33,
+      "non_duplicated_total_after": 603,
+      "error": null
+    },
+    {
+      "name": "T2-J0",
+      "source_path": "mechanized/t2_atomic_runtime.rs",
+      "source_sha256": "6e4be6e72e91a0bf886809afaa18d3e03cde090c14ea2e336988d4d7bd693ccf",
+      "snapshot_source_path": "sources/t2_atomic_runtime.rs",
+      "direct_path_imports": [
+        "t1_parameterized_broker_safety.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T1",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:29:45.8001117+00:00",
+      "completed_at_utc": "2026-07-30T16:30:00.5172166+00:00",
+      "duration_ms": 14717,
+      "verified_obligations_total": 476,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 14,
+      "non_duplicated_total_after": 617,
+      "error": null
+    },
+    {
+      "name": "T2-J1",
+      "source_path": "mechanized/t2_atomic_trace.rs",
+      "source_sha256": "14ce7f329fc3a1c8dea7670fbec4303c16b515dab065d97c7452abea621c5a83",
+      "snapshot_source_path": "sources/t2_atomic_trace.rs",
+      "direct_path_imports": [
+        "t2_atomic_runtime.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T2-J0",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:30:00.5172800+00:00",
+      "completed_at_utc": "2026-07-30T16:30:18.3989515+00:00",
+      "duration_ms": 17882,
+      "verified_obligations_total": 487,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 11,
+      "non_duplicated_total_after": 628,
+      "error": null
+    },
+    {
+      "name": "T2-E",
+      "source_path": "mechanized/t2_event_projection.rs",
+      "source_sha256": "d83ad9f3e49945428d746d821b61bf6b48c3f88e5ead035b07bce874e364fa7e",
+      "snapshot_source_path": "sources/t2_event_projection.rs",
+      "direct_path_imports": [
+        "t2_atomic_trace.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T2-J1",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:30:18.3992625+00:00",
+      "completed_at_utc": "2026-07-30T16:30:35.0873841+00:00",
+      "duration_ms": 16688,
+      "verified_obligations_total": 509,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 22,
+      "non_duplicated_total_after": 650,
+      "error": null
+    },
+    {
+      "name": "T2-R",
+      "source_path": "mechanized/t2_representation.rs",
+      "source_sha256": "2678d8360e01d6942aab65cca1869f4664878e8a857b557cf046c55a99ccd9da",
+      "snapshot_source_path": "sources/t2_representation.rs",
+      "direct_path_imports": [
+        "t2_event_projection.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T2-E",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:30:35.0874331+00:00",
+      "completed_at_utc": "2026-07-30T16:30:54.9643377+00:00",
+      "duration_ms": 19877,
+      "verified_obligations_total": 521,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 12,
+      "non_duplicated_total_after": 662,
+      "error": null
+    },
+    {
+      "name": "T2",
+      "source_path": "mechanized/t2_atomic_journal_simulation.rs",
+      "source_sha256": "1e97631b138e876cf5a1813dfcf0307175c6efefe938854a7053a285a650ec74",
+      "snapshot_source_path": "sources/t2_atomic_journal_simulation.rs",
+      "direct_path_imports": [
+        "t2_representation.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T2-R",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:30:54.9643936+00:00",
+      "completed_at_utc": "2026-07-30T16:31:11.1016182+00:00",
+      "duration_ms": 16137,
+      "verified_obligations_total": 532,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 11,
+      "non_duplicated_total_after": 673,
+      "error": null
+    },
+    {
+      "name": "T3-W0",
+      "source_path": "mechanized/t3_wal_runtime.rs",
+      "source_sha256": "4e363e05d1fba10146a62a782e460477b463dcca387eec6de8b7797c6239255b",
+      "snapshot_source_path": "sources/t3_wal_runtime.rs",
+      "direct_path_imports": [
+        "t2_atomic_journal_simulation.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T2",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:31:11.1016735+00:00",
+      "completed_at_utc": "2026-07-30T16:31:28.6088180+00:00",
+      "duration_ms": 17507,
+      "verified_obligations_total": 578,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 46,
+      "non_duplicated_total_after": 719,
+      "error": null
+    },
+    {
+      "name": "T3-W1-T",
+      "source_path": "mechanized/t3_wal_trace.rs",
+      "source_sha256": "887fa0b2e6cd4bc11d4ba2ee855a30e20bcee2f0d3116fcd943d29ac73af064e",
+      "snapshot_source_path": "sources/t3_wal_trace.rs",
+      "direct_path_imports": [
+        "t3_wal_runtime.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T3-W0",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:31:28.6088707+00:00",
+      "completed_at_utc": "2026-07-30T16:31:45.7595510+00:00",
+      "duration_ms": 17151,
+      "verified_obligations_total": 589,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 11,
+      "non_duplicated_total_after": 730,
+      "error": null
+    },
+    {
+      "name": "T3-W1-E",
+      "source_path": "mechanized/t3_wal_event_projection.rs",
+      "source_sha256": "26cb6deb6170e406c5f91c70b52319d98a174a959ec89dcbb684af344b07385d",
+      "snapshot_source_path": "sources/t3_wal_event_projection.rs",
+      "direct_path_imports": [
+        "t3_wal_trace.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T3-W1-T",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:31:45.7596211+00:00",
+      "completed_at_utc": "2026-07-30T16:32:04.2972523+00:00",
+      "duration_ms": 18538,
+      "verified_obligations_total": 627,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 38,
+      "non_duplicated_total_after": 768,
+      "error": null
+    },
+    {
+      "name": "T3-W1-R",
+      "source_path": "mechanized/t3_wal_representation.rs",
+      "source_sha256": "1c00e94ae9e606d2852a2d6dd8556084882a26386193123275c9299a544b3f84",
+      "snapshot_source_path": "sources/t3_wal_representation.rs",
+      "direct_path_imports": [
+        "t3_wal_event_projection.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T3-W1-E",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:32:04.2973116+00:00",
+      "completed_at_utc": "2026-07-30T16:32:25.9823916+00:00",
+      "duration_ms": 21685,
+      "verified_obligations_total": 642,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 15,
+      "non_duplicated_total_after": 783,
+      "error": null
+    },
+    {
+      "name": "T3",
+      "source_path": "mechanized/t3_wal_journal_simulation.rs",
+      "source_sha256": "708c49f980ea77b896d1b0a947b0ca0db23107ae0bbbb31cf1816c304b455980",
+      "snapshot_source_path": "sources/t3_wal_journal_simulation.rs",
+      "direct_path_imports": [
+        "t3_wal_representation.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T3-W1-R",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:32:25.9824509+00:00",
+      "completed_at_utc": "2026-07-30T16:32:43.2593734+00:00",
+      "duration_ms": 17277,
+      "verified_obligations_total": 660,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 18,
+      "non_duplicated_total_after": 801,
+      "error": null
+    },
+    {
+      "name": "T4-C0",
+      "source_path": "mechanized/t4_closed_composition.rs",
+      "source_sha256": "6e2f43404c82ae85a15f8085e39a613adaedf394951cbd88baf44139cba7a875",
+      "snapshot_source_path": "sources/t4_closed_composition.rs",
+      "direct_path_imports": [
+        "t3_wal_journal_simulation.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T3",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:32:43.2594275+00:00",
+      "completed_at_utc": "2026-07-30T16:33:02.4771038+00:00",
+      "duration_ms": 19218,
+      "verified_obligations_total": 677,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 17,
+      "non_duplicated_total_after": 818,
+      "error": null
+    },
+    {
+      "name": "T4-C1",
+      "source_path": "mechanized/t4_context_interface.rs",
+      "source_sha256": "6e8b058501b227ddb5887e0db0d60ec6cf0ac199d67ea4353fc42c549242b8fb",
+      "snapshot_source_path": "sources/t4_context_interface.rs",
+      "direct_path_imports": [
+        "t4_closed_composition.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T4-C0",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:33:02.4771613+00:00",
+      "completed_at_utc": "2026-07-30T16:33:24.7960234+00:00",
+      "duration_ms": 22319,
+      "verified_obligations_total": 721,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 44,
+      "non_duplicated_total_after": 862,
+      "error": null
+    },
+    {
+      "name": "T4-C2",
+      "source_path": "mechanized/t4_contextual_composition.rs",
+      "source_sha256": "394fc8a119b556ae22a46c354c2a5e7ceab6d5b7be88430c35b9ec7662bb2a46",
+      "snapshot_source_path": "sources/t4_contextual_composition.rs",
+      "direct_path_imports": [
+        "t4_context_interface.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T4-C1",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:33:24.7960577+00:00",
+      "completed_at_utc": "2026-07-30T16:33:45.0254896+00:00",
+      "duration_ms": 20229,
+      "verified_obligations_total": 735,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 14,
+      "non_duplicated_total_after": 876,
+      "error": null
+    },
+    {
+      "name": "T5-S0",
+      "source_path": "mechanized/t5_commit_step.rs",
+      "source_sha256": "9ac52a2d076339c1ca43f274a4edf8eca1e2606fd3098e9cb2fe578fa8973b3f",
+      "snapshot_source_path": "sources/t5_commit_step.rs",
+      "direct_path_imports": [
+        "t4_contextual_composition.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T4-C2",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:33:45.0255358+00:00",
+      "completed_at_utc": "2026-07-30T16:34:03.9614359+00:00",
+      "duration_ms": 18936,
+      "verified_obligations_total": 744,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 9,
+      "non_duplicated_total_after": 885,
+      "error": null
+    },
+    {
+      "name": "T5-E0",
+      "source_path": "mechanized/t5_commit_execution.rs",
+      "source_sha256": "03b4b4e235ecff0ff7eab7afaa51b75adff30518a94a0be3ae59b43141755b24",
+      "snapshot_source_path": "sources/t5_commit_execution.rs",
+      "direct_path_imports": [
+        "t5_commit_step.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T5-S0",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:34:03.9614689+00:00",
+      "completed_at_utc": "2026-07-30T16:34:24.8280237+00:00",
+      "duration_ms": 20867,
+      "verified_obligations_total": 748,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 4,
+      "non_duplicated_total_after": 889,
+      "error": null
+    },
+    {
+      "name": "T5-R0",
+      "source_path": "mechanized/t5_commit_recovery.rs",
+      "source_sha256": "2f4485b7d7d56f1c48299163a7aaada1566530835bb70ee669f57f0cf53709c3",
+      "snapshot_source_path": "sources/t5_commit_recovery.rs",
+      "direct_path_imports": [
+        "t5_commit_execution.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T5-E0",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:34:24.8280802+00:00",
+      "completed_at_utc": "2026-07-30T16:34:48.2258926+00:00",
+      "duration_ms": 23398,
+      "verified_obligations_total": 770,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 22,
+      "non_duplicated_total_after": 911,
+      "error": null
+    },
+    {
+      "name": "T5-C0",
+      "source_path": "mechanized/t5_commit_contextual.rs",
+      "source_sha256": "e1ea0bf64fdb758a2d40c73c01fbb4f17ea9dbe5e91932fe6afdf41723210a49",
+      "snapshot_source_path": "sources/t5_commit_contextual.rs",
+      "direct_path_imports": [
+        "t5_commit_recovery.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T5-R0",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:34:48.2259223+00:00",
+      "completed_at_utc": "2026-07-30T16:35:08.5309065+00:00",
+      "duration_ms": 20305,
+      "verified_obligations_total": 784,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 14,
+      "non_duplicated_total_after": 925,
+      "error": null
+    },
+    {
+      "name": "H1",
+      "source_path": "mechanized/h1_artifact_nonvacuity.rs",
+      "source_sha256": "abbc6eee6a823979cbf438b0063a050c0c1ecbdfacf749cbacb90118fe2f3c1f",
+      "snapshot_source_path": "sources/h1_artifact_nonvacuity.rs",
+      "direct_path_imports": [
+        "t5_commit_contextual.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T5-C0",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:35:08.5309325+00:00",
+      "completed_at_utc": "2026-07-30T16:35:30.7279449+00:00",
+      "duration_ms": 22197,
+      "verified_obligations_total": 787,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 3,
+      "non_duplicated_total_after": 928,
+      "error": null
+    },
+    {
+      "name": "T6-D0",
+      "source_path": "mechanized/t6_terminal_definitions.rs",
+      "source_sha256": "52f469dadc54b70f8876da4446fbeb816aca7ebec3fa1ad218281975e9dc9ab3",
+      "snapshot_source_path": "sources/t6_terminal_definitions.rs",
+      "direct_path_imports": [
+        "t5_commit_contextual.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T5-C0",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:35:30.7279718+00:00",
+      "completed_at_utc": "2026-07-30T16:35:52.7719724+00:00",
+      "duration_ms": 22044,
+      "verified_obligations_total": 800,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 16,
+      "non_duplicated_total_after": 944,
+      "error": null
+    },
+    {
+      "name": "T6-E0",
+      "source_path": "mechanized/t6_terminal_evidence.rs",
+      "source_sha256": "8d1dd374a98bec25727ce38e637d3abfee47d600287dd87be13097633da2d4b2",
+      "snapshot_source_path": "sources/t6_terminal_evidence.rs",
+      "direct_path_imports": [
+        "t6_terminal_definitions.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T6-D0",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:35:52.7720005+00:00",
+      "completed_at_utc": "2026-07-30T16:36:15.2292626+00:00",
+      "duration_ms": 22457,
+      "verified_obligations_total": 818,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 18,
+      "non_duplicated_total_after": 962,
+      "error": null
+    },
+    {
+      "name": "T6-C0",
+      "source_path": "mechanized/t6_terminal_compatibility.rs",
+      "source_sha256": "00a9b16827cc8e410e0debd11b4972cddf55a740e53d90a771cb004a77063401",
+      "snapshot_source_path": "sources/t6_terminal_compatibility.rs",
+      "direct_path_imports": [
+        "t6_terminal_evidence.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T6-E0",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:36:15.2292914+00:00",
+      "completed_at_utc": "2026-07-30T16:36:37.5411059+00:00",
+      "duration_ms": 22312,
+      "verified_obligations_total": 835,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 17,
+      "non_duplicated_total_after": 979,
+      "error": null
+    },
+    {
+      "name": "T6-S0",
+      "source_path": "mechanized/t6_terminal_bridge.rs",
+      "source_sha256": "bf5e2186967fd11524ccff7fe42d7da2f43632ca443cafb1bdc03a131306feba",
+      "snapshot_source_path": "sources/t6_terminal_bridge.rs",
+      "direct_path_imports": [
+        "t6_terminal_compatibility.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T6-C0",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:36:37.5411378+00:00",
+      "completed_at_utc": "2026-07-30T16:37:01.2610676+00:00",
+      "duration_ms": 23720,
+      "verified_obligations_total": 841,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 6,
+      "non_duplicated_total_after": 985,
+      "error": null
+    },
+    {
+      "name": "T6-A0",
+      "source_path": "mechanized/t6_adapter_semantic_closure.rs",
+      "source_sha256": "d37c604888e58ee7aa63c8473651990d397f164d73fa22c6da191291e488ac79",
+      "snapshot_source_path": "sources/t6_adapter_semantic_closure.rs",
+      "direct_path_imports": [
+        "t6_terminal_bridge.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T6-S0",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:37:01.2611065+00:00",
+      "completed_at_utc": "2026-07-30T16:37:35.3983418+00:00",
+      "duration_ms": 34137,
+      "verified_obligations_total": 864,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 23,
+      "non_duplicated_total_after": 1008,
+      "error": null
+    },
+    {
+      "name": "T6-A1",
+      "source_path": "mechanized/t6_adapter_executable_refinement.rs",
+      "source_sha256": "c2bb85300b2e02a12cf679b4a29baa4aa1f1b61feafbae06794a09b5d0bf4908",
+      "snapshot_source_path": "sources/t6_adapter_executable_refinement.rs",
+      "direct_path_imports": [
+        "t6_adapter_semantic_closure.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T6-A0",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:37:35.3983683+00:00",
+      "completed_at_utc": "2026-07-30T16:39:49.0802376+00:00",
+      "duration_ms": 133682,
+      "verified_obligations_total": 916,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 52,
+      "non_duplicated_total_after": 1060,
+      "error": null
+    },
+    {
+      "name": "T6-M0",
+      "source_path": "mechanized/t6_mediation_exclusivity.rs",
+      "source_sha256": "18f1a1c6f116065fd34bf26502cf685e215a4c48251a70ff773eb1b3a4ad9c6e",
+      "snapshot_source_path": "sources/t6_mediation_exclusivity.rs",
+      "direct_path_imports": [
+        "t6_adapter_executable_refinement.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T6-A1",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:39:49.0802659+00:00",
+      "completed_at_utc": "2026-07-30T16:42:02.1689557+00:00",
+      "duration_ms": 133089,
+      "verified_obligations_total": 977,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 61,
+      "non_duplicated_total_after": 1121,
+      "error": null
+    },
+    {
+      "name": "T6-P0",
+      "source_path": "mechanized/t6_prefix_simulation.rs",
+      "source_sha256": "e3fe1368aef2879c2ccc8eb5ed01e7c4b1871d3ec1efd02e4a0c6138eef802cb",
+      "snapshot_source_path": "sources/t6_prefix_simulation.rs",
+      "direct_path_imports": [
+        "t6_mediation_exclusivity.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T6-M0",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:42:02.1690036+00:00",
+      "completed_at_utc": "2026-07-30T16:44:14.6154948+00:00",
+      "duration_ms": 132446,
+      "verified_obligations_total": 1000,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 23,
+      "non_duplicated_total_after": 1144,
+      "error": null
+    },
+    {
+      "name": "T6-X0",
+      "source_path": "mechanized/t6_contextual_end_to_end.rs",
+      "source_sha256": "03f1d5b076cb51a9a02a0957570f1837131e35a7502579e6d66b1761373d24c3",
+      "snapshot_source_path": "sources/t6_contextual_end_to_end.rs",
+      "direct_path_imports": [
+        "t6_prefix_simulation.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T6-P0",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:44:14.6155416+00:00",
+      "completed_at_utc": "2026-07-30T16:46:18.7721003+00:00",
+      "duration_ms": 124157,
+      "verified_obligations_total": 1022,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 22,
+      "non_duplicated_total_after": 1166,
+      "error": null
+    },
+    {
+      "name": "T6-RO0",
+      "source_path": "mechanized/t6_readonly_operational.rs",
+      "source_sha256": "b33b239e0171a6432732f4648dc326c8251f5ad91da5362a83dfa52af4088ce9",
+      "snapshot_source_path": "sources/t6_readonly_operational.rs",
+      "direct_path_imports": [
+        "t6_contextual_end_to_end.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T6-X0",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:46:18.7721467+00:00",
+      "completed_at_utc": "2026-07-30T16:49:06.1568268+00:00",
+      "duration_ms": 167385,
+      "verified_obligations_total": 1083,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 61,
+      "non_duplicated_total_after": 1227,
+      "error": null
+    },
+    {
+      "name": "T6-DD0",
+      "source_path": "mechanized/t6_deduplicated_operational.rs",
+      "source_sha256": "7d0d2894abf77cb23754edf70feae2fe6cfbea95d12e87efe6b5acc5fa81a007",
+      "snapshot_source_path": "sources/t6_deduplicated_operational.rs",
+      "direct_path_imports": [
+        "t6_readonly_operational.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T6-RO0",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:49:06.1568531+00:00",
+      "completed_at_utc": "2026-07-30T16:51:52.1193055+00:00",
+      "duration_ms": 165962,
+      "verified_obligations_total": 1085,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 2,
+      "non_duplicated_total_after": 1229,
+      "error": null
+    },
+    {
+      "name": "T6-DD1",
+      "source_path": "mechanized/t6_deduplicated_invariant.rs",
+      "source_sha256": "8c942c5dcce89422885d0188eaad8223923cef637f20a45e1d0d036868cf9924",
+      "snapshot_source_path": "sources/t6_deduplicated_invariant.rs",
+      "direct_path_imports": [
+        "t6_deduplicated_operational.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T6-DD0",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:51:52.1193327+00:00",
+      "completed_at_utc": "2026-07-30T16:54:43.2563022+00:00",
+      "duration_ms": 171137,
+      "verified_obligations_total": 1111,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 26,
+      "non_duplicated_total_after": 1255,
+      "error": null
+    },
+    {
+      "name": "T6-DD2",
+      "source_path": "mechanized/t6_deduplicated_witness.rs",
+      "source_sha256": "3b57e3d9374ba1b93210128375d32fb07aba91ed2ad68591de4a81f326bd9566",
+      "snapshot_source_path": "sources/t6_deduplicated_witness.rs",
+      "direct_path_imports": [
+        "t6_deduplicated_invariant.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "T6-DD1",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-07-30T16:54:43.2563293+00:00",
+      "completed_at_utc": "2026-07-30T16:57:43.9863596+00:00",
+      "duration_ms": 180730,
+      "verified_obligations_total": 1143,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 32,
+      "non_duplicated_total_after": 1287,
+      "error": null
+    }
+  ]
 }

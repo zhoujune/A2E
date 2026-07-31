@@ -9,13 +9,29 @@ Set-StrictMode -Version Latest
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $lockPath = Join-Path $scriptDir "toolchain.lock.json"
-$schemaPath = Join-Path $scriptDir "results\verification-report.schema.v1.json"
+$resultsDir = Join-Path $scriptDir "results"
+$schemaPath = Join-Path $resultsDir "verification-report.schema.v1.json"
+$script:PathComparison =
+    if ([System.IO.Path]::DirectorySeparatorChar -eq '\') {
+        [System.StringComparison]::OrdinalIgnoreCase
+    }
+    else {
+        [System.StringComparison]::Ordinal
+    }
+$platformKey = $null
+$expectedPlatformTriple = $null
+$verusDirectoryLeaf = $null
+$verusExecutableLeaf = $null
+$verusZ3Leaf = $null
+$rustupExecutableLeaf = $null
+$rustcExecutableLeaf = $null
+$cargoExecutableLeaf = $null
 if ($NoReport -and $PSBoundParameters.ContainsKey("ReportPath")) {
     throw "-NoReport and -ReportPath cannot be used together"
 }
 if (-not $NoReport) {
     if ([string]::IsNullOrWhiteSpace($ReportPath)) {
-        $ReportPath = Join-Path $scriptDir "results\verification-report.json"
+        $ReportPath = Join-Path $resultsDir "verification-report.json"
     }
     elseif (-not [System.IO.Path]::IsPathRooted($ReportPath)) {
         $ReportPath = [System.IO.Path]::GetFullPath((Join-Path (Get-Location) $ReportPath))
@@ -351,6 +367,17 @@ function Get-Sha256Lower {
     (Get-FileHash -Algorithm SHA256 -LiteralPath $Path).Hash.ToLowerInvariant()
 }
 
+function Get-PathKey {
+    param([Parameter(Mandatory = $true)][string]$Path)
+
+    $fullPath = [System.IO.Path]::GetFullPath($Path)
+    if ($script:PathComparison -eq
+        [System.StringComparison]::OrdinalIgnoreCase) {
+        return $fullPath.ToLowerInvariant()
+    }
+    $fullPath
+}
+
 function Assert-SafeLeafName {
     param(
         [Parameter(Mandatory = $true)][string]$Name,
@@ -381,11 +408,11 @@ function Assert-PathWithinRoot {
     $prefix = $fullRoot + [System.IO.Path]::DirectorySeparatorChar
     $isRoot = $fullPath.Equals(
         $fullRoot,
-        [System.StringComparison]::OrdinalIgnoreCase)
+        $script:PathComparison)
     if ((-not $AllowRoot -or -not $isRoot) -and
         -not $fullPath.StartsWith(
             $prefix,
-            [System.StringComparison]::OrdinalIgnoreCase)) {
+            $script:PathComparison)) {
         throw "Path must remain below $fullRoot`: $fullPath"
     }
     $fullPath
@@ -938,21 +965,44 @@ try {
     if ($null -eq $report.schema_sha256) {
         throw "The verification-report schema is missing: $schemaPath"
     }
-    if ([System.Environment]::OSVersion.Platform -ne
-            [System.PlatformID]::Win32NT -or
-        -not [System.Environment]::Is64BitOperatingSystem -or
+    if (-not [System.Environment]::Is64BitOperatingSystem -or
         -not [System.Environment]::Is64BitProcess -or
         [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture -ne
             [System.Runtime.InteropServices.Architecture]::X64) {
-        throw "The verified core is pinned to 64-bit Windows on x86-64"
+        throw "The verified core requires a 64-bit x86-64 operating system and process"
+    }
+    if ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform(
+            [System.Runtime.InteropServices.OSPlatform]::Windows)) {
+        $platformKey = "windows-x64"
+        $expectedPlatformTriple = "x86_64-pc-windows-msvc"
+        $verusDirectoryLeaf = "verus-x86-win"
+        $verusExecutableLeaf = "verus.exe"
+        $verusZ3Leaf = "z3.exe"
+        $rustupExecutableLeaf = "rustup.exe"
+        $rustcExecutableLeaf = "rustc.exe"
+        $cargoExecutableLeaf = "cargo.exe"
+    }
+    elseif ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform(
+            [System.Runtime.InteropServices.OSPlatform]::Linux)) {
+        $platformKey = "linux-x64"
+        $expectedPlatformTriple = "x86_64-unknown-linux-gnu"
+        $verusDirectoryLeaf = "verus-x86-linux"
+        $verusExecutableLeaf = "verus"
+        $verusZ3Leaf = "z3"
+        $rustupExecutableLeaf = "rustup"
+        $rustcExecutableLeaf = "rustc"
+        $cargoExecutableLeaf = "cargo"
+    }
+    else {
+        throw "The verified core supports only 64-bit Windows and Linux on x86-64"
     }
 
 # Fail closed when a new mechanized crate is added without being registered.
 $declaredSources = @($targets | ForEach-Object {
-    [System.IO.Path]::GetFullPath($_.SourcePath).ToLowerInvariant()
+    Get-PathKey -Path $_.SourcePath
 } | Sort-Object -Unique)
 $presentSources = @(Get-ChildItem -LiteralPath $scriptDir -Filter "*.rs" -File |
-    ForEach-Object { $_.FullName.ToLowerInvariant() } | Sort-Object -Unique)
+    ForEach-Object { Get-PathKey -Path $_.FullName } | Sort-Object -Unique)
 if ($declaredSources.Count -ne $targets.Count) {
     throw "The verifier target list contains a duplicate source path"
 }
@@ -993,8 +1043,25 @@ if ($sourceCoverageDifference.Count -ne 0) {
     Assert-HashedFileIntegrity `
         -Inputs $boundArtifactInputs `
         -Description "Bound artifact input"
-    $lock = Get-Content -Raw -LiteralPath $lockPath | ConvertFrom-Json
+    $lockDocument = Get-Content -Raw -LiteralPath $lockPath | ConvertFrom-Json
+    if ($lockDocument.schema -ne "vetra.verus-toolchain-lock" -or
+        [int]$lockDocument.schema_version -ne 2 -or
+        $null -eq $lockDocument.platforms) {
+        throw "The pinned toolchain lock has an unsupported schema"
+    }
+    $platformProperty = $lockDocument.platforms.PSObject.Properties[$platformKey]
+    if ($null -eq $platformProperty) {
+        throw "The pinned toolchain lock has no entry for $platformKey"
+    }
+    $lock = $platformProperty.Value
     $report.toolchain.declared = $lock
+    if ([string]$lock.verus.platform -ne $expectedPlatformTriple -or
+        [string]$lock.rustup.platform -ne $expectedPlatformTriple -or
+        -not ([string]$lock.rust.toolchain).EndsWith(
+            "-" + $expectedPlatformTriple,
+            [System.StringComparison]::Ordinal)) {
+        throw "The selected toolchain does not match $platformKey"
+    }
 
     $verusArchiveName = Assert-SafeLeafName `
         -Name ([string]$lock.verus.archive) `
@@ -1013,7 +1080,8 @@ if ($sourceCoverageDifference.Count -ne 0) {
         throw "Toolchain archive hashes must be SHA256 values"
     }
 
-    $tempRoot = [System.IO.Path]::GetFullPath($env:TEMP).TrimEnd(
+    $tempRoot = [System.IO.Path]::GetFullPath(
+        [System.IO.Path]::GetTempPath()).TrimEnd(
         [System.IO.Path]::DirectorySeparatorChar,
         [System.IO.Path]::AltDirectorySeparatorChar)
     $cacheRoot = Assert-PathWithinRoot `
@@ -1059,8 +1127,8 @@ if ($sourceCoverageDifference.Count -ne 0) {
     # the verifier.
     $declaredSourceLookup = @{}
     foreach ($target in $targets) {
-        $declaredSourceLookup[[System.IO.Path]::GetFullPath(
-            $snapshotSourceByName[$target.Name]).ToLowerInvariant()] = $target.Name
+        $declaredSourceLookup[
+            (Get-PathKey -Path $snapshotSourceByName[$target.Name])] = $target.Name
     }
     $validatedParentImports = 0
     for ($targetIndex = 0; $targetIndex -lt $targets.Count; $targetIndex++) {
@@ -1071,7 +1139,7 @@ if ($sourceCoverageDifference.Count -ne 0) {
         $targetReport.direct_path_imports = @(
             $imports | ForEach-Object { $_.DeclaredPath })
         foreach ($import in $imports) {
-            $importKey = $import.FullPath.ToLowerInvariant()
+            $importKey = Get-PathKey -Path $import.FullPath
             if (-not $declaredSourceLookup.ContainsKey($importKey)) {
                 throw ("$($target.Name) directly imports an unregistered source: " +
                     $import.DeclaredPath)
@@ -1156,13 +1224,26 @@ if ($sourceCoverageDifference.Count -ne 0) {
     $verusArchive = Assert-PathWithinRoot `
         -Root $downloadDir `
         -Path (Join-Path $downloadDir $verusArchiveName)
-    $verusExe = Assert-PathWithinRoot `
+    $verusTreeRoot = Assert-PathWithinRoot `
         -Root $verusRoot `
-        -Path (Join-Path $verusRoot "verus-x86-win\verus.exe")
+        -Path (Join-Path $verusRoot $verusDirectoryLeaf)
+    $verusExe = Assert-PathWithinRoot `
+        -Root $verusTreeRoot `
+        -Path (Join-Path $verusTreeRoot $verusExecutableLeaf)
+    $verusZ3Exe = Assert-PathWithinRoot `
+        -Root $verusTreeRoot `
+        -Path (Join-Path $verusTreeRoot $verusZ3Leaf)
 
+$cacheMutexName =
+    if ($platformKey -eq "windows-x64") {
+        "Local\ProveAI_Verified_M0_Cache_v2"
+    }
+    else {
+        "ProveAI_Verified_M0_Cache_v2"
+    }
 $cacheMutex = New-Object System.Threading.Mutex(
     $false,
-    "Local\ProveAI_Verified_M0_Cache_v1")
+    $cacheMutexName)
 $mutexHeld = $false
 try {
     try {
@@ -1245,6 +1326,21 @@ function Invoke-NativeCaptured {
         -Uri $lock.rustup.url `
         -Destination $rustupInit `
         -ExpectedSha256 $lock.rustup.sha256
+    if ($platformKey -eq "linux-x64") {
+        $chmodCommands = @(Get-Command "chmod" -CommandType Application `
+            -ErrorAction SilentlyContinue)
+        $chmodCommand =
+            if ($chmodCommands.Count -eq 0) { $null } else { $chmodCommands[0] }
+        if ($null -eq $chmodCommand) {
+            throw "Linux verification requires chmod"
+        }
+        $chmodResult = Invoke-NativeCaptured `
+            -FilePath $chmodCommand.Source `
+            -Arguments @("0700", $rustupInit)
+        if ($chmodResult.ExitCode -ne 0) {
+            throw "Could not make the pinned rustup installer executable"
+        }
+    }
     $report.toolchain.observed.verus_archive_sha256 =
         Get-Sha256Lower -Path $verusArchive
     $report.toolchain.observed.rustup_archive_sha256 =
@@ -1260,9 +1356,33 @@ function Invoke-NativeCaptured {
     }
     New-Item -ItemType Directory -Force -Path $extracting | Out-Null
     try {
-        Expand-Archive -LiteralPath $verusArchive -DestinationPath $extracting
+        if ($platformKey -eq "linux-x64") {
+            $unzipCommands = @(Get-Command "unzip" -CommandType Application `
+                -ErrorAction SilentlyContinue)
+            $unzipCommand =
+                if ($unzipCommands.Count -eq 0) { $null } else { $unzipCommands[0] }
+            if ($null -eq $unzipCommand) {
+                throw "Linux verification requires unzip"
+            }
+            $unzipResult = Invoke-NativeCaptured `
+                -FilePath $unzipCommand.Source `
+                -Arguments @("-q", $verusArchive, "-d", $extracting)
+            if ($unzipResult.ExitCode -ne 0) {
+                throw ("The verified Verus archive could not be extracted: " +
+                    $unzipResult.Text)
+            }
+        }
+        else {
+            Expand-Archive `
+                -LiteralPath $verusArchive `
+                -DestinationPath $extracting
+        }
         if (-not (Test-Path -LiteralPath (
-                    Join-Path $extracting "verus-x86-win\verus.exe"))) {
+                    Join-Path (Join-Path $extracting $verusDirectoryLeaf) `
+                        $verusExecutableLeaf)) -or
+            -not (Test-Path -LiteralPath (
+                    Join-Path (Join-Path $extracting $verusDirectoryLeaf) `
+                        $verusZ3Leaf))) {
             throw "The verified Verus archive has an unexpected layout"
         }
         if (Test-Path -LiteralPath $verifiedVerusRoot) {
@@ -1277,9 +1397,6 @@ function Invoke-NativeCaptured {
     }
     $report.toolchain.observed.verus_executable_sha256 =
         Get-Sha256Lower -Path $verusExe
-    $verusTreeRoot = Assert-PathWithinRoot `
-        -Root $verusRoot `
-        -Path (Join-Path $verusRoot "verus-x86-win")
     $verusTreeMetadata = Get-DeterministicTreeMetadata -Root $verusTreeRoot
     $report.toolchain.observed.verus_tree_sha256 =
         $verusTreeMetadata.Sha256
@@ -1357,8 +1474,13 @@ function Invoke-NativeCaptured {
                 [System.EnvironmentVariableTarget]::Process)
         }
         [System.Environment]::SetEnvironmentVariable(
+            "VERUS_Z3_PATH", $verusZ3Exe,
+            [System.EnvironmentVariableTarget]::Process)
+        [System.Environment]::SetEnvironmentVariable(
             "PATH",
-            (Join-Path $cargoHome "bin") + ";" + $savedEnvironment["PATH"],
+            (Join-Path $cargoHome "bin") +
+                [System.IO.Path]::PathSeparator +
+                $savedEnvironment["PATH"],
             [System.EnvironmentVariableTarget]::Process)
         $report.toolchain.observed.rustup_dist_server =
             "https://static.rust-lang.org"
@@ -1367,7 +1489,8 @@ function Invoke-NativeCaptured {
 
         $rustupExe = Assert-PathWithinRoot `
             -Root $cargoHome `
-            -Path (Join-Path $cargoHome "bin\rustup.exe")
+            -Path (Join-Path (Join-Path $cargoHome "bin") `
+                $rustupExecutableLeaf)
         if ((Test-Path -LiteralPath $cargoHome) -or
             (Test-Path -LiteralPath $rustupHome)) {
             throw "Fresh Rust homes unexpectedly existed before installation"
@@ -1384,7 +1507,7 @@ function Invoke-NativeCaptured {
                 $rustupInstallResult.Text)
         }
         if (-not (Test-Path -LiteralPath $rustupExe -PathType Leaf)) {
-            throw "The fresh rustup installation did not create rustup.exe"
+            throw "The fresh rustup installation did not create $rustupExecutableLeaf"
         }
 
         $installedRustupHash = (
@@ -1441,17 +1564,23 @@ function Invoke-NativeCaptured {
 
         $toolchainRoot = Assert-PathWithinRoot `
             -Root $rustupHome `
-            -Path (Join-Path $rustupHome ("toolchains\" + $rustToolchainLeaf))
+            -Path (Join-Path (Join-Path $rustupHome "toolchains") `
+                $rustToolchainLeaf)
         $rustcExe = Assert-PathWithinRoot `
             -Root $toolchainRoot `
-            -Path (Join-Path $toolchainRoot "bin\rustc.exe")
+            -Path (Join-Path (Join-Path $toolchainRoot "bin") `
+                $rustcExecutableLeaf)
         $cargoExe = Assert-PathWithinRoot `
             -Root $toolchainRoot `
-            -Path (Join-Path $toolchainRoot "bin\cargo.exe")
+            -Path (Join-Path (Join-Path $toolchainRoot "bin") `
+                $cargoExecutableLeaf)
         $targetLib = Assert-PathWithinRoot `
             -Root $toolchainRoot `
-            -Path (Join-Path $toolchainRoot (
-                "lib\rustlib\x86_64-pc-windows-msvc\lib"))
+            -Path (Join-Path (
+                Join-Path (
+                    Join-Path $toolchainRoot "lib") `
+                    "rustlib") `
+                (Join-Path $expectedPlatformTriple "lib"))
         if (-not (Test-Path -LiteralPath $rustcExe -PathType Leaf) -or
             -not (Test-Path -LiteralPath $cargoExe -PathType Leaf) -or
             -not (Test-Path -LiteralPath $targetLib -PathType Container)) {
@@ -1489,7 +1618,7 @@ function Invoke-NativeCaptured {
         $report.toolchain.observed.fresh_rust_environment = $true
 
         $verusVersion = Get-Content -Raw -LiteralPath (
-            Join-Path $verusRoot "verus-x86-win\version.txt")
+            Join-Path $verusTreeRoot "version.txt")
         if ($verusVersion.Trim() -ne $lock.verus.version) {
             throw "Unexpected Verus version: $($verusVersion.Trim())"
         }

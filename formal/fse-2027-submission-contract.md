@@ -1,8 +1,10 @@
 # FSE 2027 Submission Contract
 
-Status: **scope frozen**  
-Frozen: 2026-08-01  
-Baseline: `codex/linux-verification-runner` at `f0f533e`  
+Status: **scope frozen**
+
+Frozen: 2026-08-01
+
+Baseline: `codex/linux-verification-runner` at `f0f533e`
 Target: FSE 2027 paper submission and companion artifact
 
 This document fixes the intended first-paper claim, contribution structure,

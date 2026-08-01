@@ -1,5 +1,9 @@
 # ProveAI: Verified Agent Effect Broker
 
+The frozen first-paper scope, contribution structure, required evaluation, and
+artifact exit criteria are defined in
+[`formal/fse-2027-submission-contract.md`](formal/fse-2027-submission-contract.md).
+
 This repository aims to develop a narrow verified core for AI agents that invoke
 external tools. The core is an effect broker: an untrusted agent submits a
 request, and the broker authorizes, journals, invokes, and records the request

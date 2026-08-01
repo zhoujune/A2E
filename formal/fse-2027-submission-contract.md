@@ -1,0 +1,338 @@
+# FSE 2027 Submission Contract
+
+Status: **scope frozen**  
+Frozen: 2026-08-01  
+Baseline: `codex/linux-verification-runner` at `f0f533e`  
+Target: FSE 2027 paper submission and companion artifact
+
+This document fixes the intended first-paper claim, contribution structure,
+scope, required evidence, and artifact exit criteria. It is a project control
+document, not a theorem statement. The normative mathematical statement remains
+[`mechanization-contract.md`](mechanization-contract.md), and the security
+boundary remains [`threat-model.md`](threat-model.md).
+
+## 1. Submission decision
+
+The first paper is a **verified protocol architecture** paper. It is not a claim
+of a fully verified production agent runtime.
+
+The paper studies a serialized effect broker placed between an untrusted agent
+and effectful tools. The broker makes authorization durable, records physical
+attempt intent, mediates invocation, recovers after fail-stop crashes, and
+interprets retry outcomes through an explicit adapter contract.
+
+The working paper claim is:
+
+> For every finite execution admitted by the verified broker model, under a
+> well-formed configuration, a serialized writer and executor, a closed
+> protected-service interface, fail-stop crash assumptions, and a verified
+> adapter contract, every mediated physical invocation has durable
+> authorization ancestry; every logical request has at most one terminal
+> commit; recovery preserves the committed history; and the terminal outcome
+> refines the adapter's declared abstract-effect semantics.
+
+This claim deliberately says **mediated**, not production-global. Production
+process isolation, credential custody, network routing, and operating-system
+handle exclusivity remain deployment assumptions unless separately validated.
+
+The paper must not claim generic physical exactly-once execution. It proves the
+guarantee appropriate to each adapter class:
+
+| Adapter class | Permitted retry interpretation |
+|---|---|
+| ReadOnly | Repetition contributes no protected mutation. |
+| Idempotent | Repetition refines one abstract mutation under the adapter law. |
+| Deduplicated | A stable key is atomically memoized and accepted at most once. |
+| Uncontrolled | The broker does not retry after arming; uncertainty may end in `Unknown`. |
+
+## 2. Primary contributions
+
+The paper will make three primary contributions.
+
+### C1. Crash-aware effect semantics for agent tool use
+
+Define an effect-broker protocol that separates:
+
+- logical requests from physical attempts;
+- durable authorization from invocation intent;
+- physical delivery from persisted observation;
+- terminal broker outcomes from external abstract effects; and
+- conclusive failure from irreducible ambiguity.
+
+The semantics integrate capability scope, capability budget, revocation,
+durable retry state, stale-delivery rejection, and the four adapter classes in
+one explicit safety contract.
+
+### C2. Compositional end-to-end mechanization
+
+Mechanize a refinement chain from the broker specification through an atomic
+Journal, typed WAL, storage-parametric context, and independently defined
+protected-service execution. The proof uses prefix-indexed weak simulations,
+trace projection, recovery-history preservation, complete mediation, and
+authorization provenance rather than assuming whole-trace equality as an
+unexplained premise.
+
+The paper-facing theorem must state exactly which parts are generic and which
+parts are instantiated by a concrete adapter execution.
+
+### C3. Executable witnesses and reproducible evaluation artifact
+
+Provide non-vacuous crash/retry executions for the supported adapter classes,
+a minimal executable Rust reference broker, fault-injection experiments, and a
+reproducible TLA+/Verus artifact. The artifact binds reports to the exact source,
+runner, lock, schema, and toolchain inputs.
+
+## 3. Novelty test
+
+The novelty is the verified connection among established mechanisms, not a
+claim that any individual mechanism is new.
+
+| Established area | What this work must add |
+|---|---|
+| Capability systems/reference monitors | Durable authorization ancestry tied to each physical attempt and terminal effect. |
+| Durable workflow engines | A machine-checked effect-safety contract rather than operational retry reliability alone. |
+| Idempotency keys/deduplication | A proof that broker retry behavior refines the service's keyed decision semantics. |
+| Crash-consistent storage | Refinement from recovery history to agent-visible logical outcome and protected effect. |
+| Verified systems | An agent-tool boundary with explicit ambiguity, adapter laws, and complete mediation. |
+
+Before submission, related work must test and either support or narrow the
+following novelty proposition:
+
+> No prior system provides a mechanized refinement from durable capability
+> authorization, through crash/retry execution and physical invocation
+> mediation, to adapter-specific abstract-effect guarantees for AI tool use.
+
+If prior work already provides this complete chain, the contribution must be
+narrowed to the missing semantic or mechanization component rather than using a
+priority claim.
+
+## 4. Claim-to-evidence map
+
+| Paper claim | Current evidence | Submission status |
+|---|---|---|
+| Broker authorization, budget, provenance, and terminal safety | T1 and its Journal/physical-history prerequisites | Complete |
+| Atomic-Journal refinement | T2 | Complete |
+| Typed-WAL weak simulation and recovery durability | T3, T4, and T5 | Complete at the typed-record abstraction |
+| Storage-parametric contextual replacement | T4-C1/C2 | Complete |
+| Generic terminal evidence and retry-class compatibility | T6-D0/E0/C0/S0 | Complete |
+| Idempotent operational adapter refinement | T6-A0/A1 | Complete |
+| Protected execution, no bypass, and authorization ancestry for the idempotent witness | T6-M0 | Complete in the formal deployment model |
+| Prefix product and contextual terminal theorem for the idempotent witness | T6-P0/X0 | Complete |
+| ReadOnly operational witness | T6-RO0 | Complete at the adapter/WAL boundary |
+| Deduplicated invariant, rely, and terminal refinement | T6-DD0/DD1 | Complete |
+| Deduplicated crash/retry witness | T6-DD2 | Complete at the adapter/WAL boundary |
+| Deduplicated protected execution and mediation | No DD equivalent of M0 | Required |
+| Deduplicated P0/X0 instantiation | No DD contextual instantiation | Required |
+| Request-indexed family of operational/protected executions | Current operational theorems select distinguished executions | Must prove or narrow the final claim |
+| Executable broker event loop and physical WAL | K1-K3 stop at a serialized append kernel | Required prototype work |
+| Byte/fsync/filesystem refinement | Typed-record abstraction only | Explicitly out of theorem scope; assumptions must be evaluated and documented |
+
+## 5. Frozen scope
+
+### 5.1 In scope
+
+- arbitrary finite executions of the stated transition systems;
+- arbitrary well-formed request/capability configurations within theorem types;
+- capability matching, budget consumption, and prospective revocation;
+- one serialized WAL writer and one serialized executor slot;
+- fail-stop crashes and the documented typed-WAL recovery model;
+- stale, duplicate, malformed, failed, and ambiguous tool outcomes;
+- adapter-specific safety for ReadOnly, Idempotent, Deduplicated, and
+  Uncontrolled operations at the level explicitly proved for each class;
+- complete mediation inside a closed formal deployment interface;
+- a minimal executable reference implementation and crash-injection evaluation;
+- safety and refinement, not availability.
+
+### 5.2 Out of scope for the first theorem
+
+- liveness, fairness, and bounded recovery time;
+- concurrent writers, concurrent executor slots, and global linearizability;
+- verification of a production network stack, TLS implementation, or remote
+  service code;
+- operating-system process isolation, descriptor custody, ACLs, or sandboxing;
+- byte encoding, checksum implementation, flush/fsync, disk-controller, and
+  filesystem correctness below the stated persistence contract;
+- confidentiality, side channels, and denial-of-service resistance;
+- correctness or least privilege of the capability issuance policy;
+- semantic coalescing of two separately admitted requests;
+- arbitrary storage corruption, rollback, or Byzantine hardware.
+
+These exclusions must appear in the abstract, theorem statement, evaluation,
+and artifact documentation where relevant. They must not be hidden only in an
+appendix.
+
+## 6. Required technical milestones
+
+### M1. Deduplicated protected execution and mediation
+
+Construct the protected-service execution corresponding to DD2 and prove:
+
+- exact adapter/protected call coupling;
+- a closed interface with no out-of-band protected invocation;
+- exactly one protected linearization for the stable key;
+- memoized success on the retry without a second mutation;
+- equality of protected calls with the mediated invocation projection; and
+- durable authorization ancestry for every protected linearization.
+
+Working checkpoint name: `T6-DD3`.
+
+### M2. Deduplicated prefix/contextual composition
+
+Instantiate or generalize P0/X0 for the Deduplicated execution and prove:
+
+- adapter/protected/WAL effect-state agreement at every related prefix;
+- complete mediation at every mapped prefix;
+- canonical WAL-to-Broker contextual replacement;
+- source and target terminal refinement; and
+- a premise-free non-vacuity package for the DD2 execution.
+
+Working checkpoint name: `T6-DD4`.
+
+### M3. Claim quantification audit
+
+Choose one of two defensible outcomes:
+
+1. prove the request-indexed operational/protected family required by the broad
+   claim; or
+2. state the main operational theorem for a distinguished request and paired
+   execution, while keeping only the Broker safety layer fully request-generic.
+
+The paper may not use the broad wording if only outcome 2 is completed.
+
+### M4. Minimal reference broker
+
+Extend the executable kernel into a small Rust system containing:
+
+- request admission and immutable request identifiers;
+- capability validation and budget consumption;
+- a file-backed append/recovery boundary;
+- one executor slot and explicit crash points;
+- invocation correlation and stale-delivery rejection;
+- terminal result retrieval; and
+- adapter interfaces for at least Uncontrolled, Idempotent, and Deduplicated
+  examples.
+
+The implementation may contain unverified I/O and deployment code, but the
+verified kernel boundary and every trusted wrapper must be explicit.
+
+## 7. Evaluation contract
+
+The evaluation must answer four questions.
+
+### RQ1. Does the protocol prevent unsafe outcomes under crashes and retries?
+
+Run systematic crash injection at every durable/volatile boundary for each
+adapter example. Check terminal uniqueness, retry bounds, stale-delivery
+rejection, authorization ancestry, and the adapter-specific effect oracle.
+
+### RQ2. What does durable mediation cost?
+
+Measure request latency, throughput, WAL bytes, flushes, recovery time, and
+retry overhead against two ablations:
+
+- direct tool invocation without durable mediation; and
+- a journaled at-least-once retry loop without adapter effect contracts.
+
+### RQ3. How much work is required to verify an adapter?
+
+Report model/proof source size, proof obligations, verification time, reusable
+lemmas, adapter-specific lemmas, and the effort for each completed adapter.
+
+### RQ4. Which failures are converted to safe completion, failure, or unknown?
+
+Present a fault matrix covering reservation/send, send/linearization,
+linearization/delivery, delivery/persistence, persistence/terminalization, and
+recovery interruption. Explain the safety/availability tradeoff for every cell.
+
+External system comparisons should be semantic, not only performance-based.
+The paper must compare the provided guarantees with capability systems,
+transactional outbox patterns, idempotency-key APIs, and durable workflow
+engines without claiming that they share identical goals.
+
+## 8. Artifact-ready exit criteria
+
+The companion artifact is ready only when all of the following are true.
+
+### 8.1 Reproduction
+
+- A fresh Linux x86-64 environment can run a documented smoke command.
+- A documented full command reproduces the retained Verus and TLA+ evidence.
+- The TLA+ bootstrap is Linux-capable or supplied in a pinned container.
+- First-run dependencies are vendored or fetched from documented, hash-pinned
+  locations with a supported offline artifact-evaluation path.
+- Expected runtime, CPU, memory, and disk requirements are stated.
+
+### 8.2 Integrity
+
+- Every paper theorem maps to an exact source symbol and retained report.
+- Registered-source and import coverage is complete.
+- No forbidden proof escape hatch is present.
+- Reports validate against a versioned schema and bind source, runner, lock,
+  and tool hashes.
+- Smoke and full reports are clearly distinguished.
+
+### 8.3 Usability
+
+- The repository has a license, artifact guide, dependency inventory, and
+  troubleshooting section.
+- One top-level command selects smoke or full reproduction.
+- The reference broker includes deterministic tests and crash-injection cases.
+- No credentials, private endpoints, machine-specific paths, or mutable remote
+  branches are required.
+- The artifact can be anonymized and archived without changing its evidence.
+
+### 8.4 Paper consistency
+
+- Every headline claim is represented in the claim-to-evidence map.
+- Known exclusions agree across the abstract, body, theorem, threat model, and
+  artifact guide.
+- Evaluation data is generated by versioned scripts in the artifact.
+- Reported obligation counts and timings come from retained machine-readable
+  evidence rather than manually copied console output.
+
+## 9. Submission blockers and priorities
+
+| Priority | Blocker | Exit condition |
+|---|---|---|
+| P0 | Final claim currently exceeds some operational instantiations | Complete M1-M3 and run a claim audit |
+| P0 | No complete reference broker | Complete M4 with deterministic tests |
+| P0 | No empirical evaluation | Complete RQ1-RQ4 with versioned data |
+| P1 | TLA+ artifact is not Linux-ready | Port or containerize the formal runner |
+| P1 | No top-level artifact packaging, CI, or license | Complete Section 8 |
+| P1 | Novelty is not established against related work | Complete a structured comparison and narrow priority language as needed |
+| P2 | ReadOnly lacks a protected/contextual instantiation | Complete it or explicitly limit the corresponding operational claim |
+
+## 10. Planned work order
+
+1. Complete M1 and M2 on the verified Linux branch.
+2. Perform M3 before changing the main theorem wording.
+3. Design and implement M4 without expanding to concurrency.
+4. Build the crash matrix and evaluation harness while M4 stabilizes.
+5. Port/package the TLA+ runner and add smoke/full top-level commands.
+6. Run the related-work novelty test and write the paper around the frozen
+   claim, not around the chronological proof history.
+7. Produce an anonymous release candidate and execute a clean-room artifact
+   rehearsal.
+
+## 11. Change control
+
+This contract freezes the first-paper scope. A proposed new headline property
+must identify:
+
+- the paper claim it changes;
+- the theorem and implementation work it requires;
+- its evaluation requirement;
+- the schedule impact; and
+- which frozen item it displaces.
+
+Work that does not close a P0/P1 blocker should not delay the submission unless
+this document is explicitly revised. In particular, concurrency, liveness,
+cryptographic capabilities, and full filesystem verification are follow-on
+projects rather than implicit prerequisites for the scoped first paper.
+
+## 12. Immediate next checkpoint
+
+The next theorem checkpoint is M1, the Deduplicated protected-service execution
+and mediation layer (`T6-DD3`). Its acceptance criteria are the six bullets in
+Section 6. It must be developed from the clean Linux verification baseline and
+must finish with a retained full verification report before M2 begins.

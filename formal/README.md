@@ -578,6 +578,13 @@ and a context admitting the plugged WAL run; it neither constructs a WAL run
 from an arbitrary adapter run nor proves the fully quantified family of
 operational adapter/protected executions required by the all-request T6
 generalization. The
+cumulative track now also contains the complete T6-RO0 ReadOnly operational
+instance. T6-DD0/DD1 define the keyed Deduplicated machine and prove its
+invariant, `AdapterRely`, and generic terminal refinement; T6-DD2 constructs the
+concrete crash/retry adapter and WAL witness; and T6-DD3 couples that witness to
+an independent protected-service execution with exactly one keyed decision,
+memoized retry return, complete mediation, and durable authorization ancestry.
+The Deduplicated P0/X0 all-prefix contextual composition remains open. The
 cumulative result still does not verify production Rust adapter/runtime code,
 network or remote-service behavior, operating-system descriptor isolation,
 `ReturnResult`, multi-request/global linearizability, or byte-level WAL
@@ -615,9 +622,9 @@ and [generalized T6 conditional end-to-end effect refinement](mechanization-cont
 
 ## Next formal increments
 
-1. Add Deduplicated and ReadOnly operational adapter instances, explicit
-   outstanding remote attempts, and request-indexed result relations, then
-   generalize X0 from one distinguished `EnsureMember` request.
+1. Instantiate the P0/X0 all-prefix contextual product for the distinguished
+   Deduplicated execution, then add request-indexed result relations and
+   generalize the operational theorems beyond distinguished requests.
 2. Refine the operational adapter/runtime model to verified production Rust and
    specify the trusted network and remote-service interface precisely.
 3. Extend the current typed-frame `WAL -> Journal` proof to concrete

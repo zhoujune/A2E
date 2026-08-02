@@ -52,6 +52,9 @@ inductive invariant, finite-execution `AdapterRely` derivation, and
 `AdapterVerified`. T6-DD2 supplies the premise-free coupled terminal witness:
 attempt 1 silently applies and memoizes the keyed effect, a crash occurs before
 any delivery, and attempt 2 receives that memoized Success and commits it.
+T6-DD3 adds the matching independent protected-service execution, exact adapter/
+service event coupling, one keyed decision, memoized retry return, complete
+mediation, and durable authorization ancestry under the closed M0 context.
 In a separate implementation-refinement track, K1, K2, and K3 connect concrete
 `u64`/vector
 durable-summary and Journal code to Q1, R1, and B1: K1 verifies Authorize and
@@ -1465,13 +1468,38 @@ Commit, `AdapterRely`, `Refines`, per-request effect refinement, and combined
 premise-free operational and semantic nonvacuity packages.
 
 T6-DD2 verifies 1,143 cumulative obligations with zero errors, adding 32 over
-T6-DD1. The retained suite passes all 53/53 targets, contains 1,287
-dependency-aware non-duplicated obligations, and sums to 29,082 target
-obligations. DD2 stops at the adapter/WAL/Broker model boundary. A separate
-protected-service execution, mediation and P0/X0 contextual instantiations for
-this adapter, a request-indexed family of external runs, caller-visible
+T6-DD1. DD2 stops at the adapter/WAL/Broker model boundary. Its historical
+retained suite passed all 53/53 targets with 1,287 dependency-aware non-
+duplicated obligations and 29,082 summed target obligations. A separate P0/X0
+contextual instantiation for this adapter, a request-indexed family of external
+runs, caller-visible
 `ReturnResult`, production transport/code refinement, byte/fsync persistence,
 multi-request concurrency, and liveness remain open.
+
+## T6-DD3: deduplicated protected execution and mediation
+
+`t6_deduplicated_mediation.rs` imports DD2 and constructs a separate keyed
+protected-service machine for the same 31 adapter steps. Its closed event
+alphabet contains broker invocation, service decision, memoized service return,
+and stutter. Only `ServiceDecide` can change the protected slot, and a stable key
+can acquire at most one decision. The concrete run couples adapter invoke 1 to
+protected call 1, the adapter's sole silent decision to exactly one applied
+protected decision, adapter invoke 2 to protected call 2, and the retry delivery
+to a memoized `ServiceReturn`; the second call performs no mutation.
+
+The proof derives complete mediation from exact event coupling, proves the two
+protected calls equal the WAL invocation projection, and relates the same call
+sequence to T6-M0's storage-parametric exclusive-handle context. Exact WAL source
+indices 12 and 22 discharge durable authorization for both calls, while the only
+protected decision is shown to inherit that authorization. The final package
+retains DD2's terminal/effect theorem and is inhabited without premises.
+
+T6-DD3 verifies 1,182 cumulative obligations with zero errors, adding 39 over
+T6-DD2. The retained suite passes all 54/54 targets, contains 1,326 dependency-
+aware non-duplicated obligations, and sums to 30,264 target obligations. DD3
+closes protected-service execution and mediation for the distinguished DD2 run;
+the Deduplicated P0/X0 all-prefix contextual composition remains the next
+theorem step.
 
 ## Reproducible verification
 
@@ -1496,9 +1524,9 @@ pwsh -NoLogo -NoProfile -File mechanized/verify.ps1
 ```
 
 The Linux runner requires `chmod` and `unzip`, and explicitly binds Verus to
-the Z3 executable inside the hash-checked Verus tree. The retained Linux run
-uses PowerShell 7.6.4 and passes all 53/53 targets with 1,287 dependency-aware
-non-duplicated obligations and 29,082 summed target obligations.
+the Z3 executable inside the hash-checked Verus tree. The retained run passes
+all 54/54 targets with 1,326 dependency-aware non-duplicated obligations and
+30,264 summed target obligations.
 
 By default the run atomically writes the machine-readable evidence file
 `mechanized/results/verification-report.json`. `-ReportPath <path>` selects a
@@ -1539,7 +1567,7 @@ checks target/source counts, parent-delta arithmetic, running totals, and final
 summary consistency before assigning `status: "passed"`.
 
 The cumulative target counts and aggregates below come from the current
-retained 53-target full suite:
+retained 54-target full suite:
 
 ```text
 M0 verified obligations: 21
@@ -1614,6 +1642,10 @@ T6-DD2 verified obligations: 1,143
 T6-DD2 target delta over T6-DD1: 32
 T6-DD2 non-duplicated verified artifact obligations: 1,287
 T6-DD2 summed target obligations: 29,082
+T6-DD3 verified obligations: 1,182
+T6-DD3 target delta over T6-DD2: 39
+T6-DD3 non-duplicated verified artifact obligations: 1,326
+T6-DD3 summed target obligations: 30,264
 ```
 
 C1's 128 obligations include the 86 R1 and 39 B1 obligations imported into the
@@ -1733,7 +1765,11 @@ the Deduplicated `AdapterVerified` instance. T6-DD2 imports T6-DD1 directly and
 adds 32 obligations for the exact adapter and typed-WAL crash/retry executions,
 stable-key memo replay, trace and evidence projections, the canonical closed
 WAL/Broker representation, terminal and effect refinement, exact one-effect
-classification, and the premise-free combined nonvacuity package.
+classification, and the premise-free combined nonvacuity package. T6-DD3 imports
+T6-DD2 directly and adds 39 obligations for the protected-service machine,
+event coupling, exact one-decision provenance, memoized return, trace-derived
+complete mediation, closed exclusive-handle context, and durable authorization
+of every protected decision.
 The historical T6-A1 non-duplicated total
 counts M0, C1, each independent D1/Q1 delta, the B2-R delta over Q1, and the
 B2-C through T5-C0 deltas along their dependency chain, plus the independent H1
@@ -1750,8 +1786,8 @@ dependency-aware non-duplicated obligations and summed to 23,866 target
 obligations. The historical T6-RO0 registry contained 46 targets and 1,123
 dependency-aware non-duplicated obligations and summed to 24,949 target
 obligations. The current registry adds K1, K2-G0, K2-T0, K3-A0, T6-DD0,
-T6-DD1, and T6-DD2: it contains 53 targets and 1,287 dependency-aware
-non-duplicated obligations, and the retained run sums to 29,082 target
+T6-DD1, T6-DD2, and T6-DD3: it contains 54 targets and 1,326 dependency-aware
+non-duplicated obligations, and the retained run sums to 30,264 target
 obligations.
 The historical retained T6-A0 checkpoint had 41 targets, 904 non-duplicated
 obligations, and a 19,951 target sum. The historical retained T6-S0 checkpoint
@@ -1762,8 +1798,9 @@ T6-X0 completes the conditional end-to-end contextual lift for the operational
 `EnsureMember` instance, T6-RO0 adds the ReadOnly operational instance, T6-DD0
 defines the Deduplicated machine, and T6-DD1 proves its invariant, rely, and
 generic terminal refinement. T6-DD2 closes its concrete coupled witness and
-WAL/Broker terminal refinement. A DD protected-service execution and contextual
-P0/X0 instantiation, followed by a request-indexed family of external runs, are
-the next theorem steps. Caller-visible `ReturnResult`, production deployment
+WAL/Broker terminal refinement. T6-DD3 closes the independent protected-service
+execution and complete-mediation layer for that witness. A DD contextual P0/X0
+instantiation, followed by a request-indexed family of external runs, is the next
+theorem step. Caller-visible `ReturnResult`, production deployment
 isolation, byte/fsync refinement, multi-request concurrency, and liveness remain
 explicit subsequent extensions.

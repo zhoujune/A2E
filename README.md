@@ -87,7 +87,11 @@ machine's inductive invariant, derives the deduplication service law and
 T6-DD2 makes that safety theorem operationally non-vacuous with a premise-free
 31-adapter-event/30-WAL-event witness: attempt 1 silently applies and memoizes a
 value, a crash occurs before its delivery, and attempt 2 reuses the stable key,
-receives the memoized Success, and commits exactly that one effect.
+receives the memoized Success, and commits exactly that one effect. T6-DD3
+couples that witness to an independent 31-event protected-service execution,
+proves the stable key has exactly one service decision and that the retry is a
+memoized return rather than a second mutation, derives complete mediation, and
+connects every protected decision to its exact durably authorized WAL invoke.
 
 K1, K2, and K3 add a separate executable-kernel refinement track at the durable
 Journal boundary. K1 implements a concrete `u64`/vector durable summary and
@@ -138,7 +142,7 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   G0, G1-P, G1-E, T1, T2-J0, T2-J1, T2-E, T2-R, T2, T3-W0,
   T3-W1-T, T3-W1-E, T3-W1-R, T3, T4-C0, T4-C1, T4-C2, T5-S0, T5-E0,
   T5-R0, T5-C0, H1, T6-D0, T6-E0, T6-C0, T6-S0, T6-A0, T6-A1, T6-M0,
-  T6-P0, T6-X0, T6-RO0, T6-DD0, T6-DD1, and T6-DD2.
+  T6-P0, T6-X0, T6-RO0, T6-DD0, T6-DD1, T6-DD2, and T6-DD3.
   M0 checks a reduced atomic-Journal safety slice; R1 checks the complete typed record language and
   replay invariants; B1 checks a
   generic crash-reset append protocol and acknowledgment trace; C1 composes B1
@@ -255,7 +259,13 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   crashes before delivery, and attempt 2 receives the replayed Success for the
   same stable key and durably commits it. The concrete package proves exact
   adapter/WAL projection, WAL/Broker representation, terminal refinement, one
-  effect, and no attempt-1 delivery.
+  effect, and no attempt-1 delivery. T6-DD3 adds the independently executed
+  protected-service side of that witness. Its closed event alphabet permits the
+  sole slot mutation only at `ServiceDecide`, aligns both adapter invokes with
+  protected calls, aligns attempt 2's delivery with a memoized `ServiceReturn`,
+  proves exact one-decision provenance for the stable key, derives complete
+  mediation, and reuses T6-M0's exclusive-handle context and durable-
+  authorization theorem for both calls and every decision.
 - [Adapter refinement](formal/adapter-refinement.md) defines how concrete
   retries and outcomes denote abstract effects for each adapter class.
 - [Value refinement](formal/value-refinement.md) specifies and model-checks
@@ -302,11 +312,13 @@ T2-J0 476, T2-J1 487, T2-E 509, T2-R 521, T2 532, T3-W0 578,
 T3-W1-T 589, T3-W1-E 627, T3-W1-R 642, T3 660, T4-C0 677, T4-C1 721,
 T4-C2 735, T5-S0 744, T5-E0 748, T5-R0 770, T5-C0 784, H1 787, T6-D0
 800, T6-E0 818, T6-C0 835, T6-S0 841, T6-A0 864, T6-A1 916, T6-M0 977,
-T6-P0 1,000, T6-X0 1,022, T6-RO0 1,083, T6-DD0 1,085, T6-DD1 1,111, and T6-DD2 1,143 obligations, all
+T6-P0 1,000, T6-X0 1,022, T6-RO0 1,083, T6-DD0 1,085, T6-DD1 1,111,
+T6-DD2 1,143, and T6-DD3 1,182 obligations, all
 with zero errors. K1 adds 15 obligations beyond Q1, K2-G0 adds 20 beyond K1,
 K2-T0 adds 29 beyond K2-G0, K3-A0 adds 40 beyond K2-T0, T6-X0 adds 22 beyond
 T6-P0, T6-RO0 adds 61 beyond T6-X0, T6-DD0 adds 2 beyond T6-RO0, and T6-DD1
-adds 26 beyond T6-DD0; T6-DD2 adds 32 beyond T6-DD1. The new
+adds 26 beyond T6-DD0; T6-DD2 adds 32 beyond T6-DD1; T6-DD3 adds 39 beyond
+T6-DD2. The new
 conservative definitional `PaperConfig` accessor lemma
 lives in T1, so every cumulative target from T1 is one obligation above its
 historical checkpoint count. The original T6-S0 checkpoint had 40 targets, 840
@@ -314,9 +326,9 @@ cumulative obligations, and 880 dependency-aware non-duplicated obligations.
 The historical retained T6-A1 run had 42 targets, 956 non-duplicated
 obligations, and 20,867 summed target obligations. The historical retained
 T6-X0 run had 45 targets, 1,062 non-duplicated obligations, and 23,866 summed
-target obligations. The current retained run passes all 53/53 registered
-targets, contains 1,287 dependency-aware non-duplicated obligations, and sums
-to 29,082 target obligations.
+target obligations. The current retained run passes all 54/54 registered
+targets, contains 1,326 dependency-aware non-duplicated obligations, and sums
+to 30,264 target obligations.
 
 ## Current boundary
 
@@ -530,9 +542,12 @@ instance and witness. T6-DD1 now proves the Deduplicated machine invariant,
 decision/history provenance, memoized observation consistency, execution-to-
 `AdapterRely` theorem, and `AdapterVerified`. T6-DD2 closes its concrete coupled
 terminal witness and WAL/Broker refinement with a crash before attempt 1's
-reply and a memoized Success committed by attempt 2. This verifies the protocol
+reply and a memoized Success committed by attempt 2. T6-DD3 couples that run to
+an independent protected-service machine, proves exact one-decision memoization,
+complete mediation, and durable authorization ancestry under the closed M0
+exclusive-handle context. This verifies the protocol
 and deployment models, not production
 adapter/network/service code or operating-system handle isolation. Matching-WAL
 existence for arbitrary adapter runs, byte/fsync persistence, `ReturnResult`,
-the DD protected-service/transport and contextual P0/X0 instantiations,
+the DD contextual P0/X0 instantiation,
 multi-request linearizability, least privilege, and liveness remain open.

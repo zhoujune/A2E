@@ -123,7 +123,7 @@ priority claim.
 | ReadOnly operational witness | T6-RO0 | Complete at the adapter/WAL boundary |
 | Deduplicated invariant, rely, and terminal refinement | T6-DD0/DD1 | Complete |
 | Deduplicated crash/retry witness | T6-DD2 | Complete at the adapter/WAL boundary |
-| Deduplicated protected execution and mediation | No DD equivalent of M0 | Required |
+| Deduplicated protected execution and mediation | T6-DD3 | Complete for the distinguished DD2 execution |
 | Deduplicated P0/X0 instantiation | No DD contextual instantiation | Required |
 | Request-indexed family of operational/protected executions | Current operational theorems select distinguished executions | Must prove or narrow the final claim |
 | Executable broker event loop and physical WAL | K1-K3 stop at a serialized append kernel | Required prototype work |
@@ -165,7 +165,7 @@ appendix.
 
 ## 6. Required technical milestones
 
-### M1. Deduplicated protected execution and mediation
+### M1. Deduplicated protected execution and mediation (completed T6-DD3)
 
 Construct the protected-service execution corresponding to DD2 and prove:
 
@@ -176,7 +176,11 @@ Construct the protected-service execution corresponding to DD2 and prove:
 - equality of protected calls with the mediated invocation projection; and
 - durable authorization ancestry for every protected linearization.
 
-Working checkpoint name: `T6-DD3`.
+T6-DD3 completes this checkpoint for the distinguished DD2 execution. It
+constructs the independent protected machine, proves exact adapter/service
+coupling and one keyed decision, derives complete mediation under the closed M0
+exclusive-handle context, and establishes exact WAL authorization ancestry for
+both calls and every protected decision.
 
 ### M2. Deduplicated prefix/contextual composition
 
@@ -334,7 +338,7 @@ projects rather than implicit prerequisites for the scoped first paper.
 
 ## 12. Immediate next checkpoint
 
-The next theorem checkpoint is M1, the Deduplicated protected-service execution
-and mediation layer (`T6-DD3`). Its acceptance criteria are the six bullets in
-Section 6. It must be developed from the clean Linux verification baseline and
-must finish with a retained full verification report before M2 begins.
+The next theorem checkpoint is M2, the Deduplicated prefix/contextual
+composition (`T6-DD4`). Its acceptance criteria are the five M2 bullets in
+Section 6. It must start from DD3's retained full verification baseline and
+finish with a new retained full verification report before M3 begins.

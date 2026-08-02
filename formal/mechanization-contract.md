@@ -2700,6 +2700,14 @@ group has only backward dependencies.
     under the same stable key and commits it; prove exact projection, closed
     WAL/Broker representation, terminal and per-request effect refinement, one
     effect, and premise-free operational and semantic nonvacuity packages.
+25. **Deduplicated protected execution and mediation (completed T6-DD3):**
+    construct an independent keyed protected-service execution for the DD2
+    witness; couple adapter invokes, the unique service decision, and the
+    memoized retry return event by event; prove that only the decision mutates
+    the protected slot, that the stable key has exactly one decision, and that
+    the retry does not mutate again; derive complete mediation and equality with
+    the closed M0 exclusive-handle context; and establish exact durable WAL
+    authorization ancestry for both protected calls and every decision.
 
 The first executable proof checkpoint is groups 1--5 over the atomic Journal
 runtime. T6-A0 is the first publishable semantic-adapter checkpoint for one
@@ -2709,8 +2717,9 @@ completes the prefix product, and T6-X0 completes its storage-parametric
 conditional end-to-end lift for `EnsureMember`. T6-RO0 completes the ReadOnly
 operational instance, while T6-DD1 completes the Deduplicated invariant,
 `AdapterRely`, and `AdapterVerified` boundary, and T6-DD2 completes its concrete
-coupled crash/retry terminal witness at the adapter/WAL/Broker boundary. A
-separate protected-service execution, mediation/prefix/contextual composition
-for the Deduplicated instance, and a request-indexed family of external runs
-remain later theorem layers; production-code and byte/fsync refinements remain
-separate implementation layers.
+coupled crash/retry terminal witness at the adapter/WAL/Broker boundary. T6-DD3
+completes the independent protected-service execution and mediation layer for
+that distinguished run. Prefix/contextual P0/X0 composition for the
+Deduplicated instance and a request-indexed family of external runs remain later
+theorem layers; production-code and byte/fsync refinements remain separate
+implementation layers.

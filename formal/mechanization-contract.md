@@ -2708,6 +2708,13 @@ group has only backward dependencies.
     the retry does not mutate again; derive complete mediation and equality with
     the closed M0 exclusive-handle context; and establish exact durable WAL
     authorization ancestry for both protected calls and every decision.
+26. **Deduplicated contextual composition (completed T6-DD4):** construct the
+    projection-length adapter/WAL weak index for the DD2 execution; prove exact
+    trace/history, effect-state, and mediation agreement at every adapter prefix;
+    compose that index with T4-C2's canonical WAL/Broker map; preserve context
+    state, masked view, complete mediation, and T1 safety at every mapped prefix;
+    transport source terminal refinement to the canonical Broker trace; and
+    inhabit the complete package without premises while retaining DD2 and DD3.
 
 The first executable proof checkpoint is groups 1--5 over the atomic Journal
 runtime. T6-A0 is the first publishable semantic-adapter checkpoint for one
@@ -2719,7 +2726,8 @@ operational instance, while T6-DD1 completes the Deduplicated invariant,
 `AdapterRely`, and `AdapterVerified` boundary, and T6-DD2 completes its concrete
 coupled crash/retry terminal witness at the adapter/WAL/Broker boundary. T6-DD3
 completes the independent protected-service execution and mediation layer for
-that distinguished run. Prefix/contextual P0/X0 composition for the
-Deduplicated instance and a request-indexed family of external runs remain later
-theorem layers; production-code and byte/fsync refinements remain separate
+that distinguished run, and T6-DD4 completes its prefix/contextual P0/X0
+composition. A request-indexed family of external and protected executions, or
+a narrowed distinguished-execution claim, remains a later theorem decision;
+production-code and byte/fsync refinements remain separate
 implementation layers.

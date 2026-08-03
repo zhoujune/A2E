@@ -584,7 +584,11 @@ invariant, `AdapterRely`, and generic terminal refinement; T6-DD2 constructs the
 concrete crash/retry adapter and WAL witness; and T6-DD3 couples that witness to
 an independent protected-service execution with exactly one keyed decision,
 memoized retry return, complete mediation, and durable authorization ancestry.
-The Deduplicated P0/X0 all-prefix contextual composition remains open. The
+T6-DD4 proves the Deduplicated all-prefix adapter/protected/WAL product, composes
+it through T4-C2's canonical contextual Broker replacement, and closes source
+and target terminal refinement plus mediation for that distinguished witness.
+A request-indexed family of operational/protected executions, or a narrowed
+distinguished-execution paper claim, remains open. The
 cumulative result still does not verify production Rust adapter/runtime code,
 network or remote-service behavior, operating-system descriptor isolation,
 `ReturnResult`, multi-request/global linearizability, or byte-level WAL

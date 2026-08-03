@@ -55,6 +55,9 @@ any delivery, and attempt 2 receives that memoized Success and commits it.
 T6-DD3 adds the matching independent protected-service execution, exact adapter/
 service event coupling, one keyed decision, memoized retry return, complete
 mediation, and durable authorization ancestry under the closed M0 context.
+T6-DD4 proves the all-prefix adapter/protected/WAL product, composes its weak
+index with T4-C2's contextual Broker replacement, and closes source/target
+terminal refinement and mediation for the distinguished DD2 execution.
 In a separate implementation-refinement track, K1, K2, and K3 connect concrete
 `u64`/vector
 durable-summary and Journal code to Q1, R1, and B1: K1 verifies Authorize and
@@ -1495,11 +1498,32 @@ protected decision is shown to inherit that authorization. The final package
 retains DD2's terminal/effect theorem and is inhabited without premises.
 
 T6-DD3 verifies 1,182 cumulative obligations with zero errors, adding 39 over
-T6-DD2. The retained suite passes all 54/54 targets, contains 1,326 dependency-
-aware non-duplicated obligations, and sums to 30,264 target obligations. DD3
-closes protected-service execution and mediation for the distinguished DD2 run;
-the Deduplicated P0/X0 all-prefix contextual composition remains the next
-theorem step.
+T6-DD2. Its historical retained suite passed all 54/54 targets, contained 1,326
+dependency-aware non-duplicated obligations, and summed to 30,264 target
+obligations. DD3 closes protected-service execution and mediation for the
+distinguished DD2 run; that checkpoint left contextual composition to DD4.
+
+## T6-DD4: deduplicated contextual composition
+
+`t6_deduplicated_contextual.rs` imports DD3 as its sole direct parent and builds
+the projection-length canonical weak index from the 31 adapter steps to the 30
+WAL events. Generic prefix induction proves exact adapter/WAL trace and history
+agreement, valid adapter/protected/WAL prefixes, effect-state agreement, and
+complete mediation at every related adapter prefix.
+
+The proof composes that index with T4-C2's canonical WAL/Broker weak map. At
+every mapped prefix it retains context-state and context-view equality, complete
+mediation, and T1 safety. Separate terminal lemmas prove source refinement from
+the adapter's final history and transport the same outcome, `Refines`, and per-
+request effect refinement to the canonical Broker trace. A premise-free closed
+package retains the DD2 crash/retry and DD3 mediation packages.
+
+T6-DD4 verifies 1,222 cumulative obligations with zero errors, adding 40 over
+T6-DD3. The retained suite passes all 55/55 targets, contains 1,366 dependency-
+aware non-duplicated obligations, and sums to 31,486 target obligations. DD4
+closes M2 for the distinguished DD2 execution; a request-indexed family of
+operational/protected executions, or a correspondingly narrowed paper claim,
+is the next theorem decision.
 
 ## Reproducible verification
 
@@ -1525,8 +1549,8 @@ pwsh -NoLogo -NoProfile -File mechanized/verify.ps1
 
 The Linux runner requires `chmod` and `unzip`, and explicitly binds Verus to
 the Z3 executable inside the hash-checked Verus tree. The retained run passes
-all 54/54 targets with 1,326 dependency-aware non-duplicated obligations and
-30,264 summed target obligations.
+all 55/55 targets with 1,366 dependency-aware non-duplicated obligations and
+31,486 summed target obligations.
 
 By default the run atomically writes the machine-readable evidence file
 `mechanized/results/verification-report.json`. `-ReportPath <path>` selects a
@@ -1646,6 +1670,10 @@ T6-DD3 verified obligations: 1,182
 T6-DD3 target delta over T6-DD2: 39
 T6-DD3 non-duplicated verified artifact obligations: 1,326
 T6-DD3 summed target obligations: 30,264
+T6-DD4 verified obligations: 1,222
+T6-DD4 target delta over T6-DD3: 40
+T6-DD4 non-duplicated verified artifact obligations: 1,366
+T6-DD4 summed target obligations: 31,486
 ```
 
 C1's 128 obligations include the 86 R1 and 39 B1 obligations imported into the
@@ -1769,7 +1797,11 @@ classification, and the premise-free combined nonvacuity package. T6-DD3 imports
 T6-DD2 directly and adds 39 obligations for the protected-service machine,
 event coupling, exact one-decision provenance, memoized return, trace-derived
 complete mediation, closed exclusive-handle context, and durable authorization
-of every protected decision.
+of every protected decision. T6-DD4 imports T6-DD3 directly and adds 40
+obligations for the canonical adapter/WAL weak index, prefix trace/history and
+effect-state agreement, contextual WAL/Broker composition, mapped-prefix
+mediation and safety, source/target terminal transport, and the closed
+premise-free DD4 package.
 The historical T6-A1 non-duplicated total
 counts M0, C1, each independent D1/Q1 delta, the B2-R delta over Q1, and the
 B2-C through T5-C0 deltas along their dependency chain, plus the independent H1
@@ -1786,8 +1818,8 @@ dependency-aware non-duplicated obligations and summed to 23,866 target
 obligations. The historical T6-RO0 registry contained 46 targets and 1,123
 dependency-aware non-duplicated obligations and summed to 24,949 target
 obligations. The current registry adds K1, K2-G0, K2-T0, K3-A0, T6-DD0,
-T6-DD1, T6-DD2, and T6-DD3: it contains 54 targets and 1,326 dependency-aware
-non-duplicated obligations, and the retained run sums to 30,264 target
+T6-DD1, T6-DD2, T6-DD3, and T6-DD4: it contains 55 targets and 1,366 dependency-
+aware non-duplicated obligations, and the retained run sums to 31,486 target
 obligations.
 The historical retained T6-A0 checkpoint had 41 targets, 904 non-duplicated
 obligations, and a 19,951 target sum. The historical retained T6-S0 checkpoint
@@ -1799,8 +1831,9 @@ T6-X0 completes the conditional end-to-end contextual lift for the operational
 defines the Deduplicated machine, and T6-DD1 proves its invariant, rely, and
 generic terminal refinement. T6-DD2 closes its concrete coupled witness and
 WAL/Broker terminal refinement. T6-DD3 closes the independent protected-service
-execution and complete-mediation layer for that witness. A DD contextual P0/X0
-instantiation, followed by a request-indexed family of external runs, is the next
+execution and complete-mediation layer for that witness. T6-DD4 closes its all-
+prefix contextual P0/X0 composition. A request-indexed family of external and
+protected executions, or a narrowed distinguished-execution claim, is the next
 theorem step. Caller-visible `ReturnResult`, production deployment
 isolation, byte/fsync refinement, multi-request concurrency, and liveness remain
 explicit subsequent extensions.

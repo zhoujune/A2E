@@ -124,7 +124,7 @@ priority claim.
 | Deduplicated invariant, rely, and terminal refinement | T6-DD0/DD1 | Complete |
 | Deduplicated crash/retry witness | T6-DD2 | Complete at the adapter/WAL boundary |
 | Deduplicated protected execution and mediation | T6-DD3 | Complete for the distinguished DD2 execution |
-| Deduplicated P0/X0 instantiation | No DD contextual instantiation | Required |
+| Deduplicated P0/X0 instantiation | T6-DD4 | Complete for the distinguished DD2 execution |
 | Request-indexed family of operational/protected executions | Current operational theorems select distinguished executions | Must prove or narrow the final claim |
 | Executable broker event loop and physical WAL | K1-K3 stop at a serialized append kernel | Required prototype work |
 | Byte/fsync/filesystem refinement | Typed-record abstraction only | Explicitly out of theorem scope; assumptions must be evaluated and documented |
@@ -182,7 +182,7 @@ coupling and one keyed decision, derives complete mediation under the closed M0
 exclusive-handle context, and establishes exact WAL authorization ancestry for
 both calls and every protected decision.
 
-### M2. Deduplicated prefix/contextual composition
+### M2. Deduplicated prefix/contextual composition (completed T6-DD4)
 
 Instantiate or generalize P0/X0 for the Deduplicated execution and prove:
 
@@ -192,7 +192,12 @@ Instantiate or generalize P0/X0 for the Deduplicated execution and prove:
 - source and target terminal refinement; and
 - a premise-free non-vacuity package for the DD2 execution.
 
-Working checkpoint name: `T6-DD4`.
+T6-DD4 completes all five criteria for the distinguished DD2 execution. It
+proves the adapter/protected/WAL prefix product, composes its canonical weak
+index with T4-C2's WAL/Broker map, retains context and mediation facts at every
+mapped prefix, transports terminal refinement to the Broker trace, and exposes
+a premise-free non-vacuity package. This does not by itself establish the
+request-indexed execution family considered by M3.
 
 ### M3. Claim quantification audit
 
@@ -338,7 +343,8 @@ projects rather than implicit prerequisites for the scoped first paper.
 
 ## 12. Immediate next checkpoint
 
-The next theorem checkpoint is M2, the Deduplicated prefix/contextual
-composition (`T6-DD4`). Its acceptance criteria are the five M2 bullets in
-Section 6. It must start from DD3's retained full verification baseline and
-finish with a new retained full verification report before M3 begins.
+The next theorem checkpoint is M3, the claim quantification audit. The project
+must either construct the request-indexed family of paired operational/protected
+executions needed by the broad operational claim or explicitly narrow that claim
+to the distinguished execution now closed by T6-DD4. M4 prototype work may
+proceed in parallel, but paper theorem wording must not outrun the M3 outcome.

@@ -125,7 +125,7 @@ priority claim.
 | Deduplicated crash/retry witness | T6-DD2 | Complete at the adapter/WAL boundary |
 | Deduplicated protected execution and mediation | T6-DD3 | Complete for the distinguished DD2 execution |
 | Deduplicated P0/X0 instantiation | T6-DD4 | Complete for the distinguished DD2 execution |
-| Request-indexed family of operational/protected executions | Current operational theorems select distinguished executions | Must prove or narrow the final claim |
+| Request-indexed family of operational/protected executions | T6-DD5 coverage-conditioned family theorem with DD2 nonvacuity | Complete at the formal family boundary; production construction remains an implementation refinement |
 | Executable broker event loop and physical WAL | K1-K3 stop at a serialized append kernel | Required prototype work |
 | Byte/fsync/filesystem refinement | Typed-record abstraction only | Explicitly out of theorem scope; assumptions must be evaluated and documented |
 
@@ -199,16 +199,21 @@ mapped prefix, transports terminal refinement to the Broker trace, and exposes
 a premise-free non-vacuity package. This does not by itself establish the
 request-indexed execution family considered by M3.
 
-### M3. Claim quantification audit
+### M3. Claim quantification audit (completed T6-DD5)
 
-Choose one of two defensible outcomes:
+T6-DD5 takes the stronger outcome at the formal family boundary:
 
-1. prove the request-indexed operational/protected family required by the broad
-   claim; or
-2. state the main operational theorem for a distinguished request and paired
-   execution, while keeping only the Broker safety layer fully request-generic.
+1. a total request-indexed family maps every request to a paired operational and
+   protected member;
+2. a coverage predicate requires a valid member for every request terminal in
+   the shared WAL; and
+3. every covered terminal receives DD4 prefix-product and X0 source/target
+   refinement and mediation.
 
-The paper may not use the broad wording if only outcome 2 is completed.
+The DD2/DD3 family discharges coverage without premises. The paper must state
+family coverage as part of the admitted formal execution boundary; constructing
+members directly from production adapter executions remains outside the current
+implementation refinement.
 
 ### M4. Minimal reference broker
 
@@ -343,8 +348,7 @@ projects rather than implicit prerequisites for the scoped first paper.
 
 ## 12. Immediate next checkpoint
 
-The next theorem checkpoint is M3, the claim quantification audit. The project
-must either construct the request-indexed family of paired operational/protected
-executions needed by the broad operational claim or explicitly narrow that claim
-to the distinguished execution now closed by T6-DD4. M4 prototype work may
-proceed in parallel, but paper theorem wording must not outrun the M3 outcome.
+The next theorem checkpoint is M4, the minimal reference broker prototype. M3 is
+closed at the formal family boundary by T6-DD5; implementation work must retain
+the explicit family-coverage premise until production adapter/service executions
+are refined into the Verus operational types.

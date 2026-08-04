@@ -96,6 +96,10 @@ T6-DD4 adds the projection-length adapter/WAL weak index, proves effect-state,
 history, and mediation agreement at every adapter prefix, composes that index
 with T4-C2's canonical WAL/Broker replacement, and transports the DD2 source
 terminal refinement and complete mediation to the contextual Broker trace.
+T6-DD5 makes the operational/protected premise request-indexed: a family maps
+each request to a paired member, coverage is required for every terminal request
+in the shared WAL, and the generic theorem transports every covered terminal
+through DD4 and X0. The DD2 family discharges coverage without premises.
 
 K1, K2, and K3 add a separate executable-kernel refinement track at the durable
 Journal boundary. K1 implements a concrete `u64`/vector durable summary and
@@ -146,7 +150,7 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   G0, G1-P, G1-E, T1, T2-J0, T2-J1, T2-E, T2-R, T2, T3-W0,
   T3-W1-T, T3-W1-E, T3-W1-R, T3, T4-C0, T4-C1, T4-C2, T5-S0, T5-E0,
   T5-R0, T5-C0, H1, T6-D0, T6-E0, T6-C0, T6-S0, T6-A0, T6-A1, T6-M0,
-  T6-P0, T6-X0, T6-RO0, T6-DD0, T6-DD1, T6-DD2, T6-DD3, and T6-DD4.
+  T6-P0, T6-X0, T6-RO0, T6-DD0, T6-DD1, T6-DD2, T6-DD3, T6-DD4, and T6-DD5.
   M0 checks a reduced atomic-Journal safety slice; R1 checks the complete typed record language and
   replay invariants; B1 checks a
   generic crash-reset append protocol and acknowledgment trace; C1 composes B1
@@ -274,6 +278,11 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   canonical weak index with T4-C2, and proves source/target terminal refinement,
   context-state/view agreement, complete mediation, and mapped-prefix T1 safety
   for the distinguished DD2 execution without premises.
+  T6-DD5 generalizes the terminal boundary over a request-indexed family of
+  operational/protected members: every terminal request must be covered by a
+  valid coupled member, whose DD4 prefix product and X0 contextual transport
+  then establish source/target refinement and mediation. The concrete DD2 family
+  proves the coverage premise and is non-vacuous.
 - [Adapter refinement](formal/adapter-refinement.md) defines how concrete
   retries and outcomes denote abstract effects for each adapter class.
 - [Value refinement](formal/value-refinement.md) specifies and model-checks
@@ -321,12 +330,12 @@ T3-W1-T 589, T3-W1-E 627, T3-W1-R 642, T3 660, T4-C0 677, T4-C1 721,
 T4-C2 735, T5-S0 744, T5-E0 748, T5-R0 770, T5-C0 784, H1 787, T6-D0
 800, T6-E0 818, T6-C0 835, T6-S0 841, T6-A0 864, T6-A1 916, T6-M0 977,
 T6-P0 1,000, T6-X0 1,022, T6-RO0 1,083, T6-DD0 1,085, T6-DD1 1,111,
-T6-DD2 1,143, T6-DD3 1,182, and T6-DD4 1,222 obligations, all
+T6-DD2 1,143, T6-DD3 1,182, T6-DD4 1,222, and T6-DD5 1,228 obligations, all
 with zero errors. K1 adds 15 obligations beyond Q1, K2-G0 adds 20 beyond K1,
 K2-T0 adds 29 beyond K2-G0, K3-A0 adds 40 beyond K2-T0, T6-X0 adds 22 beyond
 T6-P0, T6-RO0 adds 61 beyond T6-X0, T6-DD0 adds 2 beyond T6-RO0, and T6-DD1
 adds 26 beyond T6-DD0; T6-DD2 adds 32 beyond T6-DD1; T6-DD3 adds 39 beyond
-T6-DD2; T6-DD4 adds 40 beyond T6-DD3. The new
+T6-DD2; T6-DD4 adds 40 beyond T6-DD3; T6-DD5 adds 6 beyond T6-DD4. The new
 conservative definitional `PaperConfig` accessor lemma
 lives in T1, so every cumulative target from T1 is one obligation above its
 historical checkpoint count. The original T6-S0 checkpoint had 40 targets, 840
@@ -334,9 +343,9 @@ cumulative obligations, and 880 dependency-aware non-duplicated obligations.
 The historical retained T6-A1 run had 42 targets, 956 non-duplicated
 obligations, and 20,867 summed target obligations. The historical retained
 T6-X0 run had 45 targets, 1,062 non-duplicated obligations, and 23,866 summed
-target obligations. The current retained run passes all 55/55 registered
-targets, contains 1,366 dependency-aware non-duplicated obligations, and sums
-to 31,486 target obligations.
+target obligations. The current retained run passes all 56/56 registered
+targets, contains 1,372 dependency-aware non-duplicated obligations, and sums
+to 32,714 target obligations.
 
 ## Current boundary
 
@@ -556,9 +565,11 @@ complete mediation, and durable authorization ancestry under the closed M0
 exclusive-handle context. T6-DD4 closes the all-prefix adapter/protected/WAL
 product and its T4-C2 contextual Broker composition for that distinguished run,
 including source/target terminal refinement and mediation at every mapped
-prefix. This verifies the protocol
+prefix. T6-DD5 closes the request-indexed family theorem for admitted shared
+WAL executions, with explicit terminal-request coverage and a premise-free DD2
+family witness. This verifies the protocol
 and deployment models, not production
 adapter/network/service code or operating-system handle isolation. Matching-WAL
-existence and paired protected executions for arbitrary or request-indexed
-adapter runs, byte/fsync persistence, `ReturnResult`,
+construction of family members from production adapter runs, byte/fsync
+persistence, `ReturnResult`,
 multi-request linearizability, least privilege, and liveness remain open.

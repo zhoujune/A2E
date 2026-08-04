@@ -2539,9 +2539,10 @@ adapter-bearing `PaperConfig`, one selected request and external run under
 `AdapterVerified` and `AdapterRely`. It proves the additional operational,
 protected-state, mediation, and all-prefix product obligations for
 `EnsureMember`, one distinguished request, and any supplied
-storage-parametric context admitting the paired WAL run. Quantification over a
-request-indexed family of operational adapter/protected executions remains
-future work.
+storage-parametric context admitting the paired WAL run. T6-DD5 now supplies a
+coverage-conditioned request-indexed family theorem: every terminal request in
+the shared WAL must have a valid operational/protected member, and that member's
+DD4 product and X0 transport are proved generically.
 
 For every `P : PaperConfig<Adapter<X,I>>`, let
 `Cfg = paper_broker_config(P)`. For every `ProgramContext<S>` value `Ctxt`,
@@ -2574,7 +2575,9 @@ committed mutating request refines one authorized abstract effect, every
 committed read refines zero protected mutations and one valid observation, and
 no request contributes two commit-log entries.
 
-This fully quantified statement is not yet a completed generic T6 claim.
+This is the completed coverage-conditioned generic T6 claim at the formal family
+boundary. It does not assert that production code automatically constructs the
+family members or the coverage predicate.
 T6-A1 supplies an operational `EnsureMember` adapter refinement and a closed
 crash/retry typed-WAL witness without assuming `AdapterRely`. T6-M0 adds the
 protected-service execution, a storage-parametric closed-interface audit
@@ -2582,9 +2585,9 @@ context, derived mediation, and authorized target-action provenance for that
 witness. T6-P0 supplies the conditional prefix-indexed execution product and
 its prefix closure. T6-X0 completes the contextual lift, source and target
 terminal refinement, and concrete nonvacuity theorem for that `EnsureMember`
-instance. Remaining generalization requires additional adapter instances and
-an interface connecting a family of operational adapter/protected executions
-to all terminal requests.
+instance. T6-DD5 supplies the interface connecting a family of operational
+adapter/protected executions to all terminal requests; production refinement
+must still construct members satisfying that interface.
 
 The conclusion is conditional on adapter semantics, complete mediation, and
 the typed persistence contract. It does not conclude that a committed value
@@ -2715,6 +2718,12 @@ group has only backward dependencies.
     state, masked view, complete mediation, and T1 safety at every mapped prefix;
     transport source terminal refinement to the canonical Broker trace; and
     inhabit the complete package without premises while retaining DD2 and DD3.
+27. **Request-indexed operational/protected family (completed T6-DD5):** define
+    a total family of paired Deduplicated adapter/protected executions; require
+    valid coverage for every terminal request in a shared WAL; derive each
+    member's request-local `AdapterRely`, DD4 all-prefix product, complete
+    mediation, and X0 source/target terminal transport; and inhabit the family
+    coverage predicate with the DD2/DD3 witness without premises.
 
 The first executable proof checkpoint is groups 1--5 over the atomic Journal
 runtime. T6-A0 is the first publishable semantic-adapter checkpoint for one
@@ -2727,7 +2736,8 @@ operational instance, while T6-DD1 completes the Deduplicated invariant,
 coupled crash/retry terminal witness at the adapter/WAL/Broker boundary. T6-DD3
 completes the independent protected-service execution and mediation layer for
 that distinguished run, and T6-DD4 completes its prefix/contextual P0/X0
-composition. A request-indexed family of external and protected executions, or
-a narrowed distinguished-execution claim, remains a later theorem decision;
+composition. T6-DD5 completes the coverage-conditioned request-indexed family
+theorem and its DD2 nonvacuity witness. Constructing family members directly
+from production adapter executions remains a later implementation refinement;
 production-code and byte/fsync refinements remain separate
 implementation layers.

@@ -58,6 +58,11 @@ mediation, and durable authorization ancestry under the closed M0 context.
 T6-DD4 proves the all-prefix adapter/protected/WAL product, composes its weak
 index with T4-C2's contextual Broker replacement, and closes source/target
 terminal refinement and mediation for the distinguished DD2 execution.
+T6-DD5 adds the request-indexed operational/protected family theorem. A family
+member is required for every request terminal in a shared WAL; DD1 derives its
+request-local rely, DD4 derives its all-prefix product, and X0 transports its
+source terminal to the canonical Broker. The DD2 family discharges coverage
+without premises.
 In a separate implementation-refinement track, K1, K2, and K3 connect concrete
 `u64`/vector
 durable-summary and Journal code to Q1, R1, and B1: K1 verifies Authorize and
@@ -1521,9 +1526,29 @@ package retains the DD2 crash/retry and DD3 mediation packages.
 T6-DD4 verifies 1,222 cumulative obligations with zero errors, adding 40 over
 T6-DD3. The retained suite passes all 55/55 targets, contains 1,366 dependency-
 aware non-duplicated obligations, and sums to 31,486 target obligations. DD4
-closes M2 for the distinguished DD2 execution; a request-indexed family of
-operational/protected executions, or a correspondingly narrowed paper claim,
-is the next theorem decision.
+closes M2 for the distinguished DD2 execution; DD5 closes M3 at the
+coverage-conditioned request-indexed family boundary.
+
+## T6-DD5: request-indexed operational/protected family
+
+`t6_deduplicated_request_family.rs` imports DD4 and defines a total family from
+request identifiers to paired adapter/protected executions. Its coverage
+predicate applies to every request with a terminal outcome in the shared WAL.
+For each covered member, the theorem derives DD1's `AdapterRely`, reconstructs
+DD4's canonical adapter/WAL prefix product, derives complete mediation from the
+protected coupling, and invokes the generic X0 terminal transport for both the
+source WAL and canonical Broker traces.
+
+The concrete DD2 family is premise-free: the retained WAL has exactly one
+terminal request, request 0, and its family member is the DD2/DD3 pair. Thus the
+family theorem is request-indexed and non-vacuous while keeping family coverage
+as an explicit admission condition for arbitrary shared executions.
+
+T6-DD5 verifies 1,228 cumulative obligations with zero errors, adding 6 over
+T6-DD4. The retained suite passes all 56/56 targets, contains 1,372 dependency-
+aware non-duplicated obligations, and sums to 32,714 target obligations. M3 is
+closed as a coverage-conditioned family theorem; constructing members directly
+from production adapter executions remains an implementation refinement.
 
 ## Reproducible verification
 
@@ -1549,8 +1574,8 @@ pwsh -NoLogo -NoProfile -File mechanized/verify.ps1
 
 The Linux runner requires `chmod` and `unzip`, and explicitly binds Verus to
 the Z3 executable inside the hash-checked Verus tree. The retained run passes
-all 55/55 targets with 1,366 dependency-aware non-duplicated obligations and
-31,486 summed target obligations.
+all 56/56 targets with 1,372 dependency-aware non-duplicated obligations and
+32,714 summed target obligations.
 
 By default the run atomically writes the machine-readable evidence file
 `mechanized/results/verification-report.json`. `-ReportPath <path>` selects a
@@ -1674,6 +1699,10 @@ T6-DD4 verified obligations: 1,222
 T6-DD4 target delta over T6-DD3: 40
 T6-DD4 non-duplicated verified artifact obligations: 1,366
 T6-DD4 summed target obligations: 31,486
+T6-DD5 verified obligations: 1,228
+T6-DD5 target delta over T6-DD4: 6
+T6-DD5 non-duplicated verified artifact obligations: 1,372
+T6-DD5 summed target obligations: 32,714
 ```
 
 C1's 128 obligations include the 86 R1 and 39 B1 obligations imported into the
@@ -1802,6 +1831,10 @@ obligations for the canonical adapter/WAL weak index, prefix trace/history and
 effect-state agreement, contextual WAL/Broker composition, mapped-prefix
 mediation and safety, source/target terminal transport, and the closed
 premise-free DD4 package.
+T6-DD5 imports T6-DD4 directly and adds 6 obligations for the request-indexed
+operational/protected family interface, terminal-request coverage, generic
+all-terminal source/target refinement and mediation, and the premise-free DD2
+family witness.
 The historical T6-A1 non-duplicated total
 counts M0, C1, each independent D1/Q1 delta, the B2-R delta over Q1, and the
 B2-C through T5-C0 deltas along their dependency chain, plus the independent H1
@@ -1818,8 +1851,8 @@ dependency-aware non-duplicated obligations and summed to 23,866 target
 obligations. The historical T6-RO0 registry contained 46 targets and 1,123
 dependency-aware non-duplicated obligations and summed to 24,949 target
 obligations. The current registry adds K1, K2-G0, K2-T0, K3-A0, T6-DD0,
-T6-DD1, T6-DD2, T6-DD3, and T6-DD4: it contains 55 targets and 1,366 dependency-
-aware non-duplicated obligations, and the retained run sums to 31,486 target
+T6-DD1, T6-DD2, T6-DD3, T6-DD4, and T6-DD5: it contains 56 targets and 1,372
+dependency-aware non-duplicated obligations, and the retained run sums to 32,714
 obligations.
 The historical retained T6-A0 checkpoint had 41 targets, 904 non-duplicated
 obligations, and a 19,951 target sum. The historical retained T6-S0 checkpoint
@@ -1832,8 +1865,9 @@ defines the Deduplicated machine, and T6-DD1 proves its invariant, rely, and
 generic terminal refinement. T6-DD2 closes its concrete coupled witness and
 WAL/Broker terminal refinement. T6-DD3 closes the independent protected-service
 execution and complete-mediation layer for that witness. T6-DD4 closes its all-
-prefix contextual P0/X0 composition. A request-indexed family of external and
-protected executions, or a narrowed distinguished-execution claim, is the next
-theorem step. Caller-visible `ReturnResult`, production deployment
+prefix contextual P0/X0 composition. T6-DD5 closes the coverage-conditioned
+request-indexed family theorem and its DD2 nonvacuity witness. Constructing
+family members from production executions, caller-visible `ReturnResult`,
+production deployment
 isolation, byte/fsync refinement, multi-request concurrency, and liveness remain
 explicit subsequent extensions.

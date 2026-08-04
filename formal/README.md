@@ -587,8 +587,12 @@ memoized retry return, complete mediation, and durable authorization ancestry.
 T6-DD4 proves the Deduplicated all-prefix adapter/protected/WAL product, composes
 it through T4-C2's canonical contextual Broker replacement, and closes source
 and target terminal refinement plus mediation for that distinguished witness.
-A request-indexed family of operational/protected executions, or a narrowed
-distinguished-execution paper claim, remains open. The
+T6-DD5 generalizes the terminal boundary over a request-indexed family of
+operational/protected members, requiring coverage for every terminal request in
+the shared WAL and proving source/target refinement and mediation for each
+covered member. Its DD2 family discharges coverage without premises. Constructing
+family members from production executions remains an implementation refinement.
+The
 cumulative result still does not verify production Rust adapter/runtime code,
 network or remote-service behavior, operating-system descriptor isolation,
 `ReturnResult`, multi-request/global linearizability, or byte-level WAL
@@ -626,9 +630,8 @@ and [generalized T6 conditional end-to-end effect refinement](mechanization-cont
 
 ## Next formal increments
 
-1. Instantiate the P0/X0 all-prefix contextual product for the distinguished
-   Deduplicated execution, then add request-indexed result relations and
-   generalize the operational theorems beyond distinguished requests.
+1. Refine production adapter/service executions into the DD5 family-member
+   interface and discharge terminal-request coverage without a formal premise.
 2. Refine the operational adapter/runtime model to verified production Rust and
    specify the trusted network and remote-service interface precisely.
 3. Extend the current typed-frame `WAL -> Journal` proof to concrete

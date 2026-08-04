@@ -3904,6 +3904,20 @@ pub proof fn ro_adapter_final_environment_update()
         ro_adapter_execution().configs.last().environment_updates
             == Seq::empty().push(true),
 {
+    let request = ro_request_zero();
+    let before = ro_adapter_failure_outcome_execution();
+    let w16 = ro_wal_failure_outcome_execution();
+    ro_adapter_failure_outcome_execution_exec();
+    ro_wal_failure_outcome_execution_exec();
+    let cut7 = wal_runtime_layer::journal_view(
+        w16.configs.last(),
+    ).len() + 1;
+    assert(cut7 == 7);
+    ro_observe_full_append_preserves_adapter_state(
+        request, false, before, ro_fail_record(), cut7,
+    );
+    assert(before.configs.last().environment_updates
+        == Seq::empty().push(true));
 }
 
 pub open spec fn ro_retry_run()

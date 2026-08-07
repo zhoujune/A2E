@@ -7,6 +7,7 @@
 pub mod adapter;
 pub mod adapters;
 pub mod broker;
+pub mod evaluation;
 pub mod fault;
 pub mod model;
 pub mod wal;

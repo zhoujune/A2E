@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://proveai.invalid/schema/reference-broker-evaluation-v1.json",
+  "title": "ProveAI reference broker RQ1/RQ2 evaluation report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_unix_seconds",
+    "iterations",
+    "retry_iterations",
+    "environment",
+    "rq1",
+    "rq2"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "generated_unix_seconds": { "type": "integer", "minimum": 0 },
+    "iterations": { "type": "integer", "minimum": 1 },
+    "retry_iterations": { "type": "integer", "minimum": 1, "maximum": 100 },
+    "environment": { "$ref": "#/$defs/environment" },
+    "rq1": { "$ref": "#/$defs/rq1" },
+    "rq2": { "$ref": "#/$defs/rq2" }
+  },
+  "$defs": {
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hostname",
+        "target",
+        "rustc",
+        "source_revision",
+        "build_profile",
+        "package_version",
+        "logical_cpus"
+      ],
+      "properties": {
+        "hostname": { "type": "string", "minLength": 1 },
+        "target": { "type": "string", "minLength": 1 },
+        "rustc": { "type": "string", "minLength": 1 },
+        "source_revision": { "type": "string", "minLength": 1 },
+        "build_profile": { "enum": ["debug", "release"] },
+        "package_version": { "type": "string", "minLength": 1 },
+        "logical_cpus": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "rq1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["all_passed", "stale_delivery_rejected", "case_count", "cases"],
+      "properties": {
+        "all_passed": { "type": "boolean" },
+        "stale_delivery_rejected": { "type": "boolean" },
+        "case_count": { "const": 21 },
+        "cases": {
+          "type": "array",
+          "minItems": 21,
+          "maxItems": 21,
+          "items": { "$ref": "#/$defs/crash_case" }
+        }
+      }
+    },
+    "crash_case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "adapter",
+        "crash_site",
+        "terminal",
+        "terminal_attempt",
+        "physical_invocations",
+        "abstract_effects",
+        "terminal_records",
+        "authorization_ancestry",
+        "retry_bound_respected",
+        "effect_oracle_satisfied",
+        "passed"
+      ],
+      "properties": {
+        "adapter": { "enum": ["uncontrolled", "idempotent", "deduplicated"] },
+        "crash_site": {
+          "enum": [
+            "after_authorize",
+            "after_prepare",
+            "after_arm",
+            "after_start",
+            "after_invoke",
+            "after_outcome",
+            "after_terminal"
+          ]
+        },
+        "terminal": { "enum": ["committed", "failed", "unknown"] },
+        "terminal_attempt": { "type": "integer", "minimum": 0 },
+        "physical_invocations": { "type": "integer", "minimum": 0 },
+        "abstract_effects": { "type": "integer", "minimum": 0 },
+        "terminal_records": { "type": "integer", "minimum": 0 },
+        "authorization_ancestry": { "type": "boolean" },
+        "retry_bound_respected": { "type": "boolean" },
+        "effect_oracle_satisfied": { "type": "boolean" },
+        "passed": { "type": "boolean" }
+      }
+    },
+    "latency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mean", "p50", "p95", "p99"],
+      "properties": {
+        "mean": { "type": "integer", "minimum": 0 },
+        "p50": { "type": "integer", "minimum": 0 },
+        "p95": { "type": "integer", "minimum": 0 },
+        "p99": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "workload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requests",
+        "duration_ns",
+        "throughput_requests_per_second",
+        "latency_ns",
+        "wal_bytes",
+        "flushes",
+        "recovery_ns",
+        "physical_invocations",
+        "abstract_effects"
+      ],
+      "properties": {
+        "requests": { "type": "integer", "minimum": 1 },
+        "duration_ns": { "type": "integer", "minimum": 0 },
+        "throughput_requests_per_second": { "type": "number", "minimum": 0 },
+        "latency_ns": { "$ref": "#/$defs/latency" },
+        "wal_bytes": { "type": "integer", "minimum": 0 },
+        "flushes": { "type": "integer", "minimum": 0 },
+        "recovery_ns": { "type": "integer", "minimum": 0 },
+        "physical_invocations": { "type": "integer", "minimum": 0 },
+        "abstract_effects": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "retry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mechanism",
+        "requests",
+        "duration_ns",
+        "latency_ns",
+        "physical_invocations",
+        "abstract_effects",
+        "extra_invocations",
+        "extra_effects",
+        "wal_bytes",
+        "flushes"
+      ],
+      "properties": {
+        "mechanism": {
+          "enum": [
+            "mediated_idempotent",
+            "mediated_deduplicated",
+            "journaled_at_least_once"
+          ]
+        },
+        "requests": { "type": "integer", "minimum": 1 },
+        "duration_ns": { "type": "integer", "minimum": 0 },
+        "latency_ns": { "$ref": "#/$defs/latency" },
+        "physical_invocations": { "type": "integer", "minimum": 0 },
+        "abstract_effects": { "type": "integer", "minimum": 0 },
+        "extra_invocations": { "type": "integer", "minimum": 0 },
+        "extra_effects": { "type": "integer", "minimum": 0 },
+        "wal_bytes": { "type": "integer", "minimum": 0 },
+        "flushes": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "rq2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["methodology", "workloads", "retry_scenarios"],
+      "properties": {
+        "methodology": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "scope",
+            "latency_clock",
+            "mediated_flush_policy",
+            "journaled_ablation"
+          ],
+          "properties": {
+            "scope": { "type": "string" },
+            "latency_clock": { "type": "string" },
+            "mediated_flush_policy": { "type": "string" },
+            "journaled_ablation": { "type": "string" }
+          }
+        },
+        "workloads": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mediated", "direct", "journaled_at_least_once"],
+          "properties": {
+            "mediated": { "$ref": "#/$defs/workload" },
+            "direct": { "$ref": "#/$defs/workload" },
+            "journaled_at_least_once": { "$ref": "#/$defs/workload" }
+          }
+        },
+        "retry_scenarios": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": { "$ref": "#/$defs/retry" }
+        }
+      }
+    }
+  }
+}
+

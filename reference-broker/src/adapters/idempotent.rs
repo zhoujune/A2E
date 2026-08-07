@@ -6,6 +6,7 @@ use crate::model::{Invocation, Observation, RetryClass, Value};
 #[derive(Debug, Default)]
 pub struct IdempotentAdapter {
     applied: bool,
+    invocations: u64,
     mutations: u64,
     deliveries: VecDeque<Observation>,
 }
@@ -15,6 +16,7 @@ impl IdempotentAdapter {
     pub fn scripted(deliveries: impl IntoIterator<Item = Observation>) -> Self {
         Self {
             applied: false,
+            invocations: 0,
             mutations: 0,
             deliveries: deliveries.into_iter().collect(),
         }
@@ -24,6 +26,11 @@ impl IdempotentAdapter {
     pub const fn mutation_count(&self) -> u64 {
         self.mutations
     }
+
+    #[must_use]
+    pub const fn invocation_count(&self) -> u64 {
+        self.invocations
+    }
 }
 
 impl Adapter for IdempotentAdapter {
@@ -32,6 +39,7 @@ impl Adapter for IdempotentAdapter {
     }
 
     fn invoke(&mut self, invocation: Invocation) -> Delivery {
+        self.invocations = self.invocations.saturating_add(1);
         if !self.applied {
             self.applied = true;
             self.mutations = self.mutations.saturating_add(1);

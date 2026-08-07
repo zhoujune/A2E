@@ -6,6 +6,7 @@ use crate::model::{DedupKey, Invocation, Observation, RetryClass, Value};
 #[derive(Debug, Default)]
 pub struct DeduplicatedAdapter {
     decisions: BTreeMap<DedupKey, Value>,
+    invocations: u64,
     mutations: u64,
     deliveries: VecDeque<Observation>,
 }
@@ -15,6 +16,7 @@ impl DeduplicatedAdapter {
     pub fn scripted(deliveries: impl IntoIterator<Item = Observation>) -> Self {
         Self {
             decisions: BTreeMap::new(),
+            invocations: 0,
             mutations: 0,
             deliveries: deliveries.into_iter().collect(),
         }
@@ -23,6 +25,11 @@ impl DeduplicatedAdapter {
     #[must_use]
     pub const fn mutation_count(&self) -> u64 {
         self.mutations
+    }
+
+    #[must_use]
+    pub const fn invocation_count(&self) -> u64 {
+        self.invocations
     }
 
     #[must_use]
@@ -37,6 +44,7 @@ impl Adapter for DeduplicatedAdapter {
     }
 
     fn invoke(&mut self, invocation: Invocation) -> Delivery {
+        self.invocations = self.invocations.saturating_add(1);
         let key = invocation
             .key
             .expect("broker validates deduplicated invocations have a key");

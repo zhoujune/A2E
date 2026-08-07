@@ -68,6 +68,11 @@ reopen the same WAL to model process restart.
 cargo fmt --check
 cargo clippy --all-targets --all-features
 cargo test --all-targets
+cargo run --release --bin evaluate -- --iterations 100 \
+  --output evaluation/results/rq1-rq2-linux.json
 ```
 
 The crate has no third-party dependencies.
+
+The [evaluation guide](evaluation/README.md) defines the RQ1/RQ2 report fields,
+ablations, schema validation, and limits of the retained microbenchmark data.

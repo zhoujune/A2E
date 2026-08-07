@@ -67,6 +67,32 @@ network service, and must be regenerated on the artifact evaluator's machine.
 The retained report records its hostname, target, Rust version, release/debug
 profile, package version, and source revision.
 
+## Repeated RQ2 protocol
+
+Build once in release mode, then run the repetition controller. On Linux,
+`taskset` can pin the runner and every child benchmark to one CPU:
+
+```sh
+cargo build --release --bin evaluate
+PROVEAI_SOURCE_REVISION="$(git rev-parse HEAD)" \
+  taskset -c 0 python3 evaluation/run_repeated_rq2.py \
+  --binary target/release/evaluate \
+  --iterations 500 \
+  --warmups 5 \
+  --repetitions 30 \
+  --output evaluation/results/rq2-repeated-linux.json
+python3 evaluation/validate_repeated_rq2.py \
+  evaluation/results/rq2-repeated-linux.json
+```
+
+The controller starts a fresh process with fresh temporary WALs for every
+warmup and measured run. It retains all run-level samples and reports mean,
+median, standard deviation, range, and a 95% normal-approximation interval for
+every measurement. The report also binds the benchmark binary hash, CPU
+affinity, kernel, temporary-filesystem type, Python/Rust versions, and source
+revision. Fixed within-run workload order and local synchronous effects remain
+explicit limitations.
+
 ## RQ3 proof effort
 
 Generate source, proof-function, obligation-delta, and retained verification-time

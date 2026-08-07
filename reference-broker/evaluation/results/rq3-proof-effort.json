@@ -1,0 +1,810 @@
+{
+  "schema_version": 1,
+  "generated_unix_seconds": 1786090376,
+  "source_revision": "d1771c7b365d1bfd0cf3fbe747c339a39ec9e1a1",
+  "verification_report": {
+    "path": "mechanized/results/verification-report.json",
+    "sha256": "551a2eaeb364a3d7986021365c40f8b39d8bd3fef22b3a41ea20e053f1506804",
+    "schema_version": 1,
+    "registered_targets": 56,
+    "verified_targets": 56,
+    "non_duplicated_verified_obligations": 1372
+  },
+  "measurement_notes": {
+    "verification_time": "sum of retained per-target wall-clock durations; dependencies are rechecked in each target",
+    "obligations": "sum of retained non-duplicated contribution deltas for explicitly assigned targets",
+    "reusable_lemmas": "public proof functions in the shared T6-D0/E0/C0/S0 framework",
+    "person_hours": "not contemporaneously recorded; null rather than inferred from source size"
+  },
+  "shared_framework": {
+    "summary": {
+      "target_count": 4,
+      "source_bytes": 137808,
+      "source_lines": 3884,
+      "nonblank_source_lines": 3755,
+      "proof_function_count": 55,
+      "spec_function_count": 50,
+      "executable_function_count": 0,
+      "type_declaration_count": 4,
+      "verification_duration_ms": 89684,
+      "non_duplicated_obligation_contribution": 57,
+      "person_hours": null
+    },
+    "targets": [
+      {
+        "name": "T6-D0",
+        "source": {
+          "path": "mechanized/t6_terminal_definitions.rs",
+          "sha256": "52f469dadc54b70f8876da4446fbeb816aca7ebec3fa1ad218281975e9dc9ab3",
+          "hash_validation": "raw",
+          "bytes": 53393,
+          "lines": 1576,
+          "nonblank_lines": 1506,
+          "proof_function_count": 14,
+          "spec_function_count": 47,
+          "executable_function_count": 0,
+          "type_declaration_count": 4,
+          "proof_functions": [
+            "commit_outcome_evidence_unfolds",
+            "fail_outcome_evidence_unfolds",
+            "unknown_outcome_evidence_unfolds",
+            "unknown_enabled_decomposes",
+            "commit_outcome_compatibility_unfolds",
+            "fail_outcome_compatibility_unfolds",
+            "unknown_outcome_compatibility_unfolds",
+            "terminal_record_empty",
+            "terminal_record_singleton",
+            "terminal_record_duplicate_rejected",
+            "invoke_delivery_history_sanity",
+            "duplicate_delivery_rejected",
+            "adapter_rely_is_projected_rely",
+            "adapter_verified_applies"
+          ]
+        },
+        "verification": {
+          "status": "passed",
+          "duration_ms": 20705,
+          "cumulative_verified_obligations": 800,
+          "non_duplicated_contribution": 16,
+          "contribution_mode": "parent_delta",
+          "contribution_parent": "T5-C0"
+        }
+      },
+      {
+        "name": "T6-E0",
+        "source": {
+          "path": "mechanized/t6_terminal_evidence.rs",
+          "sha256": "8d1dd374a98bec25727ce38e637d3abfee47d600287dd87be13097633da2d4b2",
+          "hash_validation": "raw",
+          "bytes": 34415,
+          "lines": 934,
+          "nonblank_lines": 909,
+          "proof_function_count": 18,
+          "spec_function_count": 2,
+          "executable_function_count": 0,
+          "type_declaration_count": 0,
+          "proof_functions": [
+            "latest_terminal_record_sound",
+            "terminal_record_sound",
+            "outcome_projection_is_exact",
+            "durable_outcomes_follow_deliveries_take",
+            "physical_unique_bounds_delivery_count",
+            "unique_delivery_observation_is_latest",
+            "delivery_before_lsn_is_selected",
+            "terminal_outcome_has_full_history_evidence",
+            "adapter_projection_delivery_count",
+            "latest_delivery_observation_push",
+            "adapter_projection_latest_delivery",
+            "delivery_projection",
+            "outcome_evidence_projects_to_adapter_history",
+            "terminal_outcome_has_evidence",
+            "broker_terminal_outcome_has_evidence",
+            "event_terminal_outcome_has_evidence",
+            "t6_e0_core",
+            "t6_e0_full_history"
+          ]
+        },
+        "verification": {
+          "status": "passed",
+          "duration_ms": 23375,
+          "cumulative_verified_obligations": 818,
+          "non_duplicated_contribution": 18,
+          "contribution_mode": "parent_delta",
+          "contribution_parent": "T6-D0"
+        }
+      },
+      {
+        "name": "T6-C0",
+        "source": {
+          "path": "mechanized/t6_terminal_compatibility.rs",
+          "sha256": "00a9b16827cc8e410e0debd11b4972cddf55a740e53d90a771cb004a77063401",
+          "hash_validation": "raw",
+          "bytes": 39337,
+          "lines": 1081,
+          "nonblank_lines": 1058,
+          "proof_function_count": 17,
+          "spec_function_count": 1,
+          "executable_function_count": 0,
+          "type_declaration_count": 0,
+          "proof_functions": [
+            "adapter_projection_invoke_count",
+            "adapter_projection_request_invoke_count",
+            "attempt_invokes_le_request_invokes",
+            "selected_delivery_implies_invoked",
+            "acknowledged_invocation_refinement_at",
+            "selected_delivery_has_witness",
+            "dedup_failure_is_resolved",
+            "fail_terminal_sets_failed_projection",
+            "unknown_evidence_implies_unknown_cause",
+            "invoked_attempt_has_durable_range",
+            "idempotent_fail_evidence_is_conclusive",
+            "idempotent_invocation_has_failure_delivery",
+            "idempotent_failure_covers_all_invocations",
+            "uncontrolled_history_has_at_most_one_invocation",
+            "uncontrolled_selected_delivery_is_only_invocation",
+            "event_terminal_outcome_is_compatible",
+            "t6_c0_core"
+          ]
+        },
+        "verification": {
+          "status": "passed",
+          "duration_ms": 23215,
+          "cumulative_verified_obligations": 835,
+          "non_duplicated_contribution": 17,
+          "contribution_mode": "parent_delta",
+          "contribution_parent": "T6-E0"
+        }
+      },
+      {
+        "name": "T6-S0",
+        "source": {
+          "path": "mechanized/t6_terminal_bridge.rs",
+          "sha256": "bf5e2186967fd11524ccff7fe42d7da2f43632ca443cafb1bdc03a131306feba",
+          "hash_validation": "raw",
+          "bytes": 10663,
+          "lines": 293,
+          "nonblank_lines": 282,
+          "proof_function_count": 6,
+          "spec_function_count": 0,
+          "executable_function_count": 0,
+          "type_declaration_count": 0,
+          "proof_functions": [
+            "event_terminal_outcome_has_evidence_and_is_compatible",
+            "t6_s0_core",
+            "journal_terminal_outcome_has_evidence_and_is_compatible",
+            "journal_t6_s0",
+            "wal_terminal_outcome_has_evidence_and_is_compatible",
+            "wal_t6_s0"
+          ]
+        },
+        "verification": {
+          "status": "passed",
+          "duration_ms": 22389,
+          "cumulative_verified_obligations": 841,
+          "non_duplicated_contribution": 6,
+          "contribution_mode": "parent_delta",
+          "contribution_parent": "T6-C0"
+        }
+      }
+    ]
+  },
+  "adapters": [
+    {
+      "name": "idempotent_ensure_member",
+      "retry_class": "Idempotent",
+      "evidence_boundary": "full distinguished operational/protected/contextual witness",
+      "summary": {
+        "target_count": 5,
+        "source_bytes": 475346,
+        "source_lines": 12879,
+        "nonblank_source_lines": 12467,
+        "proof_function_count": 121,
+        "spec_function_count": 142,
+        "executable_function_count": 0,
+        "type_declaration_count": 10,
+        "verification_duration_ms": 542501,
+        "non_duplicated_obligation_contribution": 181,
+        "person_hours": null,
+        "reusable_framework_proof_functions_available": 55
+      },
+      "targets": [
+        {
+          "name": "T6-A0",
+          "source": {
+            "path": "mechanized/t6_adapter_semantic_closure.rs",
+            "sha256": "d37c604888e58ee7aa63c8473651990d397f164d73fa22c6da191291e488ac79",
+            "hash_validation": "raw",
+            "bytes": 79551,
+            "lines": 2198,
+            "nonblank_lines": 2103,
+            "proof_function_count": 21,
+            "spec_function_count": 39,
+            "executable_function_count": 0,
+            "type_declaration_count": 1,
+            "proof_functions": [
+              "terminal_evidence_and_compatibility_imply_refines",
+              "selected_terminal_implies_per_request_refinement",
+              "event_terminal_outcome_refines",
+              "event_per_request_effect_refines",
+              "journal_terminal_outcome_refines",
+              "journal_per_request_effect_refines",
+              "wal_terminal_outcome_refines",
+              "wal_per_request_effect_refines",
+              "ensure_member_full_config_is_well_formed",
+              "ensure_member_adapter_is_verified",
+              "ensure_member_effect_model_is_nontrivial",
+              "ensure_member_mixed_retry_is_one_effect",
+              "t6_a0_zero_wal_execution_exec",
+              "t6_a0_extend_wal_execution_exec",
+              "t6_a0_append_full_wal_execution_exec",
+              "ensure_member_authorize_is_runtime_enabled",
+              "ensure_member_wal_execution_exec",
+              "ensure_member_success_history_satisfies_rely",
+              "ensure_member_records_select_terminal_commit",
+              "ensure_member_concrete_semantic_package",
+              "t6_a0_semantic_nonvacuity"
+            ]
+          },
+          "verification": {
+            "status": "passed",
+            "duration_ms": 31191,
+            "cumulative_verified_obligations": 864,
+            "non_duplicated_contribution": 23,
+            "contribution_mode": "parent_delta",
+            "contribution_parent": "T6-S0"
+          }
+        },
+        {
+          "name": "T6-A1",
+          "source": {
+            "path": "mechanized/t6_adapter_executable_refinement.rs",
+            "sha256": "c2bb85300b2e02a12cf679b4a29baa4aa1f1b61feafbae06794a09b5d0bf4908",
+            "hash_validation": "raw",
+            "bytes": 153141,
+            "lines": 4025,
+            "nonblank_lines": 3888,
+            "proof_function_count": 24,
+            "spec_function_count": 50,
+            "executable_function_count": 0,
+            "type_declaration_count": 4,
+            "proof_functions": [
+              "a1_service_linearize_step_has_remote_provenance",
+              "a1_pi_adapter_push",
+              "a1_initial_state_satisfies_invariant",
+              "a1_step_preserves_invariant",
+              "a1_exec_prefix",
+              "a1_every_exec_configuration_satisfies_invariant",
+              "a1_exec_final_globals_are_projected",
+              "a1_invariant_implies_adapter_rely_trace",
+              "ensure_member_exec_derives_adapter_rely",
+              "ensure_member_executable_wal_terminal_refines",
+              "a1_zero_adapter_execution_exec",
+              "a1_extend_adapter_execution_exec",
+              "a1_observe_full_append_exec",
+              "a1_observe_recovery_exec",
+              "a1_retry_wal_execution_exec",
+              "a1_retry_records_select_terminal_unknown",
+              "a1_retry_wal_trace_shape",
+              "a1_retry_has_explicit_crash_recovery_shape",
+              "a1_retry_history_has_mixed_outcomes",
+              "a1_retry_terminal_is_not_fail",
+              "a1_retry_adapter_execution_exec",
+              "t6_a1_executable_crash_retry_refines",
+              "a1_concrete_executable_retry_package",
+              "t6_a1_executable_crash_retry_nonvacuity"
+            ]
+          },
+          "verification": {
+            "status": "passed",
+            "duration_ms": 120347,
+            "cumulative_verified_obligations": 916,
+            "non_duplicated_contribution": 52,
+            "contribution_mode": "parent_delta",
+            "contribution_parent": "T6-A0"
+          }
+        },
+        {
+          "name": "T6-M0",
+          "source": {
+            "path": "mechanized/t6_mediation_exclusivity.rs",
+            "sha256": "18f1a1c6f116065fd34bf26502cf685e215a4c48251a70ff773eb1b3a4ad9c6e",
+            "hash_validation": "raw",
+            "bytes": 119546,
+            "lines": 3254,
+            "nonblank_lines": 3151,
+            "proof_function_count": 37,
+            "spec_function_count": 36,
+            "executable_function_count": 0,
+            "type_declaration_count": 5,
+            "proof_functions": [
+              "m0_context_has_no_protected_transition_constructor",
+              "m0_target_change_requires_linearization",
+              "m0_environment_cannot_add_target",
+              "m0_broker_invoke_step_is_local_and_fresh",
+              "m0_event_coupling_implies_trace_match",
+              "m0_pi_invocations_push",
+              "m0_trace_coupling_derives_mediation",
+              "m0_protected_exec_prefix",
+              "m0_protected_exec_final_calls_are_generated",
+              "m0_coupled_exec_derives_complete_mediation",
+              "m0_exclusive_context_is_storage_parametric",
+              "m0_exclusive_context_transition_is_invoke_only",
+              "m0_wal_exec_has_exclusive_handle_context",
+              "m0_context_trace_equals_pi_invocations",
+              "m0_exclusive_context_state_tracks_invocations",
+              "m0_exclusive_context_derives_complete_mediation",
+              "m0_exact_wal_invoke_is_durably_authorized",
+              "m0_durable_authorization_exposes_t1_ancestry",
+              "m0_zero_protected_execution_exec",
+              "m0_extend_protected_execution_exec",
+              "m0_append_stutters_exec",
+              "m0_retry_protected_execution_exec",
+              "m0_retry_protected_execution_has_shape",
+              "m0_retry_adapter_execution_has_shape",
+              "m0_retry_adapter_and_service_are_coupled",
+              "m0_protected_exec_derives_target_action_provenance",
+              "m0_retry_has_one_target_action",
+              "m0_retry_calls_have_exact_wal_origins",
+              "m0_retry_calls_are_durably_authorized",
+              "m0_coupled_exec_prefix",
+              "m0_coupled_final_calls_have_exact_origins",
+              "m0_coupled_every_configuration_has_call_origins",
+              "m0_a1_global_trace_prefix",
+              "m0_coupled_linearization_is_durably_authorized",
+              "m0_deployment_derives_authorized_linearizations",
+              "t6_m0_executable_crash_retry_mediation",
+              "t6_m0_mediation_nonvacuity"
+            ]
+          },
+          "verification": {
+            "status": "passed",
+            "duration_ms": 133504,
+            "cumulative_verified_obligations": 977,
+            "non_duplicated_contribution": 61,
+            "contribution_mode": "parent_delta",
+            "contribution_parent": "T6-A1"
+          }
+        },
+        {
+          "name": "T6-P0",
+          "source": {
+            "path": "mechanized/t6_prefix_simulation.rs",
+            "sha256": "e3fe1368aef2879c2ccc8eb5ed01e7c4b1871d3ec1efd02e4a0c6138eef802cb",
+            "hash_validation": "raw",
+            "bytes": 68103,
+            "lines": 1742,
+            "nonblank_lines": 1701,
+            "proof_function_count": 18,
+            "spec_function_count": 13,
+            "executable_function_count": 0,
+            "type_declaration_count": 0,
+            "proof_functions": [
+              "p0_a1_global_trace_push",
+              "p0_a1_wal_prefix_trace_agreement",
+              "p0_a1_wal_final_trace_agreement",
+              "p0_a1_wal_steps_derive_related_prefixes",
+              "p0_initial_effect_state_agreement",
+              "p0_coupled_step_preserves_effect_state_agreement",
+              "p0_coupled_final_effect_state_agreement",
+              "p0_coupled_every_prefix_effect_state_agreement",
+              "p0_execution_pair_derives_prefix_product",
+              "p0_weak_index_shape_prefix",
+              "p0_execution_pair_prefix_closed",
+              "p0_prefix_product_closed",
+              "p0_projection_prefix_exact",
+              "p0_canonical_index_map_has_shape",
+              "p0_canonical_map_couples_trace_equal_execution",
+              "p0_trace_equal_execution_pair",
+              "t6_p0_executable_crash_retry_prefix_product",
+              "t6_p0_prefix_product_nonvacuity"
+            ]
+          },
+          "verification": {
+            "status": "passed",
+            "duration_ms": 128321,
+            "cumulative_verified_obligations": 1000,
+            "non_duplicated_contribution": 23,
+            "contribution_mode": "parent_delta",
+            "contribution_parent": "T6-M0"
+          }
+        },
+        {
+          "name": "T6-X0",
+          "source": {
+            "path": "mechanized/t6_contextual_end_to_end.rs",
+            "sha256": "03f1d5b076cb51a9a02a0957570f1837131e35a7502579e6d66b1761373d24c3",
+            "hash_validation": "raw",
+            "bytes": 55005,
+            "lines": 1660,
+            "nonblank_lines": 1624,
+            "proof_function_count": 21,
+            "spec_function_count": 4,
+            "executable_function_count": 0,
+            "type_declaration_count": 0,
+            "proof_functions": [
+              "p0_effect_agreement_grounds_external_run",
+              "x0_contextual_wal_final_representation",
+              "x0_contextual_per_request_effect_refines",
+              "x0_contextual_terminal_outcome_refines",
+              "x0_projection_transports_terminal_refinement",
+              "x0_contextual_broker_terminal_outcome_refines",
+              "x0_exclusive_context_endpoint_mediation",
+              "x0_composed_map_has_weak_shape",
+              "x0_every_adapter_prefix_is_contextually_related",
+              "x0_ensure_member_contextual_replacement",
+              "x0_p0_and_context_derive_product",
+              "x0_lift_p0_through_context",
+              "x0_p0_terminal_semantics_and_mediation",
+              "x0_wal_terminal_evidence_from_representation",
+              "x0_projection_transports_complete_mediation",
+              "x0_ensure_member_single_request",
+              "x0_ensure_member_source_terminal",
+              "x0_ensure_member_target_terminal",
+              "t6_x0_ensure_member_terminal_end_to_end",
+              "t6_x0_executable_crash_retry_end_to_end",
+              "t6_x0_contextual_end_to_end_nonvacuity"
+            ]
+          },
+          "verification": {
+            "status": "passed",
+            "duration_ms": 129138,
+            "cumulative_verified_obligations": 1022,
+            "non_duplicated_contribution": 22,
+            "contribution_mode": "parent_delta",
+            "contribution_parent": "T6-P0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "read_only_environment_sample",
+      "retry_class": "ReadOnly",
+      "evidence_boundary": "operational adapter/WAL witness; no protected/contextual instantiation",
+      "summary": {
+        "target_count": 1,
+        "source_bytes": 162883,
+        "source_lines": 4454,
+        "nonblank_source_lines": 4307,
+        "proof_function_count": 47,
+        "spec_function_count": 67,
+        "executable_function_count": 0,
+        "type_declaration_count": 6,
+        "verification_duration_ms": 139501,
+        "non_duplicated_obligation_contribution": 61,
+        "person_hours": null,
+        "reusable_framework_proof_functions_available": 55
+      },
+      "targets": [
+        {
+          "name": "T6-RO0",
+          "source": {
+            "path": "mechanized/t6_readonly_operational.rs",
+            "sha256": "803576659c15f25897e5f5f2d0f25f12160dee6b8f62eeeecb757ef21c207e25",
+            "hash_validation": "raw",
+            "bytes": 162883,
+            "lines": 4454,
+            "nonblank_lines": 4307,
+            "proof_function_count": 47,
+            "spec_function_count": 67,
+            "executable_function_count": 0,
+            "type_declaration_count": 6,
+            "proof_functions": [
+              "ro_full_config_is_well_formed",
+              "ro_adapter_is_verified",
+              "ro_initial_state_satisfies_invariant",
+              "ro_step_preserves_invariant",
+              "ro_exec_prefix",
+              "ro_every_exec_configuration_satisfies_invariant",
+              "ro_exec_final_globals_are_projected",
+              "ro_invariant_implies_adapter_rely_trace",
+              "ro_exec_derives_adapter_rely",
+              "ro_zero_adapter_execution_exec",
+              "ro_extend_adapter_execution_exec",
+              "ro_observe_full_append_exec",
+              "ro_observe_full_append_preserves_adapter_state",
+              "ro_observe_wal_event_exec",
+              "ro_observe_recovery_exec",
+              "ro_authorize_is_runtime_enabled",
+              "ro_wal_pre_crash_execution_exec",
+              "ro_wal_recovered_execution_exec",
+              "ro_wal_retry_observed_execution_exec",
+              "ro_failure_outcome_runtime_enabled",
+              "ro_fail_runtime_enabled",
+              "ro_wal_failure_outcome_execution_exec",
+              "ro_wal_execution_exec",
+              "ro_adapter_pre_crash_execution_exec",
+              "ro_adapter_recovered_execution_exec",
+              "ro_adapter_retry_observed_execution_exec",
+              "ro_adapter_failure_outcome_execution_exec",
+              "ro_adapter_final_fail_append_exec",
+              "ro_adapter_execution_exec",
+              "ro_adapter_final_present",
+              "ro_adapter_final_environment_update",
+              "ro_records_select_terminal_record",
+              "ro_records_select_terminal_fail",
+              "ro_retry_history_has_mixed_outcomes",
+              "ro_wal_trace_shape",
+              "ro_failure_records_conclusive",
+              "ro_nonconclusive_unknown_disabled",
+              "ro_adapter_verified_instance",
+              "ro_wal_closed_representation",
+              "ro_adapter_rely_on_wal",
+              "ro_concrete_zero_effect",
+              "ro_concrete_refines",
+              "ro_concrete_effect_refines",
+              "ro_wal_terminal_refines",
+              "ro_concrete_operational_package",
+              "ro_concrete_semantic_package",
+              "t6_ro0_executable_crash_retry_nonvacuity"
+            ]
+          },
+          "verification": {
+            "status": "passed",
+            "duration_ms": 139501,
+            "cumulative_verified_obligations": 1083,
+            "non_duplicated_contribution": 61,
+            "contribution_mode": "parent_delta",
+            "contribution_parent": "T6-X0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "deduplicated_keyed_decision",
+      "retry_class": "Deduplicated",
+      "evidence_boundary": "distinguished full witness plus coverage-conditioned request family",
+      "summary": {
+        "target_count": 6,
+        "source_bytes": 315684,
+        "source_lines": 8774,
+        "nonblank_source_lines": 8458,
+        "proof_function_count": 86,
+        "spec_function_count": 121,
+        "executable_function_count": 0,
+        "type_declaration_count": 14,
+        "verification_duration_ms": 895215,
+        "non_duplicated_obligation_contribution": 145,
+        "person_hours": null,
+        "reusable_framework_proof_functions_available": 55
+      },
+      "targets": [
+        {
+          "name": "T6-DD0",
+          "source": {
+            "path": "mechanized/t6_deduplicated_operational.rs",
+            "sha256": "7d0d2894abf77cb23754edf70feae2fe6cfbea95d12e87efe6b5acc5fa81a007",
+            "hash_validation": "raw",
+            "bytes": 25910,
+            "lines": 716,
+            "nonblank_lines": 675,
+            "proof_function_count": 1,
+            "spec_function_count": 28,
+            "executable_function_count": 0,
+            "type_declaration_count": 7,
+            "proof_functions": [
+              "dd_full_config_is_well_formed"
+            ]
+          },
+          "verification": {
+            "status": "passed",
+            "duration_ms": 144089,
+            "cumulative_verified_obligations": 1085,
+            "non_duplicated_contribution": 2,
+            "contribution_mode": "parent_delta",
+            "contribution_parent": "T6-RO0"
+          }
+        },
+        {
+          "name": "T6-DD1",
+          "source": {
+            "path": "mechanized/t6_deduplicated_invariant.rs",
+            "sha256": "8c942c5dcce89422885d0188eaad8223923cef637f20a45e1d0d036868cf9924",
+            "hash_validation": "raw",
+            "bytes": 50439,
+            "lines": 1346,
+            "nonblank_lines": 1310,
+            "proof_function_count": 9,
+            "spec_function_count": 5,
+            "executable_function_count": 0,
+            "type_declaration_count": 0,
+            "proof_functions": [
+              "dd_adapter_is_verified",
+              "dd1_initial_state_satisfies_invariant",
+              "dd1_step_preserves_invariant",
+              "dd1_exec_prefix",
+              "dd1_every_exec_configuration_satisfies_invariant",
+              "dd1_exec_final_globals_are_projected",
+              "dd1_invariant_implies_dedup_consistency",
+              "dd1_invariant_implies_adapter_rely_trace",
+              "dd1_exec_derives_adapter_rely"
+            ]
+          },
+          "verification": {
+            "status": "passed",
+            "duration_ms": 141838,
+            "cumulative_verified_obligations": 1111,
+            "non_duplicated_contribution": 26,
+            "contribution_mode": "parent_delta",
+            "contribution_parent": "T6-DD0"
+          }
+        },
+        {
+          "name": "T6-DD2",
+          "source": {
+            "path": "mechanized/t6_deduplicated_witness.rs",
+            "sha256": "3b57e3d9374ba1b93210128375d32fb07aba91ed2ad68591de4a81f326bd9566",
+            "hash_validation": "raw",
+            "bytes": 72168,
+            "lines": 1994,
+            "nonblank_lines": 1917,
+            "proof_function_count": 25,
+            "spec_function_count": 37,
+            "executable_function_count": 0,
+            "type_declaration_count": 0,
+            "proof_functions": [
+              "dd2_zero_adapter_execution_exec",
+              "dd2_extend_adapter_execution_exec",
+              "dd2_observe_full_append_exec",
+              "dd2_observe_full_append_preserves_service_state",
+              "dd2_observe_wal_event_exec",
+              "dd2_observe_recovery_exec",
+              "dd2_authorize_is_runtime_enabled",
+              "dd2_wal_pre_crash_execution_exec",
+              "dd2_wal_recovered_execution_exec",
+              "dd2_wal_retry_observed_execution_exec",
+              "dd2_wal_success_outcome_execution_exec",
+              "dd2_wal_execution_exec",
+              "dd2_adapter_pre_crash_execution_exec",
+              "dd2_adapter_recovered_execution_exec",
+              "dd2_adapter_retry_observed_execution_exec",
+              "dd2_adapter_execution_exec",
+              "dd2_records_select_terminal_commit",
+              "dd2_wal_trace_shape",
+              "dd2_concrete_decision_and_effect",
+              "dd2_wal_closed_representation",
+              "dd2_adapter_rely_on_wal",
+              "dd2_wal_terminal_refines",
+              "dd2_concrete_operational_package",
+              "dd2_concrete_semantic_package",
+              "t6_dd2_executable_crash_retry_nonvacuity"
+            ]
+          },
+          "verification": {
+            "status": "passed",
+            "duration_ms": 155308,
+            "cumulative_verified_obligations": 1143,
+            "non_duplicated_contribution": 32,
+            "contribution_mode": "parent_delta",
+            "contribution_parent": "T6-DD1"
+          }
+        },
+        {
+          "name": "T6-DD3",
+          "source": {
+            "path": "mechanized/t6_deduplicated_mediation.rs",
+            "sha256": "8c6c36bac02a016adb93a53e48e5184b52f6d010c5eb1fddb15592cf97efc184",
+            "hash_validation": "raw",
+            "bytes": 83386,
+            "lines": 2297,
+            "nonblank_lines": 2220,
+            "proof_function_count": 20,
+            "spec_function_count": 31,
+            "executable_function_count": 0,
+            "type_declaration_count": 5,
+            "proof_functions": [
+              "dd3_slot_change_requires_decision",
+              "dd3_event_coupling_implies_trace_match",
+              "dd3_trace_coupling_derives_mediation",
+              "dd3_protected_exec_prefix",
+              "dd3_protected_exec_final_calls_are_generated",
+              "dd3_coupled_exec_derives_complete_mediation",
+              "dd3_zero_protected_execution_exec",
+              "dd3_extend_protected_execution_exec",
+              "dd3_append_stutters_exec",
+              "dd3_protected_execution_exec",
+              "dd3_protected_execution_has_shape",
+              "dd3_adapter_execution_has_shape",
+              "dd3_adapter_and_service_are_coupled",
+              "dd3_protected_exec_derives_decision_provenance",
+              "dd3_retry_has_one_keyed_decision",
+              "dd3_calls_have_exact_wal_origins",
+              "dd3_calls_are_durably_authorized",
+              "dd3_retry_every_decision_is_durably_authorized",
+              "t6_dd3_deduplicated_mediation",
+              "t6_dd3_mediation_nonvacuity"
+            ]
+          },
+          "verification": {
+            "status": "passed",
+            "duration_ms": 148789,
+            "cumulative_verified_obligations": 1182,
+            "non_duplicated_contribution": 39,
+            "contribution_mode": "parent_delta",
+            "contribution_parent": "T6-DD2"
+          }
+        },
+        {
+          "name": "T6-DD4",
+          "source": {
+            "path": "mechanized/t6_deduplicated_contextual.rs",
+            "sha256": "98244d2f327eac30aa3d45995af05b32279032dc819f47372daaa70a9fcecf3c",
+            "hash_validation": "raw",
+            "bytes": 68718,
+            "lines": 1957,
+            "nonblank_lines": 1894,
+            "proof_function_count": 25,
+            "spec_function_count": 12,
+            "executable_function_count": 0,
+            "type_declaration_count": 0,
+            "proof_functions": [
+              "dd4_projection_prefix_exact",
+              "dd4_canonical_index_map_has_shape",
+              "dd4_canonical_map_couples_trace_equal_execution",
+              "dd4_adapter_wal_prefix_trace_agreement",
+              "dd4_coupled_exec_prefix",
+              "dd4_coupled_every_prefix_effect_state_agreement",
+              "dd4_execution_pair_derives_prefix_product",
+              "t6_dd4_deduplicated_prefix_product",
+              "dd4_prefix_and_context_derive_product",
+              "dd4_concrete_context_inputs",
+              "dd4_concrete_context_replacement",
+              "dd4_concrete_context_foundation",
+              "t6_dd4_deduplicated_contextual_product",
+              "dd4_source_terminal_semantics",
+              "dd4_source_history_agreement",
+              "dd4_source_terminal_refinement",
+              "dd4_wal_broker_projection_agreement",
+              "dd4_target_terminal_refinement",
+              "dd4_source_and_target_terminal_refinement",
+              "dd4_closed_prefix_context_package",
+              "dd4_closed_terminal_refinement_package",
+              "dd4_closed_mediation_endpoint_package",
+              "dd4_closed_retained_packages",
+              "t6_dd4_deduplicated_contextual_end_to_end",
+              "t6_dd4_contextual_nonvacuity"
+            ]
+          },
+          "verification": {
+            "status": "passed",
+            "duration_ms": 161529,
+            "cumulative_verified_obligations": 1222,
+            "non_duplicated_contribution": 40,
+            "contribution_mode": "parent_delta",
+            "contribution_parent": "T6-DD3"
+          }
+        },
+        {
+          "name": "T6-DD5",
+          "source": {
+            "path": "mechanized/t6_deduplicated_request_family.rs",
+            "sha256": "7f51736ccf11c495aefcb18b348f7393f5798d6ebebcdde82f23908ae730e5bb",
+            "hash_validation": "raw",
+            "bytes": 15063,
+            "lines": 464,
+            "nonblank_lines": 442,
+            "proof_function_count": 6,
+            "spec_function_count": 8,
+            "executable_function_count": 0,
+            "type_declaration_count": 2,
+            "proof_functions": [
+              "dd5_member_derives_prefix_product_and_rely",
+              "dd5_request_family_contextual_refinement",
+              "dd5_dd2_terminal_request_is_zero",
+              "dd5_dd2_family_covers_terminal_requests",
+              "t6_dd5_request_indexed_contextual_refinement",
+              "t6_dd5_request_family_nonvacuity"
+            ]
+          },
+          "verification": {
+            "status": "passed",
+            "duration_ms": 143662,
+            "cumulative_verified_obligations": 1228,
+            "non_duplicated_contribution": 6,
+            "contribution_mode": "parent_delta",
+            "contribution_parent": "T6-DD4"
+          }
+        }
+      ]
+    }
+  ]
+}

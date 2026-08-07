@@ -66,3 +66,36 @@ performance claims. They include filesystem and host noise, do not model a
 network service, and must be regenerated on the artifact evaluator's machine.
 The retained report records its hostname, target, Rust version, release/debug
 profile, package version, and source revision.
+
+## RQ3 proof effort
+
+Generate source, proof-function, obligation-delta, and retained verification-time
+measurements from the hash-bound Verus report:
+
+```sh
+python3 evaluation/generate_rq3.py \
+  --output evaluation/results/rq3-proof-effort.json
+python3 evaluation/validate_rq3.py \
+  evaluation/results/rq3-proof-effort.json
+```
+
+`rq3-adapter-manifest.v1.json` assigns targets to the shared framework and the
+three adapters. The generator verifies every source hash before measuring it.
+Verification durations include dependency rechecking, while contribution
+deltas are the retained non-duplicated obligation measure. Person-hours are
+`null` because no contemporaneous time log exists.
+
+## RQ4 fault classification
+
+`rq4-fault-matrix.v1.json` covers the product of three M4 adapters and the six
+required failure windows. Validate coverage and required safety/availability
+explanations with:
+
+```sh
+python3 evaluation/validate_rq4.py \
+  evaluation/rq4-fault-matrix.v1.json
+```
+
+The matrix explicitly marks `send_to_linearization` as an adapter-contract
+boundary because M4's synchronous adapter call has no internal crash hook. The
+recovery-interruption cells are backed by `tests/recovery_interruption.rs`.

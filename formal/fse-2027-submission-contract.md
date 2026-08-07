@@ -285,11 +285,25 @@ uncertainty reporting, and controlled storage/service environments.
 Report model/proof source size, proof obligations, verification time, reusable
 lemmas, adapter-specific lemmas, and the effort for each completed adapter.
 
+The schema-v1 RQ3 generator now derives source size, public proof/spec/function
+counts, non-duplicated obligation deltas, and retained per-target verification
+time from the hash-bound report for the shared framework and all three
+adapters. It records each adapter's different evidence boundary. Person-hours
+remain explicitly unavailable (`null`) because contemporaneous work logs do
+not exist; source size is not presented as a fabricated substitute.
+
 ### RQ4. Which failures are converted to safe completion, failure, or unknown?
 
 Present a fault matrix covering reservation/send, send/linearization,
 linearization/delivery, delivery/persistence, persistence/terminalization, and
 recovery interruption. Explain the safety/availability tradeoff for every cell.
+
+The versioned M4 matrix covers all 18 adapter/window cells and supplies a
+recovery action, safety basis, and availability tradeoff for each. A new test
+interrupts recovery after its durable synthetic Outcome and resumes it for all
+three adapters. The matrix explicitly marks the synchronous adapter's internal
+send/linearization point as assumption-dependent rather than claiming an M4
+crash hook that does not exist.
 
 External system comparisons should be semantic, not only performance-based.
 The paper must compare the provided guarantees with capability systems,
@@ -343,7 +357,7 @@ The companion artifact is ready only when all of the following are true.
 |---|---|---|
 | P0 | Final claim currently exceeds some operational instantiations | Complete M1-M3 and run a claim audit |
 | Closed | No complete reference broker | M4 reference crate and deterministic crash matrix completed |
-| P0 | Paper-grade empirical evaluation incomplete | RQ1/RQ2 harness and first versioned baseline exist; add repetitions and complete RQ3/RQ4 |
+| P0 | Paper-grade empirical evaluation incomplete | RQ1-RQ4 baseline evidence exists; add controlled RQ2 repetitions and uncertainty reporting |
 | P1 | TLA+ artifact is not Linux-ready | Port or containerize the formal runner |
 | P1 | No top-level artifact packaging, CI, or license | Complete Section 8 |
 | P1 | Novelty is not established against related work | Complete a structured comparison and narrow priority language as needed |
@@ -356,8 +370,8 @@ The companion artifact is ready only when all of the following are true.
 3. M4 is complete as the explicitly unverified single-slot reference broker.
 4. The versioned RQ1 generator and initial RQ2 performance/ablation harness are
    complete, with a retained schema-v1 Linux baseline.
-5. Add repeated controlled RQ2 runs and build the RQ3 proof-effort and RQ4
-   fault-classification reports.
+5. RQ3 proof-effort generation and the RQ4 fault-classification matrix are
+   complete at the M4/reference-artifact boundary.
 6. Port/package the TLA+ runner and add smoke/full top-level commands.
 7. Run the related-work novelty test and write the paper around the frozen
    claim, not around the chronological proof history.
@@ -382,10 +396,9 @@ projects rather than implicit prerequisites for the scoped first paper.
 
 ## 12. Immediate next checkpoint
 
-The next evaluation checkpoint is paper-grade evidence: repeat the RQ2
-workloads under a controlled protocol, report uncertainty, generate RQ3 from
-the retained verification metadata, and complete the RQ4 failure matrix. In
-parallel, the artifact runner must make the existing TLA+/Verus evidence
-reproducible on fresh Linux. M3 remains closed only at the
+The next evaluation checkpoint is paper-grade performance evidence: repeat the
+RQ2 workloads under a controlled protocol and report uncertainty. In parallel,
+the artifact runner must make the existing TLA+/Verus evidence reproducible on
+fresh Linux. M3 remains closed only at the
 coverage-conditioned formal family boundary; production adapter/service
 executions are not yet refined into the Verus operational types.

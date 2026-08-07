@@ -136,6 +136,9 @@ The first versioned RQ1/RQ2
 and records release-mode latency, throughput, WAL, flush, recovery, retry, and
 effect measurements against direct and journaled-at-least-once ablations. It is
 a single-host harness baseline, not yet the repeated paper-grade evaluation.
+The same evaluation package now generates RQ3 adapter effort directly from the
+hash-bound Verus report and supplies an 18-cell RQ4 safety/availability matrix,
+including an executable recovery-interruption test.
 
 The first research target is deliberately smaller than a complete agent
 runtime. T1 establishes the Broker-side form of the claim:

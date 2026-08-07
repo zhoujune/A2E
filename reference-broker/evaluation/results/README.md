@@ -34,3 +34,26 @@ paper-grade performance results. There are no warmups, repeated independent
 runs, confidence intervals, remote services, or storage-device controls. A
 zero recovery time for the Direct workload means that the ablation provides no
 recovery mechanism, not instantaneous durable recovery.
+
+## RQ3 and RQ4
+
+`rq3-proof-effort.json` was generated from source revision
+`d1771c7b365d1bfd0cf3fbe747c339a39ec9e1a1` and the retained 56-target Verus
+report. Its SHA-256 is
+`70c16dbaeb29d55e27edf213a5426fcb0c0f522ab059078e29767bc1f4b10509`.
+
+| Adapter evidence | Targets | Source lines | Public proof functions | Non-duplicated obligation delta | Retained verification (ms) |
+|---|---:|---:|---:|---:|---:|
+| Idempotent EnsureMember | 5 | 12,879 | 121 | 181 | 542,501 |
+| ReadOnly environment sample | 1 | 4,454 | 47 | 61 | 139,501 |
+| Deduplicated keyed decision | 6 | 8,774 | 86 | 145 | 895,215 |
+
+The shared T6-D0/E0/C0/S0 framework contains 55 public proof functions and
+contributes 57 non-duplicated obligations. Target time and source volume include
+dependency-layer rechecking; they are reproducibility costs, not independent
+authoring costs. Person-hours remain unreported.
+
+The RQ4 matrix covers 18 adapter/fault-window cells. Its SHA-256 is
+`1459bbce3ae095ea0d399cfc2a91f82bf15e3e65dbbd6b27f5d583b246dacd23`.
+The matrix distinguishes executable crash evidence, adapter-contract reasoning,
+and the send/linearization point that M4 cannot observe internally.

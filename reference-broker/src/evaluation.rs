@@ -841,14 +841,10 @@ fn terminal_name(terminal: TerminalResult) -> &'static str {
 fn environment() -> Environment {
     let hostname = std::env::var("HOSTNAME")
         .or_else(|_| std::env::var("COMPUTERNAME"))
-        .unwrap_or_else(|_| "unknown".to_owned());
-    let rustc = Command::new("rustc")
-        .arg("--version")
-        .output()
         .ok()
-        .filter(|output| output.status.success())
-        .map(|output| String::from_utf8_lossy(&output.stdout).trim().to_owned())
+        .or_else(|| command_output("hostname", &[]))
         .unwrap_or_else(|| "unknown".to_owned());
+    let rustc = command_output("rustc", &["--version"]).unwrap_or_else(|| "unknown".to_owned());
     Environment {
         hostname,
         target: format!("{}-{}", std::env::consts::ARCH, std::env::consts::OS),
@@ -870,8 +866,12 @@ fn environment() -> Environment {
 }
 
 fn git_revision() -> Option<String> {
-    Command::new("git")
-        .args(["rev-parse", "HEAD"])
+    command_output("git", &["rev-parse", "HEAD"])
+}
+
+fn command_output(program: &str, arguments: &[&str]) -> Option<String> {
+    Command::new(program)
+        .args(arguments)
         .output()
         .ok()
         .filter(|output| output.status.success())

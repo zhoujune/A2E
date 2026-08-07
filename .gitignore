@@ -15,3 +15,6 @@ formal/results/*.json
 mechanized/results/*.json
 !mechanized/results/verification-report.json
 !mechanized/results/verification-report.schema.v1.json
+
+# Standard Rust build output for the M4 reference broker.
+**/target/

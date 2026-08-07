@@ -126,7 +126,7 @@ priority claim.
 | Deduplicated protected execution and mediation | T6-DD3 | Complete for the distinguished DD2 execution |
 | Deduplicated P0/X0 instantiation | T6-DD4 | Complete for the distinguished DD2 execution |
 | Request-indexed family of operational/protected executions | T6-DD5 coverage-conditioned family theorem with DD2 nonvacuity | Complete at the formal family boundary; production construction remains an implementation refinement |
-| Executable broker event loop and physical WAL | K1-K3 stop at a serialized append kernel | Required prototype work |
+| Executable broker event loop and physical WAL | M4 `reference-broker`: generated IDs, capability budgets, one slot, framed file WAL, recovery, correlation, terminal retrieval, and three adapters | Complete as an unverified reference prototype; no production or byte-WAL refinement claim |
 | Byte/fsync/filesystem refinement | Typed-record abstraction only | Explicitly out of theorem scope; assumptions must be evaluated and documented |
 
 ## 5. Frozen scope
@@ -215,7 +215,7 @@ family coverage as part of the admitted formal execution boundary; constructing
 members directly from production adapter executions remains outside the current
 implementation refinement.
 
-### M4. Minimal reference broker
+### M4. Minimal reference broker (completed)
 
 Extend the executable kernel into a small Rust system containing:
 
@@ -228,8 +228,26 @@ Extend the executable kernel into a small Rust system containing:
 - adapter interfaces for at least Uncontrolled, Idempotent, and Deduplicated
   examples.
 
-The implementation may contain unverified I/O and deployment code, but the
-verified kernel boundary and every trusted wrapper must be explicit.
+The `reference-broker` standard-Rust crate now provides all of these elements.
+Its dependency-free WAL uses versioned length frames, CRC32, synchronous file
+flushes, exact one-based LSNs, and deterministic torn-tail recovery. The
+`Start` LSN is the invocation identifier, so only the invocation occupying the
+single volatile executor slot can deliver an outcome. Recovery conservatively
+records an unmatched `Start` as ambiguous before either retrying an Idempotent
+or Deduplicated request or terminalizing an Uncontrolled request as Unknown.
+
+The test suite covers all nine record codecs, capability rejection and budget
+reconstruction, normal and ambiguous adapter behavior, stale-delivery
+rejection, lost terminal returns, torn final frames, and the product of all
+seven durable/volatile crash sites with all three required adapter examples
+(21 crash cases). `cargo fmt --check`, Clippy, and all 14 integration tests pass
+with the pinned Rust 1.96 toolchain on Linux.
+
+The crate README explicitly separates K1-K3 concepts from the trusted
+standard-Rust wrapper and the unverified filesystem, encoding, adapter,
+transport, and deployment layers. M4 does not prove that its byte WAL refines
+the typed-WAL model or that production executions inhabit T6-DD5's covered
+family.
 
 ## 7. Evaluation contract
 
@@ -311,7 +329,7 @@ The companion artifact is ready only when all of the following are true.
 | Priority | Blocker | Exit condition |
 |---|---|---|
 | P0 | Final claim currently exceeds some operational instantiations | Complete M1-M3 and run a claim audit |
-| P0 | No complete reference broker | Complete M4 with deterministic tests |
+| Closed | No complete reference broker | M4 reference crate and deterministic crash matrix completed |
 | P0 | No empirical evaluation | Complete RQ1-RQ4 with versioned data |
 | P1 | TLA+ artifact is not Linux-ready | Port or containerize the formal runner |
 | P1 | No top-level artifact packaging, CI, or license | Complete Section 8 |
@@ -320,10 +338,11 @@ The companion artifact is ready only when all of the following are true.
 
 ## 10. Planned work order
 
-1. Complete M1 and M2 on the verified Linux branch.
-2. Perform M3 before changing the main theorem wording.
-3. Design and implement M4 without expanding to concurrency.
-4. Build the crash matrix and evaluation harness while M4 stabilizes.
+1. M1 and M2 are complete on the verified Linux branch.
+2. M3 is complete at the coverage-conditioned formal family boundary.
+3. M4 is complete as the explicitly unverified single-slot reference broker.
+4. Turn the M4 crash matrix into a versioned RQ1 result generator and build the
+   RQ2 performance/ablation harness.
 5. Port/package the TLA+ runner and add smoke/full top-level commands.
 6. Run the related-work novelty test and write the paper around the frozen
    claim, not around the chronological proof history.
@@ -348,7 +367,10 @@ projects rather than implicit prerequisites for the scoped first paper.
 
 ## 12. Immediate next checkpoint
 
-The next theorem checkpoint is M4, the minimal reference broker prototype. M3 is
-closed at the formal family boundary by T6-DD5; implementation work must retain
-the explicit family-coverage premise until production adapter/service executions
-are refined into the Verus operational types.
+The next implementation checkpoint is the versioned evaluation harness: retain
+the M4 crash-matrix results for RQ1 and add the RQ2 latency, throughput, WAL,
+flush, recovery, retry, and ablation measurements. In parallel, the artifact
+runner must make the existing TLA+/Verus evidence reproducible on fresh Linux.
+M3 remains closed only at the coverage-conditioned formal family boundary;
+production adapter/service executions are not yet refined into the Verus
+operational types.

@@ -119,6 +119,17 @@ K3-A0 is still not a complete broker event loop: concurrent writers, executor
 slots, invocation, crash/recovery, transport, physical persistence, and
 deployment remain outside this executable kernel.
 
+M4 adds a separate standard-Rust
+[`reference-broker`](reference-broker/README.md) prototype around that verified
+conceptual boundary. It implements generated request IDs, configured
+capability budgets, exact record ancestry, a checksummed file WAL with torn-tail
+recovery, one executor slot, invocation correlation, terminal retrieval, and
+Uncontrolled, Idempotent, and Deduplicated example adapters. Its deterministic
+tests cover all seven durable/volatile crash sites for all three adapters. M4
+does not extend the Verus theorem boundary: the Rust wrapper, byte encoding,
+filesystem calls, adapters, transport, and deployment remain trusted or
+unverified exactly as listed in the crate README.
+
 The first research target is deliberately smaller than a complete agent
 runtime. T1 establishes the Broker-side form of the claim:
 
@@ -137,6 +148,8 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
 ## Formal model
 
 - [Formal model](formal/README.md) defines the scope and modeling decisions.
+- [M4 reference broker](reference-broker/README.md) documents and tests the
+  executable prototype and its verified/trusted/unverified boundary.
 - [Research contract and threat model](formal/threat-model.md) fixes the
   adversary, trusted base, guarantees, assumptions, and non-goals.
 - [Mathematical specification](formal/specification.md) defines traces,

@@ -130,6 +130,13 @@ does not extend the Verus theorem boundary: the Rust wrapper, byte encoding,
 filesystem calls, adapters, transport, and deployment remain trusted or
 unverified exactly as listed in the crate README.
 
+The first versioned RQ1/RQ2
+[`evaluation report`](reference-broker/evaluation/results/README.md) reruns the
+21-case crash matrix, validates stale-delivery rejection and exact ancestry,
+and records release-mode latency, throughput, WAL, flush, recovery, retry, and
+effect measurements against direct and journaled-at-least-once ablations. It is
+a single-host harness baseline, not yet the repeated paper-grade evaluation.
+
 The first research target is deliberately smaller than a complete agent
 runtime. T1 establishes the Broker-side form of the claim:
 

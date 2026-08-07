@@ -259,6 +259,13 @@ Run systematic crash injection at every durable/volatile boundary for each
 adapter example. Check terminal uniqueness, retry bounds, stale-delivery
 rejection, authorization ancestry, and the adapter-specific effect oracle.
 
+The schema-v1 M4 harness now retains this 21-case product for the three
+reference adapters and seven explicit crash sites. Every retained case has one
+terminal, respects the retry bound, has exact authorization ancestry, and
+satisfies its adapter effect oracle; the separate stale-delivery check also
+passes without a WAL mutation. This is executable reference-system evidence,
+not a refinement of the byte WAL or deployment into the verified model.
+
 ### RQ2. What does durable mediation cost?
 
 Measure request latency, throughput, WAL bytes, flushes, recovery time, and
@@ -266,6 +273,12 @@ retry overhead against two ablations:
 
 - direct tool invocation without durable mediation; and
 - a journaled at-least-once retry loop without adapter effect contracts.
+
+The initial release-mode harness records every required metric for 100-request
+mediated, direct, and journaled-at-least-once local workloads, plus three
+ambiguous-result retry workloads. The retained run is a functional baseline;
+paper-grade RQ2 still requires warmups, repeated independent samples,
+uncertainty reporting, and controlled storage/service environments.
 
 ### RQ3. How much work is required to verify an adapter?
 
@@ -330,7 +343,7 @@ The companion artifact is ready only when all of the following are true.
 |---|---|---|
 | P0 | Final claim currently exceeds some operational instantiations | Complete M1-M3 and run a claim audit |
 | Closed | No complete reference broker | M4 reference crate and deterministic crash matrix completed |
-| P0 | No empirical evaluation | Complete RQ1-RQ4 with versioned data |
+| P0 | Paper-grade empirical evaluation incomplete | RQ1/RQ2 harness and first versioned baseline exist; add repetitions and complete RQ3/RQ4 |
 | P1 | TLA+ artifact is not Linux-ready | Port or containerize the formal runner |
 | P1 | No top-level artifact packaging, CI, or license | Complete Section 8 |
 | P1 | Novelty is not established against related work | Complete a structured comparison and narrow priority language as needed |
@@ -341,10 +354,12 @@ The companion artifact is ready only when all of the following are true.
 1. M1 and M2 are complete on the verified Linux branch.
 2. M3 is complete at the coverage-conditioned formal family boundary.
 3. M4 is complete as the explicitly unverified single-slot reference broker.
-4. Turn the M4 crash matrix into a versioned RQ1 result generator and build the
-   RQ2 performance/ablation harness.
-5. Port/package the TLA+ runner and add smoke/full top-level commands.
-6. Run the related-work novelty test and write the paper around the frozen
+4. The versioned RQ1 generator and initial RQ2 performance/ablation harness are
+   complete, with a retained schema-v1 Linux baseline.
+5. Add repeated controlled RQ2 runs and build the RQ3 proof-effort and RQ4
+   fault-classification reports.
+6. Port/package the TLA+ runner and add smoke/full top-level commands.
+7. Run the related-work novelty test and write the paper around the frozen
    claim, not around the chronological proof history.
 7. Produce an anonymous release candidate and execute a clean-room artifact
    rehearsal.
@@ -367,10 +382,10 @@ projects rather than implicit prerequisites for the scoped first paper.
 
 ## 12. Immediate next checkpoint
 
-The next implementation checkpoint is the versioned evaluation harness: retain
-the M4 crash-matrix results for RQ1 and add the RQ2 latency, throughput, WAL,
-flush, recovery, retry, and ablation measurements. In parallel, the artifact
-runner must make the existing TLA+/Verus evidence reproducible on fresh Linux.
-M3 remains closed only at the coverage-conditioned formal family boundary;
-production adapter/service executions are not yet refined into the Verus
-operational types.
+The next evaluation checkpoint is paper-grade evidence: repeat the RQ2
+workloads under a controlled protocol, report uncertainty, generate RQ3 from
+the retained verification metadata, and complete the RQ4 failure matrix. In
+parallel, the artifact runner must make the existing TLA+/Verus evidence
+reproducible on fresh Linux. M3 remains closed only at the
+coverage-conditioned formal family boundary; production adapter/service
+executions are not yet refined into the Verus operational types.

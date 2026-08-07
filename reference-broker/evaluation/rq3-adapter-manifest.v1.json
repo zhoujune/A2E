@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "shared_framework_targets": ["T6-D0", "T6-E0", "T6-C0", "T6-S0"],
+  "adapters": [
+    {
+      "name": "idempotent_ensure_member",
+      "retry_class": "Idempotent",
+      "targets": ["T6-A0", "T6-A1", "T6-M0", "T6-P0", "T6-X0"],
+      "evidence_boundary": "full distinguished operational/protected/contextual witness"
+    },
+    {
+      "name": "read_only_environment_sample",
+      "retry_class": "ReadOnly",
+      "targets": ["T6-RO0"],
+      "evidence_boundary": "operational adapter/WAL witness; no protected/contextual instantiation"
+    },
+    {
+      "name": "deduplicated_keyed_decision",
+      "retry_class": "Deduplicated",
+      "targets": ["T6-DD0", "T6-DD1", "T6-DD2", "T6-DD3", "T6-DD4", "T6-DD5"],
+      "evidence_boundary": "distinguished full witness plus coverage-conditioned request family"
+    }
+  ]
+}

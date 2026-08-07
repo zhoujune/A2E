@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "scope": "M4 single-slot reference broker with successful adapter effect followed by a crash",
+  "classification_legend": {
+    "safe_completion": "recovery may retry or replay and eventually records one committed abstract effect",
+    "unknown": "the broker refuses an unsafe retry and records that the external effect may or may not have occurred",
+    "assumption_dependent": "classification depends on where the external service linearizes; M4 has no hook inside the synchronous adapter call"
+  },
+  "global_outcome_rules": {
+    "conclusive_failure": "a delivered and durably persisted Failure terminalizes as Fail",
+    "invalid_result": "a delivered InvalidResult terminalizes as Unknown(InvalidResult)",
+    "retry_exhaustion": "persistent ambiguity terminalizes as Unknown(Exhausted) at max_attempts"
+  },
+  "cells": [
+    {"adapter":"Uncontrolled","fault_window":"reservation_to_send","m4_evidence":"AfterStart","classification":"unknown","recovery_action":"persist Ambiguous then Unknown; do not invoke","safety_basis":"no retry occurs without a service contract","availability_tradeoff":"may return Unknown even when the effect definitely did not start"},
+    {"adapter":"Uncontrolled","fault_window":"send_to_linearization","m4_evidence":"not_distinguished_inside_adapter","classification":"assumption_dependent","recovery_action":"persist Ambiguous then Unknown; do not retry","safety_basis":"conservative classification covers either side of service linearization","availability_tradeoff":"cannot recover completion without a service-side contract"},
+    {"adapter":"Uncontrolled","fault_window":"linearization_to_delivery","m4_evidence":"AfterInvoke","classification":"unknown","recovery_action":"persist Ambiguous then Unknown; do not retry","safety_basis":"avoids a possible duplicate uncontrolled effect","availability_tradeoff":"a completed effect is not reported as committed"},
+    {"adapter":"Uncontrolled","fault_window":"delivery_to_persistence","m4_evidence":"AfterInvoke","classification":"unknown","recovery_action":"persist Ambiguous then Unknown; do not retry","safety_basis":"volatile delivery is not trusted after restart","availability_tradeoff":"loses a conclusive volatile response"},
+    {"adapter":"Uncontrolled","fault_window":"persistence_to_terminalization","m4_evidence":"AfterOutcome","classification":"safe_completion","recovery_action":"replay Outcome and append its unique terminal","safety_basis":"durable observation and exact reference determine terminalization","availability_tradeoff":"requires recovery before the caller receives the terminal"},
+    {"adapter":"Uncontrolled","fault_window":"recovery_interruption","m4_evidence":"recovery_interruption_test","classification":"unknown","recovery_action":"resume from durable synthetic Ambiguous and append Unknown","safety_basis":"recovery steps are replayable and uncontrolled invocation is not retried","availability_tradeoff":"repeated recovery crashes delay the terminal"},
+
+    {"adapter":"Idempotent","fault_window":"reservation_to_send","m4_evidence":"AfterStart","classification":"safe_completion","recovery_action":"persist Ambiguous and retry with a new invocation ID","safety_basis":"repeated application has the same abstract effect","availability_tradeoff":"adds a physical retry and durable records"},
+    {"adapter":"Idempotent","fault_window":"send_to_linearization","m4_evidence":"adapter_contract","classification":"safe_completion","recovery_action":"retry after recording ambiguity","safety_basis":"either the first call did not linearize or repeated application is abstractly idempotent","availability_tradeoff":"physical work may repeat"},
+    {"adapter":"Idempotent","fault_window":"linearization_to_delivery","m4_evidence":"AfterInvoke","classification":"safe_completion","recovery_action":"retry with a new invocation ID","safety_basis":"the second call does not add a second abstract mutation","availability_tradeoff":"physical invocation count increases"},
+    {"adapter":"Idempotent","fault_window":"delivery_to_persistence","m4_evidence":"AfterInvoke","classification":"safe_completion","recovery_action":"reject stale delivery and retry","safety_basis":"idempotence collapses replayed mutation","availability_tradeoff":"volatile successful delivery is discarded"},
+    {"adapter":"Idempotent","fault_window":"persistence_to_terminalization","m4_evidence":"AfterOutcome","classification":"safe_completion","recovery_action":"replay Outcome and append Commit","safety_basis":"durable successful observation uniquely determines Commit","availability_tradeoff":"requires recovery before result retrieval"},
+    {"adapter":"Idempotent","fault_window":"recovery_interruption","m4_evidence":"recovery_interruption_test","classification":"safe_completion","recovery_action":"resume synthetic Ambiguous then retry","safety_basis":"durable recovery progress plus idempotent replay","availability_tradeoff":"each interruption postpones completion"},
+
+    {"adapter":"Deduplicated","fault_window":"reservation_to_send","m4_evidence":"AfterStart","classification":"safe_completion","recovery_action":"persist Ambiguous and retry with the stable key","safety_basis":"the service memoizes one decision per key","availability_tradeoff":"adds lookup and retry records"},
+    {"adapter":"Deduplicated","fault_window":"send_to_linearization","m4_evidence":"adapter_contract","classification":"safe_completion","recovery_action":"retry with the same key","safety_basis":"the retry either creates or returns the unique keyed decision","availability_tradeoff":"requires durable service-side key retention"},
+    {"adapter":"Deduplicated","fault_window":"linearization_to_delivery","m4_evidence":"AfterInvoke","classification":"safe_completion","recovery_action":"retry and retrieve the memoized decision","safety_basis":"the first decision is reused rather than applied again","availability_tradeoff":"physical request repeats even though mutation does not"},
+    {"adapter":"Deduplicated","fault_window":"delivery_to_persistence","m4_evidence":"AfterInvoke","classification":"safe_completion","recovery_action":"reject stale delivery and retry with the same key","safety_basis":"stable-key lookup returns the same value","availability_tradeoff":"volatile delivery is discarded and fetched again"},
+    {"adapter":"Deduplicated","fault_window":"persistence_to_terminalization","m4_evidence":"AfterOutcome","classification":"safe_completion","recovery_action":"replay Outcome and append Commit","safety_basis":"durable successful observation uniquely determines Commit","availability_tradeoff":"requires recovery before result retrieval"},
+    {"adapter":"Deduplicated","fault_window":"recovery_interruption","m4_evidence":"recovery_interruption_test","classification":"safe_completion","recovery_action":"resume synthetic Ambiguous and retry with the stable key","safety_basis":"replayable recovery plus keyed decision uniqueness","availability_tradeoff":"recovery and lookup may repeat until a run survives"}
+  ]
+}

@@ -18,3 +18,7 @@ mechanized/results/*.json
 
 # Standard Rust build output for the M4 reference broker.
 **/target/
+
+# Python validation-script caches.
+**/__pycache__/
+**/*.pyc

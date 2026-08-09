@@ -360,7 +360,7 @@ The companion artifact is ready only when all of the following are true.
 | P0 | Final claim currently exceeds some operational instantiations | Complete M1-M3 and run a claim audit |
 | Closed | No complete reference broker | M4 reference crate and deterministic crash matrix completed |
 | P0 | Paper-grade empirical evaluation incomplete | RQ1-RQ4 baseline evidence exists; add repeated hosts/storage conditions and complete external comparisons |
-| P1 | Linux TLA+ execution package incomplete | Runner and dry-run preflight exist; package the hash-pinned Java/TLA+ dependency or container |
+| Closed | Linux TLA+ execution package incomplete | Hash-pinned Temurin/TLA+ artifacts and clean-room smoke/full reports retained at source revision `5d8e8ed` |
 | P1 | No top-level artifact packaging, CI, or license | Complete Section 8 |
 | P1 | Novelty is not established against related work | Complete a structured comparison and narrow priority language as needed |
 | P2 | ReadOnly lacks a protected/contextual instantiation | Complete it or explicitly limit the corresponding operational claim |
@@ -374,11 +374,12 @@ The companion artifact is ready only when all of the following are true.
    complete, with a retained schema-v1 Linux baseline.
 5. RQ3 proof-effort generation and the RQ4 fault-classification matrix are
    complete at the M4/reference-artifact boundary.
-6. The Linux artifact runner and smoke/full command surface are implemented;
-   package the pinned Java/TLA+ dependency and execute clean-room smoke/full.
-7. Run the related-work novelty test and write the paper around the frozen
+6. The Linux artifact runner, pinned Java/TLA+ package, clean-room smoke/full
+   reports, and clean-room Verus report are complete.
+7. Add repeated external RQ2 host/storage conditions, run the related-work
+   novelty test, and write the paper around the frozen
    claim, not around the chronological proof history.
-8. Produce an anonymous release candidate and execute a clean-room artifact
+8. Produce an anonymous release candidate and execute a final clean-room artifact
    rehearsal.
 
 ## 11. Change control
@@ -399,9 +400,10 @@ projects rather than implicit prerequisites for the scoped first paper.
 
 ## 12. Immediate next checkpoint
 
-The next evaluation checkpoint is the clean-room Linux artifact run: supply the
-hash-pinned Java/TLA+ package, execute smoke and full TLA+ plus Verus commands,
-and retain their reports. External RQ2 host/storage conditions and semantic
-comparisons follow. M3 remains closed only at the
+The clean-room Linux artifact checkpoint is complete: hash-pinned Java/TLA+
+artifacts, TLA+ smoke/full reports, and a 56-target Verus report are retained
+at source revision `5d8e8ed`. The next evaluation checkpoint is external RQ2
+host/storage conditions plus semantic comparisons and the related-work novelty
+test. M3 remains closed only at the
 coverage-conditioned formal family boundary; production adapter/service
 executions are not yet refined into the Verus operational types.

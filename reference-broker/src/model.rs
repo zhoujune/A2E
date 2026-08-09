@@ -28,6 +28,16 @@ pub enum RetryClass {
     Uncontrolled,
 }
 
+impl RetryClass {
+    #[must_use]
+    pub const fn max_attempts(self) -> u64 {
+        match self {
+            Self::Uncontrolled | Self::ReadOnly => 1,
+            Self::Idempotent | Self::Deduplicated => 3,
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Observation {
     Success(Value),

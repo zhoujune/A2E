@@ -59,7 +59,7 @@ fn exercise<A: Adapter>(site: CrashSite, spec: RequestSpec, adapter: &mut A) -> 
         broker.set_crash_plan(Some(CrashPlan::once(site)));
         assert_crash(
             broker
-                .run(request, 3, adapter)
+                .run(request, spec.class.max_attempts(), adapter)
                 .expect_err("execution crash"),
             site,
         );
@@ -67,7 +67,9 @@ fn exercise<A: Adapter>(site: CrashSite, spec: RequestSpec, adapter: &mut A) -> 
         broker = Broker::open(directory.wal(), config(1)).unwrap();
     }
 
-    let terminal = broker.run(request, 3, adapter).expect("recover and finish");
+    let terminal = broker
+        .run(request, spec.class.max_attempts(), adapter)
+        .expect("recover and finish");
     assert_eq!(broker.terminal(request).unwrap(), Some(terminal));
     assert_eq!(
         broker

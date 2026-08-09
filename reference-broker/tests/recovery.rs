@@ -2,7 +2,7 @@ mod common;
 
 use common::{config, idempotent_spec, TestDirectory};
 use proveai_reference_broker::adapters::IdempotentAdapter;
-use proveai_reference_broker::wal::FileWal;
+use proveai_reference_broker::wal::{FileWal, WalError};
 use proveai_reference_broker::{
     Broker, BrokerError, CapabilityId, CrashPlan, CrashSite, DedupKey, Digest, JournalRecord,
     Observation, RequestId, RetryClass, TerminalResult, UnknownReason, Value,
@@ -27,6 +27,7 @@ fn torn_final_frame_is_discarded_and_file_is_reusable() {
             11,
         )
         .unwrap();
+    assert!(matches!(wal.append(authorize), Err(WalError::Poisoned)));
     drop(wal);
 
     let (mut recovered, report) = FileWal::open(&wal_path).expect("repair torn tail");
@@ -131,7 +132,7 @@ fn terminal_append_survives_lost_return() {
         broker.set_crash_plan(Some(CrashPlan::once(CrashSite::AfterTerminal)));
         let mut adapter = IdempotentAdapter::default();
         assert!(matches!(
-            broker.run(request, 2, &mut adapter),
+            broker.run(request, RetryClass::Idempotent.max_attempts(), &mut adapter),
             Err(BrokerError::SimulatedCrash(CrashSite::AfterTerminal))
         ));
         assert_eq!(adapter.mutation_count(), 1);
@@ -145,7 +146,13 @@ fn terminal_append_survives_lost_return() {
     assert_eq!(recovered.terminal(request).unwrap(), Some(expected));
     let mut unused_adapter = IdempotentAdapter::default();
     assert_eq!(
-        recovered.run(request, 2, &mut unused_adapter).unwrap(),
+        recovered
+            .run(
+                request,
+                RetryClass::Idempotent.max_attempts(),
+                &mut unused_adapter,
+            )
+            .unwrap(),
         expected
     );
     assert_eq!(unused_adapter.mutation_count(), 0);

@@ -21,9 +21,11 @@ refines the typed-WAL theorem, that arbitrary production executions inhabit the
 DD5 request family, or that an operating-system deployment enforces exclusive
 mediation.
 
-The configured capability IDs and initial budgets are trusted immutable input
-and must be identical when reopening an existing WAL. Replay reconstructs every
-budget consumption and revocation from that input plus the durable records.
+The configured capability IDs and initial budgets are trusted immutable input.
+Opening a WAL creates or verifies a deterministic `<wal>.config` sidecar, so a
+restart with altered capability budgets is rejected before replay. Replay
+reconstructs every budget consumption and revocation from that bound input plus
+the durable records.
 
 ## Protocol
 
@@ -41,7 +43,10 @@ budget consumption and revocation from that input plus the durable records.
    recoverable through `terminal`.
 6. Recovery converts an unmatched `Start` into an ambiguous `Outcome`.
    Uncontrolled execution becomes `Unknown`; Idempotent and Deduplicated
-   execution may retry within the caller's attempt limit.
+   execution may retry within its class-derived attempt limit (three attempts
+   for Idempotent and Deduplicated, one for Uncontrolled and ReadOnly). The
+   `run` argument must match that limit; manual `begin_attempt` and
+   `accept_delivery` paths enforce it directly.
 
 Every record is stored in a versioned length frame with a CRC32 checksum. An
 incomplete or checksum-invalid final frame is discarded on open; corruption
@@ -59,8 +64,10 @@ before the final frame is rejected.
 - `AfterOutcome`
 - `AfterTerminal`
 
-A simulated crash error is terminal for that `Broker` instance. Drop it and
-reopen the same WAL to model process restart.
+A simulated crash error is terminal for that `Broker` instance. All mutating
+operations are rejected with `Crashed`; drop it and reopen the same WAL to model
+process restart. A failed WAL append similarly poisons the in-memory WAL and
+requires reopening before further appends.
 
 ## Commands
 

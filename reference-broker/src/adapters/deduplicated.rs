@@ -56,12 +56,13 @@ impl Adapter for DeduplicatedAdapter {
             self.decisions.insert(key, value);
             value
         };
+        let observation = match self.deliveries.pop_front() {
+            Some(Observation::Success(_)) | None => Observation::Success(value),
+            Some(other) => other,
+        };
         Delivery {
             invocation: invocation.id,
-            observation: self
-                .deliveries
-                .pop_front()
-                .unwrap_or(Observation::Success(value)),
+            observation,
         }
     }
 }

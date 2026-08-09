@@ -10,16 +10,19 @@ and records every scenario result.
 
 - Linux x86-64
 - Python 3.9 or newer, standard library only
-- Java `21.0.11` from a hash-pinned JRE or container
+- Eclipse Temurin Java `21.0.11+10` for Linux x64, pinned in
+  `artifact/toolchain.lock.json`
 - TLA+ Tools `v1.7.4` with SHA-256
   `936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`
 - `chmod`, `python3`, and a writable temporary directory
 
-The repository intentionally does not silently download an unpinned JRE. Set
-`JAVA_HOME` and `PROVEAI_TLA_TOOLS`, or pass `--java` and `--tla-tools`
-explicitly. The Java archive/container hash must be supplied by the artifact
-release package; the current server could not reach the upstream download
-endpoints, so this prerequisite remains an open packaging item.
+The repository intentionally does not silently download a JRE. Set `JAVA_HOME`
+and `PROVEAI_TLA_TOOLS`, or pass `--java` and `--tla-tools` explicitly. Real
+runs verify the selected Java executable against the locked SHA-256
+`fd85538801d8ca61d3558c87a57a600e1868d8ac9e918d0860dd64281b548643`.
+`--java-sha256` or `PROVEAI_JAVA_SHA256` may supply an explicit release-package
+pin; otherwise the runner uses the lock. The lock also records Adoptium's
+published JRE archive hash.
 
 The current server preflight is retained at
 `artifact/results/linux-smoke-preflight.json`; it validates the smoke snapshot
@@ -31,15 +34,18 @@ without claiming TLC execution.
 ./artifact/run.sh smoke --dry-run --report /tmp/proveai-tla-smoke.json
 python3 artifact/validate_report.py /tmp/proveai-tla-smoke.json
 
-./artifact/run.sh smoke --workers 2 --report artifact/results/tla-smoke.json
-./artifact/run.sh full --workers 2 --report artifact/results/tla-full.json
+./artifact/run.sh smoke --workers 2 --timeout-seconds 3600 \
+  --report artifact/results/tla-smoke.json
+./artifact/run.sh full --workers 2 --timeout-seconds 3600 \
+  --report artifact/results/tla-full.json
 ```
 
-The smoke manifest selects 10 scenarios; full selects all 13. Reports refuse
+The smoke manifest selects 8 scenarios; full selects all 13. Reports refuse
 to overwrite existing files and include runner/manifest/input hashes, Java/TLC
-versions, isolated snapshot membership, per-scenario timing, exit status, and
-the last 4,000 bytes of TLC output. Dry-run validates packaging and snapshot
-integrity without claiming model-checking execution.
+versions and hashes, isolated snapshot membership, per-scenario timing, exit
+status, timeout bounds, and an output byte count/hash. The runner rechecks exact
+snapshot membership and hashes after every scenario. Dry-run validates packaging
+and snapshot integrity without claiming model-checking execution.
 
 The Verus runner remains `pwsh -NoLogo -NoProfile -File
 mechanized/verify.ps1`; its existing Linux branch downloads the separately

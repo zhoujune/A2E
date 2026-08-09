@@ -1,6 +1,8 @@
 use std::collections::BTreeMap;
 use std::fmt;
-use std::path::Path;
+use std::fs::OpenOptions;
+use std::io::{self, Read, Write};
+use std::path::{Path, PathBuf};
 
 use crate::adapter::{Adapter, Delivery};
 use crate::fault::{CrashPlan, CrashSite};
@@ -24,6 +26,8 @@ pub struct BrokerConfig {
 #[derive(Debug)]
 pub enum BrokerError {
     Wal(WalError),
+    ConfigurationIo(io::Error),
+    ConfigurationMismatch,
     InvalidConfig(&'static str),
     InvalidSpec(&'static str),
     Protocol(&'static str),
@@ -43,6 +47,12 @@ pub enum BrokerError {
         adapter: RetryClass,
     },
     AttemptsMustBePositive,
+    AttemptLimitMismatch {
+        configured: u64,
+        supplied: u64,
+    },
+    AttemptLimitReached(RequestId),
+    Crashed,
     SimulatedCrash(CrashSite),
 }
 
@@ -50,6 +60,12 @@ impl fmt::Display for BrokerError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Wal(error) => error.fmt(formatter),
+            Self::ConfigurationIo(error) => {
+                write!(formatter, "broker configuration I/O error: {error}")
+            }
+            Self::ConfigurationMismatch => {
+                formatter.write_str("broker configuration does not match the WAL binding")
+            }
             Self::InvalidConfig(detail) => {
                 write!(formatter, "invalid broker configuration: {detail}")
             }
@@ -90,6 +106,18 @@ impl fmt::Display for BrokerError {
             Self::AttemptsMustBePositive => {
                 formatter.write_str("maximum attempts must be positive")
             }
+            Self::AttemptLimitMismatch {
+                configured,
+                supplied,
+            } => write!(
+                formatter,
+                "retry limit for this request is {configured}, but caller supplied {supplied}"
+            ),
+            Self::AttemptLimitReached(request) => {
+                write!(formatter, "request {request} has reached its retry limit")
+            }
+            Self::Crashed => formatter
+                .write_str("broker instance is unusable after a simulated crash; reopen the WAL"),
             Self::SimulatedCrash(site) => write!(formatter, "simulated crash at {site:?}"),
         }
     }
@@ -99,6 +127,7 @@ impl std::error::Error for BrokerError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             Self::Wal(error) => Some(error),
+            Self::ConfigurationIo(error) => Some(error),
             _ => None,
         }
     }
@@ -443,10 +472,14 @@ pub struct Broker {
     active: Option<Invocation>,
     crash_plan: Option<CrashPlan>,
     recovery: RecoveryReport,
+    crashed: bool,
 }
 
 impl Broker {
     pub fn open(path: impl AsRef<Path>, config: BrokerConfig) -> Result<Self, BrokerError> {
+        let path = path.as_ref();
+        let _ = DurableState::from_config(&config)?;
+        bind_configuration(path, &config)?;
         let (wal, recovery) = FileWal::open(path)?;
         let state = DurableState::replay(&config, wal.records())?;
         Ok(Self {
@@ -455,6 +488,7 @@ impl Broker {
             active: None,
             crash_plan: None,
             recovery,
+            crashed: false,
         })
     }
 
@@ -512,6 +546,7 @@ impl Broker {
         capability: CapabilityId,
         digest: Digest,
     ) -> Result<RequestId, BrokerError> {
+        self.ensure_operational()?;
         let capability_state = self
             .state
             .capabilities
@@ -534,6 +569,7 @@ impl Broker {
     }
 
     pub fn prepare(&mut self, request: RequestId, spec: RequestSpec) -> Result<(), BrokerError> {
+        self.ensure_operational()?;
         if !spec.has_valid_key_shape() {
             return Err(BrokerError::InvalidSpec(
                 "a key is required exactly for Deduplicated requests",
@@ -557,6 +593,7 @@ impl Broker {
     }
 
     pub fn revoke(&mut self, capability: CapabilityId) -> Result<(), BrokerError> {
+        self.ensure_operational()?;
         let state = self
             .state
             .capabilities
@@ -570,13 +607,19 @@ impl Broker {
     }
 
     pub fn begin_attempt(&mut self, request: RequestId) -> Result<Invocation, BrokerError> {
+        self.ensure_operational()?;
         if let Some(active) = self.active {
             return Err(BrokerError::ExecutorBusy(active.request));
         }
         if let Some(interrupted) = self.interrupted_request() {
             return Err(BrokerError::RecoveryRequired(interrupted));
         }
-        self.resolve_recorded_outcome(request, None)?;
+        let class = self
+            .state
+            .request(request)?
+            .class
+            .ok_or(BrokerError::RequestNotPrepared(request))?;
+        self.resolve_recorded_outcome(request, Some(class.max_attempts()))?;
         if let Some(terminal) = self.terminal(request)? {
             return Err(BrokerError::Protocol(match terminal {
                 TerminalResult::Committed { .. } => "committed request cannot start",
@@ -587,18 +630,19 @@ impl Broker {
         self.arm_if_needed(request)?;
 
         let request_state = self.state.request(request)?;
-        let class = request_state
-            .class
-            .ok_or(BrokerError::RequestNotPrepared(request))?;
         if class == RetryClass::ReadOnly {
             return Err(BrokerError::InvalidSpec(
                 "M4 provides no ReadOnly reference adapter",
             ));
         }
+        let retry_limit = class.max_attempts();
         let attempt = request_state
             .attempts
             .checked_add(1)
             .ok_or(BrokerError::Protocol("attempt space exhausted"))?;
+        if attempt > retry_limit {
+            return Err(BrokerError::AttemptLimitReached(request));
+        }
         let digest = request_state.digest;
         let key = request_state.key;
         let arm_ref = request_state
@@ -628,6 +672,7 @@ impl Broker {
         &mut self,
         delivery: Delivery,
     ) -> Result<Option<TerminalResult>, BrokerError> {
+        self.ensure_operational()?;
         self.accept_delivery_with_limit(delivery, None)
     }
 
@@ -637,6 +682,7 @@ impl Broker {
         max_attempts: u64,
         adapter: &mut A,
     ) -> Result<TerminalResult, BrokerError> {
+        self.ensure_operational()?;
         if max_attempts == 0 {
             return Err(BrokerError::AttemptsMustBePositive);
         }
@@ -645,6 +691,13 @@ impl Broker {
             .request(request)?
             .class
             .ok_or(BrokerError::RequestNotPrepared(request))?;
+        let configured_limit = request_class.max_attempts();
+        if max_attempts != configured_limit {
+            return Err(BrokerError::AttemptLimitMismatch {
+                configured: configured_limit,
+                supplied: max_attempts,
+            });
+        }
         if request_class != adapter.retry_class() {
             return Err(BrokerError::AdapterClassMismatch {
                 request: request_class,
@@ -710,6 +763,13 @@ impl Broker {
             });
         }
         let invocation = expected.expect("delivery ID matched an active invocation");
+        let class = self
+            .state
+            .request(invocation.request)?
+            .class
+            .ok_or(BrokerError::RequestNotPrepared(invocation.request))?;
+        let configured_limit = class.max_attempts();
+        let max_attempts = max_attempts.or(Some(configured_limit));
         let request_state = self.state.request(invocation.request)?;
         let start_ref = request_state
             .pending
@@ -855,9 +915,53 @@ impl Broker {
 
     fn crash(&mut self, site: CrashSite) -> Result<(), BrokerError> {
         if self.crash_plan.as_mut().is_some_and(|plan| plan.hit(site)) {
+            self.crashed = true;
             Err(BrokerError::SimulatedCrash(site))
         } else {
             Ok(())
         }
+    }
+
+    fn ensure_operational(&self) -> Result<(), BrokerError> {
+        if self.crashed {
+            Err(BrokerError::Crashed)
+        } else {
+            Ok(())
+        }
+    }
+}
+
+fn bind_configuration(path: &Path, config: &BrokerConfig) -> Result<(), BrokerError> {
+    let mut capabilities = config.capabilities.clone();
+    capabilities.sort_by_key(|spec| spec.id);
+    let mut expected = b"PROVEAI-BROKER-CONFIG-V1\n".to_vec();
+    for capability in capabilities {
+        expected.extend_from_slice(&capability.id.0.to_le_bytes());
+        expected.extend_from_slice(&capability.budget.to_le_bytes());
+    }
+    let mut sidecar = path.as_os_str().to_os_string();
+    sidecar.push(".config");
+    let sidecar = PathBuf::from(sidecar);
+    match OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&sidecar)
+    {
+        Ok(mut file) => file
+            .write_all(&expected)
+            .and_then(|_| file.sync_all())
+            .map_err(BrokerError::ConfigurationIo),
+        Err(error) if error.kind() == io::ErrorKind::AlreadyExists => {
+            let mut actual = Vec::new();
+            std::fs::File::open(&sidecar)
+                .and_then(|mut file| file.read_to_end(&mut actual))
+                .map_err(BrokerError::ConfigurationIo)?;
+            if actual == expected {
+                Ok(())
+            } else {
+                Err(BrokerError::ConfigurationMismatch)
+            }
+        }
+        Err(error) => Err(BrokerError::ConfigurationIo(error)),
     }
 }

@@ -19,7 +19,6 @@ use crate::model::{
 
 pub const REPORT_SCHEMA_VERSION: u64 = 1;
 const CAPABILITY: CapabilityId = CapabilityId(7);
-const MAX_ATTEMPTS: u64 = 3;
 const CRASH_SITES: [CrashSite; 7] = [
     CrashSite::AfterAuthorize,
     CrashSite::AfterPrepare,
@@ -251,12 +250,15 @@ fn run_crash_case(
 
     if !matches!(site, CrashSite::AfterAuthorize | CrashSite::AfterPrepare) {
         broker.set_crash_plan(Some(CrashPlan::once(site)));
-        expect_crash(broker.run(request, MAX_ATTEMPTS, &mut adapter), site)?;
+        expect_crash(
+            broker.run(request, class.max_attempts(), &mut adapter),
+            site,
+        )?;
         drop(broker);
         broker = Broker::open(&path, broker_config(1))?;
     }
 
-    let terminal = broker.run(request, MAX_ATTEMPTS, &mut adapter)?;
+    let terminal = broker.run(request, class.max_attempts(), &mut adapter)?;
     let records = broker.wal_records();
     let terminal_records = records
         .iter()
@@ -264,7 +266,7 @@ fn run_crash_case(
         .count() as u64;
     let terminal_attempt = terminal_attempt(terminal);
     let authorization_ancestry = audit_authorization_ancestry(records);
-    let retry_bound_respected = terminal_attempt <= MAX_ATTEMPTS;
+    let retry_bound_respected = terminal_attempt <= class.max_attempts();
     let effect_oracle_satisfied = adapter.effect_oracle(site, terminal);
     let terminal_shape_satisfied = expected_terminal(class, site, terminal);
     let passed = terminal_records == 1
@@ -616,7 +618,7 @@ fn benchmark_retry_mediated(
         let terminal = match class {
             RetryClass::Idempotent => {
                 let mut adapter = IdempotentAdapter::scripted([Observation::Ambiguous]);
-                let terminal = broker.run(request, 2, &mut adapter)?;
+                let terminal = broker.run(request, class.max_attempts(), &mut adapter)?;
                 physical_invocations =
                     physical_invocations.saturating_add(adapter.invocation_count());
                 abstract_effects = abstract_effects.saturating_add(adapter.mutation_count());
@@ -624,7 +626,7 @@ fn benchmark_retry_mediated(
             }
             RetryClass::Deduplicated => {
                 let mut adapter = DeduplicatedAdapter::scripted([Observation::Ambiguous]);
-                let terminal = broker.run(request, 2, &mut adapter)?;
+                let terminal = broker.run(request, class.max_attempts(), &mut adapter)?;
                 physical_invocations =
                     physical_invocations.saturating_add(adapter.invocation_count());
                 abstract_effects = abstract_effects.saturating_add(adapter.mutation_count());

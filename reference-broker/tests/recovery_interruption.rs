@@ -66,7 +66,7 @@ fn exercise(class: RetryClass, spec: RequestSpec) -> (TerminalResult, u64) {
         broker.prepare(request, spec).unwrap();
         broker.set_crash_plan(Some(CrashPlan::once(CrashSite::AfterStart)));
         assert!(matches!(
-            broker.run(request, 3, &mut adapter),
+            broker.run(request, class.max_attempts(), &mut adapter),
             Err(BrokerError::SimulatedCrash(CrashSite::AfterStart))
         ));
     }
@@ -74,12 +74,14 @@ fn exercise(class: RetryClass, spec: RequestSpec) -> (TerminalResult, u64) {
         let mut recovering = Broker::open(directory.wal(), config(1)).unwrap();
         recovering.set_crash_plan(Some(CrashPlan::once(CrashSite::AfterOutcome)));
         assert!(matches!(
-            recovering.run(request, 3, &mut adapter),
+            recovering.run(request, class.max_attempts(), &mut adapter),
             Err(BrokerError::SimulatedCrash(CrashSite::AfterOutcome))
         ));
     }
     let mut recovered = Broker::open(directory.wal(), config(1)).unwrap();
-    let terminal = recovered.run(request, 3, &mut adapter).unwrap();
+    let terminal = recovered
+        .run(request, class.max_attempts(), &mut adapter)
+        .unwrap();
     (terminal, adapter.effects())
 }
 

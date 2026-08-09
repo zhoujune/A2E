@@ -38,7 +38,17 @@ def main():
     if report["status"] == "passed":
         require(all(scenario["status"] == "passed" for scenario in report["scenarios"]), "root status mismatch")
         require(report["java"]["version"], "Java version missing")
+        require(report["java"]["sha256"] and len(report["java"]["sha256"]) == 64, "Java executable hash missing")
         require(report["tla_tools"]["sha256"] and len(report["tla_tools"]["sha256"]) == 64, "TLA hash missing")
+    for scenario in report["scenarios"]:
+        if "output_bytes" in scenario and "output_sha256" in scenario:
+            require(scenario["output_bytes"] >= 0, "scenario output size missing")
+            require(len(scenario["output_sha256"]) == 64, "scenario output hash missing")
+            require(report["snapshot"]["verified_before_and_after"], "post-run snapshot verification missing")
+            require(report["timeout_seconds"] > 0, "scenario timeout missing")
+            require(len(report["toolchain_lock"]["sha256"]) == 64, "toolchain lock hash missing")
+        else:
+            require("output_tail" in scenario, "scenario output digest missing")
     print(f"validated Linux artifact report: {path}")
 
 

@@ -16,6 +16,7 @@ from pathlib import Path
 
 SAFE_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 JAVA_VERSION = re.compile(r'"21\.0\.11')
+SHA256 = re.compile(r"^[0-9a-fA-F]{64}$")
 
 
 def fail(message):
@@ -87,7 +88,7 @@ def load_suite(root):
     return scenarios
 
 
-def resolve_java(argument):
+def resolve_java(argument, expected_sha256):
     candidate = Path(argument) if argument else None
     if candidate and candidate.is_dir():
         candidate = candidate / "bin" / "java"
@@ -100,15 +101,24 @@ def resolve_java(argument):
             candidate = Path(candidate) if candidate else None
     if candidate is None or not candidate.is_file() or not os.access(candidate, os.X_OK):
         fail("Java 21.0.11 is required; set JAVA_HOME or --java to a hash-pinned Linux JRE")
-    result = subprocess.run([str(candidate), "-version"], capture_output=True, text=True)
+    if not expected_sha256 or not SHA256.fullmatch(expected_sha256):
+        fail("the toolchain lock, --java-sha256, or PROVEAI_JAVA_SHA256 must provide a Java executable SHA-256")
+    actual_sha256 = sha256(candidate)
+    if actual_sha256.lower() != expected_sha256.lower():
+        fail(f"Java executable SHA-256 mismatch: expected {expected_sha256}, observed {actual_sha256}")
+    try:
+        result = subprocess.run(
+            [str(candidate), "-version"], capture_output=True, text=True, timeout=10
+        )
+    except subprocess.TimeoutExpired:
+        fail("Java version probe exceeded 10 seconds")
     version_text = result.stderr + result.stdout
     if result.returncode != 0 or not JAVA_VERSION.search(version_text):
         fail(f"Java 21.0.11 is required, observed: {version_text.strip()}")
-    return candidate, version_text.strip()
+    return candidate, version_text.strip(), actual_sha256
 
 
-def resolve_tla(argument, root):
-    lock = json.loads((root / "artifact" / "toolchain.lock.json").read_text(encoding="utf-8"))
+def resolve_tla(argument, lock):
     expected = lock["tla_tools"]["sha256"]
     candidate = Path(argument) if argument else None
     if candidate is None:
@@ -120,7 +130,7 @@ def resolve_tla(argument, root):
     actual = sha256(candidate)
     if actual != expected:
         fail(f"TLA+ Tools SHA-256 mismatch: expected {expected}, observed {actual}")
-    return candidate, actual, lock
+    return candidate, actual
 
 
 def snapshot_inputs(root, scenarios, destination):
@@ -138,18 +148,43 @@ def snapshot_inputs(root, scenarios, destination):
     return inputs, hashes
 
 
+def verify_snapshot(destination, inputs, hashes):
+    observed = sorted(path.name for path in destination.iterdir())
+    if observed != inputs:
+        fail(f"isolated snapshot membership changed: expected {inputs}, observed {observed}")
+    for path in inputs:
+        actual = sha256(destination / path)
+        if actual != hashes[path]:
+            fail(f"isolated snapshot hash changed for {path}: expected {hashes[path]}, observed {actual}")
+
+
 def run(args):
     root = Path(args.repository).resolve()
+    toolchain_lock_path = root / "artifact" / "toolchain.lock.json"
+    require_file(toolchain_lock_path, "toolchain lock")
+    toolchain_lock_bytes = toolchain_lock_path.read_bytes()
+    toolchain_lock_hash = hashlib.sha256(toolchain_lock_bytes).hexdigest()
+    toolchain_lock = json.loads(toolchain_lock_bytes)
+    runner_hash = sha256(Path(__file__))
+    manifest_hash = sha256(root / "formal" / "model-suite.json")
+    revision = source_revision(root)
     scenarios = load_suite(root)
     selected = [entry for entry in scenarios if args.suite == "full" or entry["tier"] == "smoke"]
     java = None
     java_version = None
+    java_hash = None
     tla_tools = None
     tla_hash = None
     lock = None
     if not args.dry_run:
-        java, java_version = resolve_java(args.java)
-        tla_tools, tla_hash, lock = resolve_tla(args.tla_tools, root)
+        lock = toolchain_lock
+        java, java_version, java_hash = resolve_java(
+            args.java,
+            args.java_sha256
+            or os.environ.get("PROVEAI_JAVA_SHA256")
+            or lock["java"].get("sha256"),
+        )
+        tla_tools, tla_hash = resolve_tla(args.tla_tools, lock)
     report_path = Path(args.report).resolve()
     if report_path.exists():
         fail(f"refusing to overwrite existing report: {report_path}")
@@ -160,7 +195,10 @@ def run(args):
         states = temporary_root / "states"
         snapshot.mkdir()
         states.mkdir()
+        java_temp = temporary_root / "java-temp"
+        java_temp.mkdir()
         inputs, hashes = snapshot_inputs(root, selected, snapshot)
+        verify_snapshot(snapshot, inputs, hashes)
         scenario_reports = []
         for entry in selected:
             state_dir = states / entry["name"]
@@ -169,7 +207,8 @@ def run(args):
             if args.dry_run:
                 status = "dry_run"
                 exit_code = None
-                output = ""
+                output_length = 0
+                output_sha256 = hashlib.sha256(b"").hexdigest()
             else:
                 command = [
                     str(java),
@@ -186,10 +225,24 @@ def run(args):
                     entry["config"],
                     entry["module"],
                 ]
-                result = subprocess.run(command, cwd=snapshot, capture_output=True, text=True)
-                status = "passed" if result.returncode == 0 else "failed"
-                exit_code = result.returncode
-                output = (result.stdout + result.stderr)[-4000:]
+                try:
+                    result = subprocess.run(
+                        command,
+                        cwd=snapshot,
+                        capture_output=True,
+                        timeout=args.timeout_seconds,
+                    )
+                    status = "passed" if result.returncode == 0 else "failed"
+                    exit_code = result.returncode
+                    output = result.stdout + result.stderr
+                except subprocess.TimeoutExpired as error:
+                    status = "timeout"
+                    exit_code = None
+                    output = (error.stdout or b"") + (error.stderr or b"")
+                output_bytes = bytes(output)
+                output_sha256 = hashlib.sha256(output_bytes).hexdigest()
+                output_length = len(output_bytes)
+            verify_snapshot(snapshot, inputs, hashes)
             scenario_reports.append(
                 {
                     **entry,
@@ -198,26 +251,38 @@ def run(args):
                     "duration_ms": round((time.time() - scenario_started) * 1000),
                     "module_sha256": hashes[entry["module"]],
                     "config_sha256": hashes[entry["config"]],
-                    "output_tail": output,
+                    "output_bytes": output_length,
+                    "output_sha256": output_sha256,
                 }
             )
+        verify_snapshot(snapshot, inputs, hashes)
     report = {
         "schema_version": 1,
         "status": "dry_run" if args.dry_run else ("passed" if all(item["status"] == "passed" for item in scenario_reports) else "failed"),
         "generated_unix_seconds": int(time.time()),
-        "source_revision": source_revision(root),
+        "source_revision": revision,
         "repository": ".",
-        "runner": {"path": "artifact/run-linux.py", "sha256": sha256(Path(__file__))},
-        "manifest": {"path": "formal/model-suite.json", "sha256": sha256(root / "formal" / "model-suite.json")},
+        "runner": {"path": "artifact/run-linux.py", "sha256": runner_hash},
+        "manifest": {"path": "formal/model-suite.json", "sha256": manifest_hash},
+        "toolchain_lock": {
+            "path": "artifact/toolchain.lock.json",
+            "sha256": toolchain_lock_hash,
+        },
         "suite": args.suite,
         "workers": args.workers,
-        "java": {"provided": java is not None, "version": java_version},
+        "timeout_seconds": args.timeout_seconds,
+        "java": {"provided": java is not None, "version": java_version, "sha256": java_hash},
         "tla_tools": {
             "provided": tla_tools is not None,
             "version": lock["tla_tools"]["version"] if lock else None,
             "sha256": tla_hash,
         },
-        "snapshot": {"inputs": inputs, "hashes": hashes, "isolated_read_only": True},
+        "snapshot": {
+            "inputs": inputs,
+            "hashes": hashes,
+            "isolated_read_only": True,
+            "verified_before_and_after": True,
+        },
         "scenarios": scenario_reports,
         "limitations": [
             "dry-run does not execute TLC",
@@ -238,13 +303,17 @@ def main():
     parser.add_argument("suite", choices=("smoke", "full"))
     parser.add_argument("--repository", default=".")
     parser.add_argument("--java")
+    parser.add_argument("--java-sha256")
     parser.add_argument("--tla-tools")
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--report", required=True)
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--timeout-seconds", type=float, default=3600.0)
     args = parser.parse_args()
     if args.workers < 1 or args.workers > 32:
         parser.error("--workers must be between 1 and 32")
+    if args.timeout_seconds <= 0:
+        parser.error("--timeout-seconds must be positive")
     try:
         raise SystemExit(run(args))
     except RuntimeError as error:

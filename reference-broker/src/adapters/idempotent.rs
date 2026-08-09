@@ -44,12 +44,14 @@ impl Adapter for IdempotentAdapter {
             self.applied = true;
             self.mutations = self.mutations.saturating_add(1);
         }
+        let value = Value(self.mutations);
+        let observation = match self.deliveries.pop_front() {
+            Some(Observation::Success(_)) | None => Observation::Success(value),
+            Some(other) => other,
+        };
         Delivery {
             invocation: invocation.id,
-            observation: self
-                .deliveries
-                .pop_front()
-                .unwrap_or(Observation::Success(Value(1))),
+            observation,
         }
     }
 }

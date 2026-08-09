@@ -17,6 +17,7 @@ const MAX_PAYLOAD_LEN: usize = 1_048_576;
 #[derive(Debug)]
 pub enum WalError {
     Io(io::Error),
+    Poisoned,
     Corrupt { offset: u64, detail: &'static str },
     InvalidRecord(&'static str),
     RecordTooLarge(usize),
@@ -27,6 +28,9 @@ impl fmt::Display for WalError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Io(error) => write!(formatter, "WAL I/O error: {error}"),
+            Self::Poisoned => {
+                formatter.write_str("WAL instance is poisoned; reopen it before appending")
+            }
             Self::Corrupt { offset, detail } => {
                 write!(formatter, "corrupt WAL frame at byte {offset}: {detail}")
             }
@@ -74,6 +78,7 @@ pub struct FileWal {
     file: File,
     records: Vec<JournalRecord>,
     metrics: WalMetrics,
+    poisoned: bool,
 }
 
 impl FileWal {
@@ -97,6 +102,7 @@ impl FileWal {
                 file,
                 records,
                 metrics,
+                poisoned: false,
             },
             report,
         ))
@@ -118,22 +124,39 @@ impl FileWal {
     }
 
     pub fn append(&mut self, record: JournalRecord) -> Result<u64, WalError> {
+        if self.poisoned {
+            return Err(WalError::Poisoned);
+        }
         let lsn = u64::try_from(self.records.len())
             .ok()
             .and_then(|length| length.checked_add(1))
             .ok_or(WalError::LsnExhausted)?;
         let frame = encode_frame(record)?;
-        self.file.seek(SeekFrom::End(0))?;
-        self.file.write_all(&frame)?;
-        self.file.flush()?;
-        self.file.sync_data()?;
-        self.records.push(record);
-        self.metrics.records = lsn;
-        self.metrics.bytes = self
+        let frame_bytes = u64::try_from(frame.len()).map_err(|_| WalError::LsnExhausted)?;
+        let next_bytes = self
             .metrics
             .bytes
-            .checked_add(u64::try_from(frame.len()).map_err(|_| WalError::LsnExhausted)?)
+            .checked_add(frame_bytes)
             .ok_or(WalError::LsnExhausted)?;
+        if let Err(error) = self.file.seek(SeekFrom::End(0)) {
+            self.poisoned = true;
+            return Err(error.into());
+        }
+        if let Err(error) = self.file.write_all(&frame) {
+            self.poisoned = true;
+            return Err(error.into());
+        }
+        if let Err(error) = self.file.flush() {
+            self.poisoned = true;
+            return Err(error.into());
+        }
+        if let Err(error) = self.file.sync_data() {
+            self.poisoned = true;
+            return Err(error.into());
+        }
+        self.records.push(record);
+        self.metrics.records = lsn;
+        self.metrics.bytes = next_bytes;
         self.metrics.flushes = self.metrics.flushes.saturating_add(1);
         Ok(lsn)
     }
@@ -147,16 +170,32 @@ impl FileWal {
         record: JournalRecord,
         retained_bytes: usize,
     ) -> Result<usize, WalError> {
+        if self.poisoned {
+            return Err(WalError::Poisoned);
+        }
         let frame = encode_frame(record)?;
         if retained_bytes >= frame.len() {
             return Err(WalError::InvalidRecord(
                 "a torn frame must omit at least one byte",
             ));
         }
-        self.file.seek(SeekFrom::End(0))?;
-        self.file.write_all(&frame[..retained_bytes])?;
-        self.file.flush()?;
-        self.file.sync_data()?;
+        if let Err(error) = self.file.seek(SeekFrom::End(0)) {
+            self.poisoned = true;
+            return Err(error.into());
+        }
+        if let Err(error) = self.file.write_all(&frame[..retained_bytes]) {
+            self.poisoned = true;
+            return Err(error.into());
+        }
+        if let Err(error) = self.file.flush() {
+            self.poisoned = true;
+            return Err(error.into());
+        }
+        if let Err(error) = self.file.sync_data() {
+            self.poisoned = true;
+            return Err(error.into());
+        }
+        self.poisoned = true;
         Ok(frame.len())
     }
 }

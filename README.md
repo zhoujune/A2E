@@ -138,6 +138,9 @@ effect measurements against direct and journaled-at-least-once ablations. A
 controlled follow-up adds five warmups, thirty measured repetitions, confidence
 intervals, and CPU pinning on Linux; it still does not claim universal
 performance.
+The [Linux artifact runner](artifact/README.md) now provides fail-closed smoke
+and full TLA+ commands with isolated input snapshots; an executed run still
+requires the pinned Java/TLA+ package described there.
 The same evaluation package now generates RQ3 adapter effort directly from the
 hash-bound Verus report and supplies an 18-cell RQ4 safety/availability matrix,
 including an executable recovery-interruption test.

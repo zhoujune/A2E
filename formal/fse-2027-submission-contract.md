@@ -317,7 +317,8 @@ The companion artifact is ready only when all of the following are true.
 
 ### 8.1 Reproduction
 
-- A fresh Linux x86-64 environment can run a documented smoke command.
+- A fresh Linux x86-64 environment can run a documented artifact smoke
+  preflight; an executed smoke run requires the pinned Java/TLA+ package.
 - A documented full command reproduces the retained Verus and TLA+ evidence.
 - The TLA+ bootstrap is Linux-capable or supplied in a pinned container.
 - First-run dependencies are vendored or fetched from documented, hash-pinned
@@ -359,7 +360,7 @@ The companion artifact is ready only when all of the following are true.
 | P0 | Final claim currently exceeds some operational instantiations | Complete M1-M3 and run a claim audit |
 | Closed | No complete reference broker | M4 reference crate and deterministic crash matrix completed |
 | P0 | Paper-grade empirical evaluation incomplete | RQ1-RQ4 baseline evidence exists; add repeated hosts/storage conditions and complete external comparisons |
-| P1 | TLA+ artifact is not Linux-ready | Port or containerize the formal runner |
+| P1 | Linux TLA+ execution package incomplete | Runner and dry-run preflight exist; package the hash-pinned Java/TLA+ dependency or container |
 | P1 | No top-level artifact packaging, CI, or license | Complete Section 8 |
 | P1 | Novelty is not established against related work | Complete a structured comparison and narrow priority language as needed |
 | P2 | ReadOnly lacks a protected/contextual instantiation | Complete it or explicitly limit the corresponding operational claim |
@@ -373,10 +374,11 @@ The companion artifact is ready only when all of the following are true.
    complete, with a retained schema-v1 Linux baseline.
 5. RQ3 proof-effort generation and the RQ4 fault-classification matrix are
    complete at the M4/reference-artifact boundary.
-6. Port/package the TLA+ runner and add smoke/full top-level commands.
+6. The Linux artifact runner and smoke/full command surface are implemented;
+   package the pinned Java/TLA+ dependency and execute clean-room smoke/full.
 7. Run the related-work novelty test and write the paper around the frozen
    claim, not around the chronological proof history.
-7. Produce an anonymous release candidate and execute a clean-room artifact
+8. Produce an anonymous release candidate and execute a clean-room artifact
    rehearsal.
 
 ## 11. Change control
@@ -397,9 +399,9 @@ projects rather than implicit prerequisites for the scoped first paper.
 
 ## 12. Immediate next checkpoint
 
-The next evaluation checkpoint is external-condition evaluation and artifact
-packaging: repeat RQ2 across supported storage/host conditions, complete
-semantic comparisons, and make the existing TLA+/Verus evidence reproducible
-on fresh Linux. M3 remains closed only at the
+The next evaluation checkpoint is the clean-room Linux artifact run: supply the
+hash-pinned Java/TLA+ package, execute smoke and full TLA+ plus Verus commands,
+and retain their reports. External RQ2 host/storage conditions and semantic
+comparisons follow. M3 remains closed only at the
 coverage-conditioned formal family boundary; production adapter/service
 executions are not yet refined into the Verus operational types.

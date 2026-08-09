@@ -1,0 +1,44 @@
+# Linux artifact runner
+
+`run-linux.py` is the Linux counterpart for the TLA+ part of the existing
+PowerShell runner. It uses the repository's exact `formal/model-suite.json`,
+copies only the selected `.tla`/`.cfg` inputs into a temporary read-only
+snapshot, hashes every copied input, verifies the pinned TLA+ Tools v1.7.4 JAR,
+and records every scenario result.
+
+## Prerequisites
+
+- Linux x86-64
+- Python 3.9 or newer, standard library only
+- Java `21.0.11` from a hash-pinned JRE or container
+- TLA+ Tools `v1.7.4` with SHA-256
+  `936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`
+- `chmod`, `python3`, and a writable temporary directory
+
+The repository intentionally does not silently download an unpinned JRE. Set
+`JAVA_HOME` and `PROVEAI_TLA_TOOLS`, or pass `--java` and `--tla-tools`
+explicitly. The Java archive/container hash must be supplied by the artifact
+release package; the current server could not reach the upstream download
+endpoints, so this prerequisite remains an open packaging item.
+
+## Smoke and full commands
+
+```sh
+./artifact/run.sh smoke --dry-run --report /tmp/proveai-tla-smoke.json
+python3 artifact/validate_report.py /tmp/proveai-tla-smoke.json
+
+./artifact/run.sh smoke --workers 2 --report artifact/results/tla-smoke.json
+./artifact/run.sh full --workers 2 --report artifact/results/tla-full.json
+```
+
+The smoke manifest selects 10 scenarios; full selects all 13. Reports refuse
+to overwrite existing files and include runner/manifest/input hashes, Java/TLC
+versions, isolated snapshot membership, per-scenario timing, exit status, and
+the last 4,000 bytes of TLC output. Dry-run validates packaging and snapshot
+integrity without claiming model-checking execution.
+
+The Verus runner remains `pwsh -NoLogo -NoProfile -File
+mechanized/verify.ps1`; its existing Linux branch downloads the separately
+locked Verus/Rust artifacts and emits the retained verification report. The
+clean-room release command should invoke this runner after the Linux JRE and
+TLC prerequisites are packaged.

@@ -22,3 +22,7 @@ mechanized/results/*.json
 # Python validation-script caches.
 **/__pycache__/
 **/*.pyc
+
+# Retain only the versioned Linux artifact preflight report.
+artifact/results/*.json
+!artifact/results/linux-smoke-preflight.json

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "tla_tools": {
+    "version": "v1.7.4",
+    "url": "https://github.com/tlaplus/tlaplus/releases/download/v1.7.4/tla2tools.jar",
+    "sha256": "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88"
+  },
+  "java": {
+    "required_version": "21.0.11",
+    "provisioning": "artifact evaluator supplies a hash-pinned Linux x64 JRE or container"
+  }
+}

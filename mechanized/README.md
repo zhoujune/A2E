@@ -1577,6 +1577,12 @@ the Z3 executable inside the hash-checked Verus tree. The retained run passes
 all 56/56 targets with 1,372 dependency-aware non-duplicated obligations and
 32,714 summed target obligations.
 
+The clean-room Linux run at source revision
+`5d8e8ed39e492b05f52ba093782a043d204f1192` is retained as
+`mechanized/results/verification-report-linux-5d8e8ed.json`. It passed all 56
+targets with fresh Rust/Verus toolchain isolation and post-run source/tree
+integrity checks.
+
 By default the run atomically writes the machine-readable evidence file
 `mechanized/results/verification-report.json`. `-ReportPath <path>` selects a
 different JSON destination, while `-NoReport` retains console-only operation.

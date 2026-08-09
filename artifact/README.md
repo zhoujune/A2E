@@ -28,6 +28,11 @@ The current server preflight is retained at
 `artifact/results/linux-smoke-preflight.json`; it validates the smoke snapshot
 without claiming TLC execution.
 
+The clean-room run at source revision `5d8e8ed39e492b05f52ba093782a043d204f1192`
+is retained as `artifact/results/tla-smoke-5d8e8ed.json` and
+`artifact/results/tla-full-5d8e8ed.json`. Smoke passed 8/8 scenarios; full passed
+13/13 scenarios with 32 workers and a 1,200-second per-scenario bound.
+
 ## Smoke and full commands
 
 ```sh

@@ -21,6 +21,10 @@ explicitly. The Java archive/container hash must be supplied by the artifact
 release package; the current server could not reach the upstream download
 endpoints, so this prerequisite remains an open packaging item.
 
+The current server preflight is retained at
+`artifact/results/linux-smoke-preflight.json`; it validates the smoke snapshot
+without claiming TLC execution.
+
 ## Smoke and full commands
 
 ```sh

@@ -30,6 +30,21 @@ def sha256(path):
     return digest.hexdigest()
 
 
+def source_revision(root):
+    configured = os.environ.get("PROVEAI_SOURCE_REVISION")
+    if configured:
+        return configured
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "HEAD"],
+            cwd=root,
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return "unknown"
+
+
 def require_file(path, description):
     if not path.is_file():
         fail(f"missing {description}: {path}")
@@ -190,6 +205,7 @@ def run(args):
         "schema_version": 1,
         "status": "dry_run" if args.dry_run else ("passed" if all(item["status"] == "passed" for item in scenario_reports) else "failed"),
         "generated_unix_seconds": int(time.time()),
+        "source_revision": source_revision(root),
         "repository": ".",
         "runner": {"path": "artifact/run-linux.py", "sha256": sha256(Path(__file__))},
         "manifest": {"path": "formal/model-suite.json", "sha256": sha256(root / "formal" / "model-suite.json")},

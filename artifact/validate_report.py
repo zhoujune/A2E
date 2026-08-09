@@ -17,6 +17,7 @@ def main():
     path = Path(sys.argv[1])
     report = json.loads(path.read_text(encoding="utf-8"))
     require(report["schema_version"] == 1, "unsupported report schema")
+    require(len(report["source_revision"]) >= 7, "source revision is missing")
     require(report["status"] in {"dry_run", "passed"}, "runner did not pass")
     require(report["suite"] in {"smoke", "full"}, "invalid suite")
     require(report["runner"]["sha256"] and len(report["runner"]["sha256"]) == 64, "runner hash missing")

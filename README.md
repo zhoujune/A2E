@@ -134,8 +134,10 @@ The first versioned RQ1/RQ2
 [`evaluation report`](reference-broker/evaluation/results/README.md) reruns the
 21-case crash matrix, validates stale-delivery rejection and exact ancestry,
 and records release-mode latency, throughput, WAL, flush, recovery, retry, and
-effect measurements against direct and journaled-at-least-once ablations. It is
-a single-host harness baseline, not yet the repeated paper-grade evaluation.
+effect measurements against direct and journaled-at-least-once ablations. A
+controlled follow-up adds five warmups, thirty measured repetitions, confidence
+intervals, and CPU pinning on Linux; it still does not claim universal
+performance.
 The same evaluation package now generates RQ3 adapter effort directly from the
 hash-bound Verus report and supplies an 18-cell RQ4 safety/availability matrix,
 including an executable recovery-interruption test.

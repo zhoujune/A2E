@@ -276,9 +276,10 @@ retry overhead against two ablations:
 
 The initial release-mode harness records every required metric for 100-request
 mediated, direct, and journaled-at-least-once local workloads, plus three
-ambiguous-result retry workloads. The retained run is a functional baseline;
-paper-grade RQ2 still requires warmups, repeated independent samples,
-uncertainty reporting, and controlled storage/service environments.
+ambiguous-result retry workloads. A controlled follow-up adds five warmups,
+thirty independent process repetitions, raw samples, 95% normal-approximation
+intervals, and CPU affinity on Linux. It remains a local overlayfs measurement:
+remote-service latency and physical-device controls are outside this baseline.
 
 ### RQ3. How much work is required to verify an adapter?
 
@@ -357,7 +358,7 @@ The companion artifact is ready only when all of the following are true.
 |---|---|---|
 | P0 | Final claim currently exceeds some operational instantiations | Complete M1-M3 and run a claim audit |
 | Closed | No complete reference broker | M4 reference crate and deterministic crash matrix completed |
-| P0 | Paper-grade empirical evaluation incomplete | RQ1-RQ4 baseline evidence exists; add controlled RQ2 repetitions and uncertainty reporting |
+| P0 | Paper-grade empirical evaluation incomplete | RQ1-RQ4 baseline evidence exists; add repeated hosts/storage conditions and complete external comparisons |
 | P1 | TLA+ artifact is not Linux-ready | Port or containerize the formal runner |
 | P1 | No top-level artifact packaging, CI, or license | Complete Section 8 |
 | P1 | Novelty is not established against related work | Complete a structured comparison and narrow priority language as needed |
@@ -396,9 +397,9 @@ projects rather than implicit prerequisites for the scoped first paper.
 
 ## 12. Immediate next checkpoint
 
-The next evaluation checkpoint is paper-grade performance evidence: repeat the
-RQ2 workloads under a controlled protocol and report uncertainty. In parallel,
-the artifact runner must make the existing TLA+/Verus evidence reproducible on
-fresh Linux. M3 remains closed only at the
+The next evaluation checkpoint is external-condition evaluation and artifact
+packaging: repeat RQ2 across supported storage/host conditions, complete
+semantic comparisons, and make the existing TLA+/Verus evidence reproducible
+on fresh Linux. M3 remains closed only at the
 coverage-conditioned formal family boundary; production adapter/service
 executions are not yet refined into the Verus operational types.

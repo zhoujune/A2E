@@ -29,11 +29,31 @@ adapters made 20 physical invocations but only 10 abstract mutations. The
 journaled at-least-once ablation made 20 invocations and 20 effects, including
 10 duplicate effects.
 
-These numbers validate the harness and expose its accounting; they are not yet
-paper-grade performance results. There are no warmups, repeated independent
-runs, confidence intervals, remote services, or storage-device controls. A
+These single-run numbers validate the harness and expose its accounting. A
 zero recovery time for the Direct workload means that the ablation provides no
 recovery mechanism, not instantaneous durable recovery.
+
+## Controlled repeated RQ2 run
+
+`rq2-repeated-linux.json` uses five warmups, thirty measured repetitions, 500
+requests per primary workload, 50 requests per retry workload, a 25 ms gap
+between measured runs, and CPU affinity `{0}`. Its SHA-256 is
+`7acb2ee7dbe2b0a06d6a1c5e7383661e5c91c1a1dd4e91ad886fb70f3f7a2ba3`.
+
+| Workload | Mean latency (ms) | 95% interval (ms) | Mean requests/s | Mean recovery (ms) |
+|---|---:|---:|---:|---:|
+| Mediated | 0.464 | 0.452-0.475 | 2,165.87 | 1.268 |
+| Direct | below 0.001 | below 0.001 | 13,892,373.93 | not applicable |
+| Journaled at-least-once | 0.144 | 0.139-0.148 | 7,011.15 | 0.020 |
+
+Retry workloads averaged 0.588 ms for mediated Idempotent, 0.592 ms for
+mediated Deduplicated, and 0.285 ms for journaled at-least-once. The two
+contract-bearing adapters retained one abstract effect per request; the
+contract-free baseline retained one extra effect per request.
+
+This is still a local overlayfs measurement with fixed workload order and no
+remote service or physical-device controls. It is a reproducible artifact
+baseline, not a universal systems-performance claim.
 
 ## RQ3 and RQ4
 

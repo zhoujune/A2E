@@ -41,8 +41,20 @@ def run_command(command, root, log_path, *, allow_missing=False):
     return "passed"
 
 
-def run_artifact_runner(root, suite, report, dry_run, logs):
-    command = [sys.executable, "artifact/run-linux.py", suite, "--repository", str(root), "--report", str(report)]
+def run_artifact_runner(root, suite, report, dry_run, workers, timeout_seconds, logs):
+    command = [
+        sys.executable,
+        "artifact/run-linux.py",
+        suite,
+        "--repository",
+        str(root),
+        "--report",
+        str(report),
+        "--workers",
+        str(workers),
+        "--timeout-seconds",
+        str(timeout_seconds),
+    ]
     if dry_run:
         command.append("--dry-run")
     return run_command(command, root, logs / "tla-runner.log")
@@ -66,10 +78,16 @@ def main():
     parser.add_argument("suite", choices=("smoke", "full"))
     parser.add_argument("--repository", default=".")
     parser.add_argument("--output-directory")
+    parser.add_argument("--workers", type=int, default=1)
+    parser.add_argument("--timeout-seconds", type=float, default=3600.0)
     parser.add_argument("--dry-run", action="store_true", help="validate TLA+ packaging without executing TLC")
     parser.add_argument("--skip-verus", action="store_true", help="skip Verus; intended only for smoke preflight")
     parser.add_argument("--skip-rust", action="store_true", help="skip Rust checks; intended only for packaging preflight")
     args = parser.parse_args()
+    if args.workers < 1 or args.workers > 32:
+        parser.error("--workers must be between 1 and 32")
+    if args.timeout_seconds <= 0:
+        parser.error("--timeout-seconds must be positive")
     root = Path(args.repository).resolve()
     if not (root / ".git").exists():
         fail(f"repository is not a Git checkout: {root}")
@@ -87,7 +105,9 @@ def main():
         "outputs": {"tla": str(tla_report), "verus": str(verus_report), "logs": str(logs)},
         "steps": {},
     }
-    summary["steps"]["tla"] = run_artifact_runner(root, args.suite, tla_report, args.dry_run, logs)
+    summary["steps"]["tla"] = run_artifact_runner(
+        root, args.suite, tla_report, args.dry_run, args.workers, args.timeout_seconds, logs
+    )
     run_command([sys.executable, "artifact/validate_report.py", str(tla_report)], root, logs / "tla-validate.log")
     summary["steps"]["tla_validate"] = "passed"
     if args.skip_rust:

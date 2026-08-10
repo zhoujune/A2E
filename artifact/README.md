@@ -40,8 +40,8 @@ output directory, refuses to overwrite reports, and records command logs:
 
 ```sh
 ./reproduce.sh smoke --dry-run --skip-verus --skip-rust
-./reproduce.sh smoke
-./reproduce.sh full
+./reproduce.sh smoke --workers 2
+./reproduce.sh full --workers 32 --timeout-seconds 1200
 ```
 
 The PowerShell equivalent is `./reproduce.ps1 smoke -DryRun -SkipVerus -SkipRust`.

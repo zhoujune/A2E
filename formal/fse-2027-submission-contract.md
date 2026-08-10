@@ -112,9 +112,11 @@ The paper must therefore use this narrower, qualified proposition:
 > Based on the sources checked through 2026-08-10, we are not aware of prior
 > work that machine-checks a coverage-conditioned compositional refinement for
 > a serialized AI tool-effect broker from durable capability authorization and
-> complete mediation, through fail-stop crash/recovery, to explicit ReadOnly,
-> Idempotent, Deduplicated, and Uncontrolled abstract-effect semantics,
-> including `Unknown` for irreducible ambiguity.
+> complete mediation for protected Idempotent and Deduplicated instances,
+> through fail-stop crash/recovery, to an abstract adapter layer that explicitly
+> distinguishes ReadOnly, Idempotent, Deduplicated, and Uncontrolled effects,
+> including `Unknown` for irreducible ambiguity. The ReadOnly operational
+> instance is proved only through its adapter/WAL/Broker refinement boundary.
 
 This is a synthesis claim about the complete chain, not a claim that capability
 enforcement, durable workflows, crash refinement, ambiguous retry,
@@ -142,6 +144,11 @@ closer system appears.
 | Request-indexed family of operational/protected executions | T6-DD5 coverage-conditioned family theorem with DD2 nonvacuity | Complete at the formal family boundary; production construction remains an implementation refinement |
 | Executable broker event loop and physical WAL | M4 `reference-broker`: generated IDs, capability budgets, one slot, framed file WAL, recovery, correlation, terminal retrieval, and three adapters | Complete as an unverified reference prototype; no production or byte-WAL refinement claim |
 | Byte/fsync/filesystem refinement | Typed-record abstraction only | Explicitly out of theorem scope; assumptions must be evaluated and documented |
+
+The ReadOnly row is intentionally not a complete-mediation row. T6-RO0 does
+not construct a separate protected-service execution or instantiate M0, P0,
+or X0 for that class. The paper must not generalize the Idempotent and
+Deduplicated protected/contextual results to ReadOnly.
 
 ## 5. Frozen scope
 
@@ -387,7 +394,7 @@ The companion artifact is ready only when all of the following are true.
 | Closed | No top-level artifact packaging, CI, or license | Root smoke/full entry points, dual license texts, dependency inventory, troubleshooting guide, and CI checks are present; the full entry point passed on Linux at `9a45d39` |
 | Closed | Final release rehearsal and offline/anonymous packaging | The lock-matching offline bundle passed 56/56 Verus targets at `079f209`; the metadata-free anonymous archive at `7fc87a7` passed revision binding, release scanning, TLA+ smoke preflight, and Rust checks |
 | Closed | Novelty is not established against related work | Source-backed audit retained; broad priority claims rejected and the surviving synthesis claim qualified through the 2026-08-10 search cutoff |
-| P2 | ReadOnly lacks a protected/contextual instantiation | Complete it or explicitly limit the corresponding operational claim |
+| Closed | ReadOnly lacks a protected/contextual instantiation | The operational claim is explicitly limited to T6-RO0's adapter/WAL/Broker refinement boundary and excluded from the protected-service, complete-mediation, P0, and X0 claims |
 
 ## 10. Planned work order
 
@@ -439,4 +446,6 @@ Kubernetes pod. The offline-bundle verifier passed 56/56 targets at `079f209`,
 and the anonymous archive rehearsal passed at `7fc87a7`; artifact P1 is closed.
 The next P0 checkpoint is an independent host. M3 remains closed only at the coverage-conditioned
 formal family boundary; production adapter/service executions are not yet
-refined into the Verus operational types.
+refined into the Verus operational types. ReadOnly P2 is closed by limiting its
+operational claim to T6-RO0 rather than asserting an unproved protected or
+contextual instantiation.

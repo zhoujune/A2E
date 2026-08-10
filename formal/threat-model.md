@@ -487,7 +487,9 @@ conditional all-prefix execution product, and T6-X0 lifts it through arbitrary
 supplied storage-parametric contexts and plugged executions while retaining the
 fixed `EnsureMember` protected-state interpretation. Production deployment
 refinement and additional adapter-effect instances remain deferred to later
-checkpoints.
+checkpoints. In particular, T6-RO0's ReadOnly operational witness stops at the
+adapter/WAL/Broker refinement boundary and is not covered by the protected-
+service, complete-mediation, P0, or X0 claims.
 
 Conditional liveness may be added later under scheduler-fairness, durable-I/O,
 and responsive-tool assumptions. It must not be inferred from the safety

@@ -28,9 +28,11 @@ The surviving contribution is narrower and more technically specific:
 > Based on the sources checked through 2026-08-10, we are not aware of prior
 > work that machine-checks a coverage-conditioned compositional refinement for
 > a serialized AI tool-effect broker from durable capability authorization and
-> complete mediation, through fail-stop crash/recovery, to explicit ReadOnly,
-> Idempotent, Deduplicated, and Uncontrolled abstract-effect semantics,
-> including `Unknown` for irreducible ambiguity.
+> complete mediation for protected Idempotent and Deduplicated instances,
+> through fail-stop crash/recovery, to an abstract adapter layer that explicitly
+> distinguishes ReadOnly, Idempotent, Deduplicated, and Uncontrolled effects,
+> including `Unknown` for irreducible ambiguity. The ReadOnly operational
+> instance is proved only through its adapter/WAL/Broker refinement boundary.
 
 This is a qualified synthesis claim, not an absolute priority claim. The paper
 should lead with the exact verified composition and its boundary, not with

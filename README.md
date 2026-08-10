@@ -82,7 +82,10 @@ factors the post-state as the initial state plus those transitions. Its
 premise-free 33-event adapter/31-event WAL crash/retry witness terminates in
 a conclusive `Fail` on attempt 2 despite attempt 1's delivered Success,
 making the ReadOnly branch of `Refines` non-vacuous with an operational
-model. T6-DD0 starts the third instance, for the Deduplicated retry class, by
+model. This ReadOnly claim stops at the adapter/WAL/Broker refinement boundary:
+it does not instantiate a separate protected-service execution, complete
+mediation, the P0 prefix product, or the X0 contextual lift. T6-DD0 starts the
+third instance, for the Deduplicated retry class, by
 defining the keyed decision/memoization semantics, a well-formed fixed
 configuration, and the operational transition system. T6-DD1 proves that
 machine's inductive invariant, derives the deduplication service law and

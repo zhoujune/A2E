@@ -567,6 +567,10 @@ Unknown    => no exact effect-count claim
 
 For a read-only request, `Committed` means that the committed return value
 refines one successful observation; it does not imply a mutation.
+The concrete T6-RO0 ReadOnly witness establishes this operational refinement at
+the adapter/WAL/Broker boundary only. It does not inherit the separate
+protected-service, complete-mediation, P0 prefix-product, or X0 contextual
+instantiations proved for the Idempotent and Deduplicated witnesses.
 
 Per-internal-request logical at-most-once completion is consequently different
 from physical exactly-once: a committed request has one abstract commit-log

@@ -21,6 +21,13 @@ refines the typed-WAL theorem, that arbitrary production executions inhabit the
 DD5 request family, or that an operating-system deployment enforces exclusive
 mediation.
 
+The example `DeduplicatedAdapter` keeps its keyed decisions in memory. Crash
+tests restart the `Broker` while retaining the adapter object, modeling an
+independently durable remote service. Restarting that adapter discards its
+decisions and does not satisfy the Deduplicated contract. A production adapter
+must keep its memo at least as long as the broker can retry the key, or provide
+an authoritative accepted-record reconciliation path.
+
 The configured capability IDs and initial budgets are trusted immutable input.
 Opening a WAL creates or verifies a deterministic `<wal>.config` sidecar, so a
 restart with altered capability budgets is rejected before replay. Replay

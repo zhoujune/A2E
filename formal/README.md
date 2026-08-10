@@ -1,5 +1,11 @@
 # Formal Model
 
+The dated [related-work and novelty audit](related-work-audit.md) compares the
+verified boundary with agent-policy systems, durable workflows, exactly-once
+mechanisms, dual-write recovery, capability systems, and machine-checked crash
+refinement. Its bibliography is retained in
+[`related-work.bib`](related-work.bib).
+
 ## Verification boundary
 
 The agent and external tools are adversarial or nondeterministic environment

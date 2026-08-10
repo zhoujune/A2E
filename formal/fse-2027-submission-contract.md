@@ -26,12 +26,14 @@ interprets retry outcomes through an explicit adapter contract.
 The working paper claim is:
 
 > For every finite execution admitted by the verified broker model, under a
-> well-formed configuration, a serialized writer and executor, a closed
-> protected-service interface, fail-stop crash assumptions, and a verified
-> adapter contract, every mediated physical invocation has durable
-> authorization ancestry; every logical request has at most one terminal
-> commit; recovery preserves the committed history; and the terminal outcome
-> refines the adapter's declared abstract-effect semantics.
+> well-formed configuration, a serialized writer and executor, and fail-stop
+> crash assumptions, every physical invocation has durable authorization
+> ancestry, every logical request has at most one terminal commit, and recovery
+> preserves the committed history. For each terminal request additionally
+> covered by a paired operational/protected execution-family member satisfying
+> the verified adapter contract and closed-interface premises, every protected
+> effect is mediated and the terminal outcome refines the adapter's declared
+> abstract-effect semantics.
 
 This claim deliberately says **mediated**, not production-global. Production
 process isolation, credential custody, network routing, and operating-system
@@ -97,16 +99,28 @@ claim that any individual mechanism is new.
 | Crash-consistent storage | Refinement from recovery history to agent-visible logical outcome and protected effect. |
 | Verified systems | An agent-tool boundary with explicit ambiguity, adapter laws, and complete mediation. |
 
-Before submission, related work must test and either support or narrow the
-following novelty proposition:
+The source-backed [related-work audit](related-work-audit.md), with a search
+cutoff of 2026-08-10, rejects broad priority language. PoE already joins
+authorization, an enforced execution path, durable effects, and replay in the
+AI-agent setting. Machine-Checked Dual-Write Recovery already gives an
+Isabelle/HOL treatment of crash ambiguity, sink acceptance, fencing,
+deduplication, and evidence lifetime. CaMeL and Guardians of the Agents already
+place capability or static-policy enforcement at the agent tool boundary.
 
-> No prior system provides a mechanized refinement from durable capability
-> authorization, through crash/retry execution and physical invocation
-> mediation, to adapter-specific abstract-effect guarantees for AI tool use.
+The paper must therefore use this narrower, qualified proposition:
 
-If prior work already provides this complete chain, the contribution must be
-narrowed to the missing semantic or mechanization component rather than using a
-priority claim.
+> Based on the sources checked through 2026-08-10, we are not aware of prior
+> work that machine-checks a coverage-conditioned compositional refinement for
+> a serialized AI tool-effect broker from durable capability authorization and
+> complete mediation, through fail-stop crash/recovery, to explicit ReadOnly,
+> Idempotent, Deduplicated, and Uncontrolled abstract-effect semantics,
+> including `Unknown` for irreducible ambiguity.
+
+This is a synthesis claim about the complete chain, not a claim that capability
+enforcement, durable workflows, crash refinement, ambiguous retry,
+deduplication, or AI-tool policy verification is individually new. The search
+must be refreshed at the submission freeze and the wording narrowed again if a
+closer system appears.
 
 ## 4. Claim-to-evidence map
 
@@ -362,12 +376,12 @@ The companion artifact is ready only when all of the following are true.
 
 | Priority | Blocker | Exit condition |
 |---|---|---|
-| P0 | Final claim currently exceeds some operational instantiations | Complete M1-M3 and run a claim audit |
+| Closed | Headline claim scope audit | M1-M3 are complete and the working claim is limited to admitted, coverage-conditioned formal executions rather than production-global mediation |
 | Closed | No complete reference broker | M4 reference crate and deterministic crash matrix completed |
-| P0 | Paper-grade empirical evaluation incomplete | RQ1-RQ4 baseline and paired overlayfs/tmpfs evidence exist; add an independent host/physical-storage condition and complete external comparisons |
+| P0 | Paper-grade empirical evaluation incomplete | RQ1-RQ4 baseline, paired overlayfs/tmpfs evidence, and the semantic external comparison exist; add an independent host/physical-storage condition |
 | Closed | Linux TLA+ execution package incomplete | Hash-pinned Temurin/TLA+ artifacts and clean-room smoke/full reports retained at source revision `5d8e8ed` |
 | P1 | No top-level artifact packaging, CI, or license | Complete Section 8 |
-| P1 | Novelty is not established against related work | Complete a structured comparison and narrow priority language as needed |
+| Closed | Novelty is not established against related work | Source-backed audit retained; broad priority claims rejected and the surviving synthesis claim qualified through the 2026-08-10 search cutoff |
 | P2 | ReadOnly lacks a protected/contextual instantiation | Complete it or explicitly limit the corresponding operational claim |
 
 ## 10. Planned work order
@@ -381,10 +395,10 @@ The companion artifact is ready only when all of the following are true.
    complete at the M4/reference-artifact boundary.
 6. The Linux artifact runner, pinned Java/TLA+ package, clean-room smoke/full
    reports, and clean-room Verus report are complete.
-7. The paired RQ2 overlayfs/tmpfs storage control is complete. Add an
-   independent external host/physical-storage condition, run the related-work
-   novelty test, and write the paper around the frozen
-   claim, not around the chronological proof history.
+7. The paired RQ2 overlayfs/tmpfs storage control and related-work novelty audit
+   are complete. Add an independent external host/physical-storage condition
+   and write the paper around the qualified frozen claim, not around the
+   chronological proof history.
 8. Produce an anonymous release candidate and execute a final clean-room artifact
    rehearsal.
 
@@ -410,8 +424,10 @@ The clean-room Linux artifact checkpoint is complete: hash-pinned Java/TLA+
 artifacts, TLA+ smoke/full reports, and a 56-target Verus report are retained
 at source revision `5d8e8ed`. The paired RQ2 overlayfs/tmpfs checkpoint is also
 complete at source revision `de33054`; it is not independent-host replication.
-The next research checkpoint is the semantic external-system comparison and
-related-work novelty test, while an independent host/physical-storage RQ2 run
-remains an empirical requirement. M3 remains closed only at the
-coverage-conditioned formal family boundary; production adapter/service
-executions are not yet refined into the Verus operational types.
+The semantic external-system comparison and related-work novelty audit are now
+retained with a 2026-08-10 search cutoff. The next P0 checkpoint is an
+independent host with physical persistent storage. Top-level artifact
+packaging, licensing, CI, and the anonymous release rehearsal can proceed while
+that host is arranged. M3 remains closed only at the coverage-conditioned
+formal family boundary; production adapter/service executions are not yet
+refined into the Verus operational types.

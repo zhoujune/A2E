@@ -3,6 +3,9 @@
 The frozen first-paper scope, contribution structure, required evaluation, and
 artifact exit criteria are defined in
 [`formal/fse-2027-submission-contract.md`](formal/fse-2027-submission-contract.md).
+The source-backed [related-work and novelty audit](formal/related-work-audit.md)
+records the surviving qualified contribution claim and the closest competing
+systems through its 2026-08-10 search cutoff.
 
 This repository aims to develop a narrow verified core for AI agents that invoke
 external tools. The core is an effect broker: an untrusted agent submits a

@@ -158,6 +158,18 @@ bearer tokens.
 | `Deduplicated` | May retry with stable key | Tool atomically deduplicates the key | At most one accepted abstract mutation and terminal result per key |
 | `Uncontrolled` | Never retry after arming | None | At most one physical attempt; outcome may be `Unknown` |
 
+The Deduplicated obligation includes evidence lifetime. The service-owned
+keyed decision must remain authoritative for every interval in which the broker
+may retry or recover that request. The current DD machine has no memo-expiry or
+garbage-collection transition, so its theorem does not cover a deployed
+idempotency key that expires before the last possible retry. Such a deployment
+must prove a sufficient retention horizon, reconcile against an authoritative
+accepted-record service, or downgrade the unresolved case to `Unknown`. The
+same principle applies to broker/WAL history needed for recovery and durable
+authorization ancestry. The [related-work audit](related-work-audit.md) records
+the machine-checked dual-write and finite-retention result that makes this
+assumption operationally significant.
+
 Physical exactly-once execution is not claimed for arbitrary APIs. An
 `Uncontrolled` call that crashes after durable arming becomes `Unknown` when no
 conclusive failure was already persisted. This includes a crash after

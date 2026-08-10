@@ -1,1 +1,4 @@
-artifact/source-revision.txt export-subst
+*.py text eol=lf
+*.ps1 text eol=lf
+*.sh text eol=lf
+artifact/source-revision.txt text eol=lf export-subst

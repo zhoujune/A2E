@@ -55,6 +55,42 @@ This is still a local overlayfs measurement with fixed workload order and no
 remote service or physical-device controls. It is a reproducible artifact
 baseline, not a universal systems-performance claim.
 
+## Paired storage-sensitivity run
+
+`rq2-repeated-server-overlayfs.json` and `rq2-repeated-server-tmpfs.json`
+repeat the controlled protocol at source revision
+`de33054c245fc136e37f4f56c5acc7ef36658604`. Both reports use the same release
+binary (SHA-256
+`6f7db9c994dad64bc76f07d2c44ad8bd6c45f6fd65b789fecba039c9df3d3d0f`),
+Rust 1.96.0, host, CPU affinity `{0}`, workload sizes, and repetition counts.
+Only the temporary-WAL filesystem changes.
+
+| Temporary filesystem | Mediated mean (95% interval), ms | Mediated requests/s | Journaled mean (95% interval), ms | Journaled requests/s |
+|---|---:|---:|---:|---:|
+| overlayfs | 0.391 (0.382-0.399) | 2,567.99 | 0.116 (0.112-0.120) | 8,692.86 |
+| tmpfs | 0.0358 (0.0353-0.0363) | 27,934.98 | 0.001423 (0.001413-0.001433) | 683,653.60 |
+
+| Temporary filesystem | Idempotent retry mean, ms | Deduplicated retry mean, ms | Journaled retry mean, ms |
+|---|---:|---:|---:|
+| overlayfs | 0.479 | 0.492 | 0.243 |
+| tmpfs | 0.0164 | 0.0165 | 0.00286 |
+
+The overlayfs means are 10.9 times the tmpfs mean for mediated requests and
+81.5 times the tmpfs mean for the two-record journal. This demonstrates that
+the local result is storage-path sensitive. It does not establish a universal
+ratio: tmpfs does not survive a host restart, and `sync_data` on tmpfs is not a
+physical durable-media flush. In every measured run the contract-bearing
+retry workloads still made two physical invocations and one abstract effect
+per request, while the journaled at-least-once workload made two effects.
+
+The report SHA-256 values are
+`90826f72651fe7cde2838bde16176cb93723405d04444e573259bc6bf0596fee`
+for overlayfs and
+`20cff26b732a91ef7a834092d8b388cf457420ba1e188d45e80ea92820f044a9`
+for tmpfs. The server endpoint resolved to the same container hostname as the
+older retained baseline, so these files add a paired storage condition but do
+not count as independent-host replication.
+
 ## RQ3 and RQ4
 
 `rq3-proof-effort.json` was generated from source revision

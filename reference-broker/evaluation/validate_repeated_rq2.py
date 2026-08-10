@@ -14,6 +14,12 @@ def require(condition, message):
         raise ValueError(message)
 
 
+def require_known_text(environment, field):
+    value = environment.get(field)
+    require(isinstance(value, str) and value.strip(), f"environment.{field} is missing")
+    require(value.strip().lower() != "unknown", f"environment.{field} is unknown")
+
+
 def compare_summary(actual, expected, location):
     require(set(actual) == set(expected), f"{location} metric fields mismatch")
     for metric in expected:
@@ -51,9 +57,22 @@ def main():
     require(protocol["warmups"] >= 1, "at least one warmup is required")
     require(repetitions >= 5, "at least five repetitions are required")
     require(protocol["workload_order"] == list(PRIMARY), "workload order mismatch")
-    require(report["environment"]["build_profile"] == "release", "report is not release mode")
-    require(report["environment"]["source_revision"] == report["source_revision"], "environment revision mismatch")
-    require(isinstance(report["environment"]["cpu_affinity"], list), "CPU affinity is missing")
+    environment = report["environment"]
+    require(environment["build_profile"] == "release", "report is not release mode")
+    require(environment["source_revision"] == report["source_revision"], "environment revision mismatch")
+    provenance_fields = (
+        "hostname",
+        "target",
+        "rustc",
+        "kernel_release",
+        "python",
+        "temporary_filesystem",
+    )
+    for field in provenance_fields:
+        require_known_text(environment, field)
+    affinity = environment.get("cpu_affinity")
+    require(isinstance(affinity, list) and affinity, "CPU affinity is missing")
+    require(all(isinstance(cpu, int) and cpu >= 0 for cpu in affinity), "CPU affinity is invalid")
     require(report["limitations"], "limitations must be explicit")
 
     primary = report["primary_workloads"]

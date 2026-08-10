@@ -278,8 +278,13 @@ The initial release-mode harness records every required metric for 100-request
 mediated, direct, and journaled-at-least-once local workloads, plus three
 ambiguous-result retry workloads. A controlled follow-up adds five warmups,
 thirty independent process repetitions, raw samples, 95% normal-approximation
-intervals, and CPU affinity on Linux. It remains a local overlayfs measurement:
-remote-service latency and physical-device controls are outside this baseline.
+intervals, and CPU affinity on Linux. A paired follow-up at source revision
+`de33054` holds the binary, host, CPU, and protocol fixed while comparing
+overlayfs and tmpfs temporary WALs. It confirms that the measured cost is
+storage-path sensitive while preserving the adapter-effect accounting. Because
+tmpfs is not durable across a host restart and the endpoint resolves to the same
+container hostname as the earlier baseline, independent-host, physical-device,
+and remote-service measurements remain open.
 
 ### RQ3. How much work is required to verify an adapter?
 
@@ -359,7 +364,7 @@ The companion artifact is ready only when all of the following are true.
 |---|---|---|
 | P0 | Final claim currently exceeds some operational instantiations | Complete M1-M3 and run a claim audit |
 | Closed | No complete reference broker | M4 reference crate and deterministic crash matrix completed |
-| P0 | Paper-grade empirical evaluation incomplete | RQ1-RQ4 baseline evidence exists; add repeated hosts/storage conditions and complete external comparisons |
+| P0 | Paper-grade empirical evaluation incomplete | RQ1-RQ4 baseline and paired overlayfs/tmpfs evidence exist; add an independent host/physical-storage condition and complete external comparisons |
 | Closed | Linux TLA+ execution package incomplete | Hash-pinned Temurin/TLA+ artifacts and clean-room smoke/full reports retained at source revision `5d8e8ed` |
 | P1 | No top-level artifact packaging, CI, or license | Complete Section 8 |
 | P1 | Novelty is not established against related work | Complete a structured comparison and narrow priority language as needed |
@@ -376,7 +381,8 @@ The companion artifact is ready only when all of the following are true.
    complete at the M4/reference-artifact boundary.
 6. The Linux artifact runner, pinned Java/TLA+ package, clean-room smoke/full
    reports, and clean-room Verus report are complete.
-7. Add repeated external RQ2 host/storage conditions, run the related-work
+7. The paired RQ2 overlayfs/tmpfs storage control is complete. Add an
+   independent external host/physical-storage condition, run the related-work
    novelty test, and write the paper around the frozen
    claim, not around the chronological proof history.
 8. Produce an anonymous release candidate and execute a final clean-room artifact
@@ -402,8 +408,10 @@ projects rather than implicit prerequisites for the scoped first paper.
 
 The clean-room Linux artifact checkpoint is complete: hash-pinned Java/TLA+
 artifacts, TLA+ smoke/full reports, and a 56-target Verus report are retained
-at source revision `5d8e8ed`. The next evaluation checkpoint is external RQ2
-host/storage conditions plus semantic comparisons and the related-work novelty
-test. M3 remains closed only at the
+at source revision `5d8e8ed`. The paired RQ2 overlayfs/tmpfs checkpoint is also
+complete at source revision `de33054`; it is not independent-host replication.
+The next research checkpoint is the semantic external-system comparison and
+related-work novelty test, while an independent host/physical-storage RQ2 run
+remains an empirical requirement. M3 remains closed only at the
 coverage-conditioned formal family boundary; production adapter/service
 executions are not yet refined into the Verus operational types.

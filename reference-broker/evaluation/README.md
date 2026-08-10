@@ -93,6 +93,13 @@ affinity, kernel, temporary-filesystem type, Python/Rust versions, and source
 revision. Fixed within-run workload order and local synchronous effects remain
 explicit limitations.
 
+Set `TMPDIR` before invoking the controller to select a temporary-WAL storage
+condition. The retained `rq2-repeated-server-overlayfs.json` and
+`rq2-repeated-server-tmpfs.json` reports use identical source, binary, host,
+CPU affinity, and protocol settings. The tmpfs report is a storage-cost control,
+not durable-media evidence, because tmpfs does not survive a host restart.
+Validate each retained report independently with `validate_repeated_rq2.py`.
+
 ## RQ3 proof effort
 
 Generate source, proof-function, obligation-delta, and retained verification-time

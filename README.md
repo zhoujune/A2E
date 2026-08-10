@@ -137,7 +137,9 @@ and records release-mode latency, throughput, WAL, flush, recovery, retry, and
 effect measurements against direct and journaled-at-least-once ablations. A
 controlled follow-up adds five warmups, thirty measured repetitions, confidence
 intervals, and CPU pinning on Linux; it still does not claim universal
-performance.
+performance. A paired overlayfs/tmpfs run now holds source, binary, host, CPU,
+and protocol fixed, demonstrating storage-path sensitivity without treating
+memory-backed tmpfs as durable-media or independent-host evidence.
 The [Linux artifact runner](artifact/README.md) now provides fail-closed smoke
 and full TLA+ commands with isolated input snapshots; an executed run still
 requires the pinned Java/TLA+ package described there.

@@ -70,6 +70,18 @@ def main():
     )
     for field in provenance_fields:
         require_known_text(environment, field)
+    mount_fields = (
+        "temporary_mount_source",
+        "temporary_mount_target",
+        "temporary_mount_filesystem",
+    )
+    present_mount_fields = [field for field in mount_fields if field in environment]
+    require(
+        not present_mount_fields or len(present_mount_fields) == len(mount_fields),
+        "temporary mount provenance is partial",
+    )
+    for field in present_mount_fields:
+        require_known_text(environment, field)
     affinity = environment.get("cpu_affinity")
     require(isinstance(affinity, list) and affinity, "CPU affinity is missing")
     require(all(isinstance(cpu, int) and cpu >= 0 for cpu in affinity), "CPU affinity is invalid")

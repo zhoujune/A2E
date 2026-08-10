@@ -78,6 +78,44 @@ def filesystem_type(path):
         return "unknown"
 
 
+def mount_provenance(path):
+    try:
+        raw = subprocess.check_output(
+            [
+                "findmnt",
+                "--json",
+                "--target",
+                str(path),
+                "--output",
+                "SOURCE,TARGET,FSTYPE",
+            ],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        )
+        filesystems = json.loads(raw).get("filesystems", [])
+        require(len(filesystems) == 1, "temporary mount lookup is ambiguous")
+        filesystem = filesystems[0]
+        source = filesystem.get("source")
+        target = filesystem.get("target")
+        filesystem_type_name = filesystem.get("fstype")
+        require(
+            all(
+                isinstance(value, str) and value
+                for value in (source, target, filesystem_type_name)
+            ),
+            "temporary mount provenance is incomplete",
+        )
+        # findmnt appends a bind-mount subpath in brackets; retain the backing device.
+        source = source.partition("[")[0]
+        return {
+            "temporary_mount_source": source,
+            "temporary_mount_target": target,
+            "temporary_mount_filesystem": filesystem_type_name,
+        }
+    except (OSError, subprocess.CalledProcessError, json.JSONDecodeError, ValueError):
+        return {}
+
+
 def cpu_affinity():
     if hasattr(os, "sched_getaffinity"):
         return sorted(os.sched_getaffinity(0))
@@ -216,6 +254,7 @@ def main():
                 "python": platform.python_version(),
                 "cpu_affinity": cpu_affinity(),
                 "temporary_filesystem": filesystem_type(Path(tempfile.gettempdir())),
+                **mount_provenance(Path(tempfile.gettempdir())),
             },
             "primary_workloads": {
                 name: {"summary": aggregate(samples), "samples": samples}

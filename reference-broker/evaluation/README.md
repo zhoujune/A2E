@@ -90,8 +90,9 @@ warmup and measured run. It retains all run-level samples and reports mean,
 median, standard deviation, range, and a 95% normal-approximation interval for
 every measurement. The report also binds the benchmark binary hash, CPU
 affinity, kernel, temporary-filesystem type, Python/Rust versions, and source
-revision. Fixed within-run workload order and local synchronous effects remain
-explicit limitations.
+revision. When Linux `findmnt` is available, it additionally records the
+temporary mount's backing source, target, and filesystem type. Fixed within-run
+workload order and local synchronous effects remain explicit limitations.
 
 Set `TMPDIR` before invoking the controller to select a temporary-WAL storage
 condition. The retained `rq2-repeated-server-overlayfs.json` and

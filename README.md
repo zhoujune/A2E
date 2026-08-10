@@ -148,6 +148,9 @@ and protocol fixed, demonstrating storage-path sensitivity without treating
 memory-backed tmpfs as durable-media or independent-host evidence.
 An additional retained run uses the server's `/dev/nvme3n1`-backed ext4 mount;
 it supplies physical-storage evidence but remains same-host Kubernetes data.
+The retained `rq2-repeated-wsl2-ext4.json` run adds a separate physical-host
+condition from WSL2 on the laptop, with persistent ext4 virtual storage and
+explicit WSL2 kernel/mount provenance. It is not native direct-device evidence.
 The [Linux artifact runner](artifact/README.md) now provides fail-closed smoke
 and full TLA+ commands with isolated input snapshots; an executed run still
 requires the pinned Java/TLA+ package described there.

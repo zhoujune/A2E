@@ -117,6 +117,36 @@ from tmpfs, but `/nix` is a Kubernetes `emptyDir` on the same server hostname.
 It therefore does not establish independent-host replication or persistence
 across pod deletion.
 
+## Independent-host WSL2 replication
+
+`rq2-repeated-wsl2-ext4.json` repeats the same source revision
+`01fbcddda570e53f95c4f9bfcdc4d01f7f77617f`, binary
+`6f7db9c994dad64bc76f07d2c44ad8bd6c45f6fd65b789fecba039c9df3d3d0f`, and
+5-warmup/30-repetition 500/50 protocol on the separate physical laptop host.
+The run is labeled `proveai-wsl2-host`, uses WSL2 kernel
+`5.15.167.4-microsoft-standard-WSL2`, CPU affinity `{0}`, and records the
+temporary WAL on `/dev/sdc`, target `/`, filesystem `ext4`.
+
+| Workload | Mean (95% interval), ms | Mean requests/s |
+|---|---:|---:|
+| Mediated | 17.174 (15.892-18.455) | 59.76 |
+| Direct | below 0.001 | 16,765,597.67 |
+| Journaled at-least-once | 6.040 (5.063-7.017) | 177.59 |
+
+Retry means were 22.211 ms for mediated Idempotent, 22.290 ms for mediated
+Deduplicated, and 12.087 ms for journaled at-least-once. Contract-bearing
+retry workloads retained 50 abstract effects from 50 requests; the journaled
+ablation retained 100 effects. RQ1 passed 21/21 in every measured run.
+
+The report SHA-256 is
+`8f633c6fcfdb1f815e8cedecb598e8ecb4fb84a29f3d74fa269f32a96914ea3f`.
+This closes cross-host replication between the WSL2 laptop and the server. The
+WSL2 ext4 filesystem is a persistent virtual disk backed by the laptop's local
+storage, not a directly exposed native Linux physical block device; the server
+NVMe report remains the direct physical-storage condition. WSL2's virtualized
+storage path is substantially slower and is reported as an environment effect,
+not a universal performance claim.
+
 ## RQ3 and RQ4
 
 `rq3-proof-effort.json` was generated from source revision

@@ -25,6 +25,7 @@ jobs:
           python3 reference-broker/evaluation/validate_repeated_rq2.py reference-broker/evaluation/results/rq2-repeated-server-overlayfs.json
           python3 reference-broker/evaluation/validate_repeated_rq2.py reference-broker/evaluation/results/rq2-repeated-server-tmpfs.json
           python3 reference-broker/evaluation/validate_repeated_rq2.py reference-broker/evaluation/results/rq2-repeated-server-ext4.json
+          python3 reference-broker/evaluation/validate_repeated_rq2.py reference-broker/evaluation/results/rq2-repeated-wsl2-ext4.json
           python3 reference-broker/evaluation/validate_rq3.py reference-broker/evaluation/results/rq3-proof-effort.json
           python3 reference-broker/evaluation/validate_rq4.py reference-broker/evaluation/rq4-fault-matrix.v1.json
       - name: TLA+ smoke packaging preflight

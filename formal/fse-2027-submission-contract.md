@@ -389,7 +389,7 @@ The companion artifact is ready only when all of the following are true.
 |---|---|---|
 | Closed | Headline claim scope audit | M1-M3 are complete and the working claim is limited to admitted, coverage-conditioned formal executions rather than production-global mediation |
 | Closed | No complete reference broker | M4 reference crate and deterministic crash matrix completed |
-| P0 | Paper-grade empirical evaluation incomplete | RQ1-RQ4 baseline, overlayfs/tmpfs storage sensitivity, NVMe-backed ext4 evidence, and semantic external comparison exist; add an independent host condition |
+| Closed | Paper-grade empirical evaluation incomplete | RQ1-RQ4 baseline, overlayfs/tmpfs storage sensitivity, NVMe-backed ext4 evidence, WSL2 independent-host replication, and semantic external comparison are retained; WSL2 is explicitly virtual persistent storage rather than native direct-device evidence |
 | Closed | Linux TLA+ execution package incomplete | Hash-pinned Temurin/TLA+ artifacts and clean-room smoke/full reports retained at source revisions `5d8e8ed` and `9a45d39` |
 | Closed | No top-level artifact packaging, CI, or license | Root smoke/full entry points, dual license texts, dependency inventory, troubleshooting guide, and CI checks are present; the full entry point passed on Linux at `9a45d39` |
 | Closed | Final release rehearsal and offline/anonymous packaging | The lock-matching offline bundle passed 56/56 Verus targets at `079f209`; the metadata-free anonymous archive at `7fc87a7` passed revision binding, release scanning, TLA+ smoke preflight, and Rust checks |
@@ -408,9 +408,9 @@ The companion artifact is ready only when all of the following are true.
 6. The Linux artifact runner, pinned Java/TLA+ package, clean-room smoke/full
    reports, and clean-room Verus report are complete.
 7. The paired RQ2 overlayfs/tmpfs storage control, NVMe-backed ext4 follow-up,
-   and related-work novelty audit are complete. Add an independent external
-   host condition and write the paper around the qualified frozen claim, not
-   around the chronological proof history.
+   WSL2 independent-host replication, and related-work novelty audit are
+   complete. Write the paper around the qualified frozen claim, not around the
+   chronological proof history.
 8. The anonymous release builder, offline Verus bundle, and unpacked Linux
    smoke rehearsal are complete. Regenerate the release archive at the final
    paper revision.
@@ -443,8 +443,10 @@ The semantic external-system comparison and related-work novelty audit are now
 retained with a 2026-08-10 search cutoff. The NVMe-backed ext4 physical-storage
 checkpoint is retained at source revision `01fbcdd`; it uses the same host and
 Kubernetes pod. The offline-bundle verifier passed 56/56 targets at `079f209`,
-and the anonymous archive rehearsal passed at `7fc87a7`; artifact P1 is closed.
-The next P0 checkpoint is an independent host. M3 remains closed only at the coverage-conditioned
+the anonymous archive rehearsal passed at `7fc87a7`, and the WSL2 report closes
+the independent-host RQ2 condition; artifact P1 and P2 are closed. The next
+step is paper claim-to-evidence integration and final release regeneration.
+M3 remains closed only at the coverage-conditioned
 formal family boundary; production adapter/service executions are not yet
 refined into the Verus operational types. ReadOnly P2 is closed by limiting its
 operational claim to T6-RO0 rather than asserting an unproved protected or

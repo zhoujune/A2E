@@ -27,4 +27,5 @@ mechanized/results/*.json
 # Retain only the versioned Linux artifact preflight report.
 artifact/results/*.json
 !artifact/results/linux-smoke-preflight.json
+!artifact/results/archive-smoke-preflight-*.json
 !artifact/results/tla-*.json

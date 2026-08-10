@@ -21,3 +21,10 @@ not implied by this preflight. A current executed full run is retained as
 The run used the hash-locked Temurin and TLA+ Tools artifacts on the server.
 The earlier `5d8e8ed` reports remain retained for historical clean-room
 comparison.
+
+`archive-smoke-preflight-7fc87a7.json` was generated from the unpacked
+anonymous archive rather than a Git checkout. Its export-substituted source
+revision is `7fc87a7b30cef0ce1de3ee5d098897e5ce5b90b1`; the TLA+ snapshot dry-run,
+report validation, Rust formatting/tests, and post-run release scan passed.
+Report SHA-256:
+`01f1c45fd3b6f4d3b3cf6c7b0dbcc00fea2ec8f18819b9dc6251956ed791cd30`.

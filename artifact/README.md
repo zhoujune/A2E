@@ -70,6 +70,9 @@ It scans tracked text files and fails on credentials, private server addresses,
 or absolute user/home paths. The archive builder requires a clean worktree,
 uses `git archive` without repository metadata, binds the exported source
 revision, rejects unsafe members, and reruns the release scan after extraction.
+The retained rehearsal built an archive at source revision `7fc87a7`, with
+SHA-256 `087b6d2770aa34a9358080b8205a651f3fbe3e476af8e5f83f75eec6bdf2c45d`;
+its unpacked smoke preflight and Rust checks passed on Linux.
 
 ```sh
 ./artifact/run.sh smoke --dry-run --report /tmp/proveai-tla-smoke.json

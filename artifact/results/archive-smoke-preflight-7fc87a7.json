@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "status": "dry_run",
+  "generated_unix_seconds": 1786366749,
+  "source_revision": "7fc87a7b30cef0ce1de3ee5d098897e5ce5b90b1",
+  "repository": ".",
+  "runner": {
+    "path": "artifact/run-linux.py",
+    "sha256": "a5d60656806c47b9d7d3d996c59bf3b023a8af175c6253b0d17970d8a413cc54"
+  },
+  "manifest": {
+    "path": "formal/model-suite.json",
+    "sha256": "ff795f472a830a812893d8846330129d90a5725bc738a593e044367b1aa86986"
+  },
+  "toolchain_lock": {
+    "path": "artifact/toolchain.lock.json",
+    "sha256": "241c10748931cb9a1c9bd9e88932335fb6f9ad6a94b0b80f2fd3d6ba0498f6fc"
+  },
+  "suite": "smoke",
+  "workers": 1,
+  "timeout_seconds": 3600.0,
+  "java": {
+    "provided": false,
+    "version": null,
+    "sha256": null
+  },
+  "tla_tools": {
+    "provided": false,
+    "version": null,
+    "sha256": null
+  },
+  "snapshot": {
+    "inputs": [
+      "EffectBroker.idempotent-retry.cfg",
+      "EffectBroker.multicap.cfg",
+      "EffectBroker.smoke.cfg",
+      "EffectBroker.tla",
+      "EffectBrokerJournal.cfg",
+      "EffectBrokerJournal.tla",
+      "EffectBrokerJournalRefinement.cfg",
+      "EffectBrokerJournalRefinement.retry.cfg",
+      "EffectBrokerJournalRefinement.tla",
+      "EffectBrokerParameters.tla",
+      "EffectBrokerWAL.cfg",
+      "EffectBrokerWAL.tla",
+      "EffectBrokerWALRefinement.cfg",
+      "EffectBrokerWALRefinement.tla"
+    ],
+    "hashes": {
+      "EffectBroker.idempotent-retry.cfg": "3a20e86763d67915f9d64fb9ce587641ea4618952811917482c31fc1719e7d71",
+      "EffectBroker.multicap.cfg": "2136810b869fd0155288349f8a4f8e6e2c047dc8492415fd4ce9ecbad8f43561",
+      "EffectBroker.smoke.cfg": "1427aea97fae749d43a1045e5292107642677e5ef94d34b7932b2158e90f4cba",
+      "EffectBroker.tla": "06a0659dfc1aeacd06086d1b2e206fff72335cc470b89a3cd9100edeeecf2b23",
+      "EffectBrokerJournal.cfg": "3a89fb69e96c0c5b8710ed5531f876aa6397223461147defc9085cf0750f5b90",
+      "EffectBrokerJournal.tla": "64ced0adc4487ba91e682767b0dccf73f795e29738d5a5e6a2305dc97ffc55d2",
+      "EffectBrokerJournalRefinement.cfg": "43d9a8f9bcae9d1c1877effab1bc4b1497e0bf79c5bd80d146ec10f6a3f9f8f9",
+      "EffectBrokerJournalRefinement.retry.cfg": "8f8b0d2d7e40c4348edb7758ef99b8b4a606257a3584cf86206c67544b80b133",
+      "EffectBrokerJournalRefinement.tla": "5b6141793d91fe2dfb13a2729b318708ca120035bd387400168695271903511b",
+      "EffectBrokerParameters.tla": "0d605185f8c8d87bf50ee21a5d89f4c5d03188163052429891439d2f0f3f6831",
+      "EffectBrokerWAL.cfg": "f5ee965504cbe66c43540f61e98583d77d7fb1a60ba62c2c751eadaebb1368e1",
+      "EffectBrokerWAL.tla": "2a867f1dff8c94527475dcdd56228d42bd33eda0f2e68227ef92394cf5d04b3a",
+      "EffectBrokerWALRefinement.cfg": "d64e473f52a112fd2d09796a0195dd036b0a6ea918a5bd4f32f2d11ab4ad645c",
+      "EffectBrokerWALRefinement.tla": "d60a521330388ecfe621e24e4f4bdea9d1a803cb8579438d9ef74f61726dc886"
+    },
+    "isolated_read_only": true,
+    "verified_before_and_after": true
+  },
+  "scenarios": [
+    {
+      "name": "smoke",
+      "tier": "smoke",
+      "module": "EffectBroker.tla",
+      "config": "EffectBroker.smoke.cfg",
+      "status": "dry_run",
+      "exit_code": null,
+      "duration_ms": 1,
+      "module_sha256": "06a0659dfc1aeacd06086d1b2e206fff72335cc470b89a3cd9100edeeecf2b23",
+      "config_sha256": "1427aea97fae749d43a1045e5292107642677e5ef94d34b7932b2158e90f4cba",
+      "output_bytes": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "idempotent-retry",
+      "tier": "smoke",
+      "module": "EffectBroker.tla",
+      "config": "EffectBroker.idempotent-retry.cfg",
+      "status": "dry_run",
+      "exit_code": null,
+      "duration_ms": 1,
+      "module_sha256": "06a0659dfc1aeacd06086d1b2e206fff72335cc470b89a3cd9100edeeecf2b23",
+      "config_sha256": "3a20e86763d67915f9d64fb9ce587641ea4618952811917482c31fc1719e7d71",
+      "output_bytes": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "journal",
+      "tier": "smoke",
+      "module": "EffectBrokerJournal.tla",
+      "config": "EffectBrokerJournal.cfg",
+      "status": "dry_run",
+      "exit_code": null,
+      "duration_ms": 1,
+      "module_sha256": "64ced0adc4487ba91e682767b0dccf73f795e29738d5a5e6a2305dc97ffc55d2",
+      "config_sha256": "3a89fb69e96c0c5b8710ed5531f876aa6397223461147defc9085cf0750f5b90",
+      "output_bytes": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "journal-refinement",
+      "tier": "smoke",
+      "module": "EffectBrokerJournalRefinement.tla",
+      "config": "EffectBrokerJournalRefinement.cfg",
+      "status": "dry_run",
+      "exit_code": null,
+      "duration_ms": 1,
+      "module_sha256": "5b6141793d91fe2dfb13a2729b318708ca120035bd387400168695271903511b",
+      "config_sha256": "43d9a8f9bcae9d1c1877effab1bc4b1497e0bf79c5bd80d146ec10f6a3f9f8f9",
+      "output_bytes": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "journal-refinement-retry",
+      "tier": "smoke",
+      "module": "EffectBrokerJournalRefinement.tla",
+      "config": "EffectBrokerJournalRefinement.retry.cfg",
+      "status": "dry_run",
+      "exit_code": null,
+      "duration_ms": 1,
+      "module_sha256": "5b6141793d91fe2dfb13a2729b318708ca120035bd387400168695271903511b",
+      "config_sha256": "8f8b0d2d7e40c4348edb7758ef99b8b4a606257a3584cf86206c67544b80b133",
+      "output_bytes": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "wal",
+      "tier": "smoke",
+      "module": "EffectBrokerWAL.tla",
+      "config": "EffectBrokerWAL.cfg",
+      "status": "dry_run",
+      "exit_code": null,
+      "duration_ms": 1,
+      "module_sha256": "2a867f1dff8c94527475dcdd56228d42bd33eda0f2e68227ef92394cf5d04b3a",
+      "config_sha256": "f5ee965504cbe66c43540f61e98583d77d7fb1a60ba62c2c751eadaebb1368e1",
+      "output_bytes": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "wal-refinement",
+      "tier": "smoke",
+      "module": "EffectBrokerWALRefinement.tla",
+      "config": "EffectBrokerWALRefinement.cfg",
+      "status": "dry_run",
+      "exit_code": null,
+      "duration_ms": 1,
+      "module_sha256": "d60a521330388ecfe621e24e4f4bdea9d1a803cb8579438d9ef74f61726dc886",
+      "config_sha256": "d64e473f52a112fd2d09796a0195dd036b0a6ea918a5bd4f32f2d11ab4ad645c",
+      "output_bytes": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "multi-capability",
+      "tier": "smoke",
+      "module": "EffectBroker.tla",
+      "config": "EffectBroker.multicap.cfg",
+      "status": "dry_run",
+      "exit_code": null,
+      "duration_ms": 1,
+      "module_sha256": "06a0659dfc1aeacd06086d1b2e206fff72335cc470b89a3cd9100edeeecf2b23",
+      "config_sha256": "2136810b869fd0155288349f8a4f8e6e2c047dc8492415fd4ce9ecbad8f43561",
+      "output_bytes": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "limitations": [
+    "dry-run does not execute TLC",
+    "Java provisioning is an explicit hash-pinned artifact prerequisite"
+  ],
+  "duration_ms": 10
+}

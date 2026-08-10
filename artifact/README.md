@@ -57,6 +57,7 @@ The PowerShell equivalent is `./reproduce.ps1 smoke -DryRun -SkipVerus -SkipRust
 `--skip-verus` is only appropriate for a packaging preflight; the full command
 requires PowerShell 7 and runs the hash-bound Verus verifier into the new output
 directory. The top-level runner does not invoke `formal/check-model.ps1`.
+An offline full run adds `--offline-bundle-root /path/to/bundle`.
 
 Before archiving an anonymous release candidate, run:
 

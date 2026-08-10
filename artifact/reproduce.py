@@ -60,17 +60,24 @@ def run_artifact_runner(root, suite, report, dry_run, workers, timeout_seconds, 
     return run_command(command, root, logs / "tla-runner.log")
 
 
-def run_verus(root, report, logs, skip_verus):
+def run_verus(root, report, logs, skip_verus, offline_bundle_root):
     if skip_verus:
         (logs / "verus.log").write_text("SKIPPED: --skip-verus\n", encoding="utf-8")
         return "skipped"
     if not command_exists("pwsh"):
         fail("PowerShell 7 (pwsh) is required for the Verus reproduction; use --skip-verus only for a TLA+/Rust rehearsal")
-    return run_command(
-        ["pwsh", "-NoLogo", "-NoProfile", "-File", str(root / "mechanized" / "verify.ps1"), "-ReportPath", str(report)],
-        root,
-        logs / "verus.log",
-    )
+    command = [
+        "pwsh",
+        "-NoLogo",
+        "-NoProfile",
+        "-File",
+        str(root / "mechanized" / "verify.ps1"),
+        "-ReportPath",
+        str(report),
+    ]
+    if offline_bundle_root:
+        command.extend(["-OfflineBundleRoot", str(Path(offline_bundle_root).resolve())])
+    return run_command(command, root, logs / "verus.log")
 
 
 def main():
@@ -78,6 +85,7 @@ def main():
     parser.add_argument("suite", choices=("smoke", "full"))
     parser.add_argument("--repository", default=".")
     parser.add_argument("--output-directory")
+    parser.add_argument("--offline-bundle-root", help="use a hash-checked offline Verus/Rust bundle")
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--timeout-seconds", type=float, default=3600.0)
     parser.add_argument("--dry-run", action="store_true", help="validate TLA+ packaging without executing TLC")
@@ -118,7 +126,13 @@ def main():
     else:
         summary["steps"]["rust_fmt"] = run_command(["cargo", "fmt", "--manifest-path", str(root / "reference-broker" / "Cargo.toml"), "--", "--check"], root, logs / "cargo-fmt.log")
         summary["steps"]["rust_test"] = run_command(["cargo", "test", "--manifest-path", str(root / "reference-broker" / "Cargo.toml"), "--all-targets"], root, logs / "cargo-test.log")
-    summary["steps"]["verus"] = run_verus(root, verus_report, logs, args.skip_verus or args.dry_run)
+    summary["steps"]["verus"] = run_verus(
+        root,
+        verus_report,
+        logs,
+        args.skip_verus or args.dry_run,
+        args.offline_bundle_root,
+    )
     summary_path = output / "reproduction-summary.json"
     summary_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(f"reproduction {args.suite} complete: {summary_path}")

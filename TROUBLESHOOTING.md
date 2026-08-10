@@ -20,6 +20,13 @@ temporary directory and enough disk for isolated Rust/Verus toolchains. A
 TLA+/Rust-only smoke preflight may use `--skip-verus`; that is not a full proof
 reproduction.
 
+## Preparing an offline Verus bundle
+
+Use `mechanized/prepare-offline-bundle.py` with the exact lock-matching Verus
+archive, rustup archive/executable, and Rust toolchain directory. The script
+refuses hash mismatches and refuses to overwrite an existing bundle. Pass the
+result with `--offline-bundle-root` to the top-level full command.
+
 ## Rust checks fail
 
 Run `cargo fmt --check` and `cargo test --all-targets` from `reference-broker`.

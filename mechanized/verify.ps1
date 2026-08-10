@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
     [string]$ReportPath = "",
-    [switch]$NoReport
+    [switch]$NoReport,
+    [string]$OfflineBundleRoot = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -26,6 +27,7 @@ $verusZ3Leaf = $null
 $rustupExecutableLeaf = $null
 $rustcExecutableLeaf = $null
 $cargoExecutableLeaf = $null
+$offlineBundleRootFull = $null
 if ($NoReport -and $PSBoundParameters.ContainsKey("ReportPath")) {
     throw "-NoReport and -ReportPath cannot be used together"
 }
@@ -1067,6 +1069,15 @@ if ($sourceCoverageDifference.Count -ne 0) {
         $null -eq $lockDocument.platforms) {
         throw "The pinned toolchain lock has an unsupported schema"
     }
+    if (-not [string]::IsNullOrWhiteSpace($OfflineBundleRoot)) {
+        if (-not [System.IO.Path]::IsPathRooted($OfflineBundleRoot)) {
+            throw "-OfflineBundleRoot must be an absolute directory path"
+        }
+        $offlineBundleRootFull = [System.IO.Path]::GetFullPath($OfflineBundleRoot)
+        if (-not (Test-Path -LiteralPath $offlineBundleRootFull -PathType Container)) {
+            throw "The offline bundle directory is missing: $offlineBundleRootFull"
+        }
+    }
     $platformProperty = $lockDocument.platforms.PSObject.Properties[$platformKey]
     if ($null -eq $platformProperty) {
         throw "The pinned toolchain lock has no entry for $platformKey"
@@ -1308,6 +1319,26 @@ function Get-VerifiedArtifact {
     }
 }
 
+function Get-OfflineArtifact {
+    param(
+        [Parameter(Mandatory = $true)][string]$Source,
+        [Parameter(Mandatory = $true)][string]$Destination,
+        [Parameter(Mandatory = $true)][string]$ExpectedSha256
+    )
+
+    $sourcePath = Assert-PathWithinRoot `
+        -Root $offlineBundleRootFull `
+        -Path $Source
+    if (-not (Test-Path -LiteralPath $sourcePath -PathType Leaf)) {
+        throw "Offline bundle artifact is missing: $sourcePath"
+    }
+    $actual = (Get-FileHash -Algorithm SHA256 -LiteralPath $sourcePath).Hash
+    if ($actual -ne $ExpectedSha256.ToUpperInvariant()) {
+        throw "Offline bundle SHA256 mismatch for $sourcePath; expected $ExpectedSha256, found $actual"
+    }
+    Copy-Item -LiteralPath $sourcePath -Destination $Destination
+}
+
 function Assert-CacheChild {
     param([Parameter(Mandatory = $true)][string]$Path)
 
@@ -1336,14 +1367,28 @@ function Invoke-NativeCaptured {
     }
 }
 
-    Get-VerifiedArtifact `
-        -Uri $lock.verus.url `
-        -Destination $verusArchive `
-        -ExpectedSha256 $lock.verus.sha256
-    Get-VerifiedArtifact `
-        -Uri $lock.rustup.url `
-        -Destination $rustupInit `
-        -ExpectedSha256 $lock.rustup.sha256
+    if ($null -ne $offlineBundleRootFull) {
+        Get-OfflineArtifact `
+            -Source (Join-Path (Join-Path $offlineBundleRootFull "archives") `
+                $verusArchiveName) `
+            -Destination $verusArchive `
+            -ExpectedSha256 $lock.verus.sha256
+        Get-OfflineArtifact `
+            -Source (Join-Path (Join-Path $offlineBundleRootFull "archives") `
+                $rustupArchiveName) `
+            -Destination $rustupInit `
+            -ExpectedSha256 $lock.rustup.sha256
+    }
+    else {
+        Get-VerifiedArtifact `
+            -Uri $lock.verus.url `
+            -Destination $verusArchive `
+            -ExpectedSha256 $lock.verus.sha256
+        Get-VerifiedArtifact `
+            -Uri $lock.rustup.url `
+            -Destination $rustupInit `
+            -ExpectedSha256 $lock.rustup.sha256
+    }
     if ($platformKey -eq "linux-x64") {
         $chmodCommands = @(Get-Command "chmod" -CommandType Application `
             -ErrorAction SilentlyContinue)
@@ -1452,6 +1497,19 @@ function Invoke-NativeCaptured {
                 [System.EnvironmentVariableTarget]::Process)
     }
 
+    $rustupDistServer = if ($null -ne $offlineBundleRootFull) {
+        "offline-bundle"
+    }
+    else {
+        "https://static.rust-lang.org"
+    }
+    $rustupUpdateRoot = if ($null -ne $offlineBundleRootFull) {
+        "offline-bundle"
+    }
+    else {
+        "https://static.rust-lang.org/rustup"
+    }
+
     try {
         [System.Environment]::SetEnvironmentVariable(
             "CARGO_HOME", $cargoHome,
@@ -1463,10 +1521,10 @@ function Invoke-NativeCaptured {
             "RUSTUP_TOOLCHAIN", $rustToolchainLeaf,
             [System.EnvironmentVariableTarget]::Process)
         [System.Environment]::SetEnvironmentVariable(
-            "RUSTUP_DIST_SERVER", "https://static.rust-lang.org",
+            "RUSTUP_DIST_SERVER", $rustupDistServer,
             [System.EnvironmentVariableTarget]::Process)
         [System.Environment]::SetEnvironmentVariable(
-            "RUSTUP_UPDATE_ROOT", "https://static.rust-lang.org/rustup",
+            "RUSTUP_UPDATE_ROOT", $rustupUpdateRoot,
             [System.EnvironmentVariableTarget]::Process)
         [System.Environment]::SetEnvironmentVariable(
             "RUSTUP_NO_UPDATE_CHECK", "1",
@@ -1501,9 +1559,9 @@ function Invoke-NativeCaptured {
                 $savedEnvironment["PATH"],
             [System.EnvironmentVariableTarget]::Process)
         $report.toolchain.observed.rustup_dist_server =
-            "https://static.rust-lang.org"
+            $rustupDistServer
         $report.toolchain.observed.rustup_update_root =
-            "https://static.rust-lang.org/rustup"
+            $rustupUpdateRoot
 
         $rustupExe = Assert-PathWithinRoot `
             -Root $cargoHome `
@@ -1513,19 +1571,53 @@ function Invoke-NativeCaptured {
             (Test-Path -LiteralPath $rustupHome)) {
             throw "Fresh Rust homes unexpectedly existed before installation"
         }
-        $rustupInstallResult = Invoke-NativeCaptured `
-            -FilePath $rustupInit `
-            -Arguments @(
-                "-y",
-                "--no-modify-path",
-                "--profile", "minimal",
-                "--default-toolchain", "none")
-        if ($rustupInstallResult.ExitCode -ne 0) {
-            throw ("The fresh rustup installation failed: " +
-                $rustupInstallResult.Text)
+        if ($null -ne $offlineBundleRootFull) {
+            $offlineRustup = Assert-PathWithinRoot `
+                -Root $offlineBundleRootFull `
+                -Path (Join-Path (Join-Path $offlineBundleRootFull "rustup") `
+                    $rustupExecutableLeaf)
+            $offlineToolchain = Assert-PathWithinRoot `
+                -Root $offlineBundleRootFull `
+                -Path (Join-Path (Join-Path $offlineBundleRootFull "toolchains") `
+                    $rustToolchainLeaf)
+            if (-not (Test-Path -LiteralPath $offlineRustup -PathType Leaf) -or
+                -not (Test-Path -LiteralPath $offlineToolchain -PathType Container)) {
+                throw "Offline bundle is missing the pinned Rust executable or toolchain"
+            }
+            New-Item -ItemType Directory -Force -Path (Join-Path $cargoHome "bin") | Out-Null
+            Copy-Item -LiteralPath $offlineRustup -Destination $rustupExe
+            New-Item -ItemType Directory -Force -Path (Join-Path $rustupHome "toolchains") | Out-Null
+            Copy-Item -LiteralPath $offlineToolchain `
+                -Destination (Join-Path $rustupHome "toolchains") -Recurse
+            if ($platformKey -eq "linux-x64") {
+                $chmodCommands = @(Get-Command "chmod" -CommandType Application `
+                    -ErrorAction SilentlyContinue)
+                if ($chmodCommands.Count -eq 0) {
+                    throw "Linux verification requires chmod"
+                }
+                $chmodResult = Invoke-NativeCaptured `
+                    -FilePath $chmodCommands[0].Source `
+                    -Arguments @("0700", $rustupExe)
+                if ($chmodResult.ExitCode -ne 0) {
+                    throw "Could not make the staged rustup executable runnable"
+                }
+            }
+        }
+        else {
+            $rustupInstallResult = Invoke-NativeCaptured `
+                -FilePath $rustupInit `
+                -Arguments @(
+                    "-y",
+                    "--no-modify-path",
+                    "--profile", "minimal",
+                    "--default-toolchain", "none")
+            if ($rustupInstallResult.ExitCode -ne 0) {
+                throw ("The fresh rustup installation failed: " +
+                    $rustupInstallResult.Text)
+            }
         }
         if (-not (Test-Path -LiteralPath $rustupExe -PathType Leaf)) {
-            throw "The fresh rustup installation did not create $rustupExecutableLeaf"
+            throw "The Rust setup did not create $rustupExecutableLeaf"
         }
 
         $installedRustupHash = (
@@ -1570,14 +1662,16 @@ function Invoke-NativeCaptured {
             -ToolName "rustup"
         $report.toolchain.observed.rustup_version = $rustupVersionLine
 
-        $toolchainInstallResult = Invoke-NativeCaptured `
-            -FilePath $rustupExe `
-            -Arguments @(
-                "toolchain", "install", $rustToolchainLeaf,
-                "--profile", "minimal")
-        if ($toolchainInstallResult.ExitCode -ne 0) {
-            throw ("The exact Rust toolchain installation failed: " +
-                $toolchainInstallResult.Text)
+        if ($null -eq $offlineBundleRootFull) {
+            $toolchainInstallResult = Invoke-NativeCaptured `
+                -FilePath $rustupExe `
+                -Arguments @(
+                    "toolchain", "install", $rustToolchainLeaf,
+                    "--profile", "minimal")
+            if ($toolchainInstallResult.ExitCode -ne 0) {
+                throw ("The exact Rust toolchain installation failed: " +
+                    $toolchainInstallResult.Text)
+            }
         }
 
         $toolchainRoot = Assert-PathWithinRoot `

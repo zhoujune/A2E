@@ -40,6 +40,8 @@ FORBIDDEN = (
     (re.compile(r"\b172\.30\.60\.189\b"), "private server address"),
 )
 
+GENERATED_DIRECTORIES = {".toolbox", "__pycache__", "target"}
+
 
 def fail(message):
     raise RuntimeError(message)
@@ -47,7 +49,13 @@ def fail(message):
 
 def tracked_files(root):
     if not (root / ".git").exists():
-        return [path.relative_to(root) for path in root.rglob("*") if path.is_file()]
+        return [
+            path.relative_to(root)
+            for path in root.rglob("*")
+            if path.is_file()
+            and not GENERATED_DIRECTORIES.intersection(path.relative_to(root).parts)
+            and path.suffix != ".pyc"
+        ]
     try:
         result = subprocess.run(
             ["git", "ls-files", "-z"],

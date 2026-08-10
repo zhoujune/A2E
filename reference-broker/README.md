@@ -21,6 +21,12 @@ refines the typed-WAL theorem, that arbitrary production executions inhabit the
 DD5 request family, or that an operating-system deployment enforces exclusive
 mediation.
 
+The artifact's K3 runtime bridge additionally executes one K3-profile M4
+Idempotent run and feeds its actual six durable records into the compiled,
+verified K3 append kernel. This is a concrete typed-record certificate for that
+run, not a proof that arbitrary M4 code paths, recovery, byte frames, adapters,
+or deployment refine the Verus model.
+
 The example `DeduplicatedAdapter` keeps its keyed decisions in memory. Crash
 tests restart the `Broker` while retaining the adapter object, modeling an
 independently durable remote service. Restarting that adapter discards its

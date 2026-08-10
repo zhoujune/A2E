@@ -3,6 +3,9 @@ use vstd::prelude::*;
 #[path = "k2_durable_record_kernel.rs"]
 pub mod k2_record_layer;
 
+pub use k2_record_layer::k2_guard_layer::{KRetryClass, KUnknownReason};
+pub use k2_record_layer::k2_guard_layer::k1_layer::KObservation;
+
 verus! {
 
 use k2_record_layer::*;

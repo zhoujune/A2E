@@ -103,12 +103,16 @@ TLC prerequisites are packaged.
 Verus toolchain using `--compile`, links the resulting proof-erased
 `libk3_append_linearization_kernel.rlib` into
 `k3-runtime-harness.rs`, and runs a one-record `Call -> Linearize -> Return`
-smoke. Set `VERUS_BIN`, `RUSTC`, and `VERUS_Z3_PATH` to the hash-bound server
-toolchain paths before invoking it. The matching `rustup` must be on `PATH`,
-with its `RUSTUP_HOME` and `CARGO_HOME` exported; Verus invokes that `rustup`
-during compilation. The runner obtains `libvstd.rlib` and
-`libverus_builtin.rlib` from the pinned Verus directory and supplies them to
-the ordinary Rust linker explicitly.
+smoke. It then builds the standard-Rust M4 crate into the temporary directory,
+runs a K3-profile M4 Idempotent execution, maps the resulting six durable
+records into K3's public record vocabulary, and accepts every record through
+the compiled K3 `Call -> Linearize -> Return` API at its exact LSN. Set
+`VERUS_BIN`, `RUSTC`, and `VERUS_Z3_PATH` to the hash-bound server toolchain
+paths before invoking it. The matching `rustup` must be on `PATH`, with its
+`RUSTUP_HOME` and `CARGO_HOME` exported; Verus invokes that `rustup` during
+compilation. The runner obtains `libvstd.rlib` and `libverus_builtin.rlib` from
+the pinned Verus directory and supplies them to the ordinary Rust linker
+explicitly.
 
 ```sh
 VERUS_BIN=/path/to/verus \
@@ -117,8 +121,9 @@ VERUS_Z3_PATH=/path/to/z3 \
 ./artifact/run-k3-runtime-spike.sh
 ```
 
-The spike is a compilation/linkage feasibility check, not yet an M4
-implementation-refinement theorem. K3 still has its fixed demonstration
-configuration and serialized append-only boundary; the standard-Rust broker's
-recovery, byte WAL, adapters, and deployment wrapper remain outside this
-check.
+The M4 certificate uses K3's fixed Idempotent profile: request `1`, capability
+`1`, digest `1`, no stable key, and a budget of `4`. It is a checked concrete
+execution certificate, not an M4 implementation-refinement theorem. The record
+mapping is ordinary Rust, K3 still has its fixed demonstration configuration
+and serialized append-only boundary, and the standard-Rust broker's recovery,
+byte WAL, adapters, and deployment wrapper remain outside this check.

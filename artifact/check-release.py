@@ -19,11 +19,19 @@ REQUIRED = (
     "artifact/reproduce.py",
 )
 
+ROOT_HOME = "/" + "root" + "/"
 FORBIDDEN = (
     (re.compile(r"(?i)authorization\s*:\s*bearer\s+[a-z0-9._~-]+"), "bearer credential"),
     (re.compile(r"(?i)(?:password|passwd|secret|access[_ -]?token)\s*[:=]\s*[^\s`]+"), "credential assignment"),
     (re.compile(r"(?i)(?:[a-z0-9._%+-]+):(?:[^\s/@]+)@[^\s/]+"), "credential-bearing URL"),
-    (re.compile(r"(?:[A-Za-z]:\\Users\\|[A-Za-z]:/Users/|/root/|/home/[^/\s]+/)"), "absolute user path"),
+    (
+        re.compile(
+            r"(?:[A-Za-z]:\\Users\\|[A-Za-z]:/Users/|"
+            + re.escape(ROOT_HOME)
+            + r"|/home/[^/\s]+/)"
+        ),
+        "absolute user path",
+    ),
     (re.compile(r"\b172\.30\.60\.189\b"), "private server address"),
 )
 

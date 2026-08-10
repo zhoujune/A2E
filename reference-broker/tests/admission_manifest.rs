@@ -2,8 +2,8 @@ mod common;
 
 use common::TestDirectory;
 use proveai_reference_broker::{
-    AdmissionBinding, Broker, BrokerConfig, BrokerError, CapabilityId, CapabilitySpec, Digest,
-    RequestId, RequestSpec,
+    AdmissionBinding, Broker, BrokerConfig, BrokerError, CapabilityId, CapabilitySpec, DedupKey,
+    Digest, RequestId, RequestSpec,
 };
 
 fn manifest_config(spec: RequestSpec) -> BrokerConfig {
@@ -76,5 +76,34 @@ fn manifest_binding_is_persisted_with_the_broker_configuration() {
             manifest_config(RequestSpec::uncontrolled(Digest(101)))
         ),
         Err(BrokerError::ConfigurationMismatch)
+    ));
+}
+
+#[test]
+fn manifest_rejects_duplicate_deduplicated_keys() {
+    let directory = TestDirectory::new("manifest-duplicate-key");
+    let key = DedupKey(9001);
+    let config = BrokerConfig {
+        capabilities: vec![CapabilitySpec {
+            id: CapabilityId(7),
+            budget: 2,
+        }],
+        admission_manifest: Some(vec![
+            AdmissionBinding {
+                request: RequestId(1),
+                capability: CapabilityId(7),
+                spec: RequestSpec::deduplicated(Digest(101), key),
+            },
+            AdmissionBinding {
+                request: RequestId(2),
+                capability: CapabilityId(7),
+                spec: RequestSpec::deduplicated(Digest(102), key),
+            },
+        ]),
+    };
+
+    assert!(matches!(
+        Broker::open(directory.wal(), config),
+        Err(BrokerError::InvalidConfig(_))
     ));
 }

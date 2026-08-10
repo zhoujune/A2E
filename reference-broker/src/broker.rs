@@ -221,7 +221,7 @@ impl DurableState {
         let admission_manifest = match &config.admission_manifest {
             None => None,
             Some(bindings) => {
-                let mut manifest = BTreeMap::new();
+                let mut manifest: BTreeMap<RequestId, AdmissionBinding> = BTreeMap::new();
                 for binding in bindings {
                     if binding.request.0 == 0 {
                         return Err(BrokerError::InvalidConfig("request ID zero is reserved"));
@@ -234,6 +234,16 @@ impl DurableState {
                     if !binding.spec.has_valid_key_shape() {
                         return Err(BrokerError::InvalidConfig(
                             "manifest has an invalid retry-class/key shape",
+                        ));
+                    }
+                    if binding.spec.class == RetryClass::Deduplicated
+                        && manifest.values().any(|existing| {
+                            existing.spec.class == RetryClass::Deduplicated
+                                && existing.spec.key == binding.spec.key
+                        })
+                    {
+                        return Err(BrokerError::InvalidConfig(
+                            "manifest reuses a Deduplicated key",
                         ));
                     }
                     if manifest.insert(binding.request, *binding).is_some() {

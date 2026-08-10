@@ -63,13 +63,15 @@ member is required for every request terminal in a shared WAL; DD1 derives its
 request-local rely, DD4 derives its all-prefix product, and X0 transports its
 source terminal to the canonical Broker. The DD2 family discharges coverage
 without premises.
-In a separate implementation-refinement track, K1, K2, and K3 connect concrete
+In a separate implementation-refinement track, K1, K2, K3, and K4-C0 connect concrete
 `u64`/vector
 durable-summary and Journal code to Q1, R1, and B1: K1 verifies Authorize and
 Start, K2-G0 completes all nine reference-erased record guards, K2-T0 couples
 accepted-record mutations exactly to `apply_record` and legal-prefix
 `replay_push`, and K3-A0 adds exact `u64` references plus a serialized concrete
-append loop whose successful traces project exactly to B1. T4, T5,
+append loop whose successful traces project exactly to B1. K4-C0 maps M4's
+finite admission-manifest shape into a total well-formed formal configuration.
+T4, T5,
 the T6 terminal bridge, semantic adapter closure, executable adapter
 refinement, model-level mediation/no-bypass, prefix product, the X0
 single-request contextual theorem,
@@ -271,7 +273,28 @@ the executable append history, Journal, and acknowledgment cuts agree exactly
 with B1 `pi_append`, `pi_journal`, and `pi_ack`. K3-A0 verifies 248 cumulative
 obligations with zero errors, adding 40 over K2-T0.
 
-`kernel/kernel_core.rs` re-exports K3-A0 as the latest checked layer. K3-A0 is
+## K4-C0: finite admission-manifest configuration refinement
+
+`k4_manifest_config_refinement.rs` imports K3-A0 and defines executable vectors
+of capability budgets and immutable request bindings. A total specification
+view supplies R1's capability, class, digest, key, namespace, attempt-limit,
+scope-match, and valid-result components. Absent requests default to a
+ReadOnly/no-key/one-attempt profile, preserving totality without admitting a
+manifest request.
+
+`k_manifest_wf` requires nonzero unique capability and request identifiers,
+known binding capabilities, exact retry-class/key shape, and unique
+Deduplicated keys in the namespace-zero M4 profile. Attempt limits are derived
+from the retry class rather than trusted as a separate field. The generic
+`k_manifest_config_is_well_formed` theorem proves R1 `config_wf`; the executable
+one-request Idempotent manifest inhabits the complete premise and conclusion.
+K4-C0 verifies 255 cumulative obligations, adding 7 beyond K3-A0.
+
+`kernel/kernel_core.rs` re-exports K4-C0 as the latest checked layer. K4-C0 is
+not yet a parameterized append kernel: K1-K3's record guards and durable state
+still use the fixed demo configuration. Threading `KManifestConfig` through
+those executable functions is the next implementation-refinement checkpoint.
+K3-A0 is
 not a complete executable Broker: it retains the fixed demo configuration and
 a serialized successful append path. DiskFull, crash/recovery, concurrent
 callers, executor slots, physical Invoke/Deliver, caller-visible Broker results,
@@ -1545,8 +1568,9 @@ family theorem is request-indexed and non-vacuous while keeping family coverage
 as an explicit admission condition for arbitrary shared executions.
 
 T6-DD5 verifies 1,228 cumulative obligations with zero errors, adding 6 over
-T6-DD4. The retained suite passes all 56/56 targets, contains 1,372 dependency-
-aware non-duplicated obligations, and sums to 32,714 target obligations. M3 is
+T6-DD4. With K4-C0 registered, the retained suite passes all 57/57 targets,
+contains 1,379 dependency-aware non-duplicated obligations, and sums to 32,969
+target obligations. M3 is
 closed as a coverage-conditioned family theorem; constructing members directly
 from production adapter executions remains an implementation refinement.
 
@@ -1573,9 +1597,9 @@ pwsh -NoLogo -NoProfile -File mechanized/verify.ps1
 ```
 
 The Linux runner requires `chmod` and `unzip`, and explicitly binds Verus to
-the Z3 executable inside the hash-checked Verus tree. The retained run passes
-all 56/56 targets with 1,372 dependency-aware non-duplicated obligations and
-32,714 summed target obligations.
+the Z3 executable inside the hash-checked Verus tree. The source-current
+retained run passes all 57/57 targets with 1,379 dependency-aware
+non-duplicated obligations and 32,969 summed target obligations.
 
 The clean-room Linux run at source revision
 `5d8e8ed39e492b05f52ba093782a043d204f1192` is retained as
@@ -1638,7 +1662,7 @@ checks target/source counts, parent-delta arithmetic, running totals, and final
 summary consistency before assigning `status: "passed"`.
 
 The cumulative target counts and aggregates below come from the current
-retained 54-target full suite:
+retained 57-target full suite:
 
 ```text
 M0 verified obligations: 21
@@ -1652,6 +1676,8 @@ K2-G0 verified obligations: 179
 K2-T0 verified obligations: 208
 K3-A0 verified obligations: 248
 K3-A0 target delta over K2-T0: 40
+K4-C0 verified obligations: 255
+K4-C0 target delta over K3-A0: 7
 B2-R verified obligations: 169
 B2-C verified obligations: 175
 B2-P0 verified obligations: 193
@@ -1723,8 +1749,8 @@ T6-DD4 non-duplicated verified artifact obligations: 1,366
 T6-DD4 summed target obligations: 31,486
 T6-DD5 verified obligations: 1,228
 T6-DD5 target delta over T6-DD4: 6
-T6-DD5 non-duplicated verified artifact obligations: 1,372
-T6-DD5 summed target obligations: 32,714
+T6-DD5 non-duplicated verified artifact obligations: 1,379
+T6-DD5 summed target obligations: 32,969
 ```
 
 C1's 128 obligations include the 86 R1 and 39 B1 obligations imported into the
@@ -1733,7 +1759,8 @@ include that same C1 closure plus 16 new obligations. K1 imports Q1 and adds 15
 executable-summary and guard obligations; K2-G0 imports K1 and adds 20 guard
 obligations; K2-T0 imports K2-G0 and adds 29 mutation/coupling obligations; and
 K3-A0 imports K2-T0 and adds 40 exact-reference, append-state, replay-coupling,
-and B1 projection obligations.
+and B1 projection obligations. K4-C0 imports K3-A0 and adds 7 finite-manifest
+lookup, configuration-refinement, well-formedness, and nonvacuity obligations.
 B2-R independently includes Q1 and adds 25 record-side Broker obligations.
 B2-C includes B2-R and adds 6 rich
 configuration-refinement obligations. B2-P0 includes B2-C and adds 18 physical
@@ -1872,10 +1899,10 @@ obligations. The historical T6-X0 registry contained 45 targets and 1,062
 dependency-aware non-duplicated obligations and summed to 23,866 target
 obligations. The historical T6-RO0 registry contained 46 targets and 1,123
 dependency-aware non-duplicated obligations and summed to 24,949 target
-obligations. The current registry adds K1, K2-G0, K2-T0, K3-A0, T6-DD0,
-T6-DD1, T6-DD2, T6-DD3, T6-DD4, and T6-DD5: it contains 56 targets and 1,372
-dependency-aware non-duplicated obligations, and the retained run sums to 32,714
-obligations.
+obligations. The current registry adds K1, K2-G0, K2-T0, K3-A0, K4-C0,
+T6-DD0, T6-DD1, T6-DD2, T6-DD3, T6-DD4, and T6-DD5: it contains 57 targets and
+1,379 dependency-aware non-duplicated obligations, and the retained run sums to
+32,969 obligations.
 The historical retained T6-A0 checkpoint had 41 targets, 904 non-duplicated
 obligations, and a 19,951 target sum. The historical retained T6-S0 checkpoint
 had 40 targets, 880 non-duplicated obligations, and a 19,064 target sum before

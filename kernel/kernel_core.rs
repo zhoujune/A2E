@@ -1,4 +1,4 @@
-#[path = "../mechanized/k3_append_linearization_kernel.rs"]
+#[path = "../mechanized/k4_manifest_config_refinement.rs"]
 pub mod verified_core;
 
 pub use verified_core::*;

@@ -142,6 +142,7 @@ closer system appears.
 | Deduplicated protected execution and mediation | T6-DD3 | Complete for the distinguished DD2 execution |
 | Deduplicated P0/X0 instantiation | T6-DD4 | Complete for the distinguished DD2 execution |
 | Request-indexed family of operational/protected executions | T6-DD5 coverage-conditioned family theorem with DD2 nonvacuity | Complete at the formal family boundary; production construction remains an implementation refinement |
+| Finite M4 admission-manifest configuration refinement | K4-C0 maps executable capability budgets and immutable request bindings into a total well-formed R1 configuration; M4 binds and validates the matching manifest | Configuration refinement complete; threading the manifest through K1-K3 executable guards and state remains open |
 | Executable broker event loop and physical WAL | M4 `reference-broker`: generated IDs, capability budgets, one slot, framed file WAL, recovery, correlation, terminal retrieval, and three adapters | Complete as an unverified reference prototype; no production or byte-WAL refinement claim |
 | Byte/fsync/filesystem refinement | Typed-record abstraction only | Explicitly out of theorem scope; assumptions must be evaluated and documented |
 

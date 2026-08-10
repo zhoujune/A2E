@@ -20,6 +20,7 @@ REQUIRED = (
 )
 
 ROOT_HOME = "/" + "root" + "/"
+HOME_PREFIX = "/" + "home" + "/"
 FORBIDDEN = (
     (re.compile(r"(?i)authorization\s*:\s*bearer\s+[a-z0-9._~-]+"), "bearer credential"),
     (re.compile(r"(?i)(?:password|passwd|secret|access[_ -]?token)\s*[:=]\s*[^\s`]+"), "credential assignment"),
@@ -28,7 +29,9 @@ FORBIDDEN = (
         re.compile(
             r"(?:[A-Za-z]:\\Users\\|[A-Za-z]:/Users/|"
             + re.escape(ROOT_HOME)
-            + r"|/home/[^/\s]+/)"
+            + r"|"
+            + re.escape(HOME_PREFIX)
+            + r"[^/\s]+/)"
         ),
         "absolute user path",
     ),

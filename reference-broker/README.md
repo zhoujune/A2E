@@ -40,6 +40,15 @@ restart with altered capability budgets is rejected before replay. Replay
 reconstructs every budget consumption and revocation from that bound input plus
 the durable records.
 
+`BrokerConfig::admission_manifest` is an optional verified-profile input. Each
+binding fixes an expected request ID, capability, digest, retry class, and key
+before `Authorize`; the broker rejects mismatches at both `admit` and `prepare`.
+The versioned configuration sidecar binds the complete manifest, so reopening
+with changed request metadata fails before replay. This gives a finite M4
+execution the static request metadata required by K3's formal configuration.
+The sidecar's byte-level durability remains an M4 platform assumption, not a
+typed-WAL refinement theorem.
+
 ## Protocol
 
 1. `admit` generates a monotonically increasing immutable request ID, validates

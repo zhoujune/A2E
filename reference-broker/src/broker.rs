@@ -18,9 +18,25 @@ pub struct CapabilitySpec {
     pub budget: u64,
 }
 
+/// Immutable request metadata for the optional verified-profile boundary.
+///
+/// The typed Journal records only the capability and digest at `Authorize`; the
+/// retry class and key first appear at `Prepare`. A profile binds all of those
+/// fields before the first durable record so a static formal configuration can
+/// describe the resulting execution.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct AdmissionBinding {
+    pub request: RequestId,
+    pub capability: CapabilityId,
+    pub spec: RequestSpec,
+}
+
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct BrokerConfig {
     pub capabilities: Vec<CapabilitySpec>,
+    /// `None` retains the general reference-broker mode. `Some`, including an
+    /// empty manifest, requires every admission to match a pre-bound request.
+    pub admission_manifest: Option<Vec<AdmissionBinding>>,
 }
 
 #[derive(Debug)]
@@ -177,6 +193,7 @@ struct RequestState {
 #[derive(Clone, Debug)]
 struct DurableState {
     capabilities: BTreeMap<CapabilityId, CapabilityState>,
+    admission_manifest: Option<BTreeMap<RequestId, AdmissionBinding>>,
     requests: BTreeMap<RequestId, RequestState>,
     next_request: u64,
 }
@@ -201,8 +218,36 @@ impl DurableState {
                 return Err(BrokerError::InvalidConfig("duplicate capability ID"));
             }
         }
+        let admission_manifest = match &config.admission_manifest {
+            None => None,
+            Some(bindings) => {
+                let mut manifest = BTreeMap::new();
+                for binding in bindings {
+                    if binding.request.0 == 0 {
+                        return Err(BrokerError::InvalidConfig("request ID zero is reserved"));
+                    }
+                    if !capabilities.contains_key(&binding.capability) {
+                        return Err(BrokerError::InvalidConfig(
+                            "manifest names an unknown capability",
+                        ));
+                    }
+                    if !binding.spec.has_valid_key_shape() {
+                        return Err(BrokerError::InvalidConfig(
+                            "manifest has an invalid retry-class/key shape",
+                        ));
+                    }
+                    if manifest.insert(binding.request, *binding).is_some() {
+                        return Err(BrokerError::InvalidConfig(
+                            "manifest contains a duplicate request ID",
+                        ));
+                    }
+                }
+                Some(manifest)
+            }
+        };
         Ok(Self {
             capabilities,
+            admission_manifest,
             requests: BTreeMap::new(),
             next_request: 1,
         })
@@ -229,6 +274,13 @@ impl DurableState {
             } => {
                 if request.0 != self.next_request {
                     return Err(BrokerError::Protocol("request IDs are not contiguous"));
+                }
+                if let Some(binding) = self.admission_binding(request) {
+                    if binding.capability != capability || binding.spec.digest != digest {
+                        return Err(BrokerError::Protocol(
+                            "Authorize does not match the immutable admission manifest",
+                        ));
+                    }
                 }
                 let capability_state =
                     self.capabilities
@@ -282,12 +334,18 @@ impl DurableState {
                 key,
                 auth_ref,
             } => {
+                let binding = self.admission_binding(request);
                 let request_state = self.request_mut(request)?;
                 if request_state.phase != Phase::Authorized
                     || request_state.class.is_some()
                     || request_state.digest != digest
                     || request_state.auth_ref != auth_ref
                     || (matches!(class, RetryClass::Deduplicated) != key.is_some())
+                    || binding.is_some_and(|binding| {
+                        binding.spec.digest != digest
+                            || binding.spec.class != class
+                            || binding.spec.key != key
+                    })
                 {
                     return Err(BrokerError::Protocol("invalid Prepare record"));
                 }
@@ -464,6 +522,12 @@ impl DurableState {
             .get_mut(&request)
             .ok_or(BrokerError::Protocol("record names an unknown request"))
     }
+
+    fn admission_binding(&self, request: RequestId) -> Option<AdmissionBinding> {
+        self.admission_manifest
+            .as_ref()
+            .and_then(|manifest| manifest.get(&request).copied())
+    }
 }
 
 pub struct Broker {
@@ -559,6 +623,17 @@ impl Broker {
             return Err(BrokerError::BudgetExhausted(capability));
         }
         let request = RequestId(self.state.next_request);
+        if let Some(binding) = self.state.admission_binding(request) {
+            if binding.capability != capability || binding.spec.digest != digest {
+                return Err(BrokerError::InvalidSpec(
+                    "admission does not match the immutable request manifest",
+                ));
+            }
+        } else if self.state.admission_manifest.is_some() {
+            return Err(BrokerError::InvalidSpec(
+                "request is absent from the immutable admission manifest",
+            ));
+        }
         self.append(JournalRecord::Authorize {
             request,
             capability,
@@ -580,6 +655,13 @@ impl Broker {
             return Err(BrokerError::InvalidSpec(
                 "Prepare must match an authorized request and digest",
             ));
+        }
+        if let Some(binding) = self.state.admission_binding(request) {
+            if binding.spec != spec {
+                return Err(BrokerError::InvalidSpec(
+                    "Prepare does not match the immutable request manifest",
+                ));
+            }
         }
         let auth_ref = request_state.auth_ref;
         self.append(JournalRecord::Prepare {
@@ -934,10 +1016,49 @@ impl Broker {
 fn bind_configuration(path: &Path, config: &BrokerConfig) -> Result<(), BrokerError> {
     let mut capabilities = config.capabilities.clone();
     capabilities.sort_by_key(|spec| spec.id);
-    let mut expected = b"PROVEAI-BROKER-CONFIG-V1\n".to_vec();
+    let mut expected = b"PROVEAI-BROKER-CONFIG-V2\n".to_vec();
+    expected.extend_from_slice(
+        &u64::try_from(capabilities.len())
+            .map_err(|_| BrokerError::InvalidConfig("capability count exceeds u64"))?
+            .to_le_bytes(),
+    );
     for capability in capabilities {
         expected.extend_from_slice(&capability.id.0.to_le_bytes());
         expected.extend_from_slice(&capability.budget.to_le_bytes());
+    }
+    match &config.admission_manifest {
+        None => expected.push(0),
+        Some(bindings) => {
+            expected.push(1);
+            let mut bindings = bindings.clone();
+            bindings.sort_by_key(|binding| binding.request);
+            expected.extend_from_slice(
+                &u64::try_from(bindings.len())
+                    .map_err(|_| BrokerError::InvalidConfig("manifest count exceeds u64"))?
+                    .to_le_bytes(),
+            );
+            for binding in bindings {
+                expected.extend_from_slice(&binding.request.0.to_le_bytes());
+                expected.extend_from_slice(&binding.capability.0.to_le_bytes());
+                expected.extend_from_slice(&binding.spec.digest.0.to_le_bytes());
+                expected.push(match binding.spec.class {
+                    RetryClass::ReadOnly => 0,
+                    RetryClass::Idempotent => 1,
+                    RetryClass::Deduplicated => 2,
+                    RetryClass::Uncontrolled => 3,
+                });
+                match binding.spec.key {
+                    Some(key) => {
+                        expected.push(1);
+                        expected.extend_from_slice(&key.0.to_le_bytes());
+                    }
+                    None => {
+                        expected.push(0);
+                        expected.extend_from_slice(&0u64.to_le_bytes());
+                    }
+                }
+            }
+        }
     }
     let mut sidecar = path.as_os_str().to_os_string();
     sidecar.push(".config");

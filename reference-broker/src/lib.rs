@@ -13,7 +13,7 @@ pub mod model;
 pub mod wal;
 
 pub use adapter::{Adapter, Delivery};
-pub use broker::{Broker, BrokerConfig, BrokerError, CapabilitySpec};
+pub use broker::{AdmissionBinding, Broker, BrokerConfig, BrokerError, CapabilitySpec};
 pub use fault::{CrashPlan, CrashSite};
 pub use model::{
     CapabilityId, DedupKey, Digest, Invocation, InvocationId, JournalRecord, Observation, Phase,

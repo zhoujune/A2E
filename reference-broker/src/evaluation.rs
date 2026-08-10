@@ -796,6 +796,7 @@ fn broker_config(budget: u64) -> BrokerConfig {
             id: CAPABILITY,
             budget,
         }],
+        admission_manifest: None,
     }
 }
 

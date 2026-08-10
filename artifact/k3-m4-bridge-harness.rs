@@ -10,8 +10,9 @@ use k3_append_linearization_kernel::{
 };
 use proveai_reference_broker::adapters::IdempotentAdapter;
 use proveai_reference_broker::{
-    Broker, BrokerConfig, CapabilityId, CapabilitySpec, DedupKey, Digest, JournalRecord,
-    Observation, RequestId, RequestSpec, RetryClass, TerminalResult, UnknownReason, Value,
+    AdmissionBinding, Broker, BrokerConfig, CapabilityId, CapabilitySpec, DedupKey, Digest,
+    JournalRecord, Observation, RequestId, RequestSpec, RetryClass, TerminalResult,
+    UnknownReason, Value,
 };
 
 fn retry_class_to_k3(class: RetryClass) -> KRetryClass {
@@ -226,6 +227,11 @@ fn main() {
                 id: CapabilityId(1),
                 budget: 4,
             }],
+            admission_manifest: Some(vec![AdmissionBinding {
+                request: RequestId(1),
+                capability: CapabilityId(1),
+                spec: RequestSpec::idempotent(Digest(1)),
+            }]),
         };
         let mut broker = Broker::open(&wal_path, config).expect("open K3-profile broker");
         let request = broker

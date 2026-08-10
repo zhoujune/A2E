@@ -39,6 +39,7 @@ pub fn config(budget: u64) -> BrokerConfig {
             id: CapabilityId(7),
             budget,
         }],
+        admission_manifest: None,
     }
 }
 

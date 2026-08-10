@@ -17,6 +17,7 @@ from pathlib import Path
 SAFE_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 JAVA_VERSION = re.compile(r'"21\.0\.11')
 SHA256 = re.compile(r"^[0-9a-fA-F]{64}$")
+GIT_REVISION = re.compile(r"^[0-9a-f]{40}$")
 
 
 def fail(message):
@@ -35,15 +36,22 @@ def source_revision(root):
     configured = os.environ.get("PROVEAI_SOURCE_REVISION")
     if configured:
         return configured
-    try:
-        return subprocess.check_output(
-            ["git", "rev-parse", "HEAD"],
-            cwd=root,
-            text=True,
-            stderr=subprocess.DEVNULL,
-        ).strip()
-    except (OSError, subprocess.CalledProcessError):
-        return "unknown"
+    if (root / ".git").exists():
+        try:
+            return subprocess.check_output(
+                ["git", "rev-parse", "HEAD"],
+                cwd=root,
+                text=True,
+                stderr=subprocess.DEVNULL,
+            ).strip()
+        except (OSError, subprocess.CalledProcessError):
+            pass
+    revision_file = root / "artifact" / "source-revision.txt"
+    if revision_file.is_file():
+        revision = revision_file.read_text(encoding="utf-8").strip()
+        if GIT_REVISION.fullmatch(revision):
+            return revision
+    return "unknown"
 
 
 def require_file(path, description):

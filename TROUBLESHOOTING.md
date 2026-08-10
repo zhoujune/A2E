@@ -27,6 +27,12 @@ archive, rustup archive/executable, and Rust toolchain directory. The script
 refuses hash mismatches and refuses to overwrite an existing bundle. Pass the
 result with `--offline-bundle-root` to the top-level full command.
 
+## Release archive creation fails
+
+`artifact/create-release.py` requires a clean Git worktree and an output path
+whose parent exists. It refuses to overwrite an archive. Commit the intended
+release state and select a new output filename before retrying.
+
 ## Rust checks fail
 
 Run `cargo fmt --check` and `cargo test --all-targets` from `reference-broker`.

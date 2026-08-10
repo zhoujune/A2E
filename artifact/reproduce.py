@@ -97,8 +97,15 @@ def main():
     if args.timeout_seconds <= 0:
         parser.error("--timeout-seconds must be positive")
     root = Path(args.repository).resolve()
-    if not (root / ".git").exists():
-        fail(f"repository is not a Git checkout: {root}")
+    required_inputs = (
+        root / "artifact" / "run-linux.py",
+        root / "formal" / "model-suite.json",
+        root / "mechanized" / "verify.ps1",
+        root / "reference-broker" / "Cargo.toml",
+    )
+    missing_inputs = [str(path) for path in required_inputs if not path.is_file()]
+    if missing_inputs:
+        fail("repository snapshot is incomplete: " + ", ".join(missing_inputs))
     output = Path(args.output_directory).resolve() if args.output_directory else Path(tempfile.mkdtemp(prefix="proveai-reproduction-"))
     output.mkdir(parents=True, exist_ok=False) if not output.exists() else None
     logs = output / "logs"

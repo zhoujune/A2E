@@ -63,10 +63,13 @@ Before archiving an anonymous release candidate, run:
 
 ```sh
 python3 artifact/check-release.py
+python3 artifact/create-release.py --output /tmp/proveai-artifact.tar.gz
 ```
 
 It scans tracked text files and fails on credentials, private server addresses,
-or absolute user/home paths.
+or absolute user/home paths. The archive builder requires a clean worktree,
+uses `git archive` without repository metadata, binds the exported source
+revision, rejects unsafe members, and reruns the release scan after extraction.
 
 ```sh
 ./artifact/run.sh smoke --dry-run --report /tmp/proveai-tla-smoke.json

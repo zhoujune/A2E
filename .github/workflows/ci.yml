@@ -31,3 +31,5 @@ jobs:
         run: ./reproduce.sh smoke --dry-run --skip-verus --output-directory "$RUNNER_TEMP/proveai-smoke"
       - name: Anonymous release scan
         run: python3 artifact/check-release.py
+      - name: Build anonymous release archive
+        run: python3 artifact/create-release.py --output "$RUNNER_TEMP/proveai-artifact.tar.gz"

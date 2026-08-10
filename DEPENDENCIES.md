@@ -40,3 +40,8 @@ hash-checked Verus and rustup archives, rustup executable, and Rust toolchain;
 the verifier copies the toolchain into a fresh run root and performs the same
 tree and source-integrity checks without invoking a network download. No
 credential or mutable remote branch is required.
+
+`artifact/create-release.py` uses only Python's standard library and the local
+Git executable. The resulting archive contains no `.git` directory; the
+export-substituted `artifact/source-revision.txt` preserves revision identity
+for report generation from an unpacked snapshot.

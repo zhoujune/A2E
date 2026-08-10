@@ -9,6 +9,7 @@ from pathlib import Path
 
 
 REQUIRED = (
+    ".gitattributes",
     ".github/workflows/ci.yml",
     "DEPENDENCIES.md",
     "LICENSE-MIT",
@@ -17,6 +18,7 @@ REQUIRED = (
     "reproduce.sh",
     "reproduce.ps1",
     "artifact/reproduce.py",
+    "artifact/source-revision.txt",
 )
 
 ROOT_HOME = "/" + "root" + "/"
@@ -44,6 +46,8 @@ def fail(message):
 
 
 def tracked_files(root):
+    if not (root / ".git").exists():
+        return [path.relative_to(root) for path in root.rglob("*") if path.is_file()]
     try:
         result = subprocess.run(
             ["git", "ls-files", "-z"],
@@ -78,7 +82,7 @@ def main():
                 findings.append(f"{description}: {relative}")
     if findings:
         fail("release scan rejected tracked content: " + "; ".join(findings))
-    print(f"release scan passed: {len(files)} tracked files; no credentials or machine paths")
+    print(f"release scan passed: {len(files)} files; no credentials or machine paths")
 
 
 if __name__ == "__main__":

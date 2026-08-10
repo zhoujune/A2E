@@ -1590,6 +1590,15 @@ The current packaging checkpoint at source revision
 32,714 summed target obligations. SHA-256:
 `dce3cbf95f4eeda2203888533123a391f8fed30778b03281b460da085b49599a`.
 
+The offline-bundle verifier checkpoint at source revision
+`079f20900b25ce90447f873c252566f8c9d5e764` is retained as
+`mechanized/results/verification-report-linux-offline-079f209.json`. It copied
+the lock-matching Rust toolchain into a fresh run root, recorded
+`rustup_dist_server` and `rustup_update_root` as `offline-bundle`, invoked no
+artifact download, and passed all 56/56 targets with the same 1,372
+non-duplicated and 32,714 summed obligations. SHA-256:
+`926d6834e17a46c8cb1edaefd85c9bb26b702aeabcb98e83c51ee72c5f47c012`.
+
 By default the run atomically writes the machine-readable evidence file
 `mechanized/results/verification-report.json`. `-ReportPath <path>` selects a
 different JSON destination, while `-NoReport` retains console-only operation.

@@ -35,3 +35,8 @@ final non-duplicated totals, and summary totals. The Rust toolchain is trusted
 through the exact version fetched by the pinned rustup executable from the
 official distribution service; its observed tree hash is evidence, not an
 independently predeclared hash for every Rust component.
+
+`verification-report-linux-offline-079f209.json` is the retained Linux
+offline-bundle run. It passes 56/56 targets, records the offline provisioning
+markers, and preserves the exact source, driver, lock, schema, and tool-tree
+integrity checks of the default run.

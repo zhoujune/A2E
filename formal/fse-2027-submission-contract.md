@@ -298,7 +298,11 @@ overlayfs and tmpfs temporary WALs. It confirms that the measured cost is
 storage-path sensitive while preserving the adapter-effect accounting. Because
 tmpfs is not durable across a host restart and the endpoint resolves to the same
 container hostname as the earlier baseline, independent-host, physical-device,
-and remote-service measurements remain open.
+and remote-service measurements remain open. A further follow-up at source
+revision `01fbcdd` places the temporary WAL on `/nix`, reported as an
+`/dev/nvme3n1`-backed `ext4` mount. This closes the physical-storage condition
+on the server while leaving independent-host replication and pod-lifecycle
+durability open.
 
 ### RQ3. How much work is required to verify an adapter?
 
@@ -378,7 +382,7 @@ The companion artifact is ready only when all of the following are true.
 |---|---|---|
 | Closed | Headline claim scope audit | M1-M3 are complete and the working claim is limited to admitted, coverage-conditioned formal executions rather than production-global mediation |
 | Closed | No complete reference broker | M4 reference crate and deterministic crash matrix completed |
-| P0 | Paper-grade empirical evaluation incomplete | RQ1-RQ4 baseline, paired overlayfs/tmpfs evidence, and the semantic external comparison exist; add an independent host/physical-storage condition |
+| P0 | Paper-grade empirical evaluation incomplete | RQ1-RQ4 baseline, overlayfs/tmpfs storage sensitivity, NVMe-backed ext4 evidence, and semantic external comparison exist; add an independent host condition |
 | Closed | Linux TLA+ execution package incomplete | Hash-pinned Temurin/TLA+ artifacts and clean-room smoke/full reports retained at source revision `5d8e8ed` |
 | P1 | No top-level artifact packaging, CI, or license | Complete Section 8 |
 | Closed | Novelty is not established against related work | Source-backed audit retained; broad priority claims rejected and the surviving synthesis claim qualified through the 2026-08-10 search cutoff |
@@ -395,10 +399,10 @@ The companion artifact is ready only when all of the following are true.
    complete at the M4/reference-artifact boundary.
 6. The Linux artifact runner, pinned Java/TLA+ package, clean-room smoke/full
    reports, and clean-room Verus report are complete.
-7. The paired RQ2 overlayfs/tmpfs storage control and related-work novelty audit
-   are complete. Add an independent external host/physical-storage condition
-   and write the paper around the qualified frozen claim, not around the
-   chronological proof history.
+7. The paired RQ2 overlayfs/tmpfs storage control, NVMe-backed ext4 follow-up,
+   and related-work novelty audit are complete. Add an independent external
+   host condition and write the paper around the qualified frozen claim, not
+   around the chronological proof history.
 8. Produce an anonymous release candidate and execute a final clean-room artifact
    rehearsal.
 
@@ -425,9 +429,10 @@ artifacts, TLA+ smoke/full reports, and a 56-target Verus report are retained
 at source revision `5d8e8ed`. The paired RQ2 overlayfs/tmpfs checkpoint is also
 complete at source revision `de33054`; it is not independent-host replication.
 The semantic external-system comparison and related-work novelty audit are now
-retained with a 2026-08-10 search cutoff. The next P0 checkpoint is an
-independent host with physical persistent storage. Top-level artifact
-packaging, licensing, CI, and the anonymous release rehearsal can proceed while
-that host is arranged. M3 remains closed only at the coverage-conditioned
+retained with a 2026-08-10 search cutoff. The NVMe-backed ext4 physical-storage
+checkpoint is retained at source revision `01fbcdd`; it uses the same host and
+Kubernetes pod. The next P0 checkpoint is an independent host. Top-level
+artifact packaging, licensing, CI, and the anonymous release rehearsal can
+proceed while that host is arranged. M3 remains closed only at the coverage-conditioned
 formal family boundary; production adapter/service executions are not yet
 refined into the Verus operational types.

@@ -91,6 +91,32 @@ for tmpfs. The server endpoint resolved to the same container hostname as the
 older retained baseline, so these files add a paired storage condition but do
 not count as independent-host replication.
 
+## Physical-storage follow-up
+
+`rq2-repeated-server-ext4.json` repeats the same protocol at source revision
+`01fbcddda570e53f95c4f9bfcdc4d01f7f77617f`, with the temporary WAL under
+`/nix`. The report records `temporary_mount_source` `/dev/nvme3n1`, target
+`/nix`, and mount filesystem `ext4`; the generic `stat` family is
+`ext2/ext3`. It uses the same release binary as the paired run, Rust 1.96,
+CPU affinity `{0}`, five warmups, thirty repetitions, and 500/50 requests.
+
+| Temporary filesystem | Mediated mean (95% interval), ms | Mediated requests/s | Journaled mean (95% interval), ms | Journaled requests/s |
+|---|---:|---:|---:|---:|
+| NVMe-backed ext4 | 0.456 (0.443-0.469) | 2,206.57 | 0.141 (0.136-0.146) | 7,165.82 |
+
+The retry means were 0.588 ms for mediated Idempotent, 0.588 ms for mediated
+Deduplicated, and 0.277 ms for journaled at-least-once; mediated recovery
+averaged 1.330 ms. The contract-bearing retry workloads still retained one
+abstract effect per request, while the journaled ablation retained one extra
+effect per request.
+
+The report SHA-256 is
+`0e23518d31c2639859e251560e25ed8a5393ff15aa6da3bf17b77a1d1a868de3`.
+This is evidence for a physical-storage condition and is materially different
+from tmpfs, but `/nix` is a Kubernetes `emptyDir` on the same server hostname.
+It therefore does not establish independent-host replication or persistence
+across pod deletion.
+
 ## RQ3 and RQ4
 
 `rq3-proof-effort.json` was generated from source revision

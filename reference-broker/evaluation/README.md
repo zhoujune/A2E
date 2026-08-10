@@ -99,6 +99,9 @@ condition. The retained `rq2-repeated-server-overlayfs.json` and
 `rq2-repeated-server-tmpfs.json` reports use identical source, binary, host,
 CPU affinity, and protocol settings. The tmpfs report is a storage-cost control,
 not durable-media evidence, because tmpfs does not survive a host restart.
+The retained `rq2-repeated-server-ext4.json` report uses the server's
+`/dev/nvme3n1`-backed `/nix` mount and includes the `findmnt` provenance fields;
+it is a physical-storage condition, not independent-host replication.
 Validate each retained report independently with `validate_repeated_rq2.py`.
 
 ## RQ3 proof effort

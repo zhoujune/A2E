@@ -29,3 +29,5 @@ jobs:
           python3 reference-broker/evaluation/validate_rq4.py reference-broker/evaluation/rq4-fault-matrix.v1.json
       - name: TLA+ smoke packaging preflight
         run: ./reproduce.sh smoke --dry-run --skip-verus --output-directory "$RUNNER_TEMP/proveai-smoke"
+      - name: Anonymous release scan
+        run: python3 artifact/check-release.py

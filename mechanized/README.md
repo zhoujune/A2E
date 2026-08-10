@@ -1583,6 +1583,13 @@ The clean-room Linux run at source revision
 targets with fresh Rust/Verus toolchain isolation and post-run source/tree
 integrity checks.
 
+The current packaging checkpoint at source revision
+`9a45d391e8c19d3f069a3df271005b1fd6b39b60` is retained as
+`mechanized/results/verification-report-linux-9a45d39.json`. It passed all
+56/56 targets with 1,372 dependency-aware non-duplicated obligations and
+32,714 summed target obligations. SHA-256:
+`dce3cbf95f4eeda2203888533123a391f8fed30778b03281b460da085b49599a`.
+
 By default the run atomically writes the machine-readable evidence file
 `mechanized/results/verification-report.json`. `-ReportPath <path>` selects a
 different JSON destination, while `-NoReport` retains console-only operation.

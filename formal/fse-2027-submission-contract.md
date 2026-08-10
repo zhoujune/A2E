@@ -383,8 +383,9 @@ The companion artifact is ready only when all of the following are true.
 | Closed | Headline claim scope audit | M1-M3 are complete and the working claim is limited to admitted, coverage-conditioned formal executions rather than production-global mediation |
 | Closed | No complete reference broker | M4 reference crate and deterministic crash matrix completed |
 | P0 | Paper-grade empirical evaluation incomplete | RQ1-RQ4 baseline, overlayfs/tmpfs storage sensitivity, NVMe-backed ext4 evidence, and semantic external comparison exist; add an independent host condition |
-| Closed | Linux TLA+ execution package incomplete | Hash-pinned Temurin/TLA+ artifacts and clean-room smoke/full reports retained at source revision `5d8e8ed` |
-| P1 | No top-level artifact packaging, CI, or license | Complete Section 8 |
+| Closed | Linux TLA+ execution package incomplete | Hash-pinned Temurin/TLA+ artifacts and clean-room smoke/full reports retained at source revisions `5d8e8ed` and `9a45d39` |
+| Closed | No top-level artifact packaging, CI, or license | Root smoke/full entry points, dual license texts, dependency inventory, troubleshooting guide, and CI checks are present; the full entry point passed on Linux at `9a45d39` |
+| P1 | Final release rehearsal and offline/anonymous packaging | Stage the complete Verus/Rust offline cache, run the no-network rehearsal, and check the archive for machine-specific paths and credentials |
 | Closed | Novelty is not established against related work | Source-backed audit retained; broad priority claims rejected and the surviving synthesis claim qualified through the 2026-08-10 search cutoff |
 | P2 | ReadOnly lacks a protected/contextual instantiation | Complete it or explicitly limit the corresponding operational claim |
 
@@ -426,13 +427,15 @@ projects rather than implicit prerequisites for the scoped first paper.
 
 The clean-room Linux artifact checkpoint is complete: hash-pinned Java/TLA+
 artifacts, TLA+ smoke/full reports, and a 56-target Verus report are retained
-at source revision `5d8e8ed`. The paired RQ2 overlayfs/tmpfs checkpoint is also
+at source revisions `5d8e8ed` and `9a45d39`. The current root `reproduce.sh`
+full rehearsal passed 13/13 TLA+ scenarios, Rust checks, and 56/56 Verus
+targets at `9a45d39`. The paired RQ2 overlayfs/tmpfs checkpoint is also
 complete at source revision `de33054`; it is not independent-host replication.
 The semantic external-system comparison and related-work novelty audit are now
 retained with a 2026-08-10 search cutoff. The NVMe-backed ext4 physical-storage
 checkpoint is retained at source revision `01fbcdd`; it uses the same host and
-Kubernetes pod. The next P0 checkpoint is an independent host. Top-level
-artifact packaging, licensing, CI, and the anonymous release rehearsal can
-proceed while that host is arranged. M3 remains closed only at the coverage-conditioned
+Kubernetes pod. The next P0 checkpoint is an independent host. The remaining
+P1 work is a no-network offline-cache rehearsal and an anonymous archive check.
+M3 remains closed only at the coverage-conditioned
 formal family boundary; production adapter/service executions are not yet
 refined into the Verus operational types.

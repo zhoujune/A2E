@@ -30,9 +30,12 @@ in `artifact/toolchain.lock.json` and `mechanized/toolchain.lock.json`.
 
 ## Offline evaluation
 
-For an offline run, place the exact hash-matching JRE executable (or unpacked
-JRE) and `tla2tools.jar` on the evaluator's filesystem and pass `--java` and
-`--tla-tools` to `artifact/run-linux.py`, or set `JAVA_HOME` and
-`PROVEAI_TLA_TOOLS`. Verus and Rust archives must likewise be staged according
-to `mechanized/toolchain.lock.json`; no credential or mutable remote branch is
-required.
+For an offline TLA+ run, place the exact hash-matching JRE executable (or
+unpacked JRE) and `tla2tools.jar` on the evaluator's filesystem and pass
+`--java` and `--tla-tools` to `artifact/run-linux.py`, or set `JAVA_HOME` and
+`PROVEAI_TLA_TOOLS`. For Verus, pre-populate the verifier cache selected by the
+system temporary directory (`<temp>/proveai-verus-m0/downloads`) with the exact
+archive leaf names and hashes from `mechanized/toolchain.lock.json`; the
+current verifier still installs the pinned Rust toolchain through rustup, so a
+truly no-network Verus rehearsal remains a release-blocking follow-up. No
+credential or mutable remote branch is required.

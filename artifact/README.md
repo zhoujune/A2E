@@ -28,10 +28,19 @@ The current server preflight is retained at
 `artifact/results/linux-smoke-preflight.json`; it validates the smoke snapshot
 without claiming TLC execution.
 
+On the server used for the current checkpoint, the full TLA+ phase took 357232
+ms with 32 workers and the Verus phase took 2394429 ms. Plan for at least 32
+logical CPUs, 16 GiB RAM, and 15 GiB of free disk for a full run; a smoke
+preflight needs substantially less. These are conservative scheduling budgets,
+not universal performance guarantees.
+
 The clean-room run at source revision `5d8e8ed39e492b05f52ba093782a043d204f1192`
 is retained as `artifact/results/tla-smoke-5d8e8ed.json` and
 `artifact/results/tla-full-5d8e8ed.json`. Smoke passed 8/8 scenarios; full passed
 13/13 scenarios with 32 workers and a 1,200-second per-scenario bound.
+The current packaging checkpoint repeats the full suite at source revision
+`9a45d391e8c19d3f069a3df271005b1fd6b39b60` as
+`artifact/results/tla-full-9a45d39.json` (13/13, 32 workers, 357232 ms).
 
 ## Smoke and full commands
 
@@ -48,6 +57,15 @@ The PowerShell equivalent is `./reproduce.ps1 smoke -DryRun -SkipVerus -SkipRust
 `--skip-verus` is only appropriate for a packaging preflight; the full command
 requires PowerShell 7 and runs the hash-bound Verus verifier into the new output
 directory. The top-level runner does not invoke `formal/check-model.ps1`.
+
+Before archiving an anonymous release candidate, run:
+
+```sh
+python3 artifact/check-release.py
+```
+
+It scans tracked text files and fails on credentials, private server addresses,
+or absolute user/home paths.
 
 ```sh
 ./artifact/run.sh smoke --dry-run --report /tmp/proveai-tla-smoke.json

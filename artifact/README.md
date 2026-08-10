@@ -96,3 +96,29 @@ mechanized/verify.ps1`; its existing Linux branch downloads the separately
 locked Verus/Rust artifacts and emits the retained verification report. The
 clean-room release command should invoke this runner after the Linux JRE and
 TLC prerequisites are packaged.
+
+## K3 proof-erased runtime spike
+
+`run-k3-runtime-spike.sh` verifies the executable K3 layer with the pinned
+Verus toolchain using `--compile`, links the resulting proof-erased
+`libk3_append_linearization_kernel.rlib` into
+`k3-runtime-harness.rs`, and runs a one-record `Call -> Linearize -> Return`
+smoke. Set `VERUS_BIN`, `RUSTC`, and `VERUS_Z3_PATH` to the hash-bound server
+toolchain paths before invoking it. The matching `rustup` must be on `PATH`,
+with its `RUSTUP_HOME` and `CARGO_HOME` exported; Verus invokes that `rustup`
+during compilation. The runner obtains `libvstd.rlib` and
+`libverus_builtin.rlib` from the pinned Verus directory and supplies them to
+the ordinary Rust linker explicitly.
+
+```sh
+VERUS_BIN=/path/to/verus \
+RUSTC=/path/to/rustc \
+VERUS_Z3_PATH=/path/to/z3 \
+./artifact/run-k3-runtime-spike.sh
+```
+
+The spike is a compilation/linkage feasibility check, not yet an M4
+implementation-refinement theorem. K3 still has its fixed demonstration
+configuration and serialized append-only boundary; the standard-Rust broker's
+recovery, byte WAL, adapters, and deployment wrapper remain outside this
+check.

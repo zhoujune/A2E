@@ -1,0 +1,31 @@
+name: ProveAI checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  rust-and-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust format
+        run: cargo fmt --manifest-path reference-broker/Cargo.toml -- --check
+      - name: Rust tests
+        run: cargo test --manifest-path reference-broker/Cargo.toml --all-targets
+      - name: Validate retained reports
+        shell: bash
+        run: |
+          python3 artifact/validate_report.py artifact/results/linux-smoke-preflight.json
+          python3 reference-broker/evaluation/validate_report.py reference-broker/evaluation/results/rq1-rq2-linux.json
+          python3 reference-broker/evaluation/validate_repeated_rq2.py reference-broker/evaluation/results/rq2-repeated-linux.json
+          python3 reference-broker/evaluation/validate_repeated_rq2.py reference-broker/evaluation/results/rq2-repeated-server-overlayfs.json
+          python3 reference-broker/evaluation/validate_repeated_rq2.py reference-broker/evaluation/results/rq2-repeated-server-tmpfs.json
+          python3 reference-broker/evaluation/validate_repeated_rq2.py reference-broker/evaluation/results/rq2-repeated-server-ext4.json
+          python3 reference-broker/evaluation/validate_rq3.py reference-broker/evaluation/results/rq3-proof-effort.json
+          python3 reference-broker/evaluation/validate_rq4.py reference-broker/evaluation/rq4-fault-matrix.v1.json
+      - name: TLA+ smoke packaging preflight
+        run: ./reproduce.sh smoke --dry-run --skip-verus --output-directory "$RUNNER_TEMP/proveai-smoke"

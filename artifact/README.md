@@ -35,6 +35,20 @@ is retained as `artifact/results/tla-smoke-5d8e8ed.json` and
 
 ## Smoke and full commands
 
+The release-facing entry point is at the repository root. It creates a new
+output directory, refuses to overwrite reports, and records command logs:
+
+```sh
+./reproduce.sh smoke --dry-run --skip-verus --skip-rust
+./reproduce.sh smoke
+./reproduce.sh full
+```
+
+The PowerShell equivalent is `./reproduce.ps1 smoke -DryRun -SkipVerus -SkipRust`.
+`--skip-verus` is only appropriate for a packaging preflight; the full command
+requires PowerShell 7 and runs the hash-bound Verus verifier into the new output
+directory. The top-level runner does not invoke `formal/check-model.ps1`.
+
 ```sh
 ./artifact/run.sh smoke --dry-run --report /tmp/proveai-tla-smoke.json
 python3 artifact/validate_report.py /tmp/proveai-tla-smoke.json

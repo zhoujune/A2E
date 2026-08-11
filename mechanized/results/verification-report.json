@@ -4,9 +4,9 @@
   "schema_path": "mechanized/results/verification-report.schema.v1.json",
   "schema_sha256": "3d559e705ce05f346cc965c13fa9400ab6f49c51f8f361807a29165ae2a3ff9a",
   "status": "passed",
-  "started_at_utc": "2026-08-11T10:04:20.6106083+00:00",
-  "completed_at_utc": "2026-08-11T10:41:29.8876159+00:00",
-  "duration_ms": 2229277,
+  "started_at_utc": "2026-08-11T10:53:14.5718485+00:00",
+  "completed_at_utc": "2026-08-11T11:30:17.7647176+00:00",
+  "duration_ms": 2223193,
   "error": null,
   "environment": {
     "os_description": "Ubuntu 24.04.2 LTS",
@@ -24,19 +24,19 @@
     "simple_path_module_grammar_enforced": true,
     "complete_registered_source_coverage": true,
     "all_direct_path_imports_registered": true,
-    "cumulative_parent_imports_validated": 57
+    "cumulative_parent_imports_validated": 58
   },
   "source_snapshot": {
     "kind": "isolated-read-only-copy",
-    "run_id": "9b3ec86f905244cb88a13a57125d4483",
-    "created_at_utc": "2026-08-11T10:04:20.8118792+00:00",
-    "source_file_count": 61,
-    "manifest_sha256": "3b2b0d3c567cb79d29d98ffbc6ae1620fae58f7fb5449635e46a5c4648dacca1",
+    "run_id": "beb24883cfa04445b85daff46a2850f8",
+    "created_at_utc": "2026-08-11T10:53:14.7852793+00:00",
+    "source_file_count": 62,
+    "manifest_sha256": "6a65fb36f0adc6d45e45c29ea3c7a4d07f4c3702df46c6aade29dbdfda878c50",
     "exact_membership_validated": true,
     "source_hashes_match_registry": true,
     "all_files_read_only": true,
-    "pre_target_validation_count": 61,
-    "post_target_validation_count": 61,
+    "pre_target_validation_count": 62,
+    "post_target_validation_count": 62,
     "final_validation_passed": true,
     "removed_after_run": true
   },
@@ -44,7 +44,7 @@
     "lock_path": "mechanized/toolchain.lock.json",
     "lock_sha256": "1efb79ae6c17914d3f51aaaf4c9663600d3c9713b662e6da6bc23efcc603e6f5",
     "verification_driver_path": "mechanized/verify.ps1",
-    "verification_driver_sha256": "511ee64005291e17a12bb67dce2bba7687b2a59609651d0bd211fa8ce439a35c",
+    "verification_driver_sha256": "782c0ed78e37dae25213d443665265f5d9516e3de614cc6cefee6e54da7b0a35",
     "declared": {
       "verus": {
         "version": "0.2026.07.05.49b8806",
@@ -86,12 +86,12 @@
     }
   },
   "summary": {
-    "registered_target_count": 61,
-    "registered_source_count": 61,
-    "present_source_count": 61,
-    "verified_target_count": 61,
-    "sum_of_target_obligations": 34063,
-    "non_duplicated_verified_obligations": 1402
+    "registered_target_count": 62,
+    "registered_source_count": 62,
+    "present_source_count": 62,
+    "verified_target_count": 62,
+    "sum_of_target_obligations": 34344,
+    "non_duplicated_verified_obligations": 1405
   },
   "targets": [
     {
@@ -109,9 +109,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:04:45.3251110+00:00",
-      "completed_at_utc": "2026-08-11T10:04:46.7879144+00:00",
-      "duration_ms": 1463,
+      "started_at_utc": "2026-08-11T10:53:43.0347896+00:00",
+      "completed_at_utc": "2026-08-11T10:53:44.3771230+00:00",
+      "duration_ms": 1342,
       "verified_obligations_total": 21,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -134,9 +134,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:04:46.7947965+00:00",
-      "completed_at_utc": "2026-08-11T10:04:50.5853082+00:00",
-      "duration_ms": 3791,
+      "started_at_utc": "2026-08-11T10:53:44.3814696+00:00",
+      "completed_at_utc": "2026-08-11T10:53:48.3256138+00:00",
+      "duration_ms": 3944,
       "verified_obligations_total": 86,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -159,9 +159,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:04:50.5854210+00:00",
-      "completed_at_utc": "2026-08-11T10:04:52.1014344+00:00",
-      "duration_ms": 1516,
+      "started_at_utc": "2026-08-11T10:53:48.3257112+00:00",
+      "completed_at_utc": "2026-08-11T10:53:49.6758735+00:00",
+      "duration_ms": 1350,
       "verified_obligations_total": 39,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -187,9 +187,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:04:52.1015436+00:00",
-      "completed_at_utc": "2026-08-11T10:04:56.4719830+00:00",
-      "duration_ms": 4370,
+      "started_at_utc": "2026-08-11T10:53:49.6759529+00:00",
+      "completed_at_utc": "2026-08-11T10:53:53.6346561+00:00",
+      "duration_ms": 3959,
       "verified_obligations_total": 128,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -214,9 +214,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:04:56.4720524+00:00",
-      "completed_at_utc": "2026-08-11T10:05:00.9884597+00:00",
-      "duration_ms": 4516,
+      "started_at_utc": "2026-08-11T10:53:53.6347289+00:00",
+      "completed_at_utc": "2026-08-11T10:53:57.9302225+00:00",
+      "duration_ms": 4295,
       "verified_obligations_total": 144,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -241,9 +241,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:05:00.9885995+00:00",
-      "completed_at_utc": "2026-08-11T10:05:05.2127868+00:00",
-      "duration_ms": 4224,
+      "started_at_utc": "2026-08-11T10:53:57.9303309+00:00",
+      "completed_at_utc": "2026-08-11T10:54:02.2367525+00:00",
+      "duration_ms": 4306,
       "verified_obligations_total": 144,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -268,9 +268,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:05:05.2128797+00:00",
-      "completed_at_utc": "2026-08-11T10:05:09.8643178+00:00",
-      "duration_ms": 4651,
+      "started_at_utc": "2026-08-11T10:54:02.2368278+00:00",
+      "completed_at_utc": "2026-08-11T10:54:06.6445817+00:00",
+      "duration_ms": 4408,
       "verified_obligations_total": 159,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -295,9 +295,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:05:09.8644117+00:00",
-      "completed_at_utc": "2026-08-11T10:05:15.3591765+00:00",
-      "duration_ms": 5495,
+      "started_at_utc": "2026-08-11T10:54:06.6446502+00:00",
+      "completed_at_utc": "2026-08-11T10:54:11.3810019+00:00",
+      "duration_ms": 4736,
       "verified_obligations_total": 179,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -322,9 +322,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:05:15.3592504+00:00",
-      "completed_at_utc": "2026-08-11T10:05:21.4891029+00:00",
-      "duration_ms": 6130,
+      "started_at_utc": "2026-08-11T10:54:11.3810663+00:00",
+      "completed_at_utc": "2026-08-11T10:54:17.0409928+00:00",
+      "duration_ms": 5660,
       "verified_obligations_total": 208,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -349,9 +349,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:05:21.4892310+00:00",
-      "completed_at_utc": "2026-08-11T10:05:30.0415009+00:00",
-      "duration_ms": 8552,
+      "started_at_utc": "2026-08-11T10:54:17.0410878+00:00",
+      "completed_at_utc": "2026-08-11T10:54:24.4313010+00:00",
+      "duration_ms": 7390,
       "verified_obligations_total": 248,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -376,9 +376,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:05:30.0415824+00:00",
-      "completed_at_utc": "2026-08-11T10:05:38.8455058+00:00",
-      "duration_ms": 8804,
+      "started_at_utc": "2026-08-11T10:54:24.4313635+00:00",
+      "completed_at_utc": "2026-08-11T10:54:31.9471303+00:00",
+      "duration_ms": 7516,
       "verified_obligations_total": 255,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -403,9 +403,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:05:38.8455950+00:00",
-      "completed_at_utc": "2026-08-11T10:05:47.6447033+00:00",
-      "duration_ms": 8799,
+      "started_at_utc": "2026-08-11T10:54:31.9471928+00:00",
+      "completed_at_utc": "2026-08-11T10:54:40.0869800+00:00",
+      "duration_ms": 8140,
       "verified_obligations_total": 266,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -430,9 +430,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:05:47.6447744+00:00",
-      "completed_at_utc": "2026-08-11T10:05:55.9078080+00:00",
-      "duration_ms": 8263,
+      "started_at_utc": "2026-08-11T10:54:40.0870394+00:00",
+      "completed_at_utc": "2026-08-11T10:54:47.9094480+00:00",
+      "duration_ms": 7822,
       "verified_obligations_total": 274,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -457,9 +457,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:05:55.9081511+00:00",
-      "completed_at_utc": "2026-08-11T10:06:05.0634399+00:00",
-      "duration_ms": 9155,
+      "started_at_utc": "2026-08-11T10:54:47.9095111+00:00",
+      "completed_at_utc": "2026-08-11T10:54:56.1958587+00:00",
+      "duration_ms": 8286,
       "verified_obligations_total": 276,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -484,14 +484,41 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:06:05.0635199+00:00",
-      "completed_at_utc": "2026-08-11T10:06:14.0463964+00:00",
-      "duration_ms": 8983,
+      "started_at_utc": "2026-08-11T10:54:56.1959693+00:00",
+      "completed_at_utc": "2026-08-11T10:55:04.5123438+00:00",
+      "duration_ms": 8316,
       "verified_obligations_total": 278,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 2,
       "non_duplicated_total_after": 315,
+      "error": null
+    },
+    {
+      "name": "K4-R4",
+      "source_path": "mechanized/k4_parameterized_arm.rs",
+      "source_sha256": "e663053cac19c39f95d3bea338868198fa8bf0c07ceced87fd552c681bdc58f5",
+      "snapshot_source_path": "sources/k4_parameterized_arm.rs",
+      "direct_path_imports": [
+        "k4_parameterized_prepare_mutation.rs"
+      ],
+      "contribution_mode": "parent_delta",
+      "contribution_parent": "K4-R3",
+      "immediate_parent_import_validated": true,
+      "verus_arguments": [
+        "--crate-type",
+        "lib",
+        "--no-cheating"
+      ],
+      "status": "passed",
+      "started_at_utc": "2026-08-11T10:55:04.5124102+00:00",
+      "completed_at_utc": "2026-08-11T10:55:12.8674214+00:00",
+      "duration_ms": 8355,
+      "verified_obligations_total": 281,
+      "verus_errors": 0,
+      "verus_exit_code": 0,
+      "contribution_delta": 3,
+      "non_duplicated_total_after": 318,
       "error": null
     },
     {
@@ -511,14 +538,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:06:14.0464822+00:00",
-      "completed_at_utc": "2026-08-11T10:06:21.6767331+00:00",
-      "duration_ms": 7630,
+      "started_at_utc": "2026-08-11T10:55:12.8674929+00:00",
+      "completed_at_utc": "2026-08-11T10:55:19.2252462+00:00",
+      "duration_ms": 6358,
       "verified_obligations_total": 169,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 25,
-      "non_duplicated_total_after": 340,
+      "non_duplicated_total_after": 343,
       "error": null
     },
     {
@@ -538,14 +565,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:06:21.6768281+00:00",
-      "completed_at_utc": "2026-08-11T10:06:29.2076633+00:00",
-      "duration_ms": 7531,
+      "started_at_utc": "2026-08-11T10:55:19.2253334+00:00",
+      "completed_at_utc": "2026-08-11T10:55:25.8086175+00:00",
+      "duration_ms": 6583,
       "verified_obligations_total": 175,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 6,
-      "non_duplicated_total_after": 346,
+      "non_duplicated_total_after": 349,
       "error": null
     },
     {
@@ -565,14 +592,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:06:29.2077798+00:00",
-      "completed_at_utc": "2026-08-11T10:06:37.1164174+00:00",
-      "duration_ms": 7909,
+      "started_at_utc": "2026-08-11T10:55:25.8087142+00:00",
+      "completed_at_utc": "2026-08-11T10:55:32.8801496+00:00",
+      "duration_ms": 7071,
       "verified_obligations_total": 193,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 18,
-      "non_duplicated_total_after": 364,
+      "non_duplicated_total_after": 367,
       "error": null
     },
     {
@@ -592,14 +619,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:06:37.1165735+00:00",
-      "completed_at_utc": "2026-08-11T10:06:47.9302887+00:00",
-      "duration_ms": 10814,
+      "started_at_utc": "2026-08-11T10:55:32.8801984+00:00",
+      "completed_at_utc": "2026-08-11T10:55:42.7333635+00:00",
+      "duration_ms": 9853,
       "verified_obligations_total": 251,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 58,
-      "non_duplicated_total_after": 422,
+      "non_duplicated_total_after": 425,
       "error": null
     },
     {
@@ -619,14 +646,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:06:47.9303647+00:00",
-      "completed_at_utc": "2026-08-11T10:06:58.6318519+00:00",
-      "duration_ms": 10701,
+      "started_at_utc": "2026-08-11T10:55:42.7334067+00:00",
+      "completed_at_utc": "2026-08-11T10:55:52.9057814+00:00",
+      "duration_ms": 10172,
       "verified_obligations_total": 276,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 25,
-      "non_duplicated_total_after": 447,
+      "non_duplicated_total_after": 450,
       "error": null
     },
     {
@@ -646,14 +673,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:06:58.6319338+00:00",
-      "completed_at_utc": "2026-08-11T10:07:09.7381187+00:00",
-      "duration_ms": 11106,
+      "started_at_utc": "2026-08-11T10:55:52.9059690+00:00",
+      "completed_at_utc": "2026-08-11T10:56:03.4256518+00:00",
+      "duration_ms": 10520,
       "verified_obligations_total": 292,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 16,
-      "non_duplicated_total_after": 463,
+      "non_duplicated_total_after": 466,
       "error": null
     },
     {
@@ -673,14 +700,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:07:09.7381988+00:00",
-      "completed_at_utc": "2026-08-11T10:07:20.1667842+00:00",
-      "duration_ms": 10429,
+      "started_at_utc": "2026-08-11T10:56:03.4256928+00:00",
+      "completed_at_utc": "2026-08-11T10:56:14.9057178+00:00",
+      "duration_ms": 11480,
       "verified_obligations_total": 310,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 18,
-      "non_duplicated_total_after": 481,
+      "non_duplicated_total_after": 484,
       "error": null
     },
     {
@@ -700,14 +727,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:07:20.1669039+00:00",
-      "completed_at_utc": "2026-08-11T10:07:31.1112236+00:00",
-      "duration_ms": 10944,
+      "started_at_utc": "2026-08-11T10:56:14.9057686+00:00",
+      "completed_at_utc": "2026-08-11T10:56:25.9361764+00:00",
+      "duration_ms": 11030,
       "verified_obligations_total": 335,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 25,
-      "non_duplicated_total_after": 506,
+      "non_duplicated_total_after": 509,
       "error": null
     },
     {
@@ -727,14 +754,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:07:31.1113046+00:00",
-      "completed_at_utc": "2026-08-11T10:07:42.0392132+00:00",
-      "duration_ms": 10928,
+      "started_at_utc": "2026-08-11T10:56:25.9362244+00:00",
+      "completed_at_utc": "2026-08-11T10:56:36.8822567+00:00",
+      "duration_ms": 10946,
       "verified_obligations_total": 342,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 7,
-      "non_duplicated_total_after": 513,
+      "non_duplicated_total_after": 516,
       "error": null
     },
     {
@@ -754,14 +781,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:07:42.0392929+00:00",
-      "completed_at_utc": "2026-08-11T10:07:53.9661910+00:00",
-      "duration_ms": 11927,
+      "started_at_utc": "2026-08-11T10:56:36.8823312+00:00",
+      "completed_at_utc": "2026-08-11T10:56:48.4498701+00:00",
+      "duration_ms": 11568,
       "verified_obligations_total": 410,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 68,
-      "non_duplicated_total_after": 581,
+      "non_duplicated_total_after": 584,
       "error": null
     },
     {
@@ -781,14 +808,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:07:53.9662668+00:00",
-      "completed_at_utc": "2026-08-11T10:08:06.3369479+00:00",
-      "duration_ms": 12371,
+      "started_at_utc": "2026-08-11T10:56:48.4499178+00:00",
+      "completed_at_utc": "2026-08-11T10:57:00.2565882+00:00",
+      "duration_ms": 11807,
       "verified_obligations_total": 429,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 19,
-      "non_duplicated_total_after": 600,
+      "non_duplicated_total_after": 603,
       "error": null
     },
     {
@@ -808,14 +835,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:08:06.3370293+00:00",
-      "completed_at_utc": "2026-08-11T10:08:22.0304219+00:00",
-      "duration_ms": 15693,
+      "started_at_utc": "2026-08-11T10:57:00.2566325+00:00",
+      "completed_at_utc": "2026-08-11T10:57:16.1508584+00:00",
+      "duration_ms": 15894,
       "verified_obligations_total": 462,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 33,
-      "non_duplicated_total_after": 633,
+      "non_duplicated_total_after": 636,
       "error": null
     },
     {
@@ -835,14 +862,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:08:22.0305032+00:00",
-      "completed_at_utc": "2026-08-11T10:08:37.0050424+00:00",
-      "duration_ms": 14975,
+      "started_at_utc": "2026-08-11T10:57:16.1509139+00:00",
+      "completed_at_utc": "2026-08-11T10:57:31.6767387+00:00",
+      "duration_ms": 15526,
       "verified_obligations_total": 476,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 14,
-      "non_duplicated_total_after": 647,
+      "non_duplicated_total_after": 650,
       "error": null
     },
     {
@@ -862,14 +889,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:08:37.0051231+00:00",
-      "completed_at_utc": "2026-08-11T10:08:53.7654978+00:00",
-      "duration_ms": 16760,
+      "started_at_utc": "2026-08-11T10:57:31.6767881+00:00",
+      "completed_at_utc": "2026-08-11T10:57:47.4742296+00:00",
+      "duration_ms": 15797,
       "verified_obligations_total": 487,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 11,
-      "non_duplicated_total_after": 658,
+      "non_duplicated_total_after": 661,
       "error": null
     },
     {
@@ -889,14 +916,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:08:53.7655841+00:00",
-      "completed_at_utc": "2026-08-11T10:09:10.1083564+00:00",
-      "duration_ms": 16343,
+      "started_at_utc": "2026-08-11T10:57:47.4742807+00:00",
+      "completed_at_utc": "2026-08-11T10:58:03.3763037+00:00",
+      "duration_ms": 15902,
       "verified_obligations_total": 509,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 22,
-      "non_duplicated_total_after": 680,
+      "non_duplicated_total_after": 683,
       "error": null
     },
     {
@@ -916,14 +943,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:09:10.1084106+00:00",
-      "completed_at_utc": "2026-08-11T10:09:26.4011312+00:00",
-      "duration_ms": 16293,
+      "started_at_utc": "2026-08-11T10:58:03.3763540+00:00",
+      "completed_at_utc": "2026-08-11T10:58:20.3346329+00:00",
+      "duration_ms": 16958,
       "verified_obligations_total": 521,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 12,
-      "non_duplicated_total_after": 692,
+      "non_duplicated_total_after": 695,
       "error": null
     },
     {
@@ -943,14 +970,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:09:26.4012192+00:00",
-      "completed_at_utc": "2026-08-11T10:09:44.4602161+00:00",
-      "duration_ms": 18059,
+      "started_at_utc": "2026-08-11T10:58:20.3346787+00:00",
+      "completed_at_utc": "2026-08-11T10:58:37.2819251+00:00",
+      "duration_ms": 16947,
       "verified_obligations_total": 532,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 11,
-      "non_duplicated_total_after": 703,
+      "non_duplicated_total_after": 706,
       "error": null
     },
     {
@@ -970,14 +997,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:09:44.4602953+00:00",
-      "completed_at_utc": "2026-08-11T10:10:03.1330191+00:00",
-      "duration_ms": 18673,
+      "started_at_utc": "2026-08-11T10:58:37.2823325+00:00",
+      "completed_at_utc": "2026-08-11T10:58:53.3158995+00:00",
+      "duration_ms": 16034,
       "verified_obligations_total": 578,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 46,
-      "non_duplicated_total_after": 749,
+      "non_duplicated_total_after": 752,
       "error": null
     },
     {
@@ -997,14 +1024,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:10:03.1331598+00:00",
-      "completed_at_utc": "2026-08-11T10:10:20.7840639+00:00",
-      "duration_ms": 17651,
+      "started_at_utc": "2026-08-11T10:58:53.3159354+00:00",
+      "completed_at_utc": "2026-08-11T10:59:09.8326524+00:00",
+      "duration_ms": 16517,
       "verified_obligations_total": 589,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 11,
-      "non_duplicated_total_after": 760,
+      "non_duplicated_total_after": 763,
       "error": null
     },
     {
@@ -1024,14 +1051,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:10:20.7841182+00:00",
-      "completed_at_utc": "2026-08-11T10:10:42.2024299+00:00",
-      "duration_ms": 21418,
+      "started_at_utc": "2026-08-11T10:59:09.8326836+00:00",
+      "completed_at_utc": "2026-08-11T10:59:28.5594372+00:00",
+      "duration_ms": 18727,
       "verified_obligations_total": 627,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 38,
-      "non_duplicated_total_after": 798,
+      "non_duplicated_total_after": 801,
       "error": null
     },
     {
@@ -1051,14 +1078,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:10:42.2024799+00:00",
-      "completed_at_utc": "2026-08-11T10:11:02.5075468+00:00",
-      "duration_ms": 20305,
+      "started_at_utc": "2026-08-11T10:59:28.5594684+00:00",
+      "completed_at_utc": "2026-08-11T10:59:48.1539667+00:00",
+      "duration_ms": 19594,
       "verified_obligations_total": 642,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 15,
-      "non_duplicated_total_after": 813,
+      "non_duplicated_total_after": 816,
       "error": null
     },
     {
@@ -1078,14 +1105,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:11:02.5075931+00:00",
-      "completed_at_utc": "2026-08-11T10:11:20.8353077+00:00",
-      "duration_ms": 18328,
+      "started_at_utc": "2026-08-11T10:59:48.1539953+00:00",
+      "completed_at_utc": "2026-08-11T11:00:06.7523788+00:00",
+      "duration_ms": 18598,
       "verified_obligations_total": 660,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 18,
-      "non_duplicated_total_after": 831,
+      "non_duplicated_total_after": 834,
       "error": null
     },
     {
@@ -1105,14 +1132,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:11:20.8353484+00:00",
-      "completed_at_utc": "2026-08-11T10:11:38.6551095+00:00",
-      "duration_ms": 17820,
+      "started_at_utc": "2026-08-11T11:00:06.7524083+00:00",
+      "completed_at_utc": "2026-08-11T11:00:24.8612693+00:00",
+      "duration_ms": 18109,
       "verified_obligations_total": 677,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 17,
-      "non_duplicated_total_after": 848,
+      "non_duplicated_total_after": 851,
       "error": null
     },
     {
@@ -1132,14 +1159,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:11:38.6551463+00:00",
-      "completed_at_utc": "2026-08-11T10:11:58.7879765+00:00",
-      "duration_ms": 20133,
+      "started_at_utc": "2026-08-11T11:00:24.8612963+00:00",
+      "completed_at_utc": "2026-08-11T11:00:46.8216971+00:00",
+      "duration_ms": 21960,
       "verified_obligations_total": 721,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 44,
-      "non_duplicated_total_after": 892,
+      "non_duplicated_total_after": 895,
       "error": null
     },
     {
@@ -1159,14 +1186,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:11:58.7880222+00:00",
-      "completed_at_utc": "2026-08-11T10:12:18.3215289+00:00",
-      "duration_ms": 19534,
+      "started_at_utc": "2026-08-11T11:00:46.8217272+00:00",
+      "completed_at_utc": "2026-08-11T11:01:05.6257033+00:00",
+      "duration_ms": 18804,
       "verified_obligations_total": 735,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 14,
-      "non_duplicated_total_after": 906,
+      "non_duplicated_total_after": 909,
       "error": null
     },
     {
@@ -1186,14 +1213,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:12:18.3215790+00:00",
-      "completed_at_utc": "2026-08-11T10:12:37.4942708+00:00",
-      "duration_ms": 19173,
+      "started_at_utc": "2026-08-11T11:01:05.6257359+00:00",
+      "completed_at_utc": "2026-08-11T11:01:25.6234518+00:00",
+      "duration_ms": 19998,
       "verified_obligations_total": 744,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 9,
-      "non_duplicated_total_after": 915,
+      "non_duplicated_total_after": 918,
       "error": null
     },
     {
@@ -1213,14 +1240,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:12:37.4943077+00:00",
-      "completed_at_utc": "2026-08-11T10:12:59.4793036+00:00",
-      "duration_ms": 21985,
+      "started_at_utc": "2026-08-11T11:01:25.6234804+00:00",
+      "completed_at_utc": "2026-08-11T11:01:46.5489801+00:00",
+      "duration_ms": 20925,
       "verified_obligations_total": 748,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 4,
-      "non_duplicated_total_after": 919,
+      "non_duplicated_total_after": 922,
       "error": null
     },
     {
@@ -1240,14 +1267,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:12:59.4793963+00:00",
-      "completed_at_utc": "2026-08-11T10:13:21.7768108+00:00",
-      "duration_ms": 22297,
+      "started_at_utc": "2026-08-11T11:01:46.5490104+00:00",
+      "completed_at_utc": "2026-08-11T11:02:08.4049292+00:00",
+      "duration_ms": 21856,
       "verified_obligations_total": 770,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 22,
-      "non_duplicated_total_after": 941,
+      "non_duplicated_total_after": 944,
       "error": null
     },
     {
@@ -1267,14 +1294,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:13:21.7768584+00:00",
-      "completed_at_utc": "2026-08-11T10:13:43.0271414+00:00",
-      "duration_ms": 21250,
+      "started_at_utc": "2026-08-11T11:02:08.4049585+00:00",
+      "completed_at_utc": "2026-08-11T11:02:28.4885120+00:00",
+      "duration_ms": 20084,
       "verified_obligations_total": 784,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 14,
-      "non_duplicated_total_after": 955,
+      "non_duplicated_total_after": 958,
       "error": null
     },
     {
@@ -1294,14 +1321,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:13:43.0271918+00:00",
-      "completed_at_utc": "2026-08-11T10:14:03.4495862+00:00",
-      "duration_ms": 20422,
+      "started_at_utc": "2026-08-11T11:02:28.4885859+00:00",
+      "completed_at_utc": "2026-08-11T11:02:49.3179478+00:00",
+      "duration_ms": 20829,
       "verified_obligations_total": 787,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 3,
-      "non_duplicated_total_after": 958,
+      "non_duplicated_total_after": 961,
       "error": null
     },
     {
@@ -1321,14 +1348,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:14:03.4496457+00:00",
-      "completed_at_utc": "2026-08-11T10:14:25.0639215+00:00",
-      "duration_ms": 21614,
+      "started_at_utc": "2026-08-11T11:02:49.3179761+00:00",
+      "completed_at_utc": "2026-08-11T11:03:11.2709627+00:00",
+      "duration_ms": 21953,
       "verified_obligations_total": 800,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 16,
-      "non_duplicated_total_after": 974,
+      "non_duplicated_total_after": 977,
       "error": null
     },
     {
@@ -1348,14 +1375,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:14:25.0639708+00:00",
-      "completed_at_utc": "2026-08-11T10:14:48.2077751+00:00",
-      "duration_ms": 23144,
+      "started_at_utc": "2026-08-11T11:03:11.2709910+00:00",
+      "completed_at_utc": "2026-08-11T11:03:33.1623183+00:00",
+      "duration_ms": 21891,
       "verified_obligations_total": 818,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 18,
-      "non_duplicated_total_after": 992,
+      "non_duplicated_total_after": 995,
       "error": null
     },
     {
@@ -1375,14 +1402,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:14:48.2078264+00:00",
-      "completed_at_utc": "2026-08-11T10:15:10.1140391+00:00",
-      "duration_ms": 21906,
+      "started_at_utc": "2026-08-11T11:03:33.1623667+00:00",
+      "completed_at_utc": "2026-08-11T11:03:54.4265945+00:00",
+      "duration_ms": 21264,
       "verified_obligations_total": 835,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 17,
-      "non_duplicated_total_after": 1009,
+      "non_duplicated_total_after": 1012,
       "error": null
     },
     {
@@ -1402,14 +1429,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:15:10.1141259+00:00",
-      "completed_at_utc": "2026-08-11T10:15:32.2148525+00:00",
-      "duration_ms": 22101,
+      "started_at_utc": "2026-08-11T11:03:54.4266294+00:00",
+      "completed_at_utc": "2026-08-11T11:04:18.6486855+00:00",
+      "duration_ms": 24222,
       "verified_obligations_total": 841,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 6,
-      "non_duplicated_total_after": 1015,
+      "non_duplicated_total_after": 1018,
       "error": null
     },
     {
@@ -1429,14 +1456,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:15:32.2148975+00:00",
-      "completed_at_utc": "2026-08-11T10:16:04.1847741+00:00",
-      "duration_ms": 31970,
+      "started_at_utc": "2026-08-11T11:04:18.6487123+00:00",
+      "completed_at_utc": "2026-08-11T11:04:49.1278881+00:00",
+      "duration_ms": 30479,
       "verified_obligations_total": 864,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 23,
-      "non_duplicated_total_after": 1038,
+      "non_duplicated_total_after": 1041,
       "error": null
     },
     {
@@ -1456,14 +1483,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:16:04.1849635+00:00",
-      "completed_at_utc": "2026-08-11T10:18:08.5312294+00:00",
-      "duration_ms": 124346,
+      "started_at_utc": "2026-08-11T11:04:49.1279138+00:00",
+      "completed_at_utc": "2026-08-11T11:06:54.8185382+00:00",
+      "duration_ms": 125691,
       "verified_obligations_total": 916,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 52,
-      "non_duplicated_total_after": 1090,
+      "non_duplicated_total_after": 1093,
       "error": null
     },
     {
@@ -1483,14 +1510,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:18:08.5312770+00:00",
-      "completed_at_utc": "2026-08-11T10:20:19.3228393+00:00",
-      "duration_ms": 130792,
+      "started_at_utc": "2026-08-11T11:06:54.8185875+00:00",
+      "completed_at_utc": "2026-08-11T11:09:05.3183381+00:00",
+      "duration_ms": 130500,
       "verified_obligations_total": 977,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 61,
-      "non_duplicated_total_after": 1151,
+      "non_duplicated_total_after": 1154,
       "error": null
     },
     {
@@ -1510,14 +1537,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:20:19.3228801+00:00",
-      "completed_at_utc": "2026-08-11T10:22:22.7115254+00:00",
-      "duration_ms": 123389,
+      "started_at_utc": "2026-08-11T11:09:05.3183647+00:00",
+      "completed_at_utc": "2026-08-11T11:11:12.7423631+00:00",
+      "duration_ms": 127424,
       "verified_obligations_total": 1000,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 23,
-      "non_duplicated_total_after": 1174,
+      "non_duplicated_total_after": 1177,
       "error": null
     },
     {
@@ -1537,14 +1564,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:22:22.7115750+00:00",
-      "completed_at_utc": "2026-08-11T10:24:28.1130510+00:00",
-      "duration_ms": 125401,
+      "started_at_utc": "2026-08-11T11:11:12.7424472+00:00",
+      "completed_at_utc": "2026-08-11T11:13:20.6786134+00:00",
+      "duration_ms": 127936,
       "verified_obligations_total": 1022,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 22,
-      "non_duplicated_total_after": 1196,
+      "non_duplicated_total_after": 1199,
       "error": null
     },
     {
@@ -1564,14 +1591,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:24:28.1130972+00:00",
-      "completed_at_utc": "2026-08-11T10:26:48.7019527+00:00",
-      "duration_ms": 140589,
+      "started_at_utc": "2026-08-11T11:13:20.6786414+00:00",
+      "completed_at_utc": "2026-08-11T11:15:43.3229585+00:00",
+      "duration_ms": 142644,
       "verified_obligations_total": 1083,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 61,
-      "non_duplicated_total_after": 1257,
+      "non_duplicated_total_after": 1260,
       "error": null
     },
     {
@@ -1591,14 +1618,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:26:48.7020007+00:00",
-      "completed_at_utc": "2026-08-11T10:29:21.1891061+00:00",
-      "duration_ms": 152487,
+      "started_at_utc": "2026-08-11T11:15:43.3229857+00:00",
+      "completed_at_utc": "2026-08-11T11:18:07.6117477+00:00",
+      "duration_ms": 144289,
       "verified_obligations_total": 1085,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 2,
-      "non_duplicated_total_after": 1259,
+      "non_duplicated_total_after": 1262,
       "error": null
     },
     {
@@ -1618,14 +1645,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:29:21.1892024+00:00",
-      "completed_at_utc": "2026-08-11T10:31:45.7292801+00:00",
-      "duration_ms": 144540,
+      "started_at_utc": "2026-08-11T11:18:07.6117746+00:00",
+      "completed_at_utc": "2026-08-11T11:20:31.2112025+00:00",
+      "duration_ms": 143599,
       "verified_obligations_total": 1111,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 26,
-      "non_duplicated_total_after": 1285,
+      "non_duplicated_total_after": 1288,
       "error": null
     },
     {
@@ -1645,14 +1672,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:31:45.7293240+00:00",
-      "completed_at_utc": "2026-08-11T10:34:16.0866692+00:00",
-      "duration_ms": 150357,
+      "started_at_utc": "2026-08-11T11:20:31.2112300+00:00",
+      "completed_at_utc": "2026-08-11T11:23:01.1934357+00:00",
+      "duration_ms": 149982,
       "verified_obligations_total": 1143,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 32,
-      "non_duplicated_total_after": 1317,
+      "non_duplicated_total_after": 1320,
       "error": null
     },
     {
@@ -1672,14 +1699,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:34:16.0867137+00:00",
-      "completed_at_utc": "2026-08-11T10:36:41.5133814+00:00",
-      "duration_ms": 145427,
+      "started_at_utc": "2026-08-11T11:23:01.1935268+00:00",
+      "completed_at_utc": "2026-08-11T11:25:25.9993443+00:00",
+      "duration_ms": 144806,
       "verified_obligations_total": 1182,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 39,
-      "non_duplicated_total_after": 1356,
+      "non_duplicated_total_after": 1359,
       "error": null
     },
     {
@@ -1699,14 +1726,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:36:41.5134474+00:00",
-      "completed_at_utc": "2026-08-11T10:39:07.9478872+00:00",
-      "duration_ms": 146434,
+      "started_at_utc": "2026-08-11T11:25:25.9993702+00:00",
+      "completed_at_utc": "2026-08-11T11:27:53.9624949+00:00",
+      "duration_ms": 147963,
       "verified_obligations_total": 1222,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 40,
-      "non_duplicated_total_after": 1396,
+      "non_duplicated_total_after": 1399,
       "error": null
     },
     {
@@ -1726,14 +1753,14 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-11T10:39:07.9479343+00:00",
-      "completed_at_utc": "2026-08-11T10:41:28.6001868+00:00",
-      "duration_ms": 140652,
+      "started_at_utc": "2026-08-11T11:27:53.9625356+00:00",
+      "completed_at_utc": "2026-08-11T11:30:16.4975350+00:00",
+      "duration_ms": 142535,
       "verified_obligations_total": 1228,
       "verus_errors": 0,
       "verus_exit_code": 0,
       "contribution_delta": 6,
-      "non_duplicated_total_after": 1402,
+      "non_duplicated_total_after": 1405,
       "error": null
     }
   ]

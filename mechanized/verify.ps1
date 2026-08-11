@@ -134,6 +134,12 @@ $targets = @(
         ContributionParent = "K4-R2"
     },
     [pscustomobject]@{
+        Name = "K4-R4"
+        SourcePath = Join-Path $scriptDir "k4_parameterized_arm.rs"
+        ExtraArguments = @()
+        ContributionParent = "K4-R3"
+    },
+    [pscustomobject]@{
         Name = "B2-R"
         SourcePath = Join-Path $scriptDir "t1_broker_records.rs"
         ExtraArguments = @()

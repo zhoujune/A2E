@@ -136,8 +136,9 @@ profiles plus the executable Prepare and Start guards. K4-R2 adds the first
 manifest-parameterized accepted-record mutation for Authorize, including a
 premise-free budget-decrement and witness-update execution. K4-R3 adds the
 accepted Prepare phase mutation and an Authorize-to-Prepare execution witness.
-The remaining guards, mutations, materialization, and K3 append state still use
-the fixed demo config.
+K4-R4 fills the Arm gap with a manifest-parameterized guard, accepted phase
+mutation, and Authorize-to-Prepare-to-Arm witness. The remaining guards,
+mutations, materialization, and K3 append state still use the fixed demo config.
 
 M4 adds a separate standard-Rust
 [`reference-broker`](reference-broker/README.md) prototype around that verified
@@ -204,7 +205,7 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   statement of theorem V1, including the independent abstract and concrete
   machines, labeled executions, rely conditions, and theorem layers T1--T6.
 - [Verified mechanization checkpoints](mechanized/README.md) document M0, R1,
-  B1, C1, D1, Q1, K1, K2-G0, K2-T0, K3-A0, K4-C0, K4-R0, K4-R1, K4-R2, K4-R3, B2-R, B2-C, B2-P0, B2-P1, B2-P2,
+  B1, C1, D1, Q1, K1, K2-G0, K2-T0, K3-A0, K4-C0, K4-R0, K4-R1, K4-R2, K4-R3, K4-R4, B2-R, B2-C, B2-P0, B2-P1, B2-P2,
   B2-P3, B2-L, B2-A,
   G0, G1-P, G1-E, T1, T2-J0, T2-J1, T2-E, T2-R, T2, T3-W0,
   T3-W1-T, T3-W1-E, T3-W1-R, T3, T4-C0, T4-C1, T4-C2, T5-S0, T5-E0,
@@ -225,7 +226,7 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   finite lookups in the first parameterized executable Authorize guard, and
   K4-R1 adds the corresponding Prepare and Start guards. K4-R2 parameterizes
   the accepted Authorize durable mutation, and K4-R3 adds Prepare mutation.
-  B2-R proves the
+  K4-R4 adds the Arm guard and mutation. B2-R proves the
   record-side Broker, executor-slot, and recovery invariant for every finite
   prefix; B2-C refines full immutable requests, capabilities, and canonical
   call descriptors into R1's verified configuration; B2-P0 adds verified
@@ -386,7 +387,7 @@ verifies from an exact read-only source snapshot, enforces the proof/import
 policy, and emits a source-hashed verification report with the observed Rust
 tree digest.
 The current result is M0 21, R1 86, B1 39, C1 128,
-D1 144, Q1 144, K1 159, K2-G0 179, K2-T0 208, K3-A0 248, K4-C0 255, K4-R0 266, K4-R1 274, K4-R2 276, K4-R3 278,
+D1 144, Q1 144, K1 159, K2-G0 179, K2-T0 208, K3-A0 248, K4-C0 255, K4-R0 266, K4-R1 274, K4-R2 276, K4-R3 278, K4-R4 281,
 B2-R 169, B2-C 175,
 B2-P0 193, B2-P1 251, B2-P2 276,
 B2-P3 292, B2-L 310, B2-A 335, G0 342, G1-P 410, G1-E 429, T1 462,
@@ -398,7 +399,7 @@ T6-P0 1,000, T6-X0 1,022, T6-RO0 1,083, T6-DD0 1,085, T6-DD1 1,111,
 T6-DD2 1,143, T6-DD3 1,182, T6-DD4 1,222, and T6-DD5 1,228 obligations, all
 with zero errors. K1 adds 15 obligations beyond Q1, K2-G0 adds 20 beyond K1,
 K2-T0 adds 29 beyond K2-G0, K3-A0 adds 40 beyond K2-T0, K4-C0 adds 7 beyond
-K3-A0, K4-R0 adds 11 beyond K4-C0, K4-R1 adds 8 beyond K4-R0, K4-R2 adds 2 beyond K4-R1, K4-R3 adds 2 beyond K4-R2, T6-X0 adds 22 beyond
+K3-A0, K4-R0 adds 11 beyond K4-C0, K4-R1 adds 8 beyond K4-R0, K4-R2 adds 2 beyond K4-R1, K4-R3 adds 2 beyond K4-R2, K4-R4 adds 3 beyond K4-R3, T6-X0 adds 22 beyond
 T6-P0, T6-RO0 adds 61 beyond T6-X0, T6-DD0 adds 2 beyond T6-RO0, and T6-DD1
 adds 26 beyond T6-DD0; T6-DD2 adds 32 beyond T6-DD1; T6-DD3 adds 39 beyond
 T6-DD2; T6-DD4 adds 40 beyond T6-DD3; T6-DD5 adds 6 beyond T6-DD4. The new
@@ -409,9 +410,9 @@ cumulative obligations, and 880 dependency-aware non-duplicated obligations.
 The historical retained T6-A1 run had 42 targets, 956 non-duplicated
 obligations, and 20,867 summed target obligations. The historical retained
 T6-X0 run had 45 targets, 1,062 non-duplicated obligations, and 23,866 summed
-target obligations. The current retained run passes all 61/61 registered
-targets, contains 1,402 dependency-aware non-duplicated obligations, and sums
-to 34,063 target obligations.
+target obligations. The current retained run passes all 62/62 registered
+targets, contains 1,405 dependency-aware non-duplicated obligations, and sums
+to 34,344 target obligations.
 
 ## Current boundary
 
@@ -452,9 +453,9 @@ durable summary, applies accepted records, preserves exact `u64` references,
 and refines its serialized successful append traces to B1. K4-R0/R1 replace
 the fixed configuration in the Authorize, Prepare, and Start decisions with
 the finite M4 manifest and prove equality to Q1's semantic guards; K4-R2/R3
-parameterize the accepted Authorize and Prepare durable mutations. The
-remaining guards, mutations, materialization, and append state are not yet
-parameterized. K3-A0 does not yet
+parameterize the accepted Authorize and Prepare durable mutations, and K4-R4
+adds the Arm guard and mutation. The remaining guards, mutations,
+materialization, and append state are not yet parameterized. K3-A0 does not yet
 add executor, invocation, crash/recovery, transport, or physical-storage
 behavior. B2-R adds
 the actual record-side Broker modes, complete slot ADT and record transformer,

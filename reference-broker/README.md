@@ -53,7 +53,10 @@ K4-R2/R3 verify the accepted Authorize and Prepare durable mutations, K4-R4
 verifies the Arm guard and mutation, K4-R5/R6 verify the Start and Outcome
 guard/mutations, and K4-R7 verifies Commit. Revoke, Fail, Unknown, and the
 remaining materialization, append control, and byte-WAL refinement remain
-outside that result.
+outside that result. K4-A0 adds a bounded manifest-carrying B1/C1 append
+certificate for the six-record Idempotent profile and exact K3 record
+projection; it does not turn this standard-Rust crate into an implementation
+refinement of the Verus model.
 The sidecar's byte-level durability remains an M4 platform assumption, not a
 typed-WAL refinement theorem.
 

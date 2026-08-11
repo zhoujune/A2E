@@ -133,4 +133,8 @@ and Prepare durable mutations, K4-R4 adds Arm guard/mutation refinement,
 K4-R5 adds the accepted Start attempt-log mutation, K4-R6 adds the Outcome
 guard/mutation, and K4-R7 adds Commit guard/mutation. They do not extend this
 six-record certificate to Revoke/Fail/Unknown, materialization, append state,
-or byte-WAL implementation.
+or byte-WAL implementation. K4-A0 separately carries the same six-record
+Idempotent profile through a manifest-parameterized generic B1/C1 append
+certificate with all-prefix replay checkpoints and exact K3 record projection;
+it remains a bounded semantic certificate rather than a refinement of the
+Rust broker or a parameterization of arbitrary K3 executions.

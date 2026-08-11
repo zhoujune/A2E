@@ -130,6 +130,7 @@ byte WAL, adapters, and deployment wrapper remain outside this check.
 K4-R0/R1 separately parameterize and verify the Authorize, Prepare, and Start
 guards over the M4 manifest shape, K4-R2/R3 parameterize the accepted Authorize
 and Prepare durable mutations, K4-R4 adds Arm guard/mutation refinement,
-K4-R5 adds the accepted Start attempt-log mutation, and K4-R6 adds the
-Outcome guard/mutation. They do not extend this six-record certificate to
-Commit, materialization, append state, or byte-WAL implementation.
+K4-R5 adds the accepted Start attempt-log mutation, K4-R6 adds the Outcome
+guard/mutation, and K4-R7 adds Commit guard/mutation. They do not extend this
+six-record certificate to Revoke/Fail/Unknown, materialization, append state,
+or byte-WAL implementation.

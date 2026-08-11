@@ -140,8 +140,9 @@ K4-R4 fills the Arm gap with a manifest-parameterized guard, accepted phase
 mutation, and Authorize-to-Prepare-to-Arm witness. K4-R5 adds the accepted Start
 attempt-log mutation and reaches the first pending attempt. K4-R6 adds the
 manifest-parameterized Outcome guard and mutation and records a successful
-observation. Commit, the remaining mutations, materialization, and K3 append
-state still use the fixed demo config.
+observation. K4-R7 adds the Commit guard and mutation and reaches the committed
+terminal phase. Revoke/Fail/Unknown, materialization, and K3 append state still
+use the fixed demo config.
 
 M4 adds a separate standard-Rust
 [`reference-broker`](reference-broker/README.md) prototype around that verified
@@ -229,8 +230,8 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   finite lookups in the first parameterized executable Authorize guard, and
   K4-R1 adds the corresponding Prepare and Start guards. K4-R2 parameterizes
   the accepted Authorize durable mutation, and K4-R3 adds Prepare mutation.
-  K4-R4 adds the Arm guard and mutation, K4-R5 adds Start mutation, and K4-R6
-  adds Outcome guard/mutation. B2-R proves the
+  K4-R4 adds the Arm guard and mutation, K4-R5 adds Start mutation, K4-R6
+  adds Outcome guard/mutation, and K4-R7 adds Commit guard/mutation. B2-R proves the
   record-side Broker, executor-slot, and recovery invariant for every finite
   prefix; B2-C refines full immutable requests, capabilities, and canonical
   call descriptors into R1's verified configuration; B2-P0 adds verified
@@ -414,9 +415,9 @@ cumulative obligations, and 880 dependency-aware non-duplicated obligations.
 The historical retained T6-A1 run had 42 targets, 956 non-duplicated
 obligations, and 20,867 summed target obligations. The historical retained
 T6-X0 run had 45 targets, 1,062 non-duplicated obligations, and 23,866 summed
-target obligations. The current retained run passes all 64/64 registered
-targets, contains 1,410 dependency-aware non-duplicated obligations, and sums
-to 34,913 target obligations.
+target obligations. The current retained run passes all 65/65 registered
+targets, contains 1,413 dependency-aware non-duplicated obligations, and sums
+to 35,202 target obligations.
 
 ## Current boundary
 
@@ -459,9 +460,9 @@ the fixed configuration in the Authorize, Prepare, and Start decisions with
 the finite M4 manifest and prove equality to Q1's semantic guards; K4-R2/R3
 parameterize the accepted Authorize and Prepare durable mutations, and K4-R4
 adds the Arm guard and mutation. K4-R5 parameterizes the accepted Start
-attempt-log mutation, and K4-R6 parameterizes the Outcome guard and mutation.
-Commit, the remaining mutations, materialization, and append state are not yet
-parameterized. K3-A0 does not yet
+attempt-log mutation, K4-R6 parameterizes the Outcome guard and mutation, and
+K4-R7 parameterizes Commit. Revoke, Fail, Unknown, the remaining mutations,
+materialization, and append state are not yet parameterized. K3-A0 does not yet
 add executor, invocation, crash/recovery, transport, or physical-storage
 behavior. B2-R adds
 the actual record-side Broker modes, complete slot ADT and record transformer,

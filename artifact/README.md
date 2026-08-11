@@ -129,6 +129,7 @@ and serialized append-only boundary, and the standard-Rust broker's recovery,
 byte WAL, adapters, and deployment wrapper remain outside this check.
 K4-R0/R1 separately parameterize and verify the Authorize, Prepare, and Start
 guards over the M4 manifest shape, K4-R2/R3 parameterize the accepted Authorize
-and Prepare durable mutations, and K4-R4 adds Arm guard/mutation refinement.
-They do not extend this six-record certificate to the remaining mutations,
-materialization, append state, or byte-WAL implementation.
+and Prepare durable mutations, K4-R4 adds Arm guard/mutation refinement, and
+K4-R5 adds the accepted Start attempt-log mutation. They do not extend this
+six-record certificate to the remaining mutations, materialization, append
+state, or byte-WAL implementation.

@@ -128,5 +128,6 @@ mapping is ordinary Rust, K3 still has its fixed demonstration configuration
 and serialized append-only boundary, and the standard-Rust broker's recovery,
 byte WAL, adapters, and deployment wrapper remain outside this check.
 K4-R0/R1 separately parameterize and verify the Authorize, Prepare, and Start
-guards over the M4 manifest shape; they do not extend this six-record
-certificate to durable mutation, remaining guards, or the byte-WAL implementation.
+guards over the M4 manifest shape, and K4-R2 parameterizes the accepted
+Authorize durable mutation. They do not extend this six-record certificate to
+the remaining mutations, materialization, append state, or byte-WAL implementation.

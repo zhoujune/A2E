@@ -127,3 +127,6 @@ execution certificate, not an M4 implementation-refinement theorem. The record
 mapping is ordinary Rust, K3 still has its fixed demonstration configuration
 and serialized append-only boundary, and the standard-Rust broker's recovery,
 byte WAL, adapters, and deployment wrapper remain outside this check.
+K4-R0 separately parameterizes and verifies the Authorize guard over the M4
+manifest shape; it does not extend this six-record certificate to the remaining
+guards or to the byte-WAL implementation.

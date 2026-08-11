@@ -302,6 +302,11 @@ pub fn k4_idempotent_manifest() -> (config: KManifestConfig)
     ensures
         k_manifest_wf(config),
         replay_layer::config_wf(k_manifest_config_view(config)),
+        k_manifest_capability_lookup(config.capabilities@, 1)
+            == Option::Some(KManifestCapability {
+                capability: 1,
+                initial_budget: 4,
+            }),
         k_manifest_binding_lookup(config.bindings@, 1)
             == Option::Some(KManifestBinding {
                 request: 1,

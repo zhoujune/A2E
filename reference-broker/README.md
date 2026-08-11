@@ -49,10 +49,10 @@ with changed request metadata fails before replay. This gives a finite M4
 execution the static request metadata required by K3's formal configuration.
 K4-R0/R1 additionally verify the executable manifest lookup and Authorize,
 Prepare, and Start decisions against Q1/R1 for every well-formed manifest.
-K4-R2/R3 verify the accepted Authorize and Prepare durable mutations, and K4-R4
-verifies the Arm guard and mutation. K4-R5 verifies the Start attempt-log
-mutation. The remaining mutations and guards, materialization, append control,
-and byte-WAL refinement remain outside that result.
+K4-R2/R3 verify the accepted Authorize and Prepare durable mutations, K4-R4
+verifies the Arm guard and mutation, and K4-R5/R6 verify the Start and Outcome
+guard/mutations. Commit and the remaining mutations and guards, materialization,
+append control, and byte-WAL refinement remain outside that result.
 The sidecar's byte-level durability remains an M4 platform assumption, not a
 typed-WAL refinement theorem.
 

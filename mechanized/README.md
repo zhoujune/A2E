@@ -64,7 +64,7 @@ request-local rely, DD4 derives its all-prefix product, and X0 transports its
 source terminal to the canonical Broker. The DD2 family discharges coverage
 without premises.
 In a separate implementation-refinement track, K1, K2, K3, K4-C0, K4-R0,
-K4-R1, K4-R2, K4-R3, K4-R4, and K4-R5 connect concrete
+K4-R1, K4-R2, K4-R3, K4-R4, K4-R5, and K4-R6 connect concrete
 `u64`/vector
 durable-summary and Journal code to Q1, R1, and B1: K1 verifies Authorize and
 Start, K2-G0 completes all nine reference-erased record guards, K2-T0 couples
@@ -75,8 +75,9 @@ finite admission-manifest shape into a total well-formed formal configuration.
 K4-R0 uses that finite configuration in the first parameterized executable
 Authorize guard, K4-R1 adds parameterized Prepare and Start guards, and K4-R2
 adds the parameterized accepted Authorize durable mutation. K4-R3 adds the
-accepted Prepare phase mutation, K4-R4 adds the Arm guard and mutation, and
-K4-R5 adds the accepted Start attempt-log mutation.
+accepted Prepare phase mutation, K4-R4 adds the Arm guard and mutation, K4-R5
+adds the accepted Start attempt-log mutation, and K4-R6 adds the Outcome
+guard/mutation.
 T4, T5,
 the T6 terminal bridge, semantic adapter closure, executable adapter
 refinement, model-level mediation/no-bypass, prefix product, the X0
@@ -375,10 +376,24 @@ through their parameterized guards and mutations, observing `Armed`, exactly
 one pending attempt, and budget 3. K4-R5 verifies 283 cumulative obligations,
 adding 2 beyond K4-R4.
 
-`kernel/kernel_core.rs` re-exports K4-R5 as the latest checked layer. K4-R5 is
-not yet a parameterized append kernel: the remaining K1-K3 guards and durable
-mutations, generic materialization, and append state still use the fixed demo
-configuration.
+## K4-R6: parameterized Outcome guard and mutation
+
+`k4_parameterized_outcome_mutation.rs` imports K4-R5 and wraps K2's generic
+Outcome guard and delta with the finite manifest `Config` view. For every
+well-formed manifest and coupled materialized state, the executable Outcome
+decision is equivalent to R1's semantic guard, and the accepted mutation
+records the latest observation while refining to R1 `apply_record` without
+changing phase, budget, or capability witness. Exact LSN ancestry remains
+outside this reference-erased mutation boundary.
+
+The premise-free Idempotent witness chains Authorize, Prepare, Arm, Start, and
+Outcome through their parameterized guards and mutations, observing `Armed`, a
+successful value `1`, one recorded attempt, and budget 3. K4-R6 verifies 286
+cumulative obligations, adding 3 beyond K4-R5.
+
+`kernel/kernel_core.rs` re-exports K4-R6 as the latest checked layer. Commit,
+the remaining K1-K3 guards and durable mutations, generic materialization, and
+append state still use the fixed demo configuration.
 K3-A0 is
 not a complete executable Broker: it retains the fixed demo configuration and
 a serialized successful append path. DiskFull, crash/recovery, concurrent
@@ -1653,8 +1668,8 @@ family theorem is request-indexed and non-vacuous while keeping family coverage
 as an explicit admission condition for arbitrary shared executions.
 
 T6-DD5 verifies 1,228 cumulative obligations with zero errors, adding 6 over
-T6-DD4. With K4-R5 registered, the retained suite passes all 63/63 targets,
-contains 1,407 dependency-aware non-duplicated obligations, and sums to 34,627
+T6-DD4. With K4-R6 registered, the retained suite passes all 64/64 targets,
+contains 1,410 dependency-aware non-duplicated obligations, and sums to 34,913
 target obligations. M3 is
 closed as a coverage-conditioned family theorem; constructing members directly
 from production adapter executions remains an implementation refinement.
@@ -1683,8 +1698,8 @@ pwsh -NoLogo -NoProfile -File mechanized/verify.ps1
 
 The Linux runner requires `chmod` and `unzip`, and explicitly binds Verus to
 the Z3 executable inside the hash-checked Verus tree. The source-current
-retained run passes all 63/63 targets with 1,407 dependency-aware
-non-duplicated obligations and 34,627 summed target obligations.
+retained run passes all 64/64 targets with 1,410 dependency-aware
+non-duplicated obligations and 34,913 summed target obligations.
 
 The clean-room Linux run at source revision
 `5d8e8ed39e492b05f52ba093782a043d204f1192` is retained as
@@ -1775,6 +1790,8 @@ K4-R4 verified obligations: 281
 K4-R4 target delta over K4-R3: 3
 K4-R5 verified obligations: 283
 K4-R5 target delta over K4-R4: 2
+K4-R6 verified obligations: 286
+K4-R6 target delta over K4-R5: 3
 B2-R verified obligations: 169
 B2-C verified obligations: 175
 B2-P0 verified obligations: 193
@@ -1814,40 +1831,40 @@ T6-A1 verified obligations: 916
 T6-M0 verified obligations: 977
 T6-P0 verified obligations: 1,000
 T6-P0 target delta over T6-M0: 23
-T6-P0 non-duplicated verified artifact obligations: 1,179
-T6-P0 summed target obligations: 25,551
+T6-P0 non-duplicated verified artifact obligations: 1,182
+T6-P0 summed target obligations: 25,837
 T6-X0 verified obligations: 1,022
 T6-X0 target delta over T6-P0: 22
-T6-X0 non-duplicated verified artifact obligations: 1,201
-T6-X0 summed target obligations: 26,573
+T6-X0 non-duplicated verified artifact obligations: 1,204
+T6-X0 summed target obligations: 26,859
 T6-RO0 verified obligations: 1,083
 T6-RO0 target delta over T6-X0: 61
-T6-RO0 non-duplicated verified artifact obligations: 1,262
-T6-RO0 summed target obligations: 27,656
+T6-RO0 non-duplicated verified artifact obligations: 1,265
+T6-RO0 summed target obligations: 27,942
 T6-DD0 verified obligations: 1,085
 T6-DD0 target delta over T6-RO0: 2
-T6-DD0 non-duplicated verified artifact obligations: 1,264
-T6-DD0 summed target obligations: 28,741
+T6-DD0 non-duplicated verified artifact obligations: 1,267
+T6-DD0 summed target obligations: 29,027
 T6-DD1 verified obligations: 1,111
 T6-DD1 target delta over T6-DD0: 26
-T6-DD1 non-duplicated verified artifact obligations: 1,290
-T6-DD1 summed target obligations: 29,852
+T6-DD1 non-duplicated verified artifact obligations: 1,293
+T6-DD1 summed target obligations: 30,138
 T6-DD2 verified obligations: 1,143
 T6-DD2 target delta over T6-DD1: 32
-T6-DD2 non-duplicated verified artifact obligations: 1,322
-T6-DD2 summed target obligations: 30,995
+T6-DD2 non-duplicated verified artifact obligations: 1,325
+T6-DD2 summed target obligations: 31,281
 T6-DD3 verified obligations: 1,182
 T6-DD3 target delta over T6-DD2: 39
-T6-DD3 non-duplicated verified artifact obligations: 1,361
-T6-DD3 summed target obligations: 32,177
+T6-DD3 non-duplicated verified artifact obligations: 1,364
+T6-DD3 summed target obligations: 32,463
 T6-DD4 verified obligations: 1,222
 T6-DD4 target delta over T6-DD3: 40
-T6-DD4 non-duplicated verified artifact obligations: 1,401
-T6-DD4 summed target obligations: 33,399
+T6-DD4 non-duplicated verified artifact obligations: 1,404
+T6-DD4 summed target obligations: 33,685
 T6-DD5 verified obligations: 1,228
 T6-DD5 target delta over T6-DD4: 6
-T6-DD5 non-duplicated verified artifact obligations: 1,407
-T6-DD5 summed target obligations: 34,627
+T6-DD5 non-duplicated verified artifact obligations: 1,410
+T6-DD5 summed target obligations: 34,913
 ```
 
 C1's 128 obligations include the 86 R1 and 39 B1 obligations imported into the
@@ -1866,7 +1883,8 @@ Authorize-mutation and premise-free mutation-witness obligations. K4-R3
 imports K4-R2 and adds 2 generic Prepare-mutation and chained-witness
 obligations. K4-R4 imports K4-R3 and adds 3 Arm-guard, Arm-mutation, and
 chained-witness obligations. K4-R5 imports K4-R4 and adds 2 generic
-Start-mutation and chained-witness obligations.
+Start-mutation and chained-witness obligations. K4-R6 imports K4-R5 and adds
+3 generic Outcome-guard, Outcome-mutation, and chained-witness obligations.
 B2-R independently includes Q1 and adds 25 record-side Broker obligations.
 B2-C includes B2-R and adds 6 rich
 configuration-refinement obligations. B2-P0 includes B2-C and adds 18 physical
@@ -2006,9 +2024,9 @@ dependency-aware non-duplicated obligations and summed to 23,866 target
 obligations. The historical T6-RO0 registry contained 46 targets and 1,123
 dependency-aware non-duplicated obligations and summed to 24,949 target
 obligations. The current registry adds K1, K2-G0, K2-T0, K3-A0, K4-C0, K4-R0,
-K4-R1, K4-R2, K4-R3, K4-R4, K4-R5, T6-DD0, T6-DD1, T6-DD2, T6-DD3, T6-DD4,
-and T6-DD5: it contains 63 targets and 1,407 dependency-aware non-duplicated
-obligations, and the retained run sums to 34,627 obligations.
+K4-R1, K4-R2, K4-R3, K4-R4, K4-R5, K4-R6, T6-DD0, T6-DD1, T6-DD2, T6-DD3,
+T6-DD4, and T6-DD5: it contains 64 targets and 1,410 dependency-aware
+non-duplicated obligations, and the retained run sums to 34,913 obligations.
 The historical retained T6-A0 checkpoint had 41 targets, 904 non-duplicated
 obligations, and a 19,951 target sum. The historical retained T6-S0 checkpoint
 had 40 targets, 880 non-duplicated obligations, and a 19,064 target sum before

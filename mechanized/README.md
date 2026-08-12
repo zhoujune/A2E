@@ -478,6 +478,15 @@ filesystem, transport, crash/recovery, or deployment.
 
 K4-A2 verifies 326 cumulative obligations, adding 17 beyond K4-A1.
 
+K4-I0 is a separate executable artifact checkpoint rather than a registered
+Verus target. Its `run-k4-i0.sh` runner compiles the proof-erased K4-A2 library,
+builds the reference broker, and feeds real broker WAL prefixes through the
+K4-A2 append API. It covers an 8-record idempotent crash/reopen/retry trace and
+a 6-record Deduplicated trace, checking exact cuts, terminal durable state,
+and capability budgets. Revoke, Fail, and Unknown mappings fail closed. This
+does not turn the standard-Rust broker, byte WAL, or filesystem into a proved
+implementation refinement.
+
 ## B2-R: record-side Broker safety
 
 `t1_broker_records.rs` adds the actual record-side Broker state: Online,

@@ -510,6 +510,14 @@ terminal reflection is existential when the concrete state may contain other
 pre-materialized entries. Revoke, Fail, Unknown, crash/recovery, and the
 standard-Rust/byte-WAL implementation boundary remain outside the theorem.
 
+K4-I0 adds a separate compiled integration checkpoint. It runs the actual
+standard-Rust broker through an idempotent crash/reopen/retry execution and a
+manifest-bound Deduplicated execution, incrementally feeds their real WAL
+records through proof-erased K4-A2 `Call`/`Linearize`/`Return`, and checks exact
+cuts, prefix reuse, terminal durable state, and budget agreement. Unsupported
+Revoke/Fail/Unknown records are rejected explicitly. K4-I0 is executable
+integration evidence, not a Rust-broker implementation-refinement theorem.
+
 B2-R adds the actual record-side Broker modes, complete slot ADT and record
 transformer, append/recovery control, durable slot agreement, and all-prefix
 trace theorem.

@@ -41,7 +41,7 @@ use k4_a1_layer::k4_a0_layer::k4_r7_layer::k4_r6_layer::k4_r5_layer::k4_r4_layer
 use k4_a1_layer::k4_a0_layer::k4_r7_layer::k4_r6_layer::k4_r5_layer::k4_r4_layer::k4_r3_layer::k4_r2_layer::k4_r1_layer::k4_r0_layer::k4_layer::{
     k4_idempotent_manifest, k_manifest_capability_lookup,
     k_manifest_config_is_well_formed, k_manifest_config_view,
-    k_manifest_wf, KManifestConfig,
+    k_manifest_wf,
 };
 use k4_a1_layer::k4_a0_layer::k4_r7_layer::k4_r6_layer::k4_r5_layer::k4_r4_layer::k4_r3_layer::k4_r2_layer::k4_r1_layer::k4_r0_layer::k4_layer::k3_layer;
 use k3_layer::*;
@@ -55,11 +55,21 @@ use k3_layer::k2_record_layer::k2_guard_layer::k1_layer::{
     k_capability_id, k_durable_inv, k_find_capability, k_find_request,
     k_observation_view, k_outcome_view, k_phase_view,
     k_request_entry_couples, k_request_id, k_tracks_capability,
-    k_tracks_request, KCapEntry, KDurable, KPhase,
+    k_tracks_request, KCapEntry, KDurable,
 };
 use k3_layer::k2_record_layer::k2_guard_layer::k1_layer::query_layer;
 use query_layer::c1_layer;
 use query_layer::c1_layer::{append_layer, replay_layer};
+
+// Public type surface for the proof-erased integration harness. These are
+// representation types only; the Verus obligations remain in this module.
+pub use k4_a1_layer::k4_a0_layer::k4_r7_layer::k4_r6_layer::k4_r5_layer::k4_r4_layer::k4_r3_layer::k4_r2_layer::k4_r1_layer::k4_r0_layer::k4_layer::{
+    KManifestBinding, KManifestCapability, KManifestConfig,
+};
+pub use k3_layer::{
+    KJournalRecord, KKernelState, KObservation, KRetryClass,
+};
+pub use k3_layer::k2_record_layer::k2_guard_layer::k1_layer::KPhase;
 
 // K4-A2 removes A1's exact six-record restriction. It accepts every
 // structurally legal Authorize/Prepare/Arm/Start/Outcome/Commit record under

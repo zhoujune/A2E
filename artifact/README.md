@@ -146,3 +146,31 @@ legal sequence under a well-formed manifest is accepted, missing concrete
 request/capability summaries are materialized from manifest budgets, and exact
 LSN/cut agreement is preserved. Revoke, Fail, Unknown, and implementation
 refinement remain outside the theorem.
+
+## K4-I0 compiled broker-to-kernel integration
+
+`run-k4-i0.sh` compiles K4-A2 with the pinned Verus toolchain, builds the
+standard-Rust reference broker, and links `k4-i0-broker-kernel-harness.rs`
+against both proof-erased libraries. The harness runs the actual broker through
+an idempotent crash-after-invoke, reopen, ambiguous-recovery, retry, and commit
+execution, plus a manifest-bound Deduplicated execution. It incrementally
+feeds the broker's real WAL records through K4-A2
+`Call -> Linearize -> Return`, checks immutable prefix reuse after reopen,
+exact one-based cuts, terminal durable phase/value, and capability-budget
+agreement, and rejects Revoke/Fail/Unknown mappings explicitly.
+
+This is executable integration evidence, not a refinement theorem for the
+Rust broker. The broker, byte WAL, filesystem, crash plan, and adapters remain
+ordinary Rust; K4-A2 remains the checked typed-kernel boundary. Set
+`VERUS_BIN`, `RUSTC`, and `VERUS_Z3_PATH` as above, with the matching `rustup`
+environment, then run:
+
+```sh
+VERUS_BIN=/path/to/verus \
+RUSTC=/path/to/rustc \
+VERUS_Z3_PATH=/path/to/z3 \
+./artifact/run-k4-i0.sh
+```
+
+Expected output includes `326 verified, 0 errors` and
+`K4-I0 broker-to-kernel integration passed: idempotent=8 records, deduplicated=6 records`.

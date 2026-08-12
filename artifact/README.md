@@ -135,6 +135,9 @@ guard/mutation, and K4-R7 adds Commit guard/mutation. They do not extend this
 six-record certificate to Revoke/Fail/Unknown, materialization, append state,
 or byte-WAL implementation. K4-A0 separately carries the same six-record
 Idempotent profile through a manifest-parameterized generic B1/C1 append
-certificate with all-prefix replay checkpoints and exact K3 record projection;
-it remains a bounded semantic certificate rather than a refinement of the
-Rust broker or a parameterization of arbitrary K3 executions.
+certificate with all-prefix replay checkpoints and exact K3 record projection.
+K4-A1 then threads that profile through a manifest-aware concrete K3 state,
+dispatching all six generic durable mutations and proving exact one-based LSN
+and acknowledgment-cut agreement. This remains a bounded state bridge rather
+than a refinement of the Rust broker or a parameterization of arbitrary K3
+executions.

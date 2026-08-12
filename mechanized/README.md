@@ -64,7 +64,7 @@ request-local rely, DD4 derives its all-prefix product, and X0 transports its
 source terminal to the canonical Broker. The DD2 family discharges coverage
 without premises.
 In a separate implementation-refinement track, K1, K2, K3, K4-C0, K4-R0,
-K4-R1, K4-R2, K4-R3, K4-R4, K4-R5, K4-R6, K4-R7, K4-A0, and K4-A1 connect concrete
+K4-R1, K4-R2, K4-R3, K4-R4, K4-R5, K4-R6, K4-R7, K4-A0, K4-A1, and K4-A2 connect concrete
 `u64`/vector
 durable-summary and Journal code to Q1, R1, and B1: K1 verifies Authorize and
 Start, K2-G0 completes all nine reference-erased record guards, K2-T0 couples
@@ -81,7 +81,9 @@ guard/mutation, and K4-R7 adds the Commit guard/mutation. K4-A0 carries the
 six-record Idempotent profile through a bounded manifest-parameterized B1/C1
 append certificate, including exact K3 record projection and all-prefix
 checkpoints. K4-A1 carries that profile through concrete K3 append state,
-generic K4 durable mutations, and exact LSN/cut agreement.
+generic K4 durable mutations, and exact LSN/cut agreement. K4-A2 generalizes
+that state bridge to arbitrary legal sequences of the six supported record
+kinds and adds manifest-budget materialization.
 T4, T5,
 the T6 terminal bridge, semantic adapter closure, executable adapter
 refinement, model-level mediation/no-bypass, prefix product, the X0
@@ -429,9 +431,9 @@ is deliberately bounded: it is a manifest-carrying semantic append certificate,
 not a rewrite of every K3 transition and not an implementation-refinement
 theorem for the standard-Rust broker, byte WAL, transport, or deployment.
 
-`kernel/kernel_core.rs` re-exports K4-A1 as the latest checked layer. Revoke,
-Fail, Unknown, the remaining K1-K3 guards and durable mutations, generic
-materialization, and arbitrary manifest append state remain open. K3-A0 is
+`kernel/kernel_core.rs` re-exports K4-A2 as the latest checked layer. Revoke,
+Fail, Unknown, crash/recovery, and the remaining K1-K3 record behavior remain
+open. K3-A0 is
 not a complete executable Broker: it retains the fixed demo configuration and
 a serialized successful append path. DiskFull, crash/recovery, concurrent
 callers, executor slots, physical Invoke/Deliver, caller-visible Broker results,
@@ -458,6 +460,23 @@ refinement theorem for the standard-Rust broker, byte WAL, filesystem,
 transport, or deployment.
 
 K4-A1 verifies 309 cumulative obligations, adding 8 beyond K4-A0.
+
+## K4-A2: generic supported-record append-state bridge
+
+`k4_generic_append_state_bridge.rs` removes K4-A1's fixed six-record state
+restriction for the supported subset. For every well-formed manifest,
+`k4_a2_try_call`, `k4_a2_linearize`, and `k4_a2_return` accept any structurally
+legal `Authorize`, `Prepare`, `Arm`, `Start`, `Outcome`, or `Commit` record,
+materialize missing request/capability summaries from manifest budgets, and
+preserve the manifest-indexed replay/durable invariant with exact one-based
+LSN and acknowledgment-cut agreement. The terminal theorem reflects a
+committed request existentially, allowing unrelated pre-materialized entries.
+
+Revoke, Fail, and Unknown remain explicit exclusions. K4-A2 is still a typed
+K3-state theorem, not a refinement of the standard-Rust broker, byte WAL,
+filesystem, transport, crash/recovery, or deployment.
+
+K4-A2 verifies 326 cumulative obligations, adding 17 beyond K4-A1.
 
 ## B2-R: record-side Broker safety
 
@@ -1726,8 +1745,8 @@ family theorem is request-indexed and non-vacuous while keeping family coverage
 as an explicit admission condition for arbitrary shared executions.
 
 T6-DD5 verifies 1,228 cumulative obligations with zero errors, 6 more than
-T6-DD4. With K4-A1 registered, the retained suite passes all 67/67 targets,
-contains 1,433 dependency-aware non-duplicated obligations, and sums to 35,812
+T6-DD4. With K4-A2 registered, the retained suite passes all 68/68 targets,
+contains 1,450 dependency-aware non-duplicated obligations, and sums to 36,138
 target obligations. M3 is
 closed as a coverage-conditioned family theorem; constructing members directly
 from production adapter executions remains an implementation refinement.
@@ -1756,8 +1775,8 @@ pwsh -NoLogo -NoProfile -File mechanized/verify.ps1
 
 The Linux runner requires `chmod` and `unzip`, and explicitly binds Verus to
 the Z3 executable inside the hash-checked Verus tree. The source-current
-retained run passes all 67/67 targets with 1,433 dependency-aware
-non-duplicated obligations and 35,812 summed target obligations.
+retained run passes all 68/68 targets with 1,450 dependency-aware
+non-duplicated obligations and 36,138 summed target obligations.
 
 The clean-room Linux run at source revision
 `5d8e8ed39e492b05f52ba093782a043d204f1192` is retained as
@@ -1820,7 +1839,7 @@ checks target/source counts, parent-delta arithmetic, running totals, and final
 summary consistency before assigning `status: "passed"`.
 
 The cumulative target counts and aggregates below come from the current
-retained 66-target full suite:
+retained 68-target full suite:
 
 ```text
 M0 verified obligations: 21
@@ -1856,6 +1875,8 @@ K4-A0 verified obligations: 301
 K4-A0 target delta over K4-R7: 12
 K4-A1 verified obligations: 309
 K4-A1 target delta over K4-A0: 8
+K4-A2 verified obligations: 326
+K4-A2 target delta over K4-A1: 17
 B2-R verified obligations: 169
 B2-C verified obligations: 175
 B2-P0 verified obligations: 193
@@ -1927,8 +1948,8 @@ T6-DD4 non-duplicated verified artifact obligations: 1,419
 T6-DD4 summed target obligations: 34,275
 T6-DD5 verified obligations: 1,228
 T6-DD5 target delta over T6-DD4: 6
-T6-DD5 non-duplicated verified artifact obligations: 1,433
-T6-DD5 summed target obligations: 35,812
+T6-DD5 non-duplicated verified artifact obligations: 1,450
+T6-DD5 summed target obligations: 36,138
 ```
 
 C1's 128 obligations include the 86 R1 and 39 B1 obligations imported into the
@@ -1957,6 +1978,10 @@ exact K3 record projection, and combined nonvacuity witness.
 K4-A1 imports K4-A0 and adds 8 obligations for manifest-aware concrete state,
 bounded Call/Linearize/Return operations, six durable-mutation dispatches,
 exact LSN/cut agreement, an executable witness, and terminal-state coupling.
+K4-A2 imports K4-A1 and adds 17 obligations for supported-record
+classification, manifest-budget materialization, generic semantic/reference
+admission, arbitrary legal append-state threading, exact LSN/cut agreement,
+request-generic committed reflection, and a premise-free terminal witness.
 B2-R independently includes Q1 and adds 25 record-side Broker obligations.
 B2-C includes B2-R and adds 6 rich
 configuration-refinement obligations. B2-P0 includes B2-C and adds 18 physical
@@ -2096,10 +2121,10 @@ dependency-aware non-duplicated obligations and summed to 23,866 target
 obligations. The historical T6-RO0 registry contained 46 targets and 1,123
 dependency-aware non-duplicated obligations and summed to 24,949 target
 obligations. The current registry adds K1, K2-G0, K2-T0, K3-A0, K4-C0, K4-R0,
-K4-R1, K4-R2, K4-R3, K4-R4, K4-R5, K4-R6, K4-R7, K4-A0, K4-A1, T6-DD0, T6-DD1,
-T6-DD2, T6-DD3, T6-DD4, and T6-DD5: it contains 67 targets and 1,433
+K4-R1, K4-R2, K4-R3, K4-R4, K4-R5, K4-R6, K4-R7, K4-A0, K4-A1, K4-A2, T6-DD0, T6-DD1,
+T6-DD2, T6-DD3, T6-DD4, and T6-DD5: it contains 68 targets and 1,450
 dependency-aware non-duplicated obligations, and the retained run sums to
-35,812 obligations.
+36,138 obligations.
 The historical retained T6-A0 checkpoint had 41 targets, 904 non-duplicated
 obligations, and a 19,951 target sum. The historical retained T6-S0 checkpoint
 had 40 targets, 880 non-duplicated obligations, and a 19,064 target sum before

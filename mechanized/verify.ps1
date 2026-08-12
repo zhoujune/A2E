@@ -170,6 +170,12 @@ $targets = @(
         ContributionParent = "K4-A0"
     },
     [pscustomobject]@{
+        Name = "K4-A2"
+        SourcePath = Join-Path $scriptDir "k4_generic_append_state_bridge.rs"
+        ExtraArguments = @()
+        ContributionParent = "K4-A1"
+    },
+    [pscustomobject]@{
         Name = "B2-R"
         SourcePath = Join-Path $scriptDir "t1_broker_records.rs"
         ExtraArguments = @()

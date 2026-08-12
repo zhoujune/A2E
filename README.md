@@ -147,7 +147,12 @@ the concrete K3 record vocabulary, and exports an all-prefix checkpoint. K4-A1
 threads the same profile through concrete K3 durable, journal, acknowledgment,
 and append-control state, dispatches the six generic K4 mutations, and proves
 exact LSN/cut agreement plus a terminal concrete-state theorem. Arbitrary K3
-transitions and Revoke/Fail/Unknown remain open.
+transitions and Revoke/Fail/Unknown remain open. K4-A2 removes the fixed
+six-record restriction: for every well-formed manifest it accepts any
+structurally legal sequence of the six supported record kinds, derives
+manifest-budget materialization, preserves concrete replay coupling, and
+proves exact LSN/cut agreement. Revoke/Fail/Unknown remain explicit
+exclusions.
 
 M4 adds a separate standard-Rust
 [`reference-broker`](reference-broker/README.md) prototype around that verified
@@ -214,7 +219,7 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   statement of theorem V1, including the independent abstract and concrete
   machines, labeled executions, rely conditions, and theorem layers T1--T6.
 - [Verified mechanization checkpoints](mechanized/README.md) document M0, R1,
-  B1, C1, D1, Q1, K1, K2-G0, K2-T0, K3-A0, K4-C0, K4-R0, K4-R1, K4-R2, K4-R3, K4-R4, K4-R5, K4-R6, K4-R7, K4-A0, K4-A1, B2-R, B2-C, B2-P0, B2-P1, B2-P2,
+  B1, C1, D1, Q1, K1, K2-G0, K2-T0, K3-A0, K4-C0, K4-R0, K4-R1, K4-R2, K4-R3, K4-R4, K4-R5, K4-R6, K4-R7, K4-A0, K4-A1, K4-A2, B2-R, B2-C, B2-P0, B2-P1, B2-P2,
   B2-P3, B2-L, B2-A,
   G0, G1-P, G1-E, T1, T2-J0, T2-J1, T2-E, T2-R, T2, T3-W0,
   T3-W1-T, T3-W1-E, T3-W1-R, T3, T4-C0, T4-C1, T4-C2, T5-S0, T5-E0,
@@ -241,6 +246,9 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   Idempotent trace, including exact K3 record projection and all C1 prefixes.
   K4-A1 carries that profile through the concrete K3 append state and all six
   generic durable mutations with exact LSN and acknowledgment cuts.
+  K4-A2 generalizes the concrete bridge to arbitrary legal sequences of the six
+  supported record kinds under every well-formed manifest, including
+  manifest-budget materialization and existential terminal reflection.
   B2-R proves the
   record-side Broker, executor-slot, and recovery invariant for every finite
   prefix; B2-C refines full immutable requests, capabilities, and canonical
@@ -402,7 +410,7 @@ verifies from an exact read-only source snapshot, enforces the proof/import
 policy, and emits a source-hashed verification report with the observed Rust
 tree digest.
 The current result is M0 21, R1 86, B1 39, C1 128,
-D1 144, Q1 144, K1 159, K2-G0 179, K2-T0 208, K3-A0 248, K4-C0 255, K4-R0 266, K4-R1 274, K4-R2 276, K4-R3 278, K4-R4 281, K4-R5 283, K4-R6 286, K4-R7 289, K4-A0 301, K4-A1 309,
+D1 144, Q1 144, K1 159, K2-G0 179, K2-T0 208, K3-A0 248, K4-C0 255, K4-R0 266, K4-R1 274, K4-R2 276, K4-R3 278, K4-R4 281, K4-R5 283, K4-R6 286, K4-R7 289, K4-A0 301, K4-A1 309, K4-A2 326,
 B2-R 169, B2-C 175,
 B2-P0 193, B2-P1 251, B2-P2 276,
 B2-P3 292, B2-L 310, B2-A 335, G0 342, G1-P 410, G1-E 429, T1 462,
@@ -414,7 +422,7 @@ T6-P0 1,000, T6-X0 1,022, T6-RO0 1,083, T6-DD0 1,085, T6-DD1 1,111,
 T6-DD2 1,143, T6-DD3 1,182, T6-DD4 1,222, and T6-DD5 1,228 obligations, all
 with zero errors. K1 adds 15 obligations beyond Q1, K2-G0 adds 20 beyond K1,
 K2-T0 adds 29 beyond K2-G0, K3-A0 adds 40 beyond K2-T0, K4-C0 adds 7 beyond
-K3-A0, K4-R0 adds 11 beyond K4-C0, K4-R1 adds 8 beyond K4-R0, K4-R2 adds 2 beyond K4-R1, K4-R3 adds 2 beyond K4-R2, K4-R4 adds 3 beyond K4-R3, K4-R5 adds 2 beyond K4-R4, K4-R6 adds 3 beyond K4-R5, K4-R7 adds 3 beyond K4-R6, K4-A0 adds 12 beyond K4-R7, K4-A1 adds 8 beyond K4-A0, T6-X0 adds 22 beyond
+K3-A0, K4-R0 adds 11 beyond K4-C0, K4-R1 adds 8 beyond K4-R0, K4-R2 adds 2 beyond K4-R1, K4-R3 adds 2 beyond K4-R2, K4-R4 adds 3 beyond K4-R3, K4-R5 adds 2 beyond K4-R4, K4-R6 adds 3 beyond K4-R5, K4-R7 adds 3 beyond K4-R6, K4-A0 adds 12 beyond K4-R7, K4-A1 adds 8 beyond K4-A0, K4-A2 adds 17 beyond K4-A1, T6-X0 adds 22 beyond
 T6-P0, T6-RO0 adds 61 beyond T6-X0, T6-DD0 adds 2 beyond T6-RO0, and T6-DD1
 adds 26 beyond T6-DD0; T6-DD2 adds 32 beyond T6-DD1; T6-DD3 adds 39 beyond
 T6-DD2; T6-DD4 adds 40 beyond T6-DD3; T6-DD5 adds 6 beyond T6-DD4. The new
@@ -425,9 +433,9 @@ cumulative obligations, and 880 dependency-aware non-duplicated obligations.
 The historical retained T6-A1 run had 42 targets, 956 non-duplicated
 obligations, and 20,867 summed target obligations. The historical retained
 T6-X0 run had 45 targets, 1,062 non-duplicated obligations, and 23,866 summed
-target obligations. The current retained run passes all 67/67 registered
-targets, contains 1,433 dependency-aware non-duplicated obligations, and sums
-to 35,812 target obligations.
+target obligations. The current retained run passes all 68/68 registered
+targets, contains 1,450 dependency-aware non-duplicated obligations, and sums
+to 36,138 target obligations.
 
 ## Current boundary
 
@@ -477,9 +485,10 @@ generic Call/Linearize/Return admissibility, legal replay, exact one-based
 cuts, all-prefix C1 checkpoints, and projection into K3's concrete record
 vocabulary. Its premise-free witness also executes the K4-R7 mutation chain.
 This is a bounded semantic append certificate, not a parameterization of every
-K3 transition or a refinement theorem for the Rust broker. Revoke, Fail,
-Unknown, the remaining mutations, and generic materialization are not yet
-parameterized. K3-A0 does not yet
+K3 transition or a refinement theorem for the Rust broker. K4-A2 subsequently
+closes generic materialization and state threading for the six supported record
+kinds; Revoke, Fail, Unknown, and their mutations remain unparameterized.
+K3-A0 does not yet
 add executor, invocation, crash/recovery, transport, or physical-storage
 behavior.
 
@@ -491,6 +500,15 @@ one-based LSNs and acknowledgment cuts for the complete serialized witness.
 This remains a bounded profile bridge: arbitrary K3 transitions and record
 variants, the standard-Rust broker, byte WAL, filesystem, transport, and
 deployment are outside the theorem.
+
+K4-A2 removes the six-record restriction for the supported subset. Its
+manifest-aware `Call`, `Linearize`, and `Return` operations accept every
+structurally legal Authorize, Prepare, Arm, Start, Outcome, or Commit record,
+materialize missing request/capability summaries from manifest budgets, and
+preserve replay/durable coupling and exact one-based LSN/cut agreement. The
+terminal reflection is existential when the concrete state may contain other
+pre-materialized entries. Revoke, Fail, Unknown, crash/recovery, and the
+standard-Rust/byte-WAL implementation boundary remain outside the theorem.
 
 B2-R adds the actual record-side Broker modes, complete slot ADT and record
 transformer, append/recovery control, durable slot agreement, and all-prefix

@@ -58,7 +58,10 @@ certificate for the six-record Idempotent profile and exact K3 record
 projection. K4-A1 threads the same profile through concrete K3 durable,
 journal, acknowledgment, and append-control state with generic K4 mutations
 and exact LSN/cut agreement. Neither checkpoint turns this standard-Rust crate
-into an implementation refinement of the Verus model.
+into an implementation refinement of the Verus model. K4-A2 generalizes the
+checked bridge to arbitrary legal sequences of the six supported record kinds
+under a well-formed manifest, but still does not refine this Rust crate, its
+byte WAL, or Revoke/Fail/Unknown behavior.
 The sidecar's byte-level durability remains an M4 platform assumption, not a
 typed-WAL refinement theorem.
 

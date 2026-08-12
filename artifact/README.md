@@ -140,4 +140,9 @@ K4-A1 then threads that profile through a manifest-aware concrete K3 state,
 dispatching all six generic durable mutations and proving exact one-based LSN
 and acknowledgment-cut agreement. This remains a bounded state bridge rather
 than a refinement of the Rust broker or a parameterization of arbitrary K3
-executions.
+executions. K4-A2 removes the fixed six-record restriction for the supported
+Authorize, Prepare, Arm, Start, Outcome, and Commit subset: every structurally
+legal sequence under a well-formed manifest is accepted, missing concrete
+request/capability summaries are materialized from manifest budgets, and exact
+LSN/cut agreement is preserved. Revoke, Fail, Unknown, and implementation
+refinement remain outside the theorem.

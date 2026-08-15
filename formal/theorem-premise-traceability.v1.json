@@ -372,8 +372,8 @@
           "path": "reference-broker/evaluation/results/k4-i1-submission.json",
           "validator": "reference-broker/evaluation/validate_k4_i1.py",
           "assertions": [
-            {"path": "provenance.source_revision", "equals": "cf3e465a2d32fc6ccadd98fcd0a0544dd085cc2f"},
-            {"path": "provenance.source_manifest_sha256", "equals": "ff9686a10e59f4b591a4e9a603dd36e9aeb17da71920b8fd489eaf7781ad4f36"},
+            {"path": "provenance.source_revision", "equals": "ab992cf51157f762185279eb34f0b5e61f653ae0"},
+            {"path": "provenance.source_manifest_sha256", "equals": "d5140e1e314a4bb59f6beb67d2c4bae5bd24a34ea08fdfaa4cf5bd17b9c9aee0"},
             {"path": "gate_profile", "equals": "k4-a4-required"},
             {"path": "broker_opens", "equals": 47},
             {"path": "gate_evidence.gates_created", "equals": 47},

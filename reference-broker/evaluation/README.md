@@ -32,6 +32,21 @@ python3 -m jsonschema \
   evaluation/evaluation-report.schema.v1.json
 ```
 
+For the fail-closed submission profile, run from the repository root:
+
+```sh
+./artifact/run-k4-i1.sh
+python3 reference-broker/evaluation/validate_k4_i1.py \
+  reference-broker/evaluation/results/k4-i1-submission.json
+```
+
+This profile uses immutable admission manifests and constructs every evaluation
+broker with the compiled K4-A4 `AppendGate`; there is no ungated opener in
+`run_submission_evaluation`. Its wrapper report records broker/gate counts,
+preview/commit pairs, replayed records, and terminal-finish versus verified-
+resume recovery closure. These counters establish finite kernel-in-the-loop
+coverage of the retained run, not whole-program Rust or byte-WAL refinement.
+
 ## RQ1 fields
 
 The report contains the Cartesian product of three adapters and seven crash

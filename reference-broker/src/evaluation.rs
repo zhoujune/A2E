@@ -10,7 +10,9 @@ use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
 use crate::adapter::{Adapter, Delivery};
 use crate::adapters::{DeduplicatedAdapter, IdempotentAdapter, UncontrolledAdapter};
-use crate::broker::{Broker, BrokerConfig, BrokerError, CapabilitySpec};
+use crate::broker::{
+    AdmissionBinding, AppendGate, Broker, BrokerConfig, BrokerError, CapabilitySpec, GateError,
+};
 use crate::fault::{CrashPlan, CrashSite};
 use crate::model::{
     CapabilityId, DedupKey, Digest, Invocation, JournalRecord, Observation, Phase, RequestId,
@@ -18,6 +20,7 @@ use crate::model::{
 };
 
 pub const REPORT_SCHEMA_VERSION: u64 = 1;
+pub const SUBMISSION_REPORT_SCHEMA_VERSION: u64 = 1;
 const CAPABILITY: CapabilityId = CapabilityId(7);
 const CRASH_SITES: [CrashSite; 7] = [
     CrashSite::AfterAuthorize,
@@ -41,6 +44,10 @@ pub enum EvaluationError {
     Io(std::io::Error),
     InvalidArgument(&'static str),
     Invariant(&'static str),
+    FailedCrashCase {
+        adapter: &'static str,
+        crash_site: &'static str,
+    },
 }
 
 impl fmt::Display for EvaluationError {
@@ -52,6 +59,13 @@ impl fmt::Display for EvaluationError {
                 write!(formatter, "invalid evaluation argument: {detail}")
             }
             Self::Invariant(detail) => write!(formatter, "evaluation invariant failed: {detail}"),
+            Self::FailedCrashCase {
+                adapter,
+                crash_site,
+            } => write!(
+                formatter,
+                "evaluation crash case failed: adapter={adapter}, crash_site={crash_site}"
+            ),
         }
     }
 }
@@ -69,6 +83,12 @@ impl std::error::Error for EvaluationError {
 impl From<BrokerError> for EvaluationError {
     fn from(error: BrokerError) -> Self {
         Self::Broker(error)
+    }
+}
+
+impl From<GateError> for EvaluationError {
+    fn from(error: GateError) -> Self {
+        Self::Broker(error.into())
     }
 }
 
@@ -164,25 +184,155 @@ pub struct RetryMetrics {
     pub flushes: u64,
 }
 
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct EvaluationGateEvidence {
+    pub gates_created: u64,
+    pub previews: u64,
+    pub commits: u64,
+    pub replays: u64,
+    pub recoveries_started: u64,
+    pub recoveries_finished: u64,
+    pub recoveries_resumed: u64,
+}
+
+/// Factory required by the fail-closed submission evaluation entry point.
+///
+/// The evaluation owns every broker construction and always calls
+/// `Broker::open_with_gate` with a fresh gate returned here. This prevents a
+/// submission runner from selecting the ordinary no-op broker constructor for
+/// RQ1 or either mediated RQ2 workload.
+pub trait EvaluationGateFactory {
+    type Gate: AppendGate + 'static;
+
+    fn profile_name(&self) -> &'static str;
+
+    fn create_gate(&mut self, config: &BrokerConfig) -> Result<Self::Gate, GateError>;
+
+    fn evidence(&self) -> EvaluationGateEvidence;
+}
+
+#[derive(Clone, Debug)]
+pub struct SubmissionEvaluationReport {
+    pub gate_profile: &'static str,
+    pub broker_opens: u64,
+    pub gate: EvaluationGateEvidence,
+    pub evaluation: EvaluationReport,
+}
+
+trait EvaluationBrokerOpener {
+    fn open(&mut self, path: &Path, config: BrokerConfig) -> Result<Broker, EvaluationError>;
+}
+
+struct ReferenceBrokerOpener;
+
+impl EvaluationBrokerOpener for ReferenceBrokerOpener {
+    fn open(&mut self, path: &Path, config: BrokerConfig) -> Result<Broker, EvaluationError> {
+        Broker::open(path, config).map_err(EvaluationError::from)
+    }
+}
+
+struct RequiredGateOpener<'a, Factory> {
+    factory: &'a mut Factory,
+    opens: u64,
+}
+
+impl<Factory: EvaluationGateFactory> EvaluationBrokerOpener for RequiredGateOpener<'_, Factory> {
+    fn open(&mut self, path: &Path, config: BrokerConfig) -> Result<Broker, EvaluationError> {
+        let gate = self.factory.create_gate(&config)?;
+        self.opens = self
+            .opens
+            .checked_add(1)
+            .ok_or(EvaluationError::Invariant("broker-open counter overflowed"))?;
+        Broker::open_with_gate(path, config, gate).map_err(EvaluationError::from)
+    }
+}
+
 pub fn run_evaluation(iterations: u64) -> Result<EvaluationReport, EvaluationError> {
+    run_evaluation_with_opener(iterations, &mut ReferenceBrokerOpener)
+}
+
+pub fn run_submission_evaluation<Factory: EvaluationGateFactory>(
+    iterations: u64,
+    factory: &mut Factory,
+) -> Result<SubmissionEvaluationReport, EvaluationError> {
+    let gate_profile = factory.profile_name();
+    if gate_profile.is_empty() {
+        return Err(EvaluationError::InvalidArgument(
+            "submission gate profile must be named",
+        ));
+    }
+    let mut opener = RequiredGateOpener { factory, opens: 0 };
+    let evaluation = run_evaluation_with_opener(iterations, &mut opener)?;
+    let broker_opens = opener.opens;
+    let gate = opener.factory.evidence();
+    if gate.gates_created != broker_opens {
+        return Err(EvaluationError::Invariant(
+            "not every submission broker open created a gate",
+        ));
+    }
+    if gate.previews == 0 || gate.previews != gate.commits {
+        return Err(EvaluationError::Invariant(
+            "submission gate did not mediate every preview/commit pair",
+        ));
+    }
+    if gate.replays == 0 {
+        return Err(EvaluationError::Invariant(
+            "submission gate did not exercise durable replay",
+        ));
+    }
+    if gate.recoveries_started != broker_opens
+        || gate
+            .recoveries_finished
+            .saturating_add(gate.recoveries_resumed)
+            != gate.recoveries_started
+    {
+        return Err(EvaluationError::Invariant(
+            "submission gate left a recovery instance unclosed",
+        ));
+    }
+    Ok(SubmissionEvaluationReport {
+        gate_profile,
+        broker_opens,
+        gate,
+        evaluation,
+    })
+}
+
+fn run_evaluation_with_opener<Opener: EvaluationBrokerOpener>(
+    iterations: u64,
+    opener: &mut Opener,
+) -> Result<EvaluationReport, EvaluationError> {
     if iterations == 0 {
         return Err(EvaluationError::InvalidArgument(
             "iterations must be positive",
         ));
     }
     let workspace = EvaluationWorkspace::new()?;
-    let rq1 = run_rq1(&workspace)?;
+    let rq1 = run_rq1(&workspace, opener)?;
     if !rq1.all_passed {
-        return Err(EvaluationError::Invariant("an RQ1 case did not pass"));
+        if let Some(case) = rq1.cases.iter().find(|case| !case.passed) {
+            return Err(EvaluationError::FailedCrashCase {
+                adapter: case.adapter,
+                crash_site: case.crash_site,
+            });
+        }
+        return Err(EvaluationError::Invariant(
+            "RQ1 stale-delivery check did not pass",
+        ));
     }
     let retry_iterations = (iterations / 10).clamp(1, 100);
     let rq2 = Rq2Report {
-        mediated: benchmark_mediated(&workspace, iterations)?,
+        mediated: benchmark_mediated(&workspace, iterations, opener)?,
         direct: benchmark_direct(iterations),
         journaled_at_least_once: benchmark_journaled(&workspace, iterations)?,
         retry_scenarios: vec![
-            benchmark_retry_mediated(&workspace, retry_iterations, RetryClass::Idempotent)?,
-            benchmark_retry_mediated(&workspace, retry_iterations, RetryClass::Deduplicated)?,
+            benchmark_retry_mediated(&workspace, retry_iterations, RetryClass::Idempotent, opener)?,
+            benchmark_retry_mediated(
+                &workspace,
+                retry_iterations,
+                RetryClass::Deduplicated,
+                opener,
+            )?,
             benchmark_retry_journaled(&workspace, retry_iterations)?,
         ],
     };
@@ -199,14 +349,17 @@ pub fn run_evaluation(iterations: u64) -> Result<EvaluationReport, EvaluationErr
     })
 }
 
-fn run_rq1(workspace: &EvaluationWorkspace) -> Result<Rq1Report, EvaluationError> {
+fn run_rq1<Opener: EvaluationBrokerOpener>(
+    workspace: &EvaluationWorkspace,
+    opener: &mut Opener,
+) -> Result<Rq1Report, EvaluationError> {
     let mut cases = Vec::with_capacity(CRASH_SITES.len() * ADAPTER_CLASSES.len());
     for class in ADAPTER_CLASSES {
         for site in CRASH_SITES {
-            cases.push(run_crash_case(workspace, class, site)?);
+            cases.push(run_crash_case(workspace, class, site, opener)?);
         }
     }
-    let stale_delivery_rejected = check_stale_delivery(workspace)?;
+    let stale_delivery_rejected = check_stale_delivery(workspace, opener)?;
     let all_passed = stale_delivery_rejected && cases.iter().all(|case| case.passed);
     Ok(Rq1Report {
         all_passed,
@@ -219,6 +372,7 @@ fn run_crash_case(
     workspace: &EvaluationWorkspace,
     class: RetryClass,
     site: CrashSite,
+    opener: &mut impl EvaluationBrokerOpener,
 ) -> Result<CrashCaseResult, EvaluationError> {
     let path = workspace.path(&format!(
         "rq1-{}-{}.wal",
@@ -226,15 +380,16 @@ fn run_crash_case(
         site_name(site)
     ));
     let spec = request_spec(class, 1);
+    let config = broker_config(&[spec])?;
     let request = RequestId(1);
     let mut adapter = ExampleAdapter::new(class);
-    let mut broker = Broker::open(&path, broker_config(1))?;
+    let mut broker = opener.open(&path, config.clone())?;
 
     if site == CrashSite::AfterAuthorize {
         broker.set_crash_plan(Some(CrashPlan::once(site)));
         expect_crash(broker.admit(CAPABILITY, spec.digest), site)?;
         drop(broker);
-        broker = Broker::open(&path, broker_config(1))?;
+        broker = opener.open(&path, config.clone())?;
     } else if broker.admit(CAPABILITY, spec.digest)? != request {
         return Err(EvaluationError::Invariant("generated request ID changed"));
     }
@@ -243,7 +398,7 @@ fn run_crash_case(
         broker.set_crash_plan(Some(CrashPlan::once(site)));
         expect_crash(broker.prepare(request, spec), site)?;
         drop(broker);
-        broker = Broker::open(&path, broker_config(1))?;
+        broker = opener.open(&path, config.clone())?;
     } else if broker.phase(request)? == Phase::Authorized {
         broker.prepare(request, spec)?;
     }
@@ -255,7 +410,7 @@ fn run_crash_case(
             site,
         )?;
         drop(broker);
-        broker = Broker::open(&path, broker_config(1))?;
+        broker = opener.open(&path, config.clone())?;
     }
 
     let terminal = broker.run(request, class.max_attempts(), &mut adapter)?;
@@ -289,10 +444,13 @@ fn run_crash_case(
     })
 }
 
-fn check_stale_delivery(workspace: &EvaluationWorkspace) -> Result<bool, EvaluationError> {
+fn check_stale_delivery(
+    workspace: &EvaluationWorkspace,
+    opener: &mut impl EvaluationBrokerOpener,
+) -> Result<bool, EvaluationError> {
     let path = workspace.path("rq1-stale-delivery.wal");
     let spec = request_spec(RetryClass::Idempotent, 1);
-    let mut broker = Broker::open(path, broker_config(1))?;
+    let mut broker = opener.open(&path, broker_config(&[spec])?)?;
     let request = broker.admit(CAPABILITY, spec.digest)?;
     broker.prepare(request, spec)?;
     let first = broker.begin_attempt(request)?;
@@ -331,7 +489,9 @@ fn expected_terminal(class: RetryClass, site: CrashSite, terminal: TerminalResul
             terminal,
             TerminalResult::Unknown {
                 attempt: Some(1),
-                reason: UnknownReason::AmbiguousOutcome
+                // The ordinary profile records AmbiguousOutcome; the K4
+                // submission profile records the stronger Recovery reason.
+                reason: UnknownReason::AmbiguousOutcome | UnknownReason::Recovery
             }
         )
     } else {
@@ -482,15 +642,19 @@ impl Adapter for ExampleAdapter {
 fn benchmark_mediated(
     workspace: &EvaluationWorkspace,
     iterations: u64,
+    opener: &mut impl EvaluationBrokerOpener,
 ) -> Result<WorkloadMetrics, EvaluationError> {
     let path = workspace.path("rq2-mediated.wal");
-    let mut broker = Broker::open(&path, broker_config(iterations))?;
+    let specs: Vec<_> = (0..iterations)
+        .map(|index| RequestSpec::uncontrolled(Digest(10_000u64.saturating_add(index))))
+        .collect();
+    let config = broker_config(&specs)?;
+    let mut broker = opener.open(&path, config.clone())?;
     let mut adapter = UncontrolledAdapter::default();
     let mut latencies = Vec::with_capacity(capacity(iterations)?);
     let total_start = Instant::now();
-    for index in 0..iterations {
+    for spec in specs.iter().copied() {
         let request_start = Instant::now();
-        let spec = RequestSpec::uncontrolled(Digest(10_000u64.saturating_add(index)));
         let request = broker.admit(CAPABILITY, spec.digest)?;
         broker.prepare(request, spec)?;
         let terminal = broker.run(request, 1, &mut adapter)?;
@@ -506,7 +670,7 @@ fn benchmark_mediated(
     let physical_invocations = adapter.effect_count();
     drop(broker);
     let recovery_start = Instant::now();
-    let recovered = Broker::open(&path, broker_config(iterations))?;
+    let recovered = opener.open(&path, config)?;
     let recovery_ns = elapsed_ns(recovery_start);
     if recovered.request_ids().len() != capacity(iterations)? {
         return Err(EvaluationError::Invariant(
@@ -594,6 +758,7 @@ fn benchmark_retry_mediated(
     workspace: &EvaluationWorkspace,
     iterations: u64,
     class: RetryClass,
+    opener: &mut impl EvaluationBrokerOpener,
 ) -> Result<RetryMetrics, EvaluationError> {
     let mechanism = match class {
         RetryClass::Idempotent => "mediated_idempotent",
@@ -605,14 +770,16 @@ fn benchmark_retry_mediated(
         }
     };
     let path = workspace.path(&format!("rq2-{mechanism}.wal"));
-    let mut broker = Broker::open(path, broker_config(iterations))?;
+    let specs: Vec<_> = (0..iterations)
+        .map(|index| request_spec(class, 100_000u64.saturating_add(index)))
+        .collect();
+    let mut broker = opener.open(&path, broker_config(&specs)?)?;
     let mut latencies = Vec::with_capacity(capacity(iterations)?);
     let mut physical_invocations = 0u64;
     let mut abstract_effects = 0u64;
     let total_start = Instant::now();
-    for index in 0..iterations {
+    for spec in specs.iter().copied() {
         let request_start = Instant::now();
-        let spec = request_spec(class, 100_000u64.saturating_add(index));
         let request = broker.admit(CAPABILITY, spec.digest)?;
         broker.prepare(request, spec)?;
         let terminal = match class {
@@ -790,14 +957,34 @@ fn capacity(iterations: u64) -> Result<usize, EvaluationError> {
         .map_err(|_| EvaluationError::InvalidArgument("iterations exceed address space"))
 }
 
-fn broker_config(budget: u64) -> BrokerConfig {
-    BrokerConfig {
+fn broker_config(specs: &[RequestSpec]) -> Result<BrokerConfig, EvaluationError> {
+    let budget = u64::try_from(specs.len())
+        .map_err(|_| EvaluationError::InvalidArgument("manifest exceeds u64 request space"))?;
+    let admission_manifest = specs
+        .iter()
+        .copied()
+        .enumerate()
+        .map(|(index, spec)| {
+            let request = u64::try_from(index)
+                .ok()
+                .and_then(|index| index.checked_add(1))
+                .ok_or(EvaluationError::InvalidArgument(
+                    "manifest request ID overflowed",
+                ))?;
+            Ok(AdmissionBinding {
+                request: RequestId(request),
+                capability: CAPABILITY,
+                spec,
+            })
+        })
+        .collect::<Result<Vec<_>, EvaluationError>>()?;
+    Ok(BrokerConfig {
         capabilities: vec![CapabilitySpec {
             id: CAPABILITY,
             budget,
         }],
-        admission_manifest: None,
-    }
+        admission_manifest: Some(admission_manifest),
+    })
 }
 
 fn request_spec(class: RetryClass, seed: u64) -> RequestSpec {
@@ -911,6 +1098,67 @@ impl EvaluationReport {
     #[must_use]
     pub fn to_json_pretty(&self) -> String {
         self.to_string()
+    }
+}
+
+impl SubmissionEvaluationReport {
+    #[must_use]
+    pub fn to_json_pretty(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl fmt::Display for SubmissionEvaluationReport {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(formatter, "{{")?;
+        writeln!(
+            formatter,
+            "  \"schema\": \"proveai.k4-i1-submission-evaluation\","
+        )?;
+        writeln!(
+            formatter,
+            "  \"schema_version\": {SUBMISSION_REPORT_SCHEMA_VERSION},"
+        )?;
+        writeln!(
+            formatter,
+            "  \"gate_profile\": {},",
+            JsonString(self.gate_profile)
+        )?;
+        writeln!(formatter, "  \"broker_opens\": {},", self.broker_opens)?;
+        writeln!(formatter, "  \"gate_evidence\": {{")?;
+        writeln!(
+            formatter,
+            "    \"gates_created\": {},",
+            self.gate.gates_created
+        )?;
+        writeln!(formatter, "    \"previews\": {},", self.gate.previews)?;
+        writeln!(formatter, "    \"commits\": {},", self.gate.commits)?;
+        writeln!(formatter, "    \"replays\": {},", self.gate.replays)?;
+        writeln!(
+            formatter,
+            "    \"recoveries_started\": {},",
+            self.gate.recoveries_started
+        )?;
+        writeln!(
+            formatter,
+            "    \"recoveries_finished\": {},",
+            self.gate.recoveries_finished
+        )?;
+        writeln!(
+            formatter,
+            "    \"recoveries_resumed\": {}",
+            self.gate.recoveries_resumed
+        )?;
+        writeln!(formatter, "  }},")?;
+        write!(formatter, "  \"evaluation\": ")?;
+        for (index, line) in self.evaluation.to_string().lines().enumerate() {
+            if index > 0 {
+                write!(formatter, "\n  ")?;
+            }
+            write!(formatter, "{line}")?;
+        }
+        writeln!(formatter)?;
+        writeln!(formatter, "}}")
     }
 }
 

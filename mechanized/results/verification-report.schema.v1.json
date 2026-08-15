@@ -564,10 +564,16 @@
                   "rust_toolchain_tree_unchanged": { "const": true },
                   "fresh_rust_environment": { "const": true },
                   "rustup_dist_server": {
-                    "const": "https://static.rust-lang.org"
+                    "enum": [
+                      "https://static.rust-lang.org",
+                      "offline-bundle"
+                    ]
                   },
                   "rustup_update_root": {
-                    "const": "https://static.rust-lang.org/rustup"
+                    "enum": [
+                      "https://static.rust-lang.org/rustup",
+                      "offline-bundle"
+                    ]
                   }
                 }
               }

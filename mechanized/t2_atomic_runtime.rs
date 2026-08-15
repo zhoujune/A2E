@@ -512,9 +512,17 @@ pub open spec fn commit_source_after_linearize(
     record: replay_layer::JournalRecord,
 ) -> IMap<replay_layer::RequestId, Option<p0_layer::PhysicalIndex>> {
     match record {
-        replay_layer::JournalRecord::CommitRec { request, .. } => {
+        replay_layer::JournalRecord::CommitRec {
+            request, attempt, value, ..
+        } => {
             state.evidence.commit_source.insert(
-                request, state.evidence.slot_source,
+                request,
+                p0_layer::delivery_source(
+                    state.evidence.physical,
+                    request,
+                    attempt,
+                    replay_layer::Observation::Success(value),
+                ),
             )
         },
         replay_layer::JournalRecord::Authorize { .. }

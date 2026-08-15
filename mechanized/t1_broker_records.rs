@@ -160,8 +160,14 @@ pub open spec fn durable_slot_update(
         replay_layer::JournalRecord::CommitRec {
             request, attempt, value, ..
         } => {
-            if mode == Mode::Online
-                && slot == (ExecSlot::ObservedSuccess { request, attempt, value })
+            if (mode == Mode::Online
+                    && slot == (ExecSlot::ObservedSuccess { request, attempt, value }))
+                || ((mode == Mode::Online || mode == Mode::Recovering)
+                    && slot == ExecSlot::Idle
+                    && query_layer::d_outcome(durable, request, attempt)
+                        == Option::Some(
+                            replay_layer::Observation::Success(value),
+                        ))
             {
                 Option::Some(ExecSlot::Idle)
             } else {

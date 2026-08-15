@@ -98,6 +98,28 @@ pub open spec fn d_failure_conclusive(
             ==> d_all_failed(durable, request))
 }
 
+pub open spec fn recorded_success_j(
+    journal: Seq<replay_layer::JournalRecord>,
+    request: replay_layer::RequestId,
+) -> bool {
+    let attempt = replay_layer::started_count(journal, request);
+    attempt > 0
+        && exists|value: replay_layer::Value| #![auto]
+            replay_layer::outcome_observation(journal, request, attempt)
+                == Option::Some(replay_layer::Observation::Success(value))
+}
+
+pub open spec fn recorded_success_d(
+    durable: replay_layer::DurableBroker,
+    request: replay_layer::RequestId,
+) -> bool {
+    let attempt = d_started(durable, request);
+    attempt > 0
+        && exists|value: replay_layer::Value| #![auto]
+            d_outcome(durable, request, attempt)
+                == Option::Some(replay_layer::Observation::Success(value))
+}
+
 pub open spec fn d_uncertain(
     durable: replay_layer::DurableBroker,
     request: replay_layer::RequestId,
@@ -119,6 +141,7 @@ pub open spec fn unsafe_uncontrolled_j(
     replay_layer::replay(cfg, journal).phase[request] == replay_layer::Phase::Armed
         && cfg.request_class[request] == replay_layer::RetryClass::Uncontrolled
         && !replay_layer::failure_conclusive(cfg, journal, request)
+        && !recorded_success_j(journal, request)
 }
 
 pub open spec fn unsafe_uncontrolled_d(
@@ -129,6 +152,7 @@ pub open spec fn unsafe_uncontrolled_d(
     durable.phase[request] == replay_layer::Phase::Armed
         && cfg.request_class[request] == replay_layer::RetryClass::Uncontrolled
         && !d_failure_conclusive(cfg, durable, request)
+        && !recorded_success_d(durable, request)
 }
 
 pub open spec fn recovery_complete_j(
@@ -594,6 +618,13 @@ pub proof fn replay_recovery_predicates_exact(
     assert forall|request: replay_layer::RequestId|
         unsafe_uncontrolled_d(cfg, replay_layer::replay(cfg, journal), request)
             <==> #[trigger] unsafe_uncontrolled_j(cfg, journal, request) by {
+        replay_d_started_exact(cfg, journal, request);
+        replay_d_outcome_exact(
+            cfg,
+            journal,
+            request,
+            replay_layer::started_count(journal, request),
+        );
         replay_d_failure_conclusive_exact(cfg, journal, request);
     }
     assert forall|request: replay_layer::RequestId|
@@ -765,6 +796,10 @@ pub proof fn durable_query_bridge(
                 cfg, replay_layer::replay(cfg, journal), request,
             ) <==> replay_layer::failure_conclusive(cfg, journal, request),
         forall|request: replay_layer::RequestId|
+            #[trigger] recorded_success_d(
+                replay_layer::replay(cfg, journal), request,
+            ) <==> recorded_success_j(journal, request),
+        forall|request: replay_layer::RequestId|
             #[trigger] d_uncertain(replay_layer::replay(cfg, journal), request)
                 <==> replay_layer::durably_uncertain(journal, request),
         recovery_complete_d(cfg, replay_layer::replay(cfg, journal))
@@ -798,6 +833,17 @@ pub proof fn durable_query_bridge(
                 cfg, journal, request,
             ) by {
         replay_d_failure_conclusive_exact(cfg, journal, request);
+    }
+    assert forall|request: replay_layer::RequestId|
+        recorded_success_d(replay_layer::replay(cfg, journal), request)
+            <==> #[trigger] recorded_success_j(journal, request) by {
+        replay_d_started_exact(cfg, journal, request);
+        replay_d_outcome_exact(
+            cfg,
+            journal,
+            request,
+            replay_layer::started_count(journal, request),
+        );
     }
     assert forall|request: replay_layer::RequestId|
         d_uncertain(replay_layer::replay(cfg, journal), request)

@@ -203,8 +203,8 @@ exist.
 
 At the retained T6-A0 checkpoint, 41/41 registered targets verified. Because a
 shared conservative definitional T1 accessor adds one transitive obligation,
-the imported T6-S0 target is 841 rather than its historical 840. T6-A0 verifies
-864 obligations with zero errors, a delta of 23 over that current T6-S0 parent.
+the imported T6-S0 target is 862 in the current run. T6-A0 verifies
+885 obligations with zero errors, a delta of 23 over that current T6-S0 parent.
 That checkpoint's dependency-aware non-duplicated total is 904 and the sum of
 all target obligations is 19,951.
 
@@ -304,7 +304,8 @@ recovery, the three-step durable `Start(2)` append, `Invoke(2)`, and
 `Failure(2)`. The crash/retry claim therefore does not depend only on Journal
 or physical projections that erase those control events.
 
-The retained T6-A1 run verifies 42/42 registered targets. T6-A1 verifies 916
+The historical pre-K4 T6-A1 run verifies 42/42 registered targets. The current
+T6-A1 target verifies 937
 obligations with zero errors, 52 beyond T6-A0; the dependency-aware
 non-duplicated total is 956 and the sum of all target obligations is 20,867.
 
@@ -376,7 +377,7 @@ authorized, there is no environment addition, the service and audit-context
 traces both equal the WAL invocation projection, and the retained A1 theorem
 still supplies Unknown rather than Fail and exactly one abstract insertion.
 
-The T6-M0 target verifies 977 cumulative obligations with zero errors, 61
+The T6-M0 target verifies 998 cumulative obligations with zero errors, 61
 beyond T6-A1. At the retained M0 checkpoint, all 43/43 registered targets
 passed, with 1,017 dependency-aware non-duplicated obligations and 21,844
 summed target obligations. The historical T6-A1 registry totals above remain
@@ -427,7 +428,7 @@ exact final effect-state agreement. These facts are exported by
 `t6_p0_executable_crash_retry_prefix_product` and
 `t6_p0_prefix_product_nonvacuity`.
 
-T6-P0 verifies 1,000 cumulative obligations with zero errors, 23 beyond
+T6-P0 verifies 1,021 cumulative obligations with zero errors, 23 beyond
 T6-M0. It remains fixed to the single-request `EnsureMember` model and is not a
 matching-WAL existence theorem for arbitrary adapter runs.
 
@@ -452,10 +453,12 @@ has exactly one protected linearization, and proves that linearization durably
 authorized. `t6_x0_contextual_end_to_end_nonvacuity` exports the complete
 package without premises.
 
-T6-X0 verifies 1,022 cumulative obligations with zero errors, 22 beyond T6-P0.
-The current retained run passes all 45/45 registered targets, contains 1,062
-dependency-aware non-duplicated obligations, and sums to 23,866 target
-obligations. The theorem is conditional and single-request; it does not
+T6-X0 verifies 1,043 cumulative obligations with zero errors, 22 beyond T6-P0.
+The historical pre-K4/DD run passed all 45/45 registered targets, contained
+1,062 dependency-aware non-duplicated obligations, and summed to 23,866 target
+obligations. The current retained run passes all 72/72 registered targets,
+contains 1,511 dependency-aware non-duplicated obligations, and sums to 38,952
+target obligations. The theorem is conditional and single-request; it does not
 construct a matching WAL run for every adapter execution. Production code and
 isolation, byte/fsync persistence, `ReturnResult`, additional adapter classes,
 concurrency/global linearizability, least privilege, and liveness remain open.

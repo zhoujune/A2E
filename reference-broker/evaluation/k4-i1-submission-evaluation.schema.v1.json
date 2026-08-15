@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://proveai.invalid/schema/k4-i1-submission-evaluation-v1.json",
+  "title": "ProveAI fail-closed K4-I1 submission evaluation attestation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schema_version",
+    "gate_profile",
+    "broker_opens",
+    "gate_evidence",
+    "evaluation"
+  ],
+  "properties": {
+    "schema": { "const": "proveai.k4-i1-submission-evaluation" },
+    "schema_version": { "const": 1 },
+    "gate_profile": { "const": "k4-a4-required" },
+    "broker_opens": { "type": "integer", "minimum": 1 },
+    "gate_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gates_created",
+        "previews",
+        "commits",
+        "replays",
+        "recoveries_started",
+        "recoveries_finished",
+        "recoveries_resumed"
+      ],
+      "properties": {
+        "gates_created": { "type": "integer", "minimum": 0 },
+        "previews": { "type": "integer", "minimum": 0 },
+        "commits": { "type": "integer", "minimum": 0 },
+        "replays": { "type": "integer", "minimum": 0 },
+        "recoveries_started": { "type": "integer", "minimum": 0 },
+        "recoveries_finished": { "type": "integer", "minimum": 0 },
+        "recoveries_resumed": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "evaluation": {
+      "$ref": "evaluation-report.schema.v1.json"
+    }
+  }
+}

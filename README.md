@@ -26,11 +26,13 @@ replacement with exact context-state and ordered endpoint-view equality at
 every canonical mapped prefix. T5-S0 begins the recovery theorem by proving
 exact one-step committed-history laws for the Broker, atomic Journal, and typed
 WAL machines. T5-E0 lifts those laws to arbitrary intervals of every finite
-execution. T5-R0 proves exact committed-history equality from a selected
-`Crash` through the first later `FinishRecover`. T5-C0 completes T5 by proving
-committed-history equality at every canonical WAL-to-Broker mapped prefix and
-exporting recovery endpoint equality through the storage-parametric contextual
-replacement theorem. H1 closes the cumulative artifact's configuration-level
+execution. T5-R0 retains exact recovery endpoint equality as the explicit
+no-recovery-Commit corollary. T5-R1 proves the general result: committed history
+extends monotonically, and every recovery Commit cites the exact successful
+Outcome and LSN already durable at the selected `Crash`. T5-C0 transports both
+the general extension/provenance theorem and the equality corollary through the
+canonical WAL-to-Broker map and storage-parametric contextual composition. H1
+closes the cumulative artifact's configuration-level
 nonvacuity gap with a concrete well-formed configuration and binds verification
 evidence to the exact checked sources and toolchain. T6-D0 then freezes the
 request-local adapter rely, duplicate-rejecting terminal and delivery
@@ -148,11 +150,19 @@ threads the same profile through concrete K3 durable, journal, acknowledgment,
 and append-control state, dispatches the six generic K4 mutations, and proves
 exact LSN/cut agreement plus a terminal concrete-state theorem. Arbitrary K3
 transitions and Revoke/Fail/Unknown remain open. K4-A2 removes the fixed
-six-record restriction: for every well-formed manifest it accepts any
-structurally legal sequence of the six supported record kinds, derives
-manifest-budget materialization, preserves concrete replay coupling, and
-proves exact LSN/cut agreement. Revoke/Fail/Unknown remain explicit
-exclusions.
+six-record restriction for the ordinary record kinds: for every well-formed
+manifest it accepts any structurally legal sequence, derives manifest-budget
+materialization, preserves concrete replay coupling, and proves exact LSN/cut
+agreement. K4-A3 extends the bridge to manifest-aware `Fail` and `Unknown`
+guards, exact outcome/arm evidence references, `Failed`/`Unknown` phase
+mutation, and a complete append pipeline with Idempotent-failure and
+  Uncontrolled-recovery witnesses. K4-A4 adds explicit crash/recovery control,
+  preserves typed durable state across crash, and exposes the
+  `preview -> WAL -> kernel commit` gate. Its executable resume guard permits
+  Idempotent and Deduplicated Armed requests to leave recovery, permits
+  Uncontrolled and ReadOnly requests only before any durable Start exists, and
+  otherwise remains fail closed. Revoke and byte persistence remain outside
+  this checkpoint.
 
 M4 adds a separate standard-Rust
 [`reference-broker`](reference-broker/README.md) prototype around that verified
@@ -160,10 +170,20 @@ conceptual boundary. It implements generated request IDs, configured
 capability budgets, exact record ancestry, a checksummed file WAL with torn-tail
 recovery, one executor slot, invocation correlation, terminal retrieval, and
 Uncontrolled, Idempotent, and Deduplicated example adapters. Its deterministic
-tests cover all seven durable/volatile crash sites for all three adapters. M4
-does not extend the Verus theorem boundary: the Rust wrapper, byte encoding,
-filesystem calls, adapters, transport, and deployment remain trusted or
-unverified exactly as listed in the crate README.
+  tests cover all seven durable/volatile crash sites for all three adapters. M4
+  does not extend the Verus theorem boundary: the Rust wrapper, byte encoding,
+  filesystem calls, adapters, transport, and deployment remain trusted or
+  unverified exactly as listed in the crate README.
+
+K4-I1 adds a fail-closed submission-evaluation profile around M4. The profile
+accepts only immutable admission manifests, constructs every evaluation broker
+with `Broker::open_with_gate`, and attests that every open created a K4-A4 gate,
+every preview has a post-WAL commit, every reopen replayed its durable prefix,
+and every recovery instance either finished with a terminal repair or passed
+the verified resume guard. The retained 100-request run passes all 21 crash
+cases and records 47 broker opens/gates, 1,573 preview/commit pairs, 675 replayed
+records, 40 completed recoveries, and 7 verified resumes. This is finite
+kernel-in-the-loop evidence, not whole-program Rust or byte-WAL refinement.
 
 The first versioned RQ1/RQ2
 [`evaluation report`](reference-broker/evaluation/results/README.md) reruns the
@@ -219,11 +239,12 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   statement of theorem V1, including the independent abstract and concrete
   machines, labeled executions, rely conditions, and theorem layers T1--T6.
 - [Verified mechanization checkpoints](mechanized/README.md) document M0, R1,
-  B1, C1, D1, Q1, K1, K2-G0, K2-T0, K3-A0, K4-C0, K4-R0, K4-R1, K4-R2, K4-R3, K4-R4, K4-R5, K4-R6, K4-R7, K4-A0, K4-A1, K4-A2, B2-R, B2-C, B2-P0, B2-P1, B2-P2,
+  B1, C1, D1, Q1, K1, K2-G0, K2-T0, K3-A0, K4-C0, K4-R0, K4-R1, K4-R2, K4-R3, K4-R4, K4-R5, K4-R6, K4-R7, K4-A0, K4-A1, K4-A2, K4-A3, K4-A4, B2-R, B2-C, B2-P0, B2-P1, B2-P2,
   B2-P3, B2-L, B2-A,
   G0, G1-P, G1-E, T1, T2-J0, T2-J1, T2-E, T2-R, T2, T3-W0,
   T3-W1-T, T3-W1-E, T3-W1-R, T3, T4-C0, T4-C1, T4-C2, T5-S0, T5-E0,
-  T5-R0, T5-C0, H1, T6-D0, T6-E0, T6-C0, T6-S0, T6-A0, T6-A1, T6-M0,
+  T5-R0, T5-R1, T5-C0, H1, T6-D0, T6-E0, T6-C0, T6-S0, T6-A0, H2,
+  T6-A1, T6-M0,
   T6-P0, T6-X0, T6-RO0, T6-DD0, T6-DD1, T6-DD2, T6-DD3, T6-DD4, and T6-DD5.
   M0 checks a reduced atomic-Journal safety slice; R1 checks the complete typed record language and
   replay invariants; B1 checks a
@@ -247,8 +268,13 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   K4-A1 carries that profile through the concrete K3 append state and all six
   generic durable mutations with exact LSN and acknowledgment cuts.
   K4-A2 generalizes the concrete bridge to arbitrary legal sequences of the six
-  supported record kinds under every well-formed manifest, including
-  manifest-budget materialization and existential terminal reflection.
+  ordinary record kinds under every well-formed manifest, including
+  manifest-budget materialization and existential terminal reflection. K4-A3
+  closes manifest-aware Fail/Unknown admission, exact terminal evidence, and
+  concrete Failed/Unknown phase updates with two executable witnesses. K4-A4
+  adds executable crash/recovery mode control, durable-success terminalization,
+  and a proved resume guard: Idempotent/Deduplicated may resume, while
+  Uncontrolled/ReadOnly may resume only before a durable Start exists.
   B2-R proves the
   record-side Broker, executor-slot, and recovery invariant for every finite
   prefix; B2-C refines full immutable requests, capabilities, and canonical
@@ -291,14 +317,14 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
   appends exactly the `CommitEntry` carried by its own durable Commit
   linearization. T5-E0 proves committed-history prefix monotonicity between any
   two ordered configuration indices in a finite Broker, Journal, or WAL
-  execution. T5-R0 defines a first-`FinishRecover` episode using only event
-  positions, derives recovery-repair classification and commit stuttering for
-  every episode step, and proves exact endpoint equality. Minimal Broker,
-  Journal, and WAL episodes plus a repeated-`Crash` Broker episode establish
-  nonvacuity. T5-C0 proves exact WAL/Broker committed-history equality at every
-  canonical mapped prefix, carries R0 equality to the mapped Broker prefixes at
-  `mu[crash]` and `mu[finish + 1]`, and instantiates the complete contextual
-  theorem on a six-event WAL recovery execution with seven inert context states.
+  execution. T5-R0 defines a first-`FinishRecover` episode and retains exact
+  endpoint equality when the episode has no recovery Commit. T5-R1 removes that
+  restriction for the general theorem: committed history is prefix-monotone,
+  and any recovery Commit has exact successful-Outcome value/LSN provenance in
+  the crash prefix. T5-C0 transports both forms to canonical mapped Broker
+  prefixes and storage-parametric contexts. Minimal stuttering episodes and
+  H2's 26-event durable-success recovery Commit establish both branches are
+  nonvacuous.
   H1 constructs a total `FullConfig`, proves it well formed, and unconditionally
   inhabits the complete T5-C0 premise/conclusion package. T6-D0 introduces the
   complete adapter/terminal definition surface, verifies unique selector and
@@ -410,19 +436,21 @@ verifies from an exact read-only source snapshot, enforces the proof/import
 policy, and emits a source-hashed verification report with the observed Rust
 tree digest.
 The current result is M0 21, R1 86, B1 39, C1 128,
-D1 144, Q1 144, K1 159, K2-G0 179, K2-T0 208, K3-A0 248, K4-C0 255, K4-R0 266, K4-R1 274, K4-R2 276, K4-R3 278, K4-R4 281, K4-R5 283, K4-R6 286, K4-R7 289, K4-A0 301, K4-A1 309, K4-A2 326,
-B2-R 169, B2-C 175,
-B2-P0 193, B2-P1 251, B2-P2 276,
-B2-P3 292, B2-L 310, B2-A 335, G0 342, G1-P 410, G1-E 429, T1 462,
-T2-J0 476, T2-J1 487, T2-E 509, T2-R 521, T2 532, T3-W0 578,
-T3-W1-T 589, T3-W1-E 627, T3-W1-R 642, T3 660, T4-C0 677, T4-C1 721,
-T4-C2 735, T5-S0 744, T5-E0 748, T5-R0 770, T5-C0 784, H1 787, T6-D0
-800, T6-E0 818, T6-C0 835, T6-S0 841, T6-A0 864, T6-A1 916, T6-M0 977,
-T6-P0 1,000, T6-X0 1,022, T6-RO0 1,083, T6-DD0 1,085, T6-DD1 1,111,
-T6-DD2 1,143, T6-DD3 1,182, T6-DD4 1,222, and T6-DD5 1,228 obligations, all
+D1 144, Q1 144, K1 159, K2-G0 179, K2-T0 208, K3-A0 248, K4-C0 255,
+K4-R0 266, K4-R1 274, K4-R2 276, K4-R3 278, K4-R4 281, K4-R5 283,
+K4-R6 286, K4-R7 289, K4-A0 301, K4-A1 309, K4-A2 326, K4-A3 347,
+K4-A4 365, B2-R 169, B2-C 175, B2-P0 194, B2-P1 252, B2-P2 278,
+B2-P3 294, B2-L 312, B2-A 337, G0 344, G1-P 412, G1-E 431, T1 464,
+T2-J0 478, T2-J1 489, T2-E 511, T2-R 523, T2 534, T3-W0 580,
+T3-W1-T 591, T3-W1-E 629, T3-W1-R 644, T3 662, T4-C0 679, T4-C1 723,
+T4-C2 737, T5-S0 746, T5-E0 750, T5-R0 773, T5-R1 787, T5-C0 805,
+H1 808, T6-D0 821, T6-E0 839, T6-C0 856, T6-S0 862, T6-A0 885,
+T6-A1 937, H2 886, T6-M0 998, T6-P0 1,021, T6-X0 1,043,
+T6-RO0 1,104, T6-DD0 1,106, T6-DD1 1,132, T6-DD2 1,164,
+T6-DD3 1,203, T6-DD4 1,243, and T6-DD5 1,249 obligations, all
 with zero errors. K1 adds 15 obligations beyond Q1, K2-G0 adds 20 beyond K1,
 K2-T0 adds 29 beyond K2-G0, K3-A0 adds 40 beyond K2-T0, K4-C0 adds 7 beyond
-K3-A0, K4-R0 adds 11 beyond K4-C0, K4-R1 adds 8 beyond K4-R0, K4-R2 adds 2 beyond K4-R1, K4-R3 adds 2 beyond K4-R2, K4-R4 adds 3 beyond K4-R3, K4-R5 adds 2 beyond K4-R4, K4-R6 adds 3 beyond K4-R5, K4-R7 adds 3 beyond K4-R6, K4-A0 adds 12 beyond K4-R7, K4-A1 adds 8 beyond K4-A0, K4-A2 adds 17 beyond K4-A1, T6-X0 adds 22 beyond
+K3-A0, K4-R0 adds 11 beyond K4-C0, K4-R1 adds 8 beyond K4-R0, K4-R2 adds 2 beyond K4-R1, K4-R3 adds 2 beyond K4-R2, K4-R4 adds 3 beyond K4-R3, K4-R5 adds 2 beyond K4-R4, K4-R6 adds 3 beyond K4-R5, K4-R7 adds 3 beyond K4-R6, K4-A0 adds 12 beyond K4-R7, K4-A1 adds 8 beyond K4-A0, K4-A2 adds 17 beyond K4-A1, K4-A3 adds 21 beyond K4-A2, K4-A4 adds 18 beyond K4-A3, T5-R1 adds 14 beyond T5-R0, T5-C0 adds 18 beyond T5-R1, H2 adds one independent witness beyond T6-A0, and T6-X0 adds 22 beyond
 T6-P0, T6-RO0 adds 61 beyond T6-X0, T6-DD0 adds 2 beyond T6-RO0, and T6-DD1
 adds 26 beyond T6-DD0; T6-DD2 adds 32 beyond T6-DD1; T6-DD3 adds 39 beyond
 T6-DD2; T6-DD4 adds 40 beyond T6-DD3; T6-DD5 adds 6 beyond T6-DD4. The new
@@ -433,9 +461,9 @@ cumulative obligations, and 880 dependency-aware non-duplicated obligations.
 The historical retained T6-A1 run had 42 targets, 956 non-duplicated
 obligations, and 20,867 summed target obligations. The historical retained
 T6-X0 run had 45 targets, 1,062 non-duplicated obligations, and 23,866 summed
-target obligations. The current retained run passes all 68/68 registered
-targets, contains 1,450 dependency-aware non-duplicated obligations, and sums
-to 36,138 target obligations.
+target obligations. The current retained run passes all 72/72 registered
+targets, contains 1,511 dependency-aware non-duplicated obligations, and sums
+to 38,952 target obligations.
 
 ## Current boundary
 
@@ -486,8 +514,11 @@ cuts, all-prefix C1 checkpoints, and projection into K3's concrete record
 vocabulary. Its premise-free witness also executes the K4-R7 mutation chain.
 This is a bounded semantic append certificate, not a parameterization of every
 K3 transition or a refinement theorem for the Rust broker. K4-A2 subsequently
-closes generic materialization and state threading for the six supported record
-kinds; Revoke, Fail, Unknown, and their mutations remain unparameterized.
+closes generic materialization and state threading for the six ordinary record
+kinds. K4-A3 adds manifest-aware Fail/Unknown guards, reason-specific evidence
+references, terminal phase mutation, and concrete failure/recovery witnesses.
+K4-A4 adds explicit crash/recovery control and the conservative Uncontrolled
+gate; byte WAL and Rust-broker whole-program refinement remain unparameterized.
 K3-A0 does not yet
 add executor, invocation, crash/recovery, transport, or physical-storage
 behavior.
@@ -501,22 +532,44 @@ This remains a bounded profile bridge: arbitrary K3 transitions and record
 variants, the standard-Rust broker, byte WAL, filesystem, transport, and
 deployment are outside the theorem.
 
-K4-A2 removes the six-record restriction for the supported subset. Its
+K4-A2 removes the six-record restriction for the ordinary supported subset. Its
 manifest-aware `Call`, `Linearize`, and `Return` operations accept every
 structurally legal Authorize, Prepare, Arm, Start, Outcome, or Commit record,
 materialize missing request/capability summaries from manifest budgets, and
 preserve replay/durable coupling and exact one-based LSN/cut agreement. The
 terminal reflection is existential when the concrete state may contain other
-pre-materialized entries. Revoke, Fail, Unknown, crash/recovery, and the
-standard-Rust/byte-WAL implementation boundary remain outside the theorem.
+pre-materialized entries. K4-A3 adds the `Fail` and `Unknown` variants with
+manifest-aware conclusiveness/uncertainty guards, exact evidence ancestry, and
+`Failed`/`Unknown` concrete phase updates. Revoke, byte-WAL, and the
+  standard-Rust implementation boundary remain outside the theorem. K4-A4 adds
+  an executable `Online`/`Crashed`/`Recovering` control layer, preserves typed
+  durable state across crash, and exposes the `preview -> WAL -> kernel commit`
+  order. It proves the class-sensitive resume predicate used by the broker:
+  Idempotent and Deduplicated Armed requests may resume, whereas Uncontrolled
+  and ReadOnly may do so only before a durable Start exists. Unsafe prefixes
+  remain in recovery; the demonstrated Uncontrolled profile terminalizes them
+  as `Unknown(Recovery)` with Start/Outcome/Arm evidence.
 
-K4-I0 adds a separate compiled integration checkpoint. It runs the actual
-standard-Rust broker through an idempotent crash/reopen/retry execution and a
-manifest-bound Deduplicated execution, incrementally feeds their real WAL
-records through proof-erased K4-A2 `Call`/`Linearize`/`Return`, and checks exact
-cuts, prefix reuse, terminal durable state, and budget agreement. Unsupported
-Revoke/Fail/Unknown records are rejected explicitly. K4-I0 is executable
-integration evidence, not a Rust-broker implementation-refinement theorem.
+K4-I0 adds a separate compiled integration checkpoint. It injects a K4 gate
+into the actual Rust broker append/replay path and runs executions spanning two
+Commit paths, conclusive Fail, four reason-specific Unknown paths, an ordinary
+crash/reopen, and a conservative kernel-gated Uncontrolled recovery. Every real WAL record
+passes proof-erased K4-A4 preview before the write and kernel commit after the
+durable LSN; reopening replays the full prefix. The harness checks exact cuts,
+terminal durable state, prefix reuse, and budget agreement, and rejects Revoke
+explicitly. K4-I0 is executable integration evidence, not a Rust-broker
+implementation-refinement theorem.
+
+K4-I1 strengthens the executable evaluation boundary without changing that
+claim. `artifact/run-k4-i1.sh` runs the submission RQ1/RQ2 profile through a
+gate-only opener: all configurations require immutable admission manifests,
+and `run_submission_evaluation` contains no `Broker::open` fallback. Its
+versioned attestation checks gate/open equality, preview/commit pairing, replay,
+and recovery closure. The retained 100-request report records 47/47 gated
+opens, 1,573/1,573 preview/commit calls, 675 replays, and 40 finished plus 7
+verified-resume recoveries while retaining RQ1 21/21. This is a finite dynamic
+check that the submission evaluation stayed inside K4, not a proof of the
+surrounding Rust control flow, translation, byte WAL, or filesystem.
 
 B2-R adds the actual record-side Broker modes, complete slot ADT and record
 transformer, append/recovery control, durable slot agreement, and all-prefix
@@ -615,26 +668,40 @@ the local `wal_invariant` premise internally.
 
 T5-R0 is complete. For event indices `crash < finish < events.len()`, an episode
 starts with `Crash`, ends with `FinishRecover`, and contains no earlier
-`FinishRecover`. Valid execution semantics, rather than an episode assumption,
-force every intermediate durable linearization to be a conclusive `FailRec` or
-recovery `UnknownRec`. Every event at `crash <= i <= finish` has zero commit
-delta and preserves `alpha_commit`; consequently `configs[crash]` and
-`configs[finish + 1]` have exactly equal committed histories. The WAL theorem
-discharges its invariants internally. Minimal Broker, Journal, and full
-scan/truncate WAL episodes, plus a repeated-`Crash` Broker episode, prove the
-predicate is inhabited. This is closed-machine committed-history equality only:
-T5-C0 supplies the separate mapped/contextual export.
+`FinishRecover`. Execution semantics classify every intermediate durable
+linearization as a recovery repair: `CommitRec`, conclusive `FailRec`, or
+recovery `UnknownRec`. R0 defines the stronger
+`CommitStutteringRecoveryEpisode` predicate by excluding a Commit
+linearization; under that explicit premise, every episode step has zero commit
+delta and the crash/finish endpoint histories are exactly equal. Minimal
+Broker, Journal, and scan/truncate WAL episodes plus a repeated-`Crash` Broker
+episode inhabit this equality corollary.
+
+T5-R1 is the general durable-success recovery theorem. For every WAL
+`RecoveryEpisode`, the crash-point committed history is a prefix of the history
+after `FinishRecover`. Each intervening recovery Commit must cite the same
+request, attempt, successful value, and Outcome LSN already present in the
+selected crash-prefix Journal. Its explicit decision classifier maps typed
+recovery terminal records exhaustively to Commit, Fail, or Unknown and rejects
+ordinary records at that boundary; enabled Commit is the only decision class
+that carries the durable-success value obligation. A one-step composition lemma
+connects that guard to committed-history extension. Thus recovery may reveal a
+durable success but cannot fabricate its value or evidence. H2 constructs a premise-free 26-event
+WAL execution with a durable successful Outcome, crash/scan/recovery, a Commit
+while Recovering, and `FinishRecover`; its committed-history length grows from
+zero to one and the old stuttering premise is provably false.
 
 T5-C0 is complete. For every source configuration index `i`, it proves exact
 equality between the WAL committed history at `i` and the Broker committed
-history at the canonical mapped prefix `mu[i]`. Given a source WAL
-`RecoveryEpisode(crash,finish)`, it proves source endpoint equality and the
-corresponding cross-backend and Broker endpoint equalities at `mu[crash]` and
-`mu[finish + 1]`. The exported theorem retains T4-C2's well-formed
-configuration, storage-parametric context, and plugged WAL execution premises,
-plus the source episode premise. A minimal six-event WAL recovery trace with
-seven identical inert context states proves that this premise conjunction and
-the final conclusion are inhabited. T5 does not transport `RecoveryEpisode` to
+history at the canonical mapped prefix `mu[i]`. A general source WAL recovery
+episode yields prefix extension at both the WAL and mapped Broker endpoints,
+together with crash-prefix recovery-Commit provenance. The stronger
+commit-stuttering premise recovers the four exact source/cross-backend/Broker
+endpoint equalities. Both results retain T4-C2's well-formed configuration,
+storage-parametric context, and plugged WAL execution premises. A minimal
+six-event trace inhabits the contextual equality corollary, while H2 inhabits
+the general closed/canonical strict-extension branch. T5 does not transport
+`RecoveryEpisode` to
 the Broker event trace, equate full machine or context state across recovery,
 or interpret physical invocations as external effects. That adapter-effect
 obligation was the historical T5-C0 boundary. T6-A0 and T6-A1 now discharge it

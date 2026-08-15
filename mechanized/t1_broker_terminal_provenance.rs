@@ -240,20 +240,26 @@ pub proof fn commit_linearize_preserves_source_agreement(
     );
     match record {
         replay_layer::JournalRecord::CommitRec {
-            request: committed_request, attempt, value, ..
+            request: committed_request, attempt, value, outcome_ref, ..
         } => {
-            assert(state.core.broker.slot
-                == (record_layer::ExecSlot::ObservedSuccess {
-                    request: committed_request, attempt, value,
-                }));
-            assert(p1_layer::physical_slot_agreement(state));
-            assert(p1_layer::source_is_delivery(
+            assert(replay_layer::outcome_lsn(
+                state.core.evidence.records, committed_request, attempt,
+            ) == Option::Some(outcome_ref));
+            p2_layer::outcome_projection_has_delivery(
+                state.core.evidence.records,
                 state.physical.physical,
-                state.physical.slot_source,
                 committed_request,
                 attempt,
                 replay_layer::Observation::Success(value),
-            ));
+                outcome_ref,
+            );
+            p2_layer::delivery_before_lsn_has_source(
+                state.physical.physical,
+                committed_request,
+                attempt,
+                replay_layer::Observation::Success(value),
+                outcome_ref,
+            );
             assert(replay_layer::recorded_success_valid(
                 erased, state.core.evidence.records,
             ));
@@ -282,7 +288,12 @@ pub proof fn commit_linearize_preserves_source_agreement(
             } by {
                 if request == committed_request {
                     assert(after.physical.commit_source[request]
-                        == state.physical.slot_source);
+                        == p0_layer::delivery_source(
+                            state.physical.physical,
+                            committed_request,
+                            attempt,
+                            replay_layer::Observation::Success(value),
+                        ));
                 } else {
                     assert(after.physical.commit_source[request]
                         == state.physical.commit_source[request]);
@@ -628,6 +639,12 @@ pub open spec fn recovery_repair_record(
     record: replay_layer::JournalRecord,
 ) -> bool {
     match record {
+        replay_layer::JournalRecord::CommitRec {
+            request, attempt, value, ..
+        } => {
+            query_layer::d_outcome(durable, request, attempt)
+                == Option::Some(replay_layer::Observation::Success(value))
+        },
         replay_layer::JournalRecord::FailRec { request, .. } => {
             query_layer::d_failure_conclusive(
                 config_layer::erase_config(cfg), durable, request,
@@ -644,8 +661,7 @@ pub open spec fn recovery_repair_record(
         | replay_layer::JournalRecord::Prepare { .. }
         | replay_layer::JournalRecord::Arm { .. }
         | replay_layer::JournalRecord::Start { .. }
-        | replay_layer::JournalRecord::Outcome { .. }
-        | replay_layer::JournalRecord::CommitRec { .. } => false,
+        | replay_layer::JournalRecord::Outcome { .. } => false,
     }
 }
 
@@ -655,16 +671,18 @@ pub proof fn recovering_linearize_is_source_preserving_repair(
     record: replay_layer::JournalRecord,
 )
     requires
-        p2_layer::p2_invariant(cfg, state),
+        p3_invariant(cfg, state),
         state.core.broker.mode == record_layer::Mode::Recovering,
         p0_layer::admissibly_enabled(
             cfg, state, p0_layer::Event::BrokerLinearize { record },
         ),
     ensures
         recovery_repair_record(cfg, state.core.broker.durable, record),
-        p0_layer::apply(
-            cfg, state, p0_layer::Event::BrokerLinearize { record },
-        ).physical.commit_source == state.physical.commit_source,
+        !(record is CommitRec) ==> {
+            p0_layer::apply(
+                cfg, state, p0_layer::Event::BrokerLinearize { record },
+            ).physical.commit_source == state.physical.commit_source
+        },
 {
     let erased = config_layer::erase_config(cfg);
     assert(record_layer::abstract_enabled(
@@ -678,7 +696,8 @@ pub proof fn recovering_linearize_is_source_preserving_repair(
         record,
     ).is_some());
     match record {
-        replay_layer::JournalRecord::FailRec { .. } => {},
+        replay_layer::JournalRecord::CommitRec { .. }
+        | replay_layer::JournalRecord::FailRec { .. } => {},
         replay_layer::JournalRecord::UnknownRec { request, reason, .. } => {
             assert(reason == replay_layer::UnknownReason::Recovery);
             assert(query_layer::unsafe_uncontrolled_d(
@@ -690,8 +709,7 @@ pub proof fn recovering_linearize_is_source_preserving_repair(
         | replay_layer::JournalRecord::Prepare { .. }
         | replay_layer::JournalRecord::Arm { .. }
         | replay_layer::JournalRecord::Start { .. }
-        | replay_layer::JournalRecord::Outcome { .. }
-        | replay_layer::JournalRecord::CommitRec { .. } => {
+        | replay_layer::JournalRecord::Outcome { .. } => {
             assert(false);
         },
     }

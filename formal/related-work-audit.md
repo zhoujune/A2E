@@ -63,6 +63,7 @@ deployment assumption rather than proving the ProveAI relation.
 |---|---|---|---|---|---|---|---|
 | ProveAI | yes | yes | yes | four adapter classes | formal closed interface | TLA+/Verus | reference broker |
 | PoE | contract and Gateway | completed trace | no crash-recovery protocol | deny/effect trace, not retry classes | credentialing assumption/lemma | no proof-assistant artifact found | TypeScript prototype |
+| AgentBound | declarative MCP-server resource capabilities | no | no | no | Docker/mount/iptables boundary | no | implementation, attack study, and ecosystem evaluation |
 | CaMeL | capabilities and data-flow policy | no | no | no | interpreter/tool-call boundary | analytical security argument | implementation and AgentDojo evaluation |
 | Guardians of the Agents | pre-execution workflow policy | no | no | no | proposed verified-plan boundary | proposed static tools, not an end-to-end mechanization | design and later prototype work |
 | Capsicum / seL4 | capability confinement | no | no external retry protocol | no | OS/kernel boundary | seL4 yes; Capsicum no | production OS mechanisms |
@@ -126,6 +127,30 @@ Likewise, the typed theorem assumes the histories needed for recovery and
 authorization ancestry remain available inside the admitted execution.
 
 ### 3.3 AI-agent policy enforcement
+
+[Buehler et al., *AgentBound: Securing Execution Boundaries of AI Agents*](https://doi.org/10.1145/3808103)
+is the closest deployed enforcement comparison. AgentBound declares generic
+MCP-server resource capabilities in an `AgentManifest`, refines them to runtime
+permissions with user consent, and enforces filesystem, environment, and
+network restrictions using Docker mounts and `iptables`. Its evaluation covers
+296 popular MCP servers, reports developer and manual validation of generated
+manifests, exercises malicious servers, and measures startup and per-operation
+overhead. This rules out presenting resource capabilities, default-deny MCP
+execution, transparent server wrapping, or resource-level container mediation
+as ProveAI novelties.
+
+The semantic boundary is different. AgentBound intentionally cannot prevent
+operations that remain inside an allowed policy, including permitted calls
+with malicious parameters or application-level vulnerabilities. It presents
+no durable authorization ancestry, crash/recovery or retry transition system,
+logical-versus-physical attempt distinction, adapter effect contract, explicit
+`Unknown` outcome, or machine-checked refinement. Conversely, ProveAI does not
+provide AgentBound's production resource sandbox, manifest-generation study,
+MCP compatibility, confidentiality containment, or large ecosystem evaluation.
+The systems are therefore complementary: AgentBound can supply a deployment
+isolation layer needed to realize ProveAI's formal closed-interface assumption,
+while ProveAI specifies and verifies the temporal effect-safety protocol that
+such a resource sandbox does not address.
 
 [CaMeL](https://arxiv.org/abs/2503.18813) separates trusted control flow from
 untrusted data and uses capabilities at tool calls to prevent unauthorized data
@@ -218,7 +243,8 @@ qualifiers:
 The related-work section should be organized around boundaries, not a catalog
 of products:
 
-1. **Agent authorization and information flow:** CaMeL, Guardians, and PoE.
+1. **Agent authorization, isolation, and information flow:** AgentBound, CaMeL,
+   Guardians, and PoE.
 2. **Durable orchestration and exactly-once mechanisms:** Temporal, RSMs,
    Beldi, RIFL, HTTP/Stripe idempotency contracts, and transactional outbox.
 3. **Machine-checked crash and distributed systems:** Dual-Write Recovery,

@@ -95,6 +95,46 @@ fn retry_limit_terminalizes_persistent_ambiguity() {
 }
 
 #[test]
+fn failure_after_uncertain_idempotent_attempt_is_not_reported_as_conclusive() {
+    let directory = TestDirectory::new("idempotent-non-conclusive-failure");
+    let mut broker = Broker::open(directory.wal(), config(1)).unwrap();
+    let request = broker
+        .admit(CapabilityId(7), idempotent_spec().digest)
+        .unwrap();
+    broker.prepare(request, idempotent_spec()).unwrap();
+    let mut adapter = IdempotentAdapter::scripted([Observation::Ambiguous, Observation::Failure]);
+    assert_eq!(
+        broker.run(request, 3, &mut adapter).unwrap(),
+        TerminalResult::Unknown {
+            attempt: Some(2),
+            reason: UnknownReason::NonConclusiveFailure,
+        }
+    );
+    assert_eq!(adapter.invocation_count(), 2);
+    assert_eq!(adapter.mutation_count(), 1);
+}
+
+#[test]
+fn retry_safe_invalid_result_is_retried() {
+    let directory = TestDirectory::new("idempotent-invalid-result-retry");
+    let mut broker = Broker::open(directory.wal(), config(1)).unwrap();
+    let request = broker
+        .admit(CapabilityId(7), idempotent_spec().digest)
+        .unwrap();
+    broker.prepare(request, idempotent_spec()).unwrap();
+    let mut adapter = IdempotentAdapter::scripted([Observation::InvalidResult(Value(999))]);
+    assert_eq!(
+        broker.run(request, 3, &mut adapter).unwrap(),
+        TerminalResult::Committed {
+            attempt: 2,
+            value: Value(1),
+        }
+    );
+    assert_eq!(adapter.invocation_count(), 2);
+    assert_eq!(adapter.mutation_count(), 1);
+}
+
+#[test]
 fn retry_safe_adapters_normalize_scripted_success_values() {
     let directory = TestDirectory::new("normalized-idempotent-success");
     let mut broker = Broker::open(directory.wal(), config(1)).unwrap();

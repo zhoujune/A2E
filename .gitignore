@@ -20,6 +20,13 @@ mechanized/results/*.json
 # Standard Rust build output for the M4 reference broker.
 **/target/
 
+# Downloaded/generated manuscript template package.
+paper/template/acmart-primary-2.19-source.zip
+
+# Local related-work copies; cite the published sources instead.
+paper/AgentBound.pdf
+paper/reading/*.pdf
+
 # Python validation-script caches.
 **/__pycache__/
 **/*.pyc

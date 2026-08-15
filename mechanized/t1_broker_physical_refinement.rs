@@ -184,6 +184,72 @@ pub open spec fn delivery_before_lsn(
     }
 }
 
+pub proof fn delivery_before_lsn_has_source(
+    history: Seq<p0_layer::PhysicalEvent>,
+    request: replay_layer::RequestId,
+    attempt: replay_layer::AttemptId,
+    observation: replay_layer::Observation,
+    outcome_lsn: replay_layer::Lsn,
+)
+    requires delivery_before_lsn(
+        history, request, attempt, observation, outcome_lsn,
+    ),
+    ensures p1_layer::source_is_delivery(
+        history,
+        p0_layer::delivery_source(history, request, attempt, observation),
+        request,
+        attempt,
+        observation,
+    ),
+    decreases history.len(),
+{
+    let index = choose|index: nat| exists|delivery_cut: nat| {
+        &&& index < history.len()
+        &&& #[trigger] history[index as int]
+            == (p0_layer::PhysicalEvent::Delivered {
+                request, attempt, observation, journal_cut: delivery_cut,
+            })
+        &&& delivery_cut < outcome_lsn
+    };
+    let delivery_cut = choose|delivery_cut: nat| {
+        &&& index < history.len()
+        &&& #[trigger] history[index as int]
+            == (p0_layer::PhysicalEvent::Delivered {
+                request, attempt, observation, journal_cut: delivery_cut,
+            })
+        &&& delivery_cut < outcome_lsn
+    };
+    let prefix = history.drop_last();
+    match history.last() {
+        p0_layer::PhysicalEvent::Delivered {
+            request: r, attempt: a, observation: o, ..
+        } => {
+            if r == request && a == attempt && o == observation {
+                assert(history[(history.len() - 1) as int] == history.last());
+            } else {
+                assert(index < prefix.len());
+                assert(prefix[index as int] == history[index as int]);
+                assert(delivery_before_lsn(
+                    prefix, request, attempt, observation, outcome_lsn,
+                ));
+                delivery_before_lsn_has_source(
+                    prefix, request, attempt, observation, outcome_lsn,
+                );
+            }
+        },
+        p0_layer::PhysicalEvent::Invoke { .. } => {
+            assert(index < prefix.len());
+            assert(prefix[index as int] == history[index as int]);
+            assert(delivery_before_lsn(
+                prefix, request, attempt, observation, outcome_lsn,
+            ));
+            delivery_before_lsn_has_source(
+                prefix, request, attempt, observation, outcome_lsn,
+            );
+        },
+    }
+}
+
 // This recursive predicate makes each record's one-based LSN explicit.  The
 // observation in the witness is equal, not merely classification-compatible.
 pub open spec fn durable_outcomes_follow_deliveries(

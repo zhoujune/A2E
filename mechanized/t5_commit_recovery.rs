@@ -52,6 +52,61 @@ pub open spec fn recovery_episode(
                 != global_layer::GlobalEvent::FinishRecover
 }
 
+pub open spec fn recovery_commit_linearization(
+    event: global_layer::GlobalEvent,
+) -> bool {
+    match event {
+        global_layer::GlobalEvent::BrokerLinearize {
+            record: replay_layer::JournalRecord::CommitRec { .. },
+        }
+        | global_layer::GlobalEvent::JournalAppendLinearize {
+            record: replay_layer::JournalRecord::CommitRec { .. },
+        }
+        | global_layer::GlobalEvent::WalWriteFull {
+            record: replay_layer::JournalRecord::CommitRec { .. },
+        }
+        | global_layer::GlobalEvent::WalFinishTorn {
+            record: replay_layer::JournalRecord::CommitRec { .. },
+        } => true,
+        _ => false,
+    }
+}
+
+pub open spec fn commit_stuttering_recovery_episode(
+    events: Seq<global_layer::GlobalEvent>,
+    crash: nat,
+    finish: nat,
+) -> bool {
+    recovery_episode(events, crash, finish)
+        && forall|index: nat| crash < index && index < finish ==>
+            !recovery_commit_linearization(#[trigger] events[index as int])
+}
+
+pub proof fn no_recovery_commit_linearization_has_no_commit_delta(
+    event: global_layer::GlobalEvent,
+)
+    requires !recovery_commit_linearization(event),
+    ensures
+        t5_s0_layer::broker_commit_delta(event).is_none(),
+        t5_s0_layer::journal_commit_delta(event).is_none(),
+        t5_s0_layer::wal_commit_delta(event).is_none(),
+{
+    match event {
+        global_layer::GlobalEvent::BrokerLinearize { record }
+        | global_layer::GlobalEvent::JournalAppendLinearize { record }
+        | global_layer::GlobalEvent::WalWriteFull { record }
+        | global_layer::GlobalEvent::WalFinishTorn { record } => {
+            match record {
+                replay_layer::JournalRecord::CommitRec { .. } => {
+                    assert(false);
+                },
+                _ => {},
+            }
+        },
+        _ => {},
+    }
+}
+
 pub open spec fn broker_linearization_is_recovery_repair(
     cfg: config_layer::FullConfig,
     before: p0_layer::State,
@@ -157,6 +212,28 @@ pub open spec fn wal_linearization_is_recovery_repair(
     }
 }
 
+pub open spec fn recovery_commit_backed_by_durable_success(
+    durable: replay_layer::DurableBroker,
+    record: replay_layer::JournalRecord,
+) -> bool {
+    match record {
+        replay_layer::JournalRecord::CommitRec {
+            request, attempt, value, ..
+        } => {
+            query_layer::d_outcome(durable, request, attempt)
+                == Option::Some(replay_layer::Observation::Success(value))
+        },
+        replay_layer::JournalRecord::Authorize { .. }
+        | replay_layer::JournalRecord::Revoke { .. }
+        | replay_layer::JournalRecord::Prepare { .. }
+        | replay_layer::JournalRecord::Arm { .. }
+        | replay_layer::JournalRecord::Start { .. }
+        | replay_layer::JournalRecord::Outcome { .. }
+        | replay_layer::JournalRecord::FailRec { .. }
+        | replay_layer::JournalRecord::UnknownRec { .. } => true,
+    }
+}
+
 pub proof fn non_online_enabled_record_is_recovery_repair(
     cfg: config_layer::FullConfig,
     durable: replay_layer::DurableBroker,
@@ -172,18 +249,18 @@ pub proof fn non_online_enabled_record_is_recovery_repair(
     ensures
         mode == record_layer::Mode::Recovering,
         p3_layer::recovery_repair_record(cfg, durable, record),
-        t5_s0_layer::record_commit_delta(record).is_none(),
+        recovery_commit_backed_by_durable_success(durable, record),
 {
     match record {
-        replay_layer::JournalRecord::FailRec { .. } => {},
+        replay_layer::JournalRecord::CommitRec { .. }
+        | replay_layer::JournalRecord::FailRec { .. } => {},
         replay_layer::JournalRecord::UnknownRec { .. } => {},
         replay_layer::JournalRecord::Authorize { .. }
         | replay_layer::JournalRecord::Revoke { .. }
         | replay_layer::JournalRecord::Prepare { .. }
         | replay_layer::JournalRecord::Arm { .. }
         | replay_layer::JournalRecord::Start { .. }
-        | replay_layer::JournalRecord::Outcome { .. }
-        | replay_layer::JournalRecord::CommitRec { .. } => {
+        | replay_layer::JournalRecord::Outcome { .. } => {
             assert(false);
         },
     }
@@ -633,12 +710,14 @@ pub proof fn broker_non_online_step_is_commit_stutter(
     requires
         execution_layer::broker_step(cfg, before, event, after),
         before.core.broker.mode != record_layer::Mode::Online,
+        !recovery_commit_linearization(event),
     ensures
         broker_linearization_is_recovery_repair(cfg, before, event),
         t5_s0_layer::broker_commit_delta(event).is_none(),
         t5_s0_layer::alpha_commit_broker(after)
             == t5_s0_layer::alpha_commit_broker(before),
 {
+    no_recovery_commit_linearization_has_no_commit_delta(event);
     t5_s0_layer::broker_step_commit_history_exact(cfg, before, event, after);
     match event {
         global_layer::GlobalEvent::BrokerLinearize { record } => {
@@ -702,12 +781,14 @@ pub proof fn journal_non_online_step_is_commit_stutter(
     requires
         journal_runtime_layer::journal_runtime_step(cfg, before, event, after),
         before.runtime.mode != record_layer::Mode::Online,
+        !recovery_commit_linearization(event),
     ensures
         journal_linearization_is_recovery_repair(cfg, before, event),
         t5_s0_layer::journal_commit_delta(event).is_none(),
         t5_s0_layer::alpha_commit_journal(cfg, after)
             == t5_s0_layer::alpha_commit_journal(cfg, before),
 {
+    no_recovery_commit_linearization_has_no_commit_delta(event);
     t5_s0_layer::journal_step_commit_history_exact(cfg, before, event, after);
     match event {
         global_layer::GlobalEvent::JournalAppendLinearize { record } => {
@@ -777,12 +858,14 @@ pub proof fn wal_non_online_step_is_commit_stutter(
         ),
         wal_runtime_layer::wal_runtime_step(cfg, before, event, after),
         before.runtime.mode != record_layer::Mode::Online,
+        !recovery_commit_linearization(event),
     ensures
         wal_linearization_is_recovery_repair(cfg, before, event),
         t5_s0_layer::wal_commit_delta(event).is_none(),
         t5_s0_layer::alpha_commit_wal(cfg, after)
             == t5_s0_layer::alpha_commit_wal(cfg, before),
 {
+    no_recovery_commit_linearization_has_no_commit_delta(event);
     t5_s0_layer::wal_step_commit_history_exact(cfg, before, event, after);
     match event {
         global_layer::GlobalEvent::WalWriteFull { record }
@@ -833,7 +916,7 @@ pub proof fn broker_recovery_episode_prefix_invariant(
 )
     requires
         execution_layer::exec(cfg, execution),
-        recovery_episode(execution.events, crash, finish),
+        commit_stuttering_recovery_episode(execution.events, crash, finish),
         crash < index,
         index <= finish,
     ensures
@@ -907,7 +990,7 @@ pub proof fn journal_recovery_episode_prefix_invariant(
 )
     requires
         journal_runtime_layer::exec(cfg, execution),
-        recovery_episode(execution.events, crash, finish),
+        commit_stuttering_recovery_episode(execution.events, crash, finish),
         crash < index,
         index <= finish,
     ensures
@@ -981,7 +1064,7 @@ pub proof fn wal_recovery_episode_prefix_invariant(
 )
     requires
         wal_runtime_layer::exec(cfg, execution),
-        recovery_episode(execution.events, crash, finish),
+        commit_stuttering_recovery_episode(execution.events, crash, finish),
         crash < index,
         index <= finish,
     ensures
@@ -1074,7 +1157,7 @@ pub proof fn broker_recovery_episode_step_is_commit_stutter(
 )
     requires
         execution_layer::exec(cfg, execution),
-        recovery_episode(execution.events, crash, finish),
+        commit_stuttering_recovery_episode(execution.events, crash, finish),
         crash <= index,
         index <= finish,
     ensures
@@ -1141,7 +1224,7 @@ pub proof fn journal_recovery_episode_step_is_commit_stutter(
 )
     requires
         journal_runtime_layer::exec(cfg, execution),
-        recovery_episode(execution.events, crash, finish),
+        commit_stuttering_recovery_episode(execution.events, crash, finish),
         crash <= index,
         index <= finish,
     ensures
@@ -1208,7 +1291,7 @@ pub proof fn wal_recovery_episode_step_is_commit_stutter(
 )
     requires
         wal_runtime_layer::exec(cfg, execution),
-        recovery_episode(execution.events, crash, finish),
+        commit_stuttering_recovery_episode(execution.events, crash, finish),
         crash <= index,
         index <= finish,
     ensures
@@ -1284,7 +1367,7 @@ pub proof fn broker_recovery_episode_commit_history_equal(
 )
     requires
         execution_layer::exec(cfg, execution),
-        recovery_episode(execution.events, crash, finish),
+        commit_stuttering_recovery_episode(execution.events, crash, finish),
     ensures t5_s0_layer::alpha_commit_broker(
         execution.configs[crash as int],
     ) == t5_s0_layer::alpha_commit_broker(
@@ -1334,7 +1417,7 @@ pub proof fn journal_recovery_episode_commit_history_equal(
 )
     requires
         journal_runtime_layer::exec(cfg, execution),
-        recovery_episode(execution.events, crash, finish),
+        commit_stuttering_recovery_episode(execution.events, crash, finish),
     ensures t5_s0_layer::alpha_commit_journal(
         cfg, execution.configs[crash as int],
     ) == t5_s0_layer::alpha_commit_journal(
@@ -1384,7 +1467,7 @@ pub proof fn wal_recovery_episode_commit_history_equal(
 )
     requires
         wal_runtime_layer::exec(cfg, execution),
-        recovery_episode(execution.events, crash, finish),
+        commit_stuttering_recovery_episode(execution.events, crash, finish),
     ensures t5_s0_layer::alpha_commit_wal(
         cfg, execution.configs[crash as int],
     ) == t5_s0_layer::alpha_commit_wal(

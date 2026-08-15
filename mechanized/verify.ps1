@@ -176,6 +176,18 @@ $targets = @(
         ContributionParent = "K4-A1"
     },
     [pscustomobject]@{
+        Name = "K4-A3"
+        SourcePath = Join-Path $scriptDir "k4_terminal_recovery_bridge.rs"
+        ExtraArguments = @()
+        ContributionParent = "K4-A2"
+    },
+    [pscustomobject]@{
+        Name = "K4-A4"
+        SourcePath = Join-Path $scriptDir "k4_crash_recovery_control.rs"
+        ExtraArguments = @()
+        ContributionParent = "K4-A3"
+    },
+    [pscustomobject]@{
         Name = "B2-R"
         SourcePath = Join-Path $scriptDir "t1_broker_records.rs"
         ExtraArguments = @()
@@ -344,10 +356,16 @@ $targets = @(
         ContributionParent = "T5-E0"
     },
     [pscustomobject]@{
+        Name = "T5-R1"
+        SourcePath = Join-Path $scriptDir "t5_durable_success_recovery.rs"
+        ExtraArguments = @()
+        ContributionParent = "T5-R0"
+    },
+    [pscustomobject]@{
         Name = "T5-C0"
         SourcePath = Join-Path $scriptDir "t5_commit_contextual.rs"
         ExtraArguments = @()
-        ContributionParent = "T5-R0"
+        ContributionParent = "T5-R1"
     },
     [pscustomobject]@{
         Name = "H1"
@@ -388,6 +406,12 @@ $targets = @(
     [pscustomobject]@{
         Name = "T6-A1"
         SourcePath = Join-Path $scriptDir "t6_adapter_executable_refinement.rs"
+        ExtraArguments = @()
+        ContributionParent = "T6-A0"
+    },
+    [pscustomobject]@{
+        Name = "H2"
+        SourcePath = Join-Path $scriptDir "h2_durable_success_recovery_witness.rs"
         ExtraArguments = @()
         ContributionParent = "T6-A0"
     },

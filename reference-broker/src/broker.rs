@@ -39,9 +39,88 @@ pub struct BrokerConfig {
     pub admission_manifest: Option<Vec<AdmissionBinding>>,
 }
 
+/// A rejected or failed call at the verified append boundary.
+///
+/// The reference broker deliberately keeps the gate interface independent of
+/// Verus.  The executable artifact supplies an implementation backed by the
+/// proof-erased K4 kernel; ordinary users can retain the no-op gate through
+/// [`Broker::open`].
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct GateError(pub &'static str);
+
+impl fmt::Display for GateError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter.write_str(self.0)
+    }
+}
+
+impl std::error::Error for GateError {}
+
+/// Runtime boundary for a kernel that mediates durable Journal records.
+///
+/// `preview` is called before the byte WAL write.  `commit_after_wal` is
+/// called only after that write and its flush succeed.  `replay` reconstructs
+/// a fresh kernel from each durable record during `open_with_gate`.  A gate
+/// may additionally participate in crash/recovery control; the default
+/// methods preserve the historical un-gated broker semantics.
+pub trait AppendGate {
+    fn preview(&mut self, record: JournalRecord) -> Result<(), GateError>;
+
+    fn commit_after_wal(&mut self, record: JournalRecord, lsn: u64) -> Result<(), GateError>;
+
+    fn replay(&mut self, record: JournalRecord, lsn: u64) -> Result<(), GateError> {
+        self.preview(record)?;
+        self.commit_after_wal(record, lsn)
+    }
+
+    fn abort_preview(&mut self) {}
+
+    fn on_crash(&mut self) -> Result<(), GateError> {
+        Ok(())
+    }
+
+    fn begin_recovery(&mut self) -> Result<(), GateError> {
+        Ok(())
+    }
+
+    /// Returns `true` when recovery has reached an online state and `false`
+    /// when an armed request still requires a recovery decision.
+    fn finish_recovery(&mut self) -> Result<bool, GateError> {
+        Ok(true)
+    }
+
+    /// Returns `true` only when the gate has proved that an unresolved
+    /// recovery prefix may safely resume ordinary execution. The default is
+    /// fail-closed: gates that do not implement a recovery policy must either
+    /// finish a terminal repair or leave the broker in recovery.
+    fn resume_recovery(&mut self) -> Result<bool, GateError> {
+        Ok(false)
+    }
+
+    /// A conservative gate may replace an unresolved interrupted execution
+    /// with a terminal `Unknown(Recovery)` record. A durable successful
+    /// Outcome is resolved first because it already determines Commit.
+    fn conservative_recovery(&self) -> bool {
+        false
+    }
+}
+
+struct NoopAppendGate;
+
+impl AppendGate for NoopAppendGate {
+    fn preview(&mut self, _record: JournalRecord) -> Result<(), GateError> {
+        Ok(())
+    }
+
+    fn commit_after_wal(&mut self, _record: JournalRecord, _lsn: u64) -> Result<(), GateError> {
+        Ok(())
+    }
+}
+
 #[derive(Debug)]
 pub enum BrokerError {
     Wal(WalError),
+    AppendGate(GateError),
     ConfigurationIo(io::Error),
     ConfigurationMismatch,
     InvalidConfig(&'static str),
@@ -76,6 +155,9 @@ impl fmt::Display for BrokerError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Wal(error) => error.fmt(formatter),
+            Self::AppendGate(error) => {
+                write!(formatter, "append gate rejected the record: {error}")
+            }
             Self::ConfigurationIo(error) => {
                 write!(formatter, "broker configuration I/O error: {error}")
             }
@@ -155,6 +237,12 @@ impl From<WalError> for BrokerError {
     }
 }
 
+impl From<GateError> for BrokerError {
+    fn from(error: GateError) -> Self {
+        Self::AppendGate(error)
+    }
+}
+
 #[derive(Clone, Debug)]
 struct CapabilityState {
     remaining: u64,
@@ -185,6 +273,7 @@ struct RequestState {
     prepare_ref: Option<u64>,
     arm_ref: Option<u64>,
     attempts: u64,
+    all_attempts_failed: bool,
     pending: Option<PendingAttempt>,
     outcome: Option<RecordedOutcome>,
     terminal: Option<TerminalResult>,
@@ -317,6 +406,7 @@ impl DurableState {
                         prepare_ref: None,
                         arm_ref: None,
                         attempts: 0,
+                        all_attempts_failed: true,
                         pending: None,
                         outcome: None,
                         terminal: None,
@@ -401,7 +491,7 @@ impl DurableState {
                 let retry_allowed = matches!(
                     request_state.outcome,
                     Some(RecordedOutcome {
-                        observation: Observation::Ambiguous,
+                        observation: Observation::Ambiguous | Observation::InvalidResult(_),
                         ..
                     })
                 ) && request_state.class != Some(RetryClass::Uncontrolled);
@@ -443,6 +533,7 @@ impl DurableState {
                     return Err(BrokerError::Protocol("invalid Outcome record"));
                 }
                 request_state.pending = None;
+                request_state.all_attempts_failed &= observation == Observation::Failure;
                 request_state.outcome = Some(RecordedOutcome {
                     attempt,
                     observation,
@@ -505,15 +596,37 @@ impl DurableState {
             } => {
                 let request_state = self.request_mut(request)?;
                 let expected = request_state.outcome;
-                if request_state.phase != Phase::Armed
-                    || request_state.digest != digest
-                    || request_state.key != key
-                    || expected.map(|outcome| outcome.attempt) != attempt
-                    || expected.map(|outcome| outcome.outcome_ref) != Some(evidence_ref)
-                {
+                let ordinary_unknown = request_state.phase == Phase::Armed
+                    && request_state.digest == digest
+                    && request_state.key == key
+                    && expected.map(|outcome| outcome.attempt) == attempt
+                    && expected.map(|outcome| outcome.outcome_ref) == Some(evidence_ref);
+                // A recovery decision may terminate an Armed request before a
+                // Start/Outcome pair exists.  Its evidence is the durable Arm
+                // record, exactly matching the K4 recovery witness.
+                let recovery_unknown = reason == UnknownReason::Recovery
+                    && request_state.phase == Phase::Armed
+                    && request_state.digest == digest
+                    && request_state.key == key
+                    && match attempt {
+                        None => request_state.arm_ref == Some(evidence_ref),
+                        Some(attempt) => request_state
+                            .outcome
+                            .map(|outcome| {
+                                outcome.attempt == attempt && outcome.outcome_ref == evidence_ref
+                            })
+                            .or_else(|| {
+                                request_state.pending.map(|pending| {
+                                    pending.attempt == attempt && pending.start_ref == evidence_ref
+                                })
+                            })
+                            .unwrap_or(false),
+                    };
+                if !ordinary_unknown && !recovery_unknown {
                     return Err(BrokerError::Protocol("invalid Unknown record"));
                 }
                 request_state.phase = Phase::Unknown;
+                request_state.pending = None;
                 request_state.outcome = None;
                 request_state.terminal = Some(TerminalResult::Unknown { attempt, reason });
             }
@@ -538,30 +651,74 @@ impl DurableState {
             .as_ref()
             .and_then(|manifest| manifest.get(&request).copied())
     }
+
+    fn has_armed_request(&self) -> bool {
+        self.requests
+            .values()
+            .any(|state| state.phase == Phase::Armed)
+    }
+
+    fn armed_request(&self) -> Option<RequestId> {
+        self.requests
+            .iter()
+            .find_map(|(request, state)| (state.phase == Phase::Armed).then_some(*request))
+    }
 }
 
 pub struct Broker {
     wal: FileWal,
     state: DurableState,
+    gate: Box<dyn AppendGate>,
     active: Option<Invocation>,
     crash_plan: Option<CrashPlan>,
     recovery: RecoveryReport,
+    recovery_pending: bool,
     crashed: bool,
 }
 
 impl Broker {
     pub fn open(path: impl AsRef<Path>, config: BrokerConfig) -> Result<Self, BrokerError> {
+        Self::open_with_gate(path, config, NoopAppendGate)
+    }
+
+    /// Opens a broker whose durable append and replay paths are mediated by
+    /// `gate`.  The gate is consulted for every existing WAL record before the
+    /// broker serves a request, and for every future record in
+    /// `preview -> WAL -> commit` order.
+    pub fn open_with_gate<G: AppendGate + 'static>(
+        path: impl AsRef<Path>,
+        config: BrokerConfig,
+        mut gate: G,
+    ) -> Result<Self, BrokerError> {
         let path = path.as_ref();
         let _ = DurableState::from_config(&config)?;
         bind_configuration(path, &config)?;
         let (wal, recovery) = FileWal::open(path)?;
         let state = DurableState::replay(&config, wal.records())?;
+        for (index, record) in wal.records().iter().copied().enumerate() {
+            let lsn = u64::try_from(index)
+                .ok()
+                .and_then(|index| index.checked_add(1))
+                .ok_or(BrokerError::Protocol("LSN space exhausted"))?;
+            gate.replay(record, lsn)?;
+        }
+        let recovery_pending = state.has_armed_request();
+        gate.begin_recovery()?;
+        if recovery_pending {
+            let _ = gate.finish_recovery()?;
+        } else if !gate.finish_recovery()? {
+            return Err(BrokerError::AppendGate(GateError(
+                "gate refused to leave recovery without an armed request",
+            )));
+        }
         Ok(Self {
             wal,
             state,
+            gate: Box::new(gate),
             active: None,
             crash_plan: None,
             recovery,
+            recovery_pending,
             crashed: false,
         })
     }
@@ -887,7 +1044,86 @@ impl Broker {
         request: RequestId,
         max_attempts: u64,
     ) -> Result<(), BrokerError> {
+        let mut resumed_recovery = false;
+        if self.recovery_pending {
+            let recovering = self.state.armed_request();
+            if recovering != Some(request) {
+                if let Some(recovering) = recovering {
+                    return Err(BrokerError::ExecutorBusy(recovering));
+                }
+                self.recovery_pending = false;
+                if !self.gate.finish_recovery()? {
+                    return Err(BrokerError::AppendGate(GateError(
+                        "gate refused to finish an empty recovery",
+                    )));
+                }
+                return Ok(());
+            }
+
+            // A successful Outcome is already a durable recovery decision.
+            // Resolve it while the gate is still in Recovering mode so the
+            // verified K4-A4 path validates the recovery Commit itself.
+            let durable_success = matches!(
+                self.state.request(request)?.outcome,
+                Some(RecordedOutcome {
+                    observation: Observation::Success(_),
+                    ..
+                })
+            );
+            if durable_success {
+                let resolved = self.resolve_recorded_outcome(request, Some(max_attempts))?;
+                if !matches!(resolved, Some(TerminalResult::Committed { .. })) {
+                    return Err(BrokerError::Protocol(
+                        "durable success did not resolve to Commit",
+                    ));
+                }
+                self.recovery_pending = false;
+                if !self.gate.finish_recovery()? {
+                    return Err(BrokerError::AppendGate(GateError(
+                        "gate refused to finish durable-success recovery",
+                    )));
+                }
+                return Ok(());
+            }
+
+            if self.gate.resume_recovery()? {
+                self.recovery_pending = false;
+                resumed_recovery = true;
+            } else if self.gate.conservative_recovery() {
+                let request_state = self.state.request(request)?;
+                let digest = request_state.digest;
+                let key = request_state.key;
+                let (attempt, evidence_ref) = match (request_state.pending, request_state.outcome) {
+                    (Some(pending), _) => (Some(pending.attempt), pending.start_ref),
+                    (None, Some(outcome)) => (Some(outcome.attempt), outcome.outcome_ref),
+                    (None, None) => (
+                        None,
+                        request_state
+                            .arm_ref
+                            .ok_or(BrokerError::Protocol("armed request lacks Arm reference"))?,
+                    ),
+                };
+                self.append(JournalRecord::Unknown {
+                    request,
+                    attempt,
+                    reason: UnknownReason::Recovery,
+                    digest,
+                    key,
+                    evidence_ref,
+                })?;
+                self.crash(CrashSite::AfterOutcome)?;
+                self.recovery_pending = false;
+                if !self.gate.finish_recovery()? {
+                    return Err(BrokerError::AppendGate(GateError(
+                        "gate refused to finish a terminal recovery",
+                    )));
+                }
+                return Ok(());
+            }
+        }
+
         let Some(interrupted) = self.interrupted_request() else {
+            self.recovery_pending = false;
             return Ok(());
         };
         if interrupted != request {
@@ -909,6 +1145,12 @@ impl Broker {
         })?;
         self.crash(CrashSite::AfterOutcome)?;
         let _ = self.resolve_recorded_outcome(request, Some(max_attempts))?;
+        self.recovery_pending = false;
+        if !resumed_recovery && !self.gate.finish_recovery()? {
+            return Err(BrokerError::AppendGate(GateError(
+                "gate refused to finish a repaired recovery",
+            )));
+        }
         Ok(())
     }
 
@@ -929,6 +1171,7 @@ impl Broker {
             .ok_or(BrokerError::RequestNotPrepared(request))?;
         let digest = request_state.digest;
         let key = request_state.key;
+        let all_attempts_failed = request_state.all_attempts_failed;
         match outcome.observation {
             Observation::Success(value) => {
                 self.append(JournalRecord::Commit {
@@ -941,23 +1184,43 @@ impl Broker {
                 })?;
             }
             Observation::Failure => {
-                self.append(JournalRecord::Fail {
-                    request,
-                    attempt: outcome.attempt,
-                    digest,
-                    key,
-                    outcome_ref: outcome.outcome_ref,
-                })?;
+                if class == RetryClass::Idempotent && !all_attempts_failed {
+                    self.append(JournalRecord::Unknown {
+                        request,
+                        attempt: Some(outcome.attempt),
+                        reason: UnknownReason::NonConclusiveFailure,
+                        digest,
+                        key,
+                        evidence_ref: outcome.outcome_ref,
+                    })?;
+                } else {
+                    self.append(JournalRecord::Fail {
+                        request,
+                        attempt: outcome.attempt,
+                        digest,
+                        key,
+                        outcome_ref: outcome.outcome_ref,
+                    })?;
+                }
             }
             Observation::InvalidResult(_) => {
-                self.append(JournalRecord::Unknown {
-                    request,
-                    attempt: Some(outcome.attempt),
-                    reason: UnknownReason::InvalidResult,
-                    digest,
-                    key,
-                    evidence_ref: outcome.outcome_ref,
-                })?;
+                let exhausted = max_attempts.is_some_and(|limit| outcome.attempt >= limit);
+                if class == RetryClass::Uncontrolled || exhausted {
+                    self.append(JournalRecord::Unknown {
+                        request,
+                        attempt: Some(outcome.attempt),
+                        reason: if class == RetryClass::Uncontrolled {
+                            UnknownReason::InvalidResult
+                        } else {
+                            UnknownReason::Exhausted
+                        },
+                        digest,
+                        key,
+                        evidence_ref: outcome.outcome_ref,
+                    })?;
+                } else {
+                    return Ok(None);
+                }
             }
             Observation::Ambiguous => {
                 let exhausted = max_attempts.is_some_and(|limit| outcome.attempt >= limit);
@@ -990,9 +1253,22 @@ impl Broker {
             .ok_or(BrokerError::Protocol("LSN space exhausted"))?;
         let mut next_state = self.state.clone();
         next_state.apply(record, next_lsn)?;
-        let actual_lsn = self.wal.append(record)?;
+        self.gate.preview(record)?;
+        let actual_lsn = match self.wal.append(record) {
+            Ok(lsn) => lsn,
+            Err(error) => {
+                self.gate.abort_preview();
+                self.crashed = true;
+                return Err(error.into());
+            }
+        };
         if actual_lsn != next_lsn {
+            self.crashed = true;
             return Err(BrokerError::Protocol("WAL returned an unexpected LSN"));
+        }
+        if let Err(error) = self.gate.commit_after_wal(record, actual_lsn) {
+            self.crashed = true;
+            return Err(error.into());
         }
         self.state = next_state;
         Ok(actual_lsn)
@@ -1006,8 +1282,10 @@ impl Broker {
     }
 
     fn crash(&mut self, site: CrashSite) -> Result<(), BrokerError> {
-        if self.crash_plan.as_mut().is_some_and(|plan| plan.hit(site)) {
+        let hit = self.crash_plan.as_mut().is_some_and(|plan| plan.hit(site));
+        if hit {
             self.crashed = true;
+            self.gate.on_crash()?;
             Err(BrokerError::SimulatedCrash(site))
         } else {
             Ok(())

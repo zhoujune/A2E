@@ -144,24 +144,37 @@ executions. K4-A2 removes the fixed six-record restriction for the supported
 Authorize, Prepare, Arm, Start, Outcome, and Commit subset: every structurally
 legal sequence under a well-formed manifest is accepted, missing concrete
 request/capability summaries are materialized from manifest budgets, and exact
-LSN/cut agreement is preserved. Revoke, Fail, Unknown, and implementation
+LSN/cut agreement is preserved. K4-A3 extends that state bridge to Fail and all
+five reason-specific Unknown variants, with exact terminal evidence and
+Failed/Unknown phase reflection. K4-A4 adds explicit Online/Crashed/Recovering
+control, a durable-success recovery Commit path, and a class-sensitive recovery
+resume guard. Idempotent and Deduplicated Armed requests may resume;
+Uncontrolled and ReadOnly requests may resume only before a durable Start
+exists. Other unresolved prefixes remain fail closed and can be terminalized
+conservatively as Unknown. Revoke and byte-WAL/whole-program implementation
 refinement remain outside the theorem.
 
 ## K4-I0 compiled broker-to-kernel integration
 
-`run-k4-i0.sh` compiles K4-A2 with the pinned Verus toolchain, builds the
+`run-k4-i0.sh` compiles K4-A4 with the pinned Verus toolchain, builds the
 standard-Rust reference broker, and links `k4-i0-broker-kernel-harness.rs`
-against both proof-erased libraries. The harness runs the actual broker through
-an idempotent crash-after-invoke, reopen, ambiguous-recovery, retry, and commit
-execution, plus a manifest-bound Deduplicated execution. It incrementally
-feeds the broker's real WAL records through K4-A2
-`Call -> Linearize -> Return`, checks immutable prefix reuse after reopen,
-exact one-based cuts, terminal durable phase/value, and capability-budget
-agreement, and rejects Revoke/Fail/Unknown mappings explicitly.
+against both proof-erased libraries. The harness injects a K4 `AppendGate` into
+the broker's actual append and replay paths: every record must pass preview
+before the WAL write and the kernel is committed only after the WAL returns its
+durable LSN. A fresh gate replays every durable prefix before serving requests.
+The harness covers Idempotent crash/reopen/retry Commit, Deduplicated Commit,
+conclusive Fail, AmbiguousOutcome, InvalidResult, Exhausted,
+NonConclusiveFailure, an ordinary Uncontrolled crash/reopen, and a K4-gated
+conservative Uncontrolled restart that emits `Unknown(Recovery)`. A separate
+six-record recovery trace commits a durable successful Outcome through K4
+without invoking the adapter again. It checks exact cuts, terminal durable
+phase/value, prefix reuse, and capability-budget agreement. Revoke remains fail
+closed.
 
 This is executable integration evidence, not a refinement theorem for the
-Rust broker. The broker, byte WAL, filesystem, crash plan, and adapters remain
-ordinary Rust; K4-A2 remains the checked typed-kernel boundary. Set
+Rust broker. The broker control flow, byte WAL, filesystem, crash plan, record
+translation, and adapters remain ordinary Rust; K4-A4 is the checked
+typed-kernel boundary. Set
 `VERUS_BIN`, `RUSTC`, and `VERUS_Z3_PATH` as above, with the matching `rustup`
 environment, then run:
 
@@ -172,5 +185,38 @@ VERUS_Z3_PATH=/path/to/z3 \
 ./artifact/run-k4-i0.sh
 ```
 
-Expected output includes `326 verified, 0 errors` and
-`K4-I0 broker-to-kernel integration passed: idempotent=8 records, deduplicated=6 records`.
+Expected output includes `365 verified, 0 errors` and a final K4-I0 line ending
+in `recovery-commit=6 records; control=online`.
+
+## K4-I1 fail-closed submission evaluation
+
+`run-k4-i1.sh` retains the K4-I0 traces and additionally runs the complete
+submission RQ1/RQ2 evaluation through a gate-only broker opener. Each evaluation
+configuration must provide an immutable admission manifest; every broker is
+constructed with `Broker::open_with_gate`, so this profile has no ordinary
+`Broker::open` branch. The versioned report checks that every open created a
+gate, each K4 preview has a post-WAL commit, reopen replay is nonempty, and each
+recovery instance either reached a terminal completion or passed K4-A4's
+class-sensitive resume predicate.
+
+With the same Verus/Rust environment used above, run:
+
+```sh
+./artifact/run-k4-i1.sh
+```
+
+`PROVEAI_K4_I1_ITERATIONS` selects the positive request count (default 100), and
+`PROVEAI_K4_I1_REPORT` selects the output path. The retained report is
+`reference-broker/evaluation/results/k4-i1-submission.json`; its 100-request run
+passes RQ1 21/21 and records 47 broker opens/gates, 1,573 preview/commit pairs,
+675 replayed records, 40 finished recoveries, and 7 verified resumes. Validate
+it independently with:
+
+```sh
+python3 reference-broker/evaluation/validate_k4_i1.py \
+  reference-broker/evaluation/results/k4-i1-submission.json
+```
+
+K4-I1 is finite integration evidence. Rust control flow outside the gate,
+record translation, byte encoding, CRC, filesystem durability, adapters,
+transport, and deployment remain outside whole-program refinement.

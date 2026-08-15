@@ -1,0 +1,1205 @@
+\input{template/fse-2027-research-config}
+
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{xspace}
+\usepackage{graphicx}
+
+\settopmatter{printacmref=false}
+\setlength{\emergencystretch}{1.5em}
+
+\newcommand{\Unknown}{\textsc{Unknown}\xspace}
+\newcommand{\Commit}{\textsc{Commit}\xspace}
+\newcommand{\Fail}{\textsc{Fail}\xspace}
+\newcommand{\ReadOnly}{\textsc{ReadOnly}\xspace}
+\newcommand{\Idempotent}{\textsc{Idempotent}\xspace}
+\newcommand{\Deduplicated}{\textsc{Deduplicated}\xspace}
+\newcommand{\Uncontrolled}{\textsc{Uncontrolled}\xspace}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+\title{From Authorization to Effects: Machine-Checked Recovery Semantics for
+AI Tool Calls}
+
+% Double-anonymous submission: author and affiliation fields are intentionally omitted.
+\begin{document}
+
+\begin{abstract}
+Authorization establishes that an AI tool call may occur, but it does not
+establish what external effect occurred when a crash loses the call's reply.
+A recovering agent runtime may therefore duplicate a permitted mutation,
+report a false failure, or return success without durable evidence. We define
+\emph{authorization-to-effect consistency}, a correctness contract relating
+durable authority, physical attempts, recovery-stable terminal outcomes, and
+adapter-specific external effects. We design a durable effect-broker protocol
+and machine-check its composition through Broker, atomic-Journal, typed-WAL,
+operational-adapter, and protected-service models. For every finite execution
+admitted by our serialized fail-stop model, invocations have durable
+authorization ancestry, terminals are unique, accepted results have exact
+provenance, and committed history grows monotonically across recovery; a
+recovery-time \Commit must cite an exact successful outcome already durable at
+the crash boundary. For covered
+\Idempotent and \Deduplicated protected executions satisfying explicit
+adapter, persistence, coverage, and closed-interface premises, protected
+effects are mediated and terminal outcomes refine the declared effect law.
+Unresolved \Uncontrolled effects are not retried and remain \Unknown. The
+artifact includes a verified executable typed-record kernel and injects its
+compiled gate into selected Rust-broker append and replay paths for
+representative traces. A fail-closed submission profile additionally requires
+an immutable manifest and that gate for every evaluation broker construction,
+with attested preview/commit, replay, and recovery closure.
+Fault injection, proof-effort measurements, and local microbenchmarks exercise
+the design. This integration narrows, but does not close, the whole-Rust
+implementation-refinement gap.
+\end{abstract}
+
+\ccsdesc[500]{Software and its engineering~Formal software verification}
+\ccsdesc[300]{Computer systems organization~Reliability}
+\ccsdesc[300]{Security and privacy~Authorization}
+\keywords{AI agents, tool calls, crash recovery, authorization, effects,
+formal verification, refinement}
+
+\maketitle
+
+\section{Introduction}
+\label{sec:introduction}
+
+Consider an AI agent that calls
+\texttt{append\_report\_entry("/workspace/}\\
+\texttt{report.log", entry)}. The user has
+approved writes to that file, and a capability monitor or resource sandbox
+correctly authorizes the request. The protected service appends the entry, but
+its reply is lost before the broker persists an outcome; the broker then
+crashes. On recovery, reporting \Fail may be false because the append may be
+visible. Reporting \Commit lacks durable result evidence. Blind retry may
+append the entry twice. Authorization has done its job, yet the system still
+does not know what it may soundly tell the agent.
+
+This ambiguity is a classical distributed-systems problem, not a new failure
+mode created by AI. The agent tool boundary makes several familiar obligations
+meet in one place. The agent chooses tools and parameters dynamically;
+authority is scoped, budgeted, and historical; tools expose heterogeneous
+effect semantics; one logical action may create several physical attempts; and
+the recovered terminal result becomes input to later autonomous planning. A
+wrong terminal classification can therefore authorize a later action on a
+false premise even when every individual tool invocation stayed inside its
+resource sandbox.
+
+Existing mechanisms solve important local pieces. Capability systems and
+agent sandboxes constrain accessible resources~\cite{watson2010capsicum,buehler2026agentbound}.
+Durable workflow engines replay local history but require application-level
+assumptions about external activities~\cite{temporal2026workflow,temporal2026activity}.
+Idempotency keys and exactly-once RPC schemes let a cooperating service
+recognize repeated requests~\cite{lee2015rifl,jena2025idempotency,stripe2026idempotency}.
+Crash-safe storage preserves a log. None of these guarantees alone proves that
+a terminal conclusion returned at an agent boundary corresponds to the same
+authorized logical request, its physical attempts, and its surviving external
+effect across the complete crash/recovery history. The open problem is their
+composition, not the absence of the individual building blocks.
+
+We study two questions:
+
+\begin{description}
+  \item[Correctness question.] What may an agent tool broker soundly conclude
+    about an authorized external effect after a crash makes its outcome
+    ambiguous?
+  \item[Engineering question.] How can a broker enforce that contract across
+    durable storage, retries, heterogeneous tools, and a protected service,
+    and how much of the design can be connected to executable code?
+\end{description}
+
+Our answer is \emph{authorization-to-effect consistency}. A terminal outcome
+must be derived jointly from durable authorization and attempt evidence and
+from an explicit tool-effect contract. \ReadOnly, \Idempotent, and
+\Deduplicated tools permit different forms of repetition. An \Uncontrolled
+tool supplies no repetition law, so an unresolved attempt cannot be retried
+and terminates as \Unknown. Importantly, \Unknown makes no negative claim
+about an unpersisted physical outcome: its abstract semantics permits zero or
+one effect. In the lost-reply example, the durable prefix alone cannot select
+between them.
+
+We realize this contract with an append-only effect broker. The protocol makes
+authorization and physical-attempt intent durable before invocation, assigns
+distinct attempt identifiers, rejects stale deliveries, and permits at most
+one durable terminal per logical request. We then prove the protocol in layers:
+an abstract Broker, an atomic Journal, a typed write-ahead log (WAL), an
+operational adapter, and an independently defined protected-service execution.
+The proof separates guarantees that hold for every admitted finite history from
+protected-effect guarantees that additionally require a valid adapter,
+execution coverage, typed persistence, and a closed interface with no bypass.
+
+The retained proof suite verifies 72 of 72 registered Verus targets, comprising
+1,511 dependency-aware non-duplicated obligations. A bounded TLA+ suite passes
+13 of 13 retained scenarios. A verified executable kernel accepts arbitrary
+legal sequences of eight supported durable record types, including terminal
+failure and uncertainty records. A kernel-in-the-loop harness calls the
+compiled proof-erased kernel from selected Rust-broker append and replay paths
+and checks exact prefixes, log sequence numbers, terminal state, recovery
+classification, and capability budget. The submission evaluation removes the
+ungated opener and retains a versioned gate attestation. This is stronger than
+a disconnected model and prototype, but it is not whole-program refinement of
+the Rust broker.
+
+This paper makes three contributions:
+
+\begin{itemize}
+  \item We define authorization-to-effect consistency: a crash-aware contract
+    connecting durable capability ancestry, attempt and delivery provenance,
+    recovery-stable outcomes, explicit uncertainty, and adapter-relative
+    external effects at an AI tool boundary.
+  \item We give a compositional machine-checked protocol theorem from Broker
+    history through Journal and typed WAL to covered protected-service
+    executions. The theorem states its serialization, persistence, coverage,
+    and closed-interface premises explicitly and does not advertise generic
+    physical exactly-once execution.
+  \item We provide a verified executable record kernel, kernel-in-the-loop
+    integration with a Rust reference broker, a 21-case crash matrix, an
+    18-cell semantic fault classification, proof-effort data, and repeated
+    runtime measurements across several storage paths.
+\end{itemize}
+
+The novelty is not any one of capabilities, WAL recovery, idempotency,
+deduplication, or \Unknown. It is their machine-checked semantic composition
+from historical authority to the external effect and terminal conclusion used
+by an agent.
+
+\section{The Authorization-to-Effect Gap}
+\label{sec:gap}
+
+\subsection{The agent tool boundary}
+
+Our setting contains five roles. An \emph{agent} proposes a tool call. A policy
+or capability issuer supplies trusted authorization metadata. A serialized
+\emph{broker} admits the logical request and controls its physical attempts. A
+durable store retains broker records. An \emph{adapter} interprets delivery and
+retry behavior for a protected service that owns the external effect. The
+broker eventually exposes a terminal outcome that the agent can inspect.
+
+We distinguish a \emph{logical request} $r$ from each \emph{physical attempt}
+$(r,a)$. The distinction is essential: recovery may issue attempt $a+1$ for
+the same logical action, yet the protocol must not silently turn those attempts
+into several logical outcomes. Authorization is also historical. It is not
+enough that a capability exists after recovery; each physical invocation must
+descend from the exact durable authorization and request description that
+preceded it.
+
+\subsection{Authorized append, lost reply}
+
+Figure~\ref{fig:timeline} follows the example used throughout the paper. The
+broker durably records authority and a physical start, then invokes the
+service. The append may linearize before the reply is lost. At the recovery
+point, the durable prefix establishes that an authorized attempt began, but it
+does not reveal on which side of service linearization the crash occurred.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/authorized-effect-timeline.pdf}
+  \caption{An authorized append crosses an ambiguity window. The same durable
+  prefix permits different recovery actions only because the declared effect
+  contracts provide different external laws.}
+  \Description{Timeline from durable authorization and start through service
+  linearization, lost reply, and crash. Recovery branches into stable-key
+  deduplication, law-governed idempotent retry, or no retry and Unknown for an
+  uncontrolled effect.}
+  \label{fig:timeline}
+\end{figure}
+
+For a service that satisfies the \Deduplicated contract in our running example,
+the service atomically stores both the append and a decision under stable key
+$k$. Retrying with $k$ retrieves that decision
+without a second append, provided the memo survives every possible retry. For
+an \Idempotent adapter, retry is justified only if repeated calls refine the
+same abstract mutation. For an \Uncontrolled adapter, the first attempt may
+already have changed the world and no contract relates a second attempt to it;
+the broker therefore refuses retry and records \Unknown.
+
+Notice what \Unknown means. It does not mean that no append occurred and makes
+no negative assertion about an unpersisted result. In this lost-reply prefix,
+the durable evidence alone cannot choose between zero and one effect.
+Preserving both interpretations is safer than manufacturing a Boolean answer
+for the agent.
+
+\subsection{Why local guarantees do not compose automatically}
+
+Table~\ref{tab:building-blocks} locates the missing relation. Every mechanism
+in the table remains useful; the last column identifies what must still be
+proved at the agent's terminal-result boundary.
+
+\begin{table}[t]
+  \caption{Useful local guarantees and the remaining composition obligation.}
+  \label{tab:building-blocks}
+  \small
+  \begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{0.20\linewidth}YY}
+    \toprule
+    \textbf{Mechanism} & \textbf{Local guarantee} & \textbf{Not implied alone} \\
+    \midrule
+    Capability or sandbox & A call may access only an approved resource. &
+      Whether a permitted effect occurred before a crash. \\
+    WAL or workflow replay & A durable local prefix can be reconstructed. &
+      How that prefix corresponds to a remote protected effect. \\
+    At-least-once retry & Work is eventually reissued under an application rule. &
+      One logical effect or a sound terminal classification. \\
+    Idempotency key & A cooperating service can reuse one keyed decision. &
+      Durable capability ancestry, key retention, mediation, or terminal provenance. \\
+    Verified storage/protocol & A specified layer refines its abstract state. &
+      The cross-layer authorization-to-effect relation unless composed explicitly. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+For example, a correct WAL may preserve a 
+\texttt{Start} record while saying nothing about the service state. Conversely,
+a correctly memoized service key says nothing about whether the originating
+call was authorized or whether a stale response was attached to another
+attempt. A resource sandbox can prevent writes outside
+\texttt{/workspace/report.log}, yet both a single append and a duplicate append
+remain inside the permitted path. The desired property quantifies across all
+of these components and over history, rather than checking one recovery branch
+in isolation.
+
+\subsection{Assumptions and non-goals}
+
+We model arbitrary finite histories with one serialized WAL writer and one
+executor slot. Crashes are fail-stop; recovery may itself crash. Configurations
+are well formed, capability policies and initial budgets are trusted inputs,
+and the formal WAL manipulates typed full or torn frames with atomic modeled
+truncation. Protected-effect results assume a closed formal interface in which
+the protected service cannot be invoked out of band.
+
+The paper proves safety, not liveness, fairness, or bounded recovery time. It
+does not model Byzantine components, concurrent writers, global
+linearizability among multiple requests, or correctness of arbitrary external
+tools. It does not refine byte encoding, CRCs, \texttt{fsync}, filesystems,
+networks, operating-system isolation, or the delivery of a terminal result back
+to the agent. These exclusions are not hidden implementation details: they
+define where our end-to-end claim stops.
+
+\section{Authorization-to-Effect Consistency}
+\label{sec:contract}
+
+We define the correctness contract before presenting the protocol. Let
+$\tau$ be a finite execution, $J(\tau)$ its durable record history,
+$P_r(\tau)$ the request-local physical history for request $r$, and
+$T_r(\tau)$ the set of durable terminal records for $r$. A terminal is one of
+$\Commit(a,v)$, $\Fail(a)$, or $\Unknown(a,q)$, where $a$ is an optional or
+selected attempt, $v$ is a validated value, and $q$ is a reason-specific
+evidence category.
+
+\subsection{Historical safety obligations}
+
+Authorization-to-effect consistency first requires properties independent of
+the service's effect law:
+
+\begin{enumerate}
+  \item \textbf{Durable authorization ancestry.} Every physical invocation
+    has a unique earlier durable \texttt{Start}; that start descends from a
+    valid durable \texttt{Authorize}, and a successful append acknowledgement
+    covers the start before invocation.
+  \item \textbf{Scope and budget conservation.} The request descriptor is
+    immutable and the selected capability covers its resource and arguments.
+    Each authorization consumes one capability-budget unit; physical attempts
+    separately obey the request's attempt bound and retry discipline.
+  \item \textbf{Exact delivery provenance.} An accepted delivery names the
+    active request and attempt and thereby identifies the unique prior
+    invocation and its canonical call descriptor. A successful value satisfies
+    the request predicate and is copied exactly through its durable outcome to
+    \Commit; stale and mismatched deliveries do not change durable state.
+  \item \textbf{Terminal uniqueness and provenance.} $|T_r(\tau)|\leq 1$.
+    A \Commit names a prior durable successful outcome with the exact delivered
+    value. A \Fail names durable failure evidence sufficient under the adapter
+    contract. A \Unknown names a legal durable evidence anchor and reason.
+  \item \textbf{Recovery preservation.} Committed logical history grows only
+    when a \texttt{Commit} record linearizes. Across recovery it is monotone,
+    and every recovery-time \Commit must cite the exact successful
+    \texttt{Outcome} and outcome LSN already present at the selected crash
+    boundary. If recovery appends no \Commit, the histories at \texttt{Crash}
+    and the first subsequent \texttt{FinishRecover} are equal.
+\end{enumerate}
+
+These are temporal properties. A large decision tree could implement the same
+record constructors, but branch coverage would not prove that references remain
+valid across every admitted history, that stale deliveries stutter, or that a
+WAL recovery trace refines the same Broker history. Those relationships are
+the subject of the mechanization.
+
+\subsection{External-effect obligation}
+
+Broker-history correctness is necessary but insufficient. We additionally
+relate $P_r(\tau)$ to an external run $E_r$ supplied by the adapter and
+protected-service semantics. At a coarse cardinality level, a terminal permits
+the following abstract interpretations:
+
+\[
+  \mathcal{I}(r,o) =
+  \begin{cases}
+    0 & o=\Commit(a,v) \land r\text{ is \ReadOnly},\\
+    1 & o=\Commit(a,v) \land r\text{ is mutating},\\
+    0 & o=\Fail(a),\\
+    \{0,1\} & o=\Unknown(a,q).
+  \end{cases}
+\]
+
+The actual mechanization uses state relations rather than only cardinalities:
+\ReadOnly also requires a valid observation; \Idempotent repetitions must
+equal one abstract state update; and \Deduplicated executions must share one
+stable service decision. A \Fail is allowed only when its evidence rules out a
+protected mutation under the class law. The lost-success/then-failure case is
+therefore \Unknown, not \Fail.
+
+We separate two external properties. \emph{Effect refinement} says that the
+terminal outcome and the full physical history denote an abstract effect
+allowed by the adapter. \emph{Complete mediation} says that every protected
+call in the modeled service execution comes from the broker's invocation
+trace. Complete mediation is derived only inside a closed formal alphabet; it
+is not a claim about production credentials, file descriptors, or network
+routes.
+
+\subsection{Adapter-relative recovery}
+
+Table~\ref{tab:adapters} gives the four contracts. The retry decision is not a
+property of a tool name. It is a semantic promise that an adapter and its
+service must establish.
+
+\begin{table}[t]
+  \caption{Tool-effect contracts and recovery permissions.}
+  \label{tab:adapters}
+  \small
+  \begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{0.17\linewidth}YYY}
+    \toprule
+    \textbf{Class} & \textbf{External law} & \textbf{Recovery permission} &
+      \textbf{Unresolved conclusion} \\
+    \midrule
+    \ReadOnly & Repetition does not mutate protected state. & Repeat the
+      observation within budget. & No mutation claim; terminal still needs
+      valid evidence. \\
+    \Idempotent & Repetitions refine one abstract mutation. & Retry with a new
+      physical attempt identifier. & \Unknown if durable evidence remains
+      insufficient. \\
+    \Deduplicated & One stable key selects one atomically memoized service
+      decision. & Retry or reconcile using the same key. & \Unknown if the
+      service contract cannot resolve the key. \\
+    \Uncontrolled & No law relates repeated calls. & Do not retry after the
+      attempt is armed. & \Unknown for unresolved effects. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+The \Deduplicated contract includes a retention premise: the service-owned
+memo must outlive every retry and recovery interval during which the broker may
+reuse the key. Expiring it earlier voids the guarantee. Likewise, idempotence
+is a property of the protected abstract effect, not merely of an HTTP method or
+adapter label. The contract promises at most one \emph{abstract} mutation; it
+does not promise one physical invocation.
+
+\section{Durable Effect-Broker Protocol}
+\label{sec:architecture}
+
+\subsection{Architecture and evidence boundaries}
+
+Figure~\ref{fig:architecture} shows the executable architecture and its proof
+boundary. The ordinary Rust broker sits between the agent and adapters and
+persists a checksummed byte WAL. In parallel, the machine-checked development
+defines the Broker, Journal, typed-WAL, adapter, and protected-service layers.
+The K4 executable kernel is proved against a supported typed-record subset.
+K4-I0 injects a gate into the broker's selected append and replay paths, so the
+vertical connection checks the actual \texttt{preview -> WAL -> kernel commit}
+order;
+it remains a run-time conformance check, not a proof that all Rust paths refine
+the model.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/architecture-boundary.pdf}
+  \caption{Architecture and evidence boundary. Green components are
+  machine-checked models, blue is the verified executable kernel, orange is
+  tested reference code, and the dashed region contains trusted or unverified
+  deployment mechanisms.}
+  \Description{An agent calls a tested Rust broker backed by a byte WAL and an
+  unverified adapter and protected service. On selected broker paths, an
+  injected verified K4-A4 gate previews every record before the durable WAL
+  append, commits kernel state afterward, and replays the complete WAL on
+  reopen. The kernel is related to machine-checked Broker, Journal, typed-WAL,
+  adapter, and protected-service models.}
+  \label{fig:architecture}
+\end{figure}
+
+The capability policy, adapter classification, and protected-service law are
+trusted semantic inputs. The broker enforces those inputs but does not infer
+them from arbitrary code. Deployment must additionally ensure that protected
+credentials or handles cannot bypass the broker if the complete-mediation
+claim is to apply.
+
+\subsection{Logical lifecycle and durable records}
+
+Each request receives an immutable request identifier, capability, argument
+digest, retry class, and optional deduplication key. The protocol's durable
+record sequence is summarized in Table~\ref{tab:records}.
+
+\begin{table}[t]
+  \caption{Durable request lifecycle. References are one-based log sequence
+  numbers into the acknowledged prefix.}
+  \label{tab:records}
+  \small
+  \begin{tabularx}{\linewidth}{>{\ttfamily\raggedright\arraybackslash}p{0.15\linewidth}YY}
+    \toprule
+    \textnormal{\textbf{Record}} & \textbf{Meaning} & \textbf{Safety role} \\
+    \midrule
+    Authorize & Bind request, capability, digest, and budget consumption. &
+      Durable historical authority. \\
+    Prepare & Freeze retry class, digest, stable key, and authorization reference. &
+      Prevent semantic drift across recovery. \\
+    Arm & Reserve the right to begin a physical attempt. &
+      Separate recovery policy from an unarmed request. \\
+    Start & Name attempt, descriptor, key, and Arm reference. &
+      Durable physical-attempt provenance before Invoke. \\
+    Outcome & Persist a success, failure, ambiguity, or invalid result with a
+      Start reference. & Anchor terminal evidence. \\
+    \textnormal{\shortstack[l]{Commit/Fail/\\Unknown}} & Select exactly one durable logical conclusion. &
+      Recovery-stable terminal state. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+An invocation is enabled only after the \texttt{Start} is covered by a durable
+append acknowledgement. Its invocation identifier is the start's log sequence
+number. A delivery must name the occupied executor slot and the exact attempt;
+an old delivery after retry is rejected without a WAL append. The capability
+budget bounds admission; the request attempt bound and retry class bound
+retries. Revocation is durable and prevents future authorizations, but does not
+retroactively invalidate a request that was already authorized. The executable
+K4 subset described in Section~\ref{sec:implementation} does not yet cover the
+\texttt{Revoke} record.
+
+\subsection{Crash and recovery rules}
+
+A crash discards the volatile ready, in-flight, and delivered state while
+preserving the acknowledged durable prefix. WAL replay reconstructs request
+phase, attempts, capability budget, and any durable outcome. A full final frame
+is replayed; a typed torn tail is ignored and truncated in the formal model.
+
+Recovery can repair a conclusive durable failure to \Fail. A persisted
+successful \texttt{Outcome} can be terminalized as \Commit during recovery,
+but only with the exact request, attempt, value, and outcome reference already
+present in the crash prefix. An unmatched \texttt{Start} becomes
+durable ambiguity. For \ReadOnly,
+\Idempotent, or \Deduplicated, the broker may create another \texttt{Start}
+only if the class law and remaining attempt budget permit it. For
+\Uncontrolled, recovery appends \Unknown and never invokes again. Recovery
+steps are themselves durable, so a second crash resumes from the repaired
+prefix rather than reinterpreting volatile state.
+
+The Rust broker resolves a durable successful outcome before considering the
+conservative uncertainty branch, and the K4 gate checks the resulting \Commit
+while still in \texttt{Recovering} mode. Its proved resume guard permits
+\Idempotent and \Deduplicated Armed requests to resume, while
+\Uncontrolled (and any \ReadOnly request) may resume only before a durable
+Start exists. If no safe resume predicate holds, the demonstrated
+\Uncontrolled profile terminalizes a still-\texttt{Armed} request as
+\texttt{Unknown(Recovery)} using its latest durable Start/Outcome/Arm evidence.
+This does not make the surrounding Rust control flow or byte WAL a verified
+refinement.
+
+In the running example, the first \Deduplicated attempt uses stable key $k$.
+After the lost reply, recovery records ambiguity and starts attempt two with
+the same key. The service returns the memoized success, which is persisted as
+\texttt{Outcome} and then \Commit. The logical request has two physical calls
+but one service decision and one protected append. If the adapter is
+\Uncontrolled, the same durable prefix yields \Unknown without a second call.
+
+\subsection{Design invariants}
+
+The proof consumes four groups of invariants. Record references are typed,
+strictly backward, and request-local. Append calls, linearization, and returns
+form serialized crash-delimited prefixes. Physical events agree with durable
+attempt state and use unique invocation identifiers. Finally, replay-derived
+phase, terminal, budget, and recovery state agree with the stored records.
+These invariants turn each recovery rule from a local branch into a statement
+about the complete causal history.
+
+\section{Mechanized Composition}
+\label{sec:proof}
+
+\subsection{Semantic layers and observations}
+
+The mechanization separates five transition systems. The \emph{Broker}
+contains logical requests, durable evidence, physical history, and volatile
+control state. The \emph{atomic Journal} makes append call, linearization, and
+return explicit. The \emph{typed WAL} adds full and torn frames, flush cuts,
+scan, tail truncation, disk-full behavior, crash, and recovery. An
+\emph{operational adapter} interprets broker events and service
+linearizations. An independently generated \emph{protected-service execution}
+owns accepted calls, decisions, returns, and external effect state.
+
+The refinement observes projections rather than requiring lockstep event
+identity. Projections retain authorization, journal records, physical calls,
+logical terminals, append I/O, and request-local adapter histories. Private WAL
+events such as scanning a torn tail may stutter. Monotone index maps relate
+every source prefix to a target prefix, which is important because a crash can
+interrupt any layer between visible events.
+
+\subsection{Broker safety and persistence refinement}
+
+At the Broker layer, induction over arbitrary finite executions proves the
+historical obligations from Section~\ref{sec:contract}: durable authorization
+ancestry, capability bounds, unique attempts, stale-delivery rejection,
+terminal uniqueness, and exact committed-value provenance. The atomic Journal
+weakly simulates this Broker while preserving every normalized projection. The
+typed WAL weakly simulates the Journal. Its parsed acknowledged prefix remains
+a prefix of all later media, including after a torn write, crash, aborted scan,
+and tail truncation.
+
+The two simulations compose. A storage-parametric program context can observe
+only a masked endpoint view and synchronized visible event deltas. For every
+plugged typed-WAL execution admitted by such a context, the construction
+produces a plugged Broker execution with equal context state and view at every
+mapped prefix. This is forward contextual replacement, not bidirectional
+equivalence.
+
+Committed-history preservation is then proved as a separate abstraction. Only
+durable \texttt{Commit} linearization extends the history; all other actions
+stutter. From a crash through the first later \texttt{FinishRecover}, committed
+history is a prefix of the recovered history. Every intervening recovery
+\Commit is proved to cite the exact successful \texttt{Outcome} and outcome
+LSN already present at the crash prefix. The earlier equality result remains a
+corollary for episodes with no recovery \Commit. Recovery may also append
+\Fail or \Unknown and change control state, so neither result claims full-state
+equality.
+
+The recovery decision boundary is explicit rather than an implementation-side
+error-code convention. For a typed durable record $q$,
+
+\[
+  D(q) =
+  \begin{cases}
+    \mathsf{Commit} & q = \texttt{CommitRec},\\
+    \mathsf{Fail} & q = \texttt{FailRec},\\
+    \mathsf{Unknown} & q = \texttt{UnknownRec},\\
+    \mathsf{NotRecovery} & \text{otherwise.}
+  \end{cases}
+\]
+
+Every record enabled while the machine is not \texttt{Online} is proved to
+have one of the first three classes. Only the \mathsf{Commit} branch carries a
+successful-value obligation, and its guard is equivalent to the pre-state
+containing the matching durable \texttt{Outcome}; \mathsf{Fail} and
+\mathsf{Unknown} are terminal repairs with no fabricated effect value. The
+one-step decision theorem composes this guard with the committed-history delta,
+which is the premise used by the general recovery theorem.
+
+\subsection{From attempts to protected effects}
+
+Figure~\ref{fig:composition} shows where the external premises enter. An
+operational adapter execution is coupled event by event to an independent
+protected-service execution. Broker invocation becomes a service call, a
+service linearization changes protected state, and a delivery becomes a return.
+At every related prefix, accepted service calls equal the WAL invocation
+projection and adapter effect state agrees with protected effect state. Because
+the service event alphabet exposes no raw target-mutation action, the coupled
+closed execution derives complete mediation rather than assuming an arbitrary
+matching trace.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/composition-chain.pdf}
+  \caption{Proof composition. History guarantees hold for all admitted finite
+  serialized fail-stop histories. Protected-effect guarantees additionally
+  require a covered operational/protected member and the marked adapter,
+  typed-persistence, and closed-interface premises.}
+  \Description{Broker, Journal, and typed WAL form a history refinement chain.
+  Typed WAL is coupled to adapter and protected-service executions. Coverage
+  and closed-interface assumptions guard the protected-effect conclusions.}
+  \label{fig:composition}
+\end{figure}
+
+The generic request-family theorem is deliberately coverage-conditioned. For
+each terminal request in the shared WAL, a coverage function must supply a
+valid operational/protected member with the required prefix product and effect
+law. The proof then transports that member through the storage context to the
+canonical Broker execution. Production Rust code does not automatically
+construct these members; establishing that construction would be a further
+implementation-refinement result.
+
+To make the conditional boundary inspectable, we use the following paper-level
+abbreviation for the exact predicates defined in the mechanization:
+
+\[
+\begin{aligned}
+\mathsf{Covered}_C(r,o,s) \triangleq{}&
+  \mathsf{WF}(o) \land \mathsf{WF}(s)
+  \land \mathsf{PrefixCoupled}_C(o,s)\\
+ &\land \mathsf{TypedPersist}_C(s)
+  \land \mathsf{AdapterLaw}_C(r,o)
+  \land \mathsf{Context}_C(s)
+  \land \mathsf{Closed}_C(s).
+\end{aligned}
+\]
+
+Here $o$ is the operational-adapter execution and $s$ is the independently
+defined protected-service execution. `PrefixCoupled` equates the accepted-call
+and broker-invocation projections at every related prefix;
+`TypedPersist` transports the typed-WAL/Broker representation and terminal
+evidence; `AdapterLaw` is the class-specific `Refines` relation over attempts,
+external pre/post-state, and the logical outcome; `Context` is the
+storage-parametric mapped-prefix relation; and `Closed` restricts target mutation
+to the protected-service alphabet. The effect conclusion is the separate
+predicate $\mathsf{Refines}_C(r,o,s)$, not a consequence of the word
+``covered'' alone. A coverage function must return $(o,s)$ and discharge every
+conjunct for each requested terminal; the two concrete witnesses prove
+non-vacuity, while the family theorem leaves that construction as an explicit
+implementation obligation.
+
+\subsection{Main theorem}
+
+We state the paper-facing synthesis below. Its two clauses have different
+premises so that the protected-effect conclusion cannot be mistaken for an
+unconditional property of arbitrary deployments.
+
+\begin{theorem}[Authorization-to-effect consistency]
+Let $C$ be a well-formed configuration and $\tau$ any finite execution admitted
+by the serialized fail-stop Broker/Journal/typed-WAL semantics.
+
+\emph{History clause.} Every physical invocation in $\tau$ has a unique prior
+acknowledged \texttt{Start} and valid durable authorization; capability scope,
+budget, and retry bounds hold; every accepted delivery has exact
+request/attempt/value provenance; every logical request has at most one durable
+terminal; every \Commit has exact successful-delivery provenance; and
+committed history grows monotonically from a crash through the first subsequent
+completed recovery. Any \Commit added during that interval has an exact
+successful-\texttt{Outcome} value and reference already durable at the crash;
+when the interval contains no \Commit, its endpoint histories are equal.
+
+\emph{Protected-effect clause.} Additionally fix a terminal request $r$. If
+$r$ is covered by a valid operational-adapter/protected-service execution
+member satisfying the typed-persistence relation, adapter law,
+storage-parametric-context relation, prefix coupling, and closed-interface
+premise, then the protected call trace equals the broker invocation projection,
+the source WAL and canonical Broker select the same terminal, and that terminal
+refines the adapter's abstract effect semantics.
+\end{theorem}
+
+The first clause quantifies over every admitted finite history. The second
+clause is instantiated for the modeled \Idempotent \textsc{EnsureMember} and
+\Deduplicated keyed-slot developments; the latter is extended to a
+coverage-conditioned request family. The current \ReadOnly instance reaches
+adapter/WAL/Broker refinement but not the protected complete-mediation
+endpoint. For \Uncontrolled, the history theorem proves at most one invocation;
+an unresolved armed attempt is not retried and may terminate only as
+\Unknown. No clause states physical exactly-once execution, result delivery to
+the agent, liveness, or global ordering among different requests.
+The history clause gives durable authorization ancestry to each corresponding
+broker invocation. The concrete \Idempotent and \Deduplicated protected
+witnesses additionally export durable-authorization provenance for their
+protected decisions; we do not attribute that stronger export to the generic
+coverage-family theorem.
+
+\subsection{Non-vacuity and proof assurance}
+
+The mechanization includes concrete witnesses rather than only conditional
+interfaces. The \Idempotent \textsc{EnsureMember} witness linearizes attempt
+one and loses its success across a crash; attempt two returns failure. Because
+the first effect may have happened, \Fail is unsound. The trace terminates
+\Unknown while the protected state contains exactly one abstract insertion.
+The \Deduplicated keyed-slot witness lets attempt one create an atomically memoized
+decision, crashes before delivery, retries with the same key, retrieves success,
+and commits with exactly one protected mutation. Both witnesses establish that
+the assumptions admit the ambiguity patterns the theorem is designed to cover.
+
+The retained Verus run passes all 72 registered targets with zero reported
+errors. It records 1,511 dependency-aware non-duplicated obligations and
+38,952 summed target obligations. The runner verifies an exact read-only source
+snapshot, validates complete source/import registration and dependency-parent
+order, and binds source and toolchain hashes into its report. These counts and
+integrity checks are assurance metadata, not independent correctness claims.
+The TLA+ suite additionally passes 13 of 13 retained bounded scenarios; model
+checking supplies finite state-space exploration, not an unbounded proof.
+
+\section{Executable Realization and Refinement Boundary}
+\label{sec:implementation}
+
+\subsection{Rust reference broker}
+
+The artifact includes a dependency-free standard-Rust reference broker. It
+generates monotone request identifiers, validates capability budgets, optionally
+binds admission to an immutable manifest, owns one executor slot, and exposes
+the lifecycle from Section~\ref{sec:architecture}. Its byte WAL stores
+versioned length frames with CRC32 checksums, appends and calls
+\texttt{sync\_data}, discards an incomplete or checksum-invalid final frame,
+and rejects corruption before the final frame. A configuration sidecar binds
+capabilities, budgets, and the optional admission manifest across reopen.
+
+The implementation includes \Idempotent, \Deduplicated, and \Uncontrolled
+example adapters. The deduplication example keeps decisions in a service object
+that survives broker restart, modeling an independently durable service;
+restarting that object would violate its contract. These adapters and the byte
+WAL are executable evaluation vehicles, not verified production components.
+
+\subsection{Verified executable record kernel}
+
+K4-A2 is the ordinary-record base of a verified executable typed-record kernel.
+For every well-formed
+finite manifest, it accepts any structurally legal sequence over
+\texttt{Authorize}, \texttt{Prepare}, \texttt{Arm}, \texttt{Start},
+\texttt{Outcome}, and \texttt{Commit}. It materializes missing request and
+capability summaries from manifest budgets and proves that executable guards
+and mutations preserve the abstract replay state, Journal projection,
+one-based log sequence number, acknowledgement cut, terminal state, and budget.
+Its retained target reports 326 verified obligations and zero errors.
+
+K4-A3 extends the same invariant and append pipeline to \texttt{Fail} and
+\texttt{Unknown}. Its executable guards prove retry-class-specific failure
+conclusiveness and all five uncertainty reasons against abstract replay, while
+exact references bind each terminal to its Outcome, latest attempt evidence,
+or Arm record. It mutates concrete state to \texttt{Failed} or
+\texttt{Unknown} and includes full append witnesses for Idempotent failure and
+Uncontrolled recovery uncertainty. K4-A3 reports 347 verified obligations,
+21 beyond K4-A2. K4-A4 adds executable \texttt{Online}/\texttt{Crashed}/
+\texttt{Recovering} control, preserves the typed durable prefix across a
+crash, and permits only terminal \texttt{Commit}/\texttt{Fail}/\texttt{Unknown}
+decisions while recovering. Its durable-success witness appends \texttt{Commit},
+proves exact begin/finish recovery control, and proves the class-sensitive
+resume guard: \Idempotent/\Deduplicated may resume, while \Uncontrolled/\ReadOnly
+may resume only before a durable \texttt{Start}. The K4-A4 target reports 365
+obligations. \texttt{Revoke}
+and byte persistence remain outside this layer.
+
+\subsection{Kernel-in-the-loop integration}
+
+K4-I0 compiles the proof-erased K4-A4 library, builds the ordinary Rust broker,
+and links both into one harness. The harness injects an \texttt{AppendGate} into the
+broker's real append and replay paths: every record passes K4 preview before
+the WAL write, and K4 state is committed only after the WAL returns its durable
+LSN. A fresh gate replays every durable prefix before serving requests. The
+executions cover an eight-record \Idempotent crash/reopen/retry Commit, a
+six-record manifest-bound \Deduplicated Commit with a full replay, conclusive
+Fail, four reason-specific Unknown classifications (AmbiguousOutcome,
+InvalidResult, Exhausted, and NonConclusiveFailure), an ordinary Uncontrolled
+crash/reopen path, and a K4-gated conservative Uncontrolled restart that emits
+\texttt{Unknown(Recovery)}. A separate six-record crash/reopen execution
+terminalizes a durable successful Outcome as Commit while K4 remains in
+recovery mode, without invoking the adapter again. It checks exact cuts,
+prefix reuse, terminal phase, recorded evidence, and capability budgets. The
+terminal cases therefore
+exercise the uncertainty classification that motivates the work, not only
+ordinary successful record processing.
+
+This is kernel-in-the-loop trace-conformance evidence, not whole-program
+refinement. The gate closes the selected broker append/replay path, but record
+translation, Rust control flow outside that path, byte decoding, CRC,
+filesystem and \texttt{fsync}, adapters, transport, service, and deployment
+remain ordinary or trusted code. A bug in those components can still prevent
+the gate from seeing a record or violate the assumptions under which the typed
+record was produced.
+
+K4-I1 is the fail-closed submission profile built on this gate. It requires an
+immutable admission manifest and `open_with_gate` for every evaluation broker
+construction, then emits a versioned attestation for gate/open equality,
+preview/commit pairing, replay, and recovery closure. The retained 100-request
+run has 47 broker opens and gates, 1,573 preview/commit pairs, 675 replays, 40
+finished recoveries, and 7 verified resumes. This makes the submitted
+evaluation configuration auditable; it does not promote the surrounding Rust,
+byte WAL, or adapters into a whole-program refinement.
+
+\subsection{Claim and evidence ladder}
+
+Table~\ref{tab:evidence} summarizes the strongest conclusion justified at each
+boundary. The evidence deliberately becomes less universal as it approaches
+the deployed implementation.
+
+\begin{table}[t]
+  \caption{Claim/evidence boundary.}
+  \label{tab:evidence}
+  \small
+  \begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{0.19\linewidth}YY}
+    \toprule
+    \textbf{Boundary} & \textbf{Evidence} & \textbf{Defensible conclusion} \\
+    \midrule
+    Broker history & Verus induction over admitted finite executions &
+      Authorization ancestry, provenance, retry bounds, and terminal uniqueness. \\
+    Journal/typed WAL & Prefix weak simulations and contextual replacement &
+      Typed persistence preserves the Broker observations and committed history. \\
+    Adapter/protected service & Covered coupled executions under class and
+      closed-interface premises & Mediated call traces and terminal-effect
+      refinement; protected-decision authorization is exported for the concrete
+      witnesses. \\
+    K4-A4 kernel & Verified executable guards, mutations, and crash/recovery
+      control & Any legal sequence of eight supported typed records preserves
+      the proved relation; durable-success Commit, terminal evidence, recovery
+      mode, and class-sensitive resume are explicit. \\
+    K4-I0 & A K4 gate called from selected real broker append/replay paths & The
+      exercised traces conform at prefixes, cuts, terminal state, recovery
+      classification, and budget; this is not whole-Rust refinement. \\
+    K4-I1 & Gate-only submission evaluation with immutable manifests & The
+      retained run attests gate/open equality, preview/commit pairing, replay,
+      and terminal-finish or verified-resume closure; this is finite integration
+      evidence, not whole-program refinement. \\
+    Rust broker & 32 tests, fault injection, and evaluation & Tested reference
+      behavior for the exercised configurations; no universal refinement. \\
+    Deployment & Explicit assumptions & No verified claim about OS isolation,
+      byte durability, transport, or production services. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Evaluation}
+\label{sec:evaluation}
+
+We evaluate four questions: whether the executable protocol behaves safely at
+instrumented crashes (RQ1), what durable mediation costs in a local reference
+implementation (RQ2), what proof surface each adapter instance requires (RQ3),
+and which durable evidence justifies each recovery classification (RQ4).
+Testing assesses the Rust implementation on measured traces; it does not
+replace the refinement proof.
+
+\subsection{RQ1: Does the reference protocol behave safely under crashes?}
+
+\paragraph{Method.}
+The fault harness crosses three executable adapter classes
+(\Idempotent, \Deduplicated, and \Uncontrolled) with seven deterministic crash
+sites: after authorization, preparation, arming, start, invocation, outcome,
+and terminal append. This yields 21 adapter/crash-site cases. Oracles check
+terminal uniqueness, attempt bounds, authorization ancestry, the expected
+terminal, and abstract effects. Additional tests interrupt recovery, inject a
+stale delivery after retry, and exercise the append-gate order and fail-closed
+behavior. The current Rust suite contains 32 passing tests, including the
+class-sensitive recovery-resume and gate fail-closed checks.
+
+\paragraph{Answer.}
+All 21 cases passed all five oracles, and stale delivery was rejected without
+creating another terminal or effect. In the lost-reply \texttt{AfterInvoke}
+case from Figure~\ref{fig:timeline}, the retry-safe adapters performed two
+physical invocations but retained one abstract effect. \Uncontrolled performed
+no recovery invocation and ended \Unknown. These results show that the
+reference implementation operationalizes the intended distinctions at the
+instrumented boundaries; they do not cover crashes inside the synchronous
+adapter call or prove arbitrary Rust executions correct. The retained K4-I1
+submission profile additionally reports 47 gated broker opens, 1,573
+preview/commit pairs, 675 replayed records, 40 completed recoveries, and 7
+verified resumes, so the reported evaluation itself did not silently fall back
+to the ungated opener.
+
+\subsection{RQ2: What does durable mediation cost?}
+
+\paragraph{Method.}
+We compare three in-process workloads: \emph{direct}, which increments the
+effect state without durability; \emph{journaled at-least-once}, which flushes
+start and result records but has no adapter effect contract; and
+\emph{mediated}, which flushes every protocol record. The controlled baseline
+uses five warmups, 30 measured repetitions, 500 primary requests and 50 retry
+requests per repetition, a 25-ms inter-run gap, and CPU affinity to one logical
+processor. Table~\ref{tab:rq2} reports means and intervals for the retained
+local overlay-filesystem run.
+
+\begin{table}[t]
+  \caption{Controlled repeated local microbenchmark. Intervals are 95\%
+  intervals over 30 repetitions.}
+  \label{tab:rq2}
+  \small
+  \begin{tabularx}{\linewidth}{Yrrrr}
+    \toprule
+    \textbf{Workload} & \textbf{Mean ms} & \textbf{95\% interval} &
+      \textbf{req/s} & \textbf{Recovery ms} \\
+    \midrule
+    Mediated & 0.464 & 0.452--0.475 & 2,165.87 & 1.268 \\
+    Journaled at-least-once & 0.144 & 0.139--0.148 & 7,011.15 & 0.020 \\
+    Direct & $<0.001$ & $<0.001$ & 13,892,373.93 & n/a \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\paragraph{Answer.}
+Durable mediation is about 3.2 times the mean latency of the two-record
+journaled ablation in this environment because it performs more records and
+flushes. The direct number measures an in-memory function call and is only a
+lower bound; it is not representative of a remote tool. Ambiguous retry
+workloads averaged 0.588 ms for \Idempotent, 0.592 ms for \Deduplicated, and
+0.285 ms for journaled at-least-once. Both contract-bearing workloads made two
+physical attempts but one abstract effect per request. The at-least-once
+ablation made two effects per request.
+
+Storage dominates the absolute result. Table~\ref{tab:storage} repeats the same
+protocol on paired server paths, a server NVMe-backed ext4 path, and a separate
+WSL2 host. The server overlayfs and NVMe results are similar, tmpfs is much
+faster but is not host-crash durable, and WSL2 virtual-disk flushing is much
+slower. We therefore make no universal overhead or throughput claim.
+
+\begin{table}[t]
+  \caption{Storage-path sensitivity for the repeated protocol.}
+  \label{tab:storage}
+  \small
+  \begin{tabularx}{\linewidth}{Yrr}
+    \toprule
+    \textbf{Environment} & \textbf{Mediated mean ms} &
+      \textbf{Journaled mean ms} \\
+    \midrule
+    Server overlayfs & 0.391 & 0.116 \\
+    Server tmpfs & 0.0358 & 0.001423 \\
+    Server NVMe-backed ext4 & 0.456 & 0.141 \\
+    Independent WSL2 ext4 virtual disk & 17.174 & 6.040 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{RQ3: What is the proof-engineering surface?}
+
+We count registered targets, source lines, public proof functions, and each
+adapter package's contribution to the dependency-aware non-duplicated
+obligation total. Table~\ref{tab:rq3} reports reproducibility costs, not
+independent authoring effort: source and verification totals include
+dependency-layer rechecking. The shared framework contains 55 public proof
+functions and contributes 57 obligations.
+
+\begin{table}[t]
+  \caption{Retained adapter proof surface. Person-hours were not recorded and
+  are not inferred from source size.}
+  \label{tab:rq3}
+  \small
+  \begin{tabularx}{\linewidth}{Yrrrr}
+    \toprule
+    \textbf{Adapter evidence} & \textbf{Targets} & \textbf{Lines} &
+      \textbf{Proof fns.} & \textbf{Obligation delta} \\
+    \midrule
+    \Idempotent \textsc{EnsureMember} & 5 & 12,879 & 121 & 181 \\
+    \ReadOnly sampled environment & 1 & 4,454 & 47 & 61 \\
+    \Deduplicated keyed decision & 6 & 8,774 & 86 & 145 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\paragraph{Answer.}
+The data show meaningful reuse but also substantial adapter-specific work.
+\ReadOnly is the smallest package and stops at a narrower evidence boundary.
+The \Idempotent package includes the operational, mediation, prefix-product,
+and contextual development. \Deduplicated must additionally track keyed
+decision uniqueness and request-family coverage. We cannot claim a person-time
+reduction because the artifact does not contain reliable author-hour data.
+
+\subsection{RQ4: Which evidence justifies each outcome?}
+
+The semantic fault matrix classifies six windows for the three mutating
+reference classes, producing 18 cells. Table~\ref{tab:rq4} condenses the
+classification. ``Safe'' means that recovery can reach one committed abstract
+effect under the adapter contract, not that the physical call runs once.
+
+\begin{table}[t]
+  \caption{Fault-window classification. The implementation cannot instrument
+  inside a synchronous adapter call, so the \Uncontrolled send-to-linearization
+  cell remains assumption-dependent and is handled conservatively.}
+  \label{tab:rq4}
+  \small
+  \begin{tabularx}{\linewidth}{Y>{\raggedright\arraybackslash}p{0.21\linewidth}YY}
+    \toprule
+    \textbf{Window} & \textbf{\Uncontrolled} & \textbf{\Idempotent} &
+      \textbf{\Deduplicated} \\
+    \midrule
+    Reservation to send & \Unknown, no invoke & Safe retry & Safe same-key retry \\
+    Send to linearization & Assumption-dependent; \Unknown & Safe retry & Safe same-key retry \\
+    Linearization to delivery & \Unknown, no retry & Safe retry & Retrieve keyed decision \\
+    Delivery to persistence & \Unknown, discard volatile reply & Safe retry; stale reply rejected & Same-key retry; stale reply rejected \\
+    Persistence to terminal & Replay durable outcome$^*$ & Replay durable outcome$^*$ & Replay durable outcome$^*$ \\
+    Recovery interruption & Resume to \Unknown & Resume and retry & Resume and same-key retry \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+The starred row is now exercised through the K4 gate as well as ordinary M4
+mode. T5-R1 proves that a recovery \Commit is permitted only when its exact
+successful value and outcome reference were already durable at the selected
+crash boundary; H2 and K4-A4 provide concrete typed-WAL and executable-kernel
+witnesses. The K4 gate resumes an Armed \Idempotent or \Deduplicated request
+only under its proved class predicate; an unsafe \Uncontrolled prefix instead
+closes with \texttt{Unknown(Recovery)}. K4-I1 attests both the finished and
+verified-resume recovery branches in the retained evaluation. This is not a
+theorem about arbitrary Rust executions.
+
+\paragraph{Answer.}
+The decisive evidence changes at persistence and at the service contract. In
+reference and gated mode, a durable successful outcome after delivery can be
+replayed to a Commit whose evidence is checked against the crash prefix. The
+unresolved gated Uncontrolled path instead retains uncertainty. Before
+persistence, only idempotence or a retained keyed decision
+justifies reissuing a mutating call. Without either law, \Unknown is the sound
+result. This matrix closes the running example: authorization alone does not
+choose a branch; durable attempt evidence plus the adapter law does.
+
+\section{Discussion and Limitations}
+\label{sec:limitations}
+
+\subsection{Complementary deployment layers}
+
+Agent-oriented confinement and effect recovery protect different dimensions.
+AgentBound uses declarative MCP-server capabilities and container mechanisms to
+restrict files, environment variables, and network endpoints
+\cite{buehler2026agentbound}. Such a sandbox could help realize the resource
+scope and handle-exclusivity assumptions of our broker. Our protocol, in turn,
+specifies what a permitted effect means over time when invocation, external
+linearization, delivery, persistence, and crash do not coincide. The artifact
+does not verify this proposed deployment composition.
+
+A realistic deployment would place protected credentials only in the broker or
+adapter process, route service access through authenticated endpoints, and
+bind the adapter descriptor to durable admission metadata. Those engineering
+controls are necessary to translate closed-model mediation into production
+mediation; the current theorem cannot substitute for them.
+
+\subsection{What is specific to agents?}
+
+The lost-reply ambiguity and its standard remedies generalize to RPC, workflow,
+and dual-write systems. The AI-agent setting motivates a particular joint
+contract: requests and parameters are selected at run time, authorization is
+fine-grained and may be revoked or budgeted, tool effects range from reads to
+uncontrolled mutations, physical attempts are hidden behind one apparent
+action, and the terminal conclusion is consumed by a planner that can trigger
+more effects. Our contribution is this authorization-to-effect composition,
+not a claim that agents changed crash theory. The same contract may benefit
+non-agent orchestration systems with heterogeneous external activities.
+
+\subsection{Limitations and next refinement steps}
+
+The verified execution model is serialized and fail-stop. It proves safety for
+finite histories, not progress. Typed WAL frames abstract away bytes, checksum
+implementation, flush ordering, filesystem semantics, and hardware durability.
+Capability policy correctness and least privilege are trusted. The formal
+closed interface rules out bypass by construction; it is not an OS sandbox
+proof. Adapter contracts and service behavior are assumptions until a concrete
+adapter implementation is refined to them. Deduplication additionally depends
+on durable key retention.
+
+Protected/contextual composition is complete for the modeled \Idempotent and
+\Deduplicated instances; \ReadOnly currently stops at the adapter/WAL/Broker
+boundary. The request-family theorem is coverage-conditioned, and production
+code does not synthesize its coverage members. K4-A4 now covers explicit
+crash/recovery control, durable-success Commit, and the class-sensitive resume
+guard for the eight supported record kinds, but omits \texttt{Revoke} and byte
+persistence. K4-I1 additionally makes the gate mandatory for the retained
+submission evaluation and records its finite recovery closure. The Rust broker,
+byte WAL, filesystem, adapter, and transport are not whole-program refinements.
+The checked gate accepts the broker's recovery \Commit only for an exact durable
+successful Outcome; otherwise an Armed \Uncontrolled request is closed with
+\texttt{Unknown(Recovery)}, while retry-safe classes resume only under their
+proved predicate.
+The theorem also does not show that a durable terminal was
+successfully returned to the agent, and it provides neither concurrent
+multi-request semantics nor global external-effect linearizability.
+
+The highest-value next implementation steps are therefore to extend the bridge
+to \texttt{Revoke}, refine byte-WAL and filesystem behavior under explicit
+platform assumptions, and then tighten record translation and deployment
+isolation. Concurrency and liveness should come only after this single-request
+implementation boundary is tighter. Moving record translation behind a smaller
+checked interface is a parallel hardening step.
+
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Agent authorization, confinement, and governed execution}
+
+AgentBound combines declarative MCP-server capabilities with container-based
+enforcement and evaluates resource confinement over a large server corpus
+\cite{buehler2026agentbound}. CaMeL separates trusted control flow from
+untrusted data and applies capabilities at tool calls to resist prompt
+injection~\cite{debenedetti2025camel}. Guardians proposes verifying structured
+agent workflows before execution~\cite{meijer2025guardians}. These systems
+focus on which action, resource, or data flow is permitted. They do not define
+a durable crash/retry protocol connecting one logical request, several physical
+attempts, and a terminal external-effect interpretation.
+
+Proof of Execution binds authorization, an enforced path, durable effects, and
+replay context into a governed agent execution object
+\cite{rhodes2026poe}. It is closer to our historical goal than resource
+sandboxing alone and rules out a broad novelty claim for connecting agent
+authorization to an effect trace. Its reported semantics validate a completed
+causal trace; they do not provide our WAL recovery protocol, four adapter
+classes, explicit \Unknown outcome for ambiguous invocation, or a
+proof-assistant artifact. Conversely, our work does not provide its
+cryptographic attestation and replay context.
+
+Capability systems such as Capsicum establish practical resource confinement
+\cite{watson2010capsicum}, while seL4 demonstrates much stronger
+implementation refinement and security guarantees at an operating-system
+boundary~\cite{klein2009sel4}. They are precedents for isolation and
+machine-checked enforcement, not substitutes for an external-effect recovery
+contract.
+
+\subsection{Durable workflows and exactly-once mechanisms}
+
+Temporal reconstructs durable workflow state by replaying event histories, but
+its Activity guidance acknowledges that an external activity may be called and
+then retried, motivating idempotent activity design
+\cite{temporal2026workflow,temporal2026activity}. Reliable State Machines
+provide fault tolerance by construction for cloud services
+\cite{mukherjee2019rsm}. Beldi uses logs, intent tables, and runtime protocols
+for transactional stateful serverless workflows~\cite{zhang2020beldi}. RIFL
+uses unique RPC identifiers and completion records to obtain linearizable
+exactly-once operations~\cite{lee2015rifl}. These systems demonstrate that
+durable replay and deduplicated operations are mature. Our distinction is the
+machine-checked link from a durable capability decision and physical mediation
+to a class-relative terminal conclusion at a heterogeneous tool boundary.
+
+Idempotency-key APIs expose one deployed form of the \Deduplicated contract.
+The IETF document is an expired Internet-Draft rather than a completed standard
+\cite{jena2025idempotency}; Stripe documents a concrete API whose keys can be
+removed after a retention interval~\cite{stripe2026idempotency}. These examples
+reinforce that uniqueness is service-owned and retention-bounded. Our theorem
+therefore treats stable-key atomicity and lifetime as premises, not properties
+created by the broker.
+
+\subsection{Machine-checked crash and distributed systems}
+
+Machine-Checked Dual-Write Recovery formalizes the indistinguishability of
+post-send crash states and conditional escapes using sink acceptance, fencing,
+deduplication, and evidence lifetime~\cite{andreakis2026dualwrite}. It rules
+out novelty claims for either the ambiguity observation or machine-checked
+deduplication itself. Our composition adds durable capability ancestry, a
+broker terminal vocabulary, four adapter classes, closed-interface mediation,
+and contextual refinement through Journal and typed WAL. In the other
+direction, we do not prove its more general information bounds, fencing, or
+finite-retention results.
+
+FSCQ applies Crash Hoare Logic to a verified file system
+\cite{chen2015fscq}; Argosy proves recovery refinement for layered storage
+systems~\cite{chajed2019argosy}. Disel and IronFleet establish
+machine-checked distributed-protocol and implementation precedents
+\cite{sergey2018disel,hawblitzel2015ironfleet}. These works are substantially
+stronger within their storage or distributed-system implementation boundaries.
+They do not connect an agent's durable capability authorization to
+adapter-specific protected tool effects.
+
+\subsection{Synthesis}
+
+Based on the sources reviewed through August 10, 2026, we are not aware of
+prior work that machine-checks this particular coverage-conditioned composition:
+durable capability ancestry, fail-stop attempt and recovery history, a
+four-class adapter contract with explicit uncertainty, closed-interface
+mediation, and protected-effect refinement at an AI tool boundary. This is a
+qualified synthesis claim, not a claim that its building blocks or crash
+ambiguity are new. It must be refreshed against work appearing before the
+submission deadline.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+Authorization can prove that the append in our running example was permitted;
+it cannot prove what happened after the service acted and its reply was lost.
+Authorization-to-effect consistency supplies the missing contract: durable
+authority and attempt provenance determine which evidence belongs to the
+request, while the adapter law determines whether recovery may retry, commit,
+fail, or only preserve \Unknown. Our machine-checked protocol connects these
+decisions through Journal and typed-WAL recovery to covered, mediated protected
+effects under explicit premises. The verified record kernel and
+kernel-in-the-loop broker traces make part of that boundary executable, while
+the Rust runtime, byte persistence, adapters, and deployment remain outside
+whole-program refinement.
+
+\section*{Data Availability}
+
+The anonymous artifact contains the mechanized models and proofs, retained
+verification reports, executable-kernel source, broker integration harness,
+Rust reference implementation, fault-injection and benchmark data, and
+reproduction scripts. The submission version contains no author-identifying
+repository URL or local filesystem path. An archival location and immutable
+version identifier will be supplied with the non-anonymous artifact release.
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+
+\end{document}

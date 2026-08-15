@@ -10,41 +10,41 @@ document defines the unbounded theorem statement.
 The historical retained T6-S0 terminal-bridge checkpoint verified 840 proof
 obligations with zero errors, 6 beyond its T6-C0 parent. Across its 40 registered
 targets, the dependency-aware non-duplicated total was 880 obligations and the
-sum of all target obligations was 19,064. T6-A0 completed the first concrete
-adapter-semantic closure at 864 cumulative obligations. T6-A1 completes the
-first executable adapter-protocol refinement. Its target verifies 916
-cumulative obligations with zero errors, 52 beyond T6-A0. Across the historical
+sum of all target obligations was 19,064. T6-A0 completes the first concrete
+adapter-semantic closure at 885 cumulative obligations. T6-A1 completes the
+first executable adapter-protocol refinement. Its target verifies 937
+  cumulative obligations with zero errors, 52 beyond T6-A0. Across the historical
 retained 42-target A1 registry, the dependency-aware non-duplicated total is 956 and the
 sum of all target obligations is 20,867. T6-M0 adds a first-class protected-
 service execution and a closed-interface audit context. Its target
-verifies 977 cumulative obligations with zero errors, 61 beyond T6-A1, and
+verifies 998 cumulative obligations with zero errors, 61 beyond T6-A1, and
 derives protected-trace mediation and durable authorization provenance for the
 concrete crash/retry execution. T6-P0 completes the
-prefix-indexed execution product at 1,000 cumulative obligations with zero
+prefix-indexed execution product at 1,021 cumulative obligations with zero
 errors, 23 beyond T6-M0. T6-X0 completes the storage-parametric contextual
-lift and conditional single-request `EnsureMember` end-to-end theorem at 1,022
+lift and conditional single-request `EnsureMember` end-to-end theorem at 1,043
 cumulative obligations with zero errors, 22 beyond T6-P0. The current retained
-run passes all 45/45 registered targets, contains 1,062 dependency-aware
-non-duplicated obligations, and sums to 23,866 target obligations; the
+run passes all 72/72 registered targets, contains 1,511 dependency-aware
+non-duplicated obligations, and sums to 38,952 target obligations; the
 artifact-generated verification report records the exact source and tool
 hashes. The one-obligation
 increase in the
 imported T6-S0 closure is a conservative definitional `PaperConfig` accessor
-lemma added at T1 for the concrete package. The preceding
-T6-C0 compatibility checkpoint verified 834 cumulative obligations across 39
-targets and 874 non-duplicated obligations; T6-E0 verified 817 cumulative
-obligations across 38 targets and 857 non-duplicated obligations; T6-D0
-verified 799 cumulative obligations across 37 targets and 839 non-duplicated
-obligations. T5-C0 remains
-a historical boundary: it verified 783 cumulative obligations across 35
-targets and 820 non-duplicated obligations. T4-C2 closes theorem T4 with
+lemma added at T1 for the concrete package. The current T6-C0 compatibility
+target verifies 856 cumulative obligations; T6-E0 verifies 839 and T6-D0
+verifies 821. The preceding pre-K4/DD checkpoints (T6-C0 834 across 39
+targets, T6-E0 817 across 38, and T6-D0 799 across 37) are retained as
+historical evidence. The former pre-R1 T5-C0 checkpoint is retained as
+evidence; the current T5 chain verifies T5-R0 at 773 obligations, T5-R1 at 787,
+and T5-C0 at 805. T4-C2 closes theorem T4 with
 canonical finite forward contextual replacement. T5-S0 proves the exact
 one-step committed-history laws, T5-E0
 lifts them over arbitrary finite execution intervals, T5-R0 proves exact first-
-`FinishRecover` episode equality, and T5-C0 exports those equalities through
-T4's canonical contextual map. H1 proves the resulting premise/conclusion
-package inhabited under a concrete total configuration and records the hardened
-artifact evidence. Theorem T5 and H1 are complete. T6-D0 freezes the terminal
+`FinishRecover` equality under an explicit no-recovery-Commit predicate, T5-R1
+proves general recovery extension plus crash-prefix successful-Outcome
+provenance, and T5-C0 exports both through T4's canonical contextual map. H1
+inhabits the stuttering contextual package; H2 inhabits a strict-extension
+recovery Commit. Theorem T5 and both witnesses are complete. T6-D0 freezes the terminal
 and adapter definition boundary, T6-E0 proves the generic Broker-side
 `OutcomeEvidence` implication, and T6-C0 proves the corresponding
 `BrokerOutcomeCompatible` implication under `AdapterRely`. T6-S0 combines
@@ -846,9 +846,11 @@ fact, not an executable guard or a ghost value read by the runtime;
 Recovery-source preservation is a relational step obligation rather than a
 single-state conjunct of `BrokerInvariant`. If an enabled
 `BrokerLinearize(rec)` step begins in `Recovering`, then `rec` is a conclusive
-`FailRec` or an uncontrolled `UnknownRec` with reason `Recovery`, and
-`G'.commit_source = G.commit_source`. In particular, recovery repair preserves
-every existing commit source and cannot define a new one. This lemma is proved
+`CommitRec` backed by a durable successful Outcome, a conclusive `FailRec`, or
+an uncontrolled `UnknownRec` with reason `Recovery`. Fail and Unknown preserve
+`G.commit_source` by equality. Commit may define the terminal request's source,
+but only as the exact matching successful delivery already present in physical
+history; all pre-existing sources remain unchanged. This lemma is proved
 alongside invariant preservation and is used by T1 and T5.
 
 ### 7.2 `WALInvariant`
@@ -1749,11 +1751,9 @@ configuration of a WAL execution satisfies `basic_invariant`, projects the
 runtime `wal_invariant`, applies T5-S0 to the final adjacent step, and composes
 prefixes through a generic transitivity lemma.
 
-T5-R0 is complete and machine checked. Its cumulative target verifies 769
-obligations with zero errors, 22 beyond T5-E0. At that checkpoint, 34
-registered targets contributed 806 dependency-aware non-duplicated
-obligations. It defines the event-index predicate without assuming a record
-classification:
+T5-R0 is complete and machine checked. Its cumulative target verifies 773
+obligations with zero errors, 23 beyond T5-E0. It defines the event-index
+predicate without assuming a record classification:
 
 ```text
 RecoveryEpisode(events,crash,finish) :=
@@ -1765,17 +1765,26 @@ RecoveryEpisode(events,crash,finish) :=
 ```
 
 For every Broker, atomic-Journal, or typed-WAL execution and every
-`crash <= index <= finish`, the corresponding R0 step theorem derives that any
-backend durability linearization is a permitted recovery repair, its commit
-delta is empty, and the step preserves `alpha_commit` exactly. The record
-restriction is therefore a semantic consequence of non-Online enabledness:
-the only admitted linearized records are conclusive `FailRec` and recovery
-`UnknownRec`; `CommitRec` is impossible.
+`crash <= index <= finish`, non-Online enabledness derives that any backend
+durability linearization is a permitted recovery repair. The admitted terminal
+records are a durable-success `CommitRec`, conclusive `FailRec`, or recovery
+`UnknownRec`. R0 separately defines:
+
+```text
+CommitStutteringRecoveryEpisode(events,crash,finish) :=
+  RecoveryEpisode(events,crash,finish)
+  and forall k. crash < k < finish ==>
+        not RecoveryCommitLinearization(events[k]).
+```
+
+Under this explicit premise, each episode commit delta is empty and every step
+preserves `alpha_commit` exactly.
 
 The main endpoint theorems are:
 
 ```text
-Exec(M,Cfg,tau) and RecoveryEpisode(tau.events,crash,finish)
+Exec(M,Cfg,tau)
+and CommitStutteringRecoveryEpisode(tau.events,crash,finish)
 implies
   alpha_commit(tau.configs[crash])
     = alpha_commit(tau.configs[finish + 1]).
@@ -1791,21 +1800,46 @@ completeness, minimal Broker and Journal episodes
 `Crash; BeginRecover; FinishRecover`, a minimal WAL episode
 `Crash; BeginScan; FinishScan; TruncateTail; BeginRecover; FinishRecover`, and
 a repeated-Crash Broker episode
-`Crash; BeginRecover; Crash; BeginRecover; FinishRecover`. The other 17 R0
+`Crash; BeginRecover; Crash; BeginRecover; FinishRecover`. The other 18 R0
 obligations cover generic repair/sequence facts and the three-backend mode,
 step, prefix, and endpoint theorems.
 
-R0 proves committed-history equality only. Repair records, complete Journal and
+R0 proves committed-history equality only for the no-recovery-Commit
+subclass. Repair records, complete Journal and
 WAL state, physical history, and runtime control may change. It is conditional
 on a later first `FinishRecover`, makes no liveness claim, and does not export
 the result through T4's contextual map.
 
-T5-C0 is complete and machine checked. Its cumulative target verifies 783
-obligations with zero errors, 14 beyond T5-R0. Thirteen new obligations prove
+T5-R1 is complete and machine checked. Its cumulative target verifies 787
+obligations with zero errors, 14 beyond T5-R0. For every typed-WAL
+`RecoveryEpisode`, it proves:
+
+```text
+alpha_commit_W(tau.configs[crash])
+  <=p alpha_commit_W(tau.configs[finish + 1])
+and forall k. crash < k < finish and RecoveryCommit(tau.events[k]) ==>
+      CrashPrefixBacked(tau,crash,tau.events[k]).
+```
+
+For a recovery `CommitRec(r,a,v,outcome_ref)`, `CrashPrefixBacked` means the
+Journal parsed at `tau.configs[crash]` already contains exactly the successful
+Outcome for `(r,a)` with value `v` at `outcome_ref`. Recovery resolution records
+preserve Outcome observation and LSN queries, so this evidence cannot be
+created after the crash. The target also defines an exhaustive recovery
+decision classifier: terminal `CommitRec`, `FailRec`, and `UnknownRec` map to
+`Commit`, `Fail`, and `Unknown`, while ordinary records map to `NotRecovery`.
+Every enabled non-Online record is shown to leave the latter class; only the
+Commit branch carries the `DurableSuccess` obligation. Soundness and
+completeness of that guard are composed with the one-step committed-history
+extension theorem.
+
+T5-C0 is complete and machine checked. Its cumulative target verifies 805
+obligations with zero errors, 18 beyond T5-R1. Its obligations prove
 the mapped bridge/export, including exact commit-delta translation through T3
 and T2, representation-level equality of the WAL, Journal, and Broker
 abstractions, equality at every canonical mapped prefix, and recovery-endpoint
-equality. One additional combined nonvacuity obligation constructs the minimal
+prefix extension/provenance plus the no-Commit equality corollary. A combined
+nonvacuity obligation constructs the minimal
 WAL recovery episode under the inert storage-parametric context with seven
 identical context states, proves all contextual theorem premises, and
 instantiates the completed T5-C0 conclusion.
@@ -1828,14 +1862,16 @@ implies
         alpha_commit_W(tau_W^S.machine.configs[i])
           = alpha_commit_B(tau_B^S.machine.configs[mu[i]])
   and alpha_commit_W(tau_W^S.machine.configs[crash])
-        = alpha_commit_W(tau_W^S.machine.configs[finish + 1])
-  and alpha_commit_W(tau_W^S.machine.configs[crash])
-        = alpha_commit_B(tau_B^S.machine.configs[mu[crash]])
-  and alpha_commit_W(tau_W^S.machine.configs[finish + 1])
-        = alpha_commit_B(tau_B^S.machine.configs[mu[finish + 1]])
+        <=p alpha_commit_W(tau_W^S.machine.configs[finish + 1])
   and alpha_commit_B(tau_B^S.machine.configs[mu[crash]])
-        = alpha_commit_B(tau_B^S.machine.configs[mu[finish + 1]]).
+        <=p alpha_commit_B(tau_B^S.machine.configs[mu[finish + 1]])
+  and CrashPrefixRecoveryCommitProvenance(tau_W^S.machine,crash,finish).
 ```
+
+If `RecoveryEpisode` above is strengthened to
+`CommitStutteringRecoveryEpisode`, the two prefix relations become equalities;
+combined with the all-prefix WAL/Broker relation, this yields the historical
+four endpoint equalities.
 
 The target endpoint is the Broker configuration at `mu[finish + 1]`, not
 `mu[finish]`. T5-C0 proves equality at mapped configuration prefixes; it does
@@ -1843,8 +1879,15 @@ not transport `RecoveryEpisode` to the target Broker event trace. T5 as a whole
 does not prove recovery liveness, full-state equality, external-effect
 refinement, or byte-level WAL/filesystem correctness.
 
-Theorem T5 is complete. H1 below checks that its cumulative package is
-inhabited. T6-D0 then freezes the terminal/adapter interface, T6-E0 proves its
+H2 additionally constructs a premise-free 26-event typed-WAL execution with a
+durable successful Outcome, Crash/scan/BeginRecover, Commit while Recovering,
+and FinishRecover. It exports valid WAL, compressed Journal, and canonical
+Broker executions, proves committed-history lengths zero and one at the two
+endpoints, and proves `CommitStutteringRecoveryEpisode` false. H2 verifies 886
+cumulative obligations and contributes one witness obligation over T6-A0.
+
+Theorem T5 is complete. H1 below checks the stuttering contextual package and
+H2 checks strict extension. T6-D0 then freezes the terminal/adapter interface, T6-E0 proves its
 generic terminal-evidence half, T6-C0 proves the complementary generic
 terminal-compatibility half, and T6-S0 composes both halves through the two
 backend interfaces. Adapter-specific semantics are the next proof checkpoint.
@@ -1887,9 +1930,7 @@ exists Cfg,Ctxt,tau,crash,finish.
 
 H1 adds 3 obligations beyond T5-C0: well-formedness of the concrete total
 configuration, the concrete T5-C0 package, and existential cumulative-artifact
-inhabitation. Its cumulative target verifies 786 obligations with zero errors;
-the historical H1 registry contained 36 targets and 823 dependency-aware
-non-duplicated obligations.
+inhabitation. Its cumulative target verifies 804 obligations with zero errors.
 This is a satisfiability result, not a stronger recovery theorem. The concrete
 minimal witness does not exhibit a nonempty pre-crash commit history, realistic
 adapter behavior, an external effect, liveness, or byte-level persistence.
@@ -1926,9 +1967,8 @@ proof without claiming the terminal bridge. The mechanized surface contains:
   T6-S0 wrapper statements over the representation relations already proved by
   T2 and T4-C0.
 
-T6-D0 verifies 799 cumulative obligations with zero errors, 16 beyond its
-T5-C0 parent. Together with the independent H1 delta, its 37-target checkpoint
-contains 839 dependency-aware non-duplicated obligations.
+T6-D0 verifies 821 cumulative obligations with zero errors, 16 beyond its
+T5-C0 parent.
 
 `AdapterRelyTrace` itself requires every event in its input history to belong
 to the named request; this is necessary because `AdapterVerified` quantifies
@@ -1983,7 +2023,7 @@ branch, Journal legality supplies the exact prefix `StructuralEnabled` rule and
 its reason-specific durable anchor; the proof makes no negative assertion
 about unpersisted physical outcomes.
 
-T6-E0 verifies 817 cumulative obligations with zero errors, 18 beyond its
+T6-E0 verifies 839 cumulative obligations with zero errors, 18 beyond its
 T6-D0 parent. Its historical 38-target registry contained 857 dependency-aware
 non-duplicated obligations. The theorem neither assumes nor proves an adapter
 semantic interpretation: it does not establish `BrokerOutcomeCompatible`,
@@ -2033,7 +2073,7 @@ invocation counts. It then discharges every frozen compatibility branch:
   reason guard and durable evidence anchor, yielding `UnknownCause`. The
   Uncontrolled branch additionally inherits the at-most-one-invocation bound.
 
-T6-C0 verifies 834 cumulative obligations with zero errors, 17 beyond its
+T6-C0 verifies 856 cumulative obligations with zero errors, 17 beyond its
 T6-E0 parent. Its 39-target registry contains 874 dependency-aware
 non-duplicated obligations, and the sum of all registered target obligations is
 18,224. This checkpoint proves compatibility of the selected broker terminal
@@ -2264,7 +2304,7 @@ control events.
 per-request effect refinement, exact one effect, not zero effect, the selected
 Unknown terminal, and failure of `all_invocations_failed`. The exact operational
 and semantic package is inhabited without premises by
-`t6_a1_executable_crash_retry_nonvacuity`. T6-A1 verifies 916 obligations with
+`t6_a1_executable_crash_retry_nonvacuity`. T6-A1 verifies 937 obligations with
 zero errors, 52 beyond T6-A0. The retained 42-target report contains 956
 dependency-aware non-duplicated obligations and sums 20,867 target obligations.
 
@@ -2436,7 +2476,7 @@ points, begins at zero, ends at 31, and satisfies `mu[13] = mu[14]` at
 effect-state agreement. `t6_p0_prefix_product_nonvacuity` exports the same
 package existentially without premises.
 
-T6-P0 verifies 1,000 cumulative obligations with zero errors, 23 beyond
+T6-P0 verifies 1,021 cumulative obligations with zero errors, 23 beyond
 T6-M0. It establishes no storage-parametric plugged-execution theorem, no
 conditional end-to-end T6 conclusion, no production Rust/network/service or
 OS-isolation refinement, no byte/fsync result, no caller-visible result action,
@@ -2519,10 +2559,11 @@ the canonical Broker context's final invocation audit with the protected
 accepted-call trace, and durable authorization of every linearization.
 `t6_x0_contextual_end_to_end_nonvacuity` exports this package existentially.
 
-T6-X0 verifies 1,022 cumulative obligations with zero errors, 22 beyond
-T6-P0. With T6-X0 registered, the retained suite passes 45/45 targets, contains
-1,062 dependency-aware non-duplicated obligations, and sums to 23,866 target
-obligations.
+T6-X0 verifies 1,043 cumulative obligations with zero errors, 22 beyond
+T6-P0. The historical pre-K4/DD registry passed 45/45 targets and contained
+1,062 dependency-aware non-duplicated obligations with a 23,866 target sum.
+The current retained suite passes 72/72 targets, contains 1,511 dependency-aware
+non-duplicated obligations, and sums to 38,952 target obligations.
 
 T6-X0 does not verify production Rust adapter/runtime code, transport or
 remote-service behavior, OS/process/descriptor isolation, byte encoding or
@@ -2648,12 +2689,13 @@ group has only backward dependencies.
     Broker execution, and prove exact state/view equality at mapped prefixes
     (completed T4-C2/T4).
 11. **Recovery (completed T5):** use the completed T5-S0 one-step laws, T5-E0
-    interval monotonicity, and T5-R0 Crash-to-first-`FinishRecover` equality;
-    export the exact endpoint equalities through T4's canonical contextual map
-    in T5-C0 and close theorem T5.
+    interval monotonicity, T5-R0 no-Commit equality, and T5-R1 general
+    extension/crash-prefix provenance; export both through T4's canonical
+    contextual map in T5-C0 and close theorem T5.
 12. **Artifact nonvacuity (completed H1):** construct a total well-formed
     configuration, instantiate the complete T5-C0 package without premises,
-    and bind verification reports to the checked source snapshots.
+    bind verification reports to the checked source snapshots, and use H2 to
+    inhabit a strict recovery-Commit extension.
 13. **Definition freeze (completed T6-D0):** mechanize the adapter relations,
     unique terminal/delivery selectors, outcome evidence, compatibility, and
     separate Journal/WAL bridge statement boundaries.

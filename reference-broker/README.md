@@ -11,7 +11,7 @@ refinement theorem.
 |---|---|---|
 | Nine `JournalRecord` variants and one-based LSN references | Mirrored from verified K3 concepts | K3 proves its Verus records and serialized `Call -> Linearize -> Return` append loop refine the typed Journal boundary. |
 | Durable phase summary and record ancestry checks | Mirrored from verified K1-K3 concepts | The standard-Rust replay code independently checks exact references and legal local phase changes; this code is not verified. |
-| `Broker` wrapper and single executor slot | Trusted standard-Rust wrapper | Correct use of the verified concepts depends on this crate's tests and code review. |
+| `Broker` wrapper and single executor slot | Trusted standard-Rust wrapper | Correct use of the verified concepts depends on this crate's tests and code review. `open_with_gate` exposes a mandatory caller-supplied append/replay gate for checked profiles. |
 | Frame encoding, CRC32, file append, flush, `sync_data`, and tail truncation | Unverified platform code | Filesystem and OS durability semantics are assumed. No theorem connects byte frames to the typed-WAL model. |
 | Adapter implementations and remote effects | Unverified application code | The three adapters are executable examples, not proofs that arbitrary production services satisfy an adapter contract. |
 | Process lifecycle, transport, access control, and deployment | Out of scope | A production refinement or complete-mediation claim requires additional evidence. |
@@ -21,11 +21,15 @@ refines the typed-WAL theorem, that arbitrary production executions inhabit the
 DD5 request family, or that an operating-system deployment enforces exclusive
 mediation.
 
-The artifact's K3 runtime bridge additionally executes one K3-profile M4
-Idempotent run and feeds its actual six durable records into the compiled,
-verified K3 append kernel. This is a concrete typed-record certificate for that
-run, not a proof that arbitrary M4 code paths, recovery, byte frames, adapters,
-or deployment refine the Verus model.
+The artifact's K4 runtime bridge additionally executes broker operations with a
+caller-supplied `AppendGate`. The K4-I0 gate is invoked by the broker itself in
+`preview -> durable WAL -> commit` order, and a fresh gate replays every
+durable record before the broker serves requests. This is a concrete
+typed-record certificate for the exercised profiles, not a proof that
+arbitrary M4 code paths, byte frames, adapters, or deployment refine the Verus
+model. K4-I1 separately removes the ungated opener from the submission
+evaluation profile and emits an attestation for gate creation, preview/commit
+pairing, replay, and recovery closure.
 
 The example `DeduplicatedAdapter` keeps its keyed decisions in memory. Crash
 tests restart the `Broker` while retaining the adapter object, modeling an
@@ -59,14 +63,16 @@ projection. K4-A1 threads the same profile through concrete K3 durable,
 journal, acknowledgment, and append-control state with generic K4 mutations
 and exact LSN/cut agreement. Neither checkpoint turns this standard-Rust crate
 into an implementation refinement of the Verus model. K4-A2 generalizes the
-checked bridge to arbitrary legal sequences of the six supported record kinds
-under a well-formed manifest, but still does not refine this Rust crate, its
-byte WAL, or Revoke/Fail/Unknown behavior.
-The artifact's K4-I0 harness runs representative broker WAL traces through the
-compiled proof-erased K4-A2 boundary and checks exact cuts and terminal state;
-that remains integration evidence rather than a refinement theorem.
-The sidecar's byte-level durability remains an M4 platform assumption, not a
-typed-WAL refinement theorem.
+checked bridge to arbitrary legal sequences of the six ordinary record kinds;
+K4-A3 adds Fail and all five reason-specific Unknown variants. K4-A4 adds
+explicit Online/Crashed/Recovering control, durable-success recovery Commit,
+a conservative Unknown recovery gate, and a proved class-sensitive resume
+guard;
+the compiled K4-I0 profile uses the gate from the broker's real append and
+replay paths, while K4-I1 requires the same gate throughout submission
+evaluation. Neither checkpoint refines this Rust crate, its byte WAL, or
+Revoke behavior. The sidecar's byte-level durability remains an M4 platform
+assumption, not a typed-WAL refinement theorem.
 
 ## Protocol
 
@@ -82,10 +88,22 @@ typed-WAL refinement theorem.
    append.
 5. `Outcome` and exactly one of `Commit`, `Fail`, or `Unknown` make the result
    recoverable through `terminal`.
-6. Recovery converts an unmatched `Start` into an ambiguous `Outcome`.
-   Uncontrolled execution becomes `Unknown`; Idempotent and Deduplicated
-   execution may retry within its class-derived attempt limit (three attempts
-   for Idempotent and Deduplicated, one for Uncontrolled and ReadOnly). The
+   A Failure is reported as Fail only when the formal conclusiveness condition
+   holds; an Idempotent Failure following prior uncertainty becomes
+   `Unknown(NonConclusiveFailure)`. Retry-safe InvalidResult observations retry
+   until success or the class-derived limit, while Uncontrolled InvalidResult
+   becomes Unknown immediately.
+6. Recovery first resolves a durable successful `Outcome` to `Commit`; a K4
+   gate validates that terminal append while still in Recovering mode. Without
+   such evidence, ordinary mode converts an unmatched `Start` into an ambiguous
+   `Outcome`. A gate may opt into the conservative K4 policy and terminalize a
+   supported (the K4-I0 profile uses Uncontrolled) still-Armed request as
+   `Unknown(Recovery)` using its latest Start/Outcome evidence (or its Arm
+   reference before any attempt), with no recovery invocation. A K4 gate may
+   resume Idempotent or Deduplicated Armed requests; Uncontrolled and ReadOnly
+   requests may resume only when no durable Start exists. Idempotent and
+   Deduplicated execution may otherwise retry within their class-derived
+   attempt limit (three attempts; one for Uncontrolled and ReadOnly). The
    `run` argument must match that limit; manual `begin_attempt` and
    `accept_delivery` paths enforce it directly.
 
@@ -118,9 +136,13 @@ cargo clippy --all-targets --all-features
 cargo test --all-targets
 cargo run --release --bin evaluate -- --iterations 100 \
   --output evaluation/results/rq1-rq2-linux.json
+../artifact/run-k4-i1.sh
 ```
 
-The crate has no third-party dependencies.
+The crate has no third-party dependencies. The ordinary `evaluate` command is
+useful for standalone measurements; the submission profile is
+`artifact/run-k4-i1.sh`, which requires an immutable manifest and K4 gate for
+every broker construction and writes a separately validated attestation.
 
 The [evaluation guide](evaluation/README.md) defines the RQ1/RQ2 report fields,
 ablations, schema validation, and limits of the retained microbenchmark data.

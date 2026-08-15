@@ -337,8 +337,9 @@ pub open spec fn recovery_obligation_at(
                     p3_layer::recovery_repair_record(
                         cfg, before.core.broker.durable, record,
                     )
-                    && after.physical.commit_source
-                        == before.physical.commit_source
+                    && (!(record is CommitRec) ==>
+                        after.physical.commit_source
+                            == before.physical.commit_source)
             },
             global_layer::GlobalEvent::Crash => {
                 &&& after.physical.commit_source

@@ -1,11 +1,14 @@
 use vstd::prelude::*;
 
-#[path = "t5_commit_recovery.rs"]
-pub mod t5_r0_layer;
+#[path = "t5_durable_success_recovery.rs"]
+pub mod t5_r1_layer;
+// Preserve the historical public module path for downstream T6 targets while
+// making the R1 layer the source of the contextual types.
+pub use t5_r1_layer::t5_r0_layer;
 
 verus! {
 
-use t5_r0_layer::t5_e0_layer;
+use t5_r1_layer::t5_r0_layer::t5_e0_layer;
 use t5_e0_layer::t5_s0_layer;
 use t5_s0_layer::t4_layer;
 use t4_layer::t4_c1_layer;
@@ -83,6 +86,41 @@ pub open spec fn mapped_recovery_commit_history_equal(
         target.configs[map.points[crash as int] as int],
     ) == t5_s0_layer::alpha_commit_broker(
         target.configs[map.points[(finish + 1) as int] as int],
+    )
+}
+
+pub open spec fn mapped_recovery_commit_history_extends(
+    cfg: config_layer::FullConfig,
+    source: wal_runtime_layer::WalExecution,
+    target: execution_layer::BrokerExecution,
+    map: t2_layer::WeakIndexMap,
+    crash: nat,
+    finish: nat,
+) -> bool {
+    &&& crash < source.configs.len()
+    &&& finish + 1 < source.configs.len()
+    &&& crash < map.points.len()
+    &&& finish + 1 < map.points.len()
+    &&& map.points[crash as int] < target.configs.len()
+    &&& map.points[(finish + 1) as int] < target.configs.len()
+    &&& append_layer::is_prefix(
+        t5_s0_layer::alpha_commit_wal(
+            cfg, source.configs[crash as int],
+        ),
+        t5_s0_layer::alpha_commit_wal(
+            cfg, source.configs[(finish + 1) as int],
+        ),
+    )
+    &&& append_layer::is_prefix(
+        t5_s0_layer::alpha_commit_broker(
+            target.configs[map.points[crash as int] as int],
+        ),
+        t5_s0_layer::alpha_commit_broker(
+            target.configs[map.points[(finish + 1) as int] as int],
+        ),
+    )
+    &&& t5_r1_layer::wal_recovery_episode_has_crash_prefix_provenance(
+        source, crash, finish,
     )
 }
 
@@ -360,7 +398,9 @@ pub proof fn mapped_recovery_commit_history_equal_at(
         t4_c0_layer::weak_simulation_index_map(
             cfg, source, target, map,
         ),
-        t5_r0_layer::recovery_episode(source.events, crash, finish),
+        t5_r0_layer::commit_stuttering_recovery_episode(
+            source.events, crash, finish,
+        ),
     ensures mapped_recovery_commit_history_equal(
         cfg, source, target, map, crash, finish,
     ),
@@ -374,6 +414,100 @@ pub proof fn mapped_recovery_commit_history_equal_at(
     assert(crash <= source.events.len());
     assert(finish + 1 <= source.events.len());
     assert(mapped_commit_histories_equal(cfg, source, target, map));
+}
+
+pub open spec fn t5_c1_statement<S>(
+    cfg: config_layer::FullConfig,
+    context: t4_c1_layer::ProgramContext<S>,
+    source: t4_c1_layer::PluggedWalExecution<S>,
+    crash: nat,
+    finish: nat,
+) -> bool {
+    let target = t4_layer::canonical_plugged_broker_execution(cfg, source);
+    let map = t4_c0_layer::canonical_composed_map(source.machine);
+    &&& t4_layer::t4_c2_statement(cfg, context, source)
+    &&& mapped_commit_histories_equal(
+        cfg, source.machine, target.machine, map,
+    )
+    &&& mapped_recovery_commit_history_extends(
+        cfg, source.machine, target.machine, map, crash, finish,
+    )
+}
+
+pub proof fn transport_commit_prefix<T>(
+    source_first: Seq<T>,
+    source_last: Seq<T>,
+    target_first: Seq<T>,
+    target_last: Seq<T>,
+)
+    requires
+        append_layer::is_prefix(source_first, source_last),
+        target_first == source_first,
+        target_last == source_last,
+    ensures append_layer::is_prefix(target_first, target_last),
+{
+    assert(source_first.len() <= source_last.len());
+    assert(source_first == source_last.take(source_first.len() as int));
+    assert(target_first.len() == source_first.len());
+    assert(target_last.take(target_first.len() as int)
+        == source_last.take(source_first.len() as int));
+    assert(target_first == target_last.take(target_first.len() as int));
+}
+
+pub proof fn mapped_recovery_commit_history_extends_at(
+    cfg: config_layer::FullConfig,
+    source: wal_runtime_layer::WalExecution,
+    target: execution_layer::BrokerExecution,
+    map: t2_layer::WeakIndexMap,
+    crash: nat,
+    finish: nat,
+)
+    requires
+        wal_runtime_layer::exec(cfg, source),
+        mapped_commit_histories_equal(cfg, source, target, map),
+        t5_r0_layer::recovery_episode(source.events, crash, finish),
+    ensures mapped_recovery_commit_history_extends(
+        cfg, source, target, map, crash, finish,
+    ),
+{
+    t5_r1_layer::wal_recovery_episode_commit_history_extends(
+        cfg, source, crash, finish,
+    );
+    t5_r1_layer::wal_recovery_episode_crash_prefix_provenance(
+        cfg, source, crash, finish,
+    );
+    assert(crash <= source.events.len());
+    assert(finish + 1 <= source.events.len());
+    assert(crash < source.configs.len());
+    assert(finish + 1 < source.configs.len());
+    assert(crash < map.points.len());
+    assert(finish + 1 < map.points.len());
+    assert(map.points[crash as int] < target.configs.len());
+    assert(map.points[(finish + 1) as int] < target.configs.len());
+    assert(t5_s0_layer::alpha_commit_wal(
+        cfg, source.configs[crash as int],
+    ) == t5_s0_layer::alpha_commit_broker(
+        target.configs[map.points[crash as int] as int],
+    ));
+    assert(t5_s0_layer::alpha_commit_wal(
+        cfg, source.configs[(finish + 1) as int],
+    ) == t5_s0_layer::alpha_commit_broker(
+        target.configs[map.points[(finish + 1) as int] as int],
+    ));
+    transport_commit_prefix(
+        t5_s0_layer::alpha_commit_wal(
+            cfg, source.configs[crash as int],
+        ),
+        t5_s0_layer::alpha_commit_wal(
+            cfg, source.configs[(finish + 1) as int],
+        ),
+        t5_s0_layer::alpha_commit_broker(
+            target.configs[map.points[crash as int] as int],
+        ),
+        t5_s0_layer::alpha_commit_broker(
+            target.configs[map.points[(finish + 1) as int] as int],
+        ),
+    );
 }
 
 pub proof fn canonical_mapped_commit_histories_equal(
@@ -408,7 +542,9 @@ pub proof fn canonical_mapped_recovery_commit_history_equal(
     requires
         config_layer::full_config_wf(cfg),
         wal_runtime_layer::exec(cfg, source),
-        t5_r0_layer::recovery_episode(source.events, crash, finish),
+        t5_r0_layer::commit_stuttering_recovery_episode(
+            source.events, crash, finish,
+        ),
     ensures mapped_recovery_commit_history_equal(
         cfg,
         source,
@@ -420,6 +556,37 @@ pub proof fn canonical_mapped_recovery_commit_history_equal(
 {
     t4_c0_layer::canonical_closed_wal_broker_composition(cfg, source);
     mapped_recovery_commit_history_equal_at(
+        cfg,
+        source,
+        t4_c0_layer::canonical_target_execution(cfg, source),
+        t4_c0_layer::canonical_composed_map(source),
+        crash,
+        finish,
+    );
+}
+
+pub proof fn canonical_mapped_recovery_commit_history_extends(
+    cfg: config_layer::FullConfig,
+    source: wal_runtime_layer::WalExecution,
+    crash: nat,
+    finish: nat,
+)
+    requires
+        config_layer::full_config_wf(cfg),
+        wal_runtime_layer::exec(cfg, source),
+        t5_r0_layer::recovery_episode(source.events, crash, finish),
+    ensures mapped_recovery_commit_history_extends(
+        cfg,
+        source,
+        t4_c0_layer::canonical_target_execution(cfg, source),
+        t4_c0_layer::canonical_composed_map(source),
+        crash,
+        finish,
+    ),
+{
+    t4_c0_layer::canonical_closed_wal_broker_composition(cfg, source);
+    canonical_mapped_commit_histories_equal(cfg, source);
+    mapped_recovery_commit_history_extends_at(
         cfg,
         source,
         t4_c0_layer::canonical_target_execution(cfg, source),
@@ -462,7 +629,7 @@ pub proof fn inert_context_has_minimal_contextual_recovery_episode<S>(
             t4_c1_layer::inert_context(cfg, state),
             minimal_contextual_recovery_execution(cfg, state),
         ),
-        t5_r0_layer::recovery_episode(
+        t5_r0_layer::commit_stuttering_recovery_episode(
             minimal_contextual_recovery_execution(cfg, state).machine.events,
             0,
             5,
@@ -584,7 +751,7 @@ pub proof fn canonical_contextual_recovery_preservation<S>(
         config_layer::full_config_wf(cfg),
         t4_c1_layer::storage_parametric_context(cfg, context),
         t4_c1_layer::plugged_wal_exec(cfg, context, source),
-        t5_r0_layer::recovery_episode(
+        t5_r0_layer::commit_stuttering_recovery_episode(
             source.machine.events, crash, finish,
         ),
     ensures t5_c0_statement(cfg, context, source, crash, finish),
@@ -595,6 +762,30 @@ pub proof fn canonical_contextual_recovery_preservation<S>(
     );
     canonical_mapped_commit_histories_equal(cfg, source.machine);
     canonical_mapped_recovery_commit_history_equal(
+        cfg, source.machine, crash, finish,
+    );
+}
+
+pub proof fn canonical_contextual_recovery_extension<S>(
+    cfg: config_layer::FullConfig,
+    context: t4_c1_layer::ProgramContext<S>,
+    source: t4_c1_layer::PluggedWalExecution<S>,
+    crash: nat,
+    finish: nat,
+)
+    requires
+        config_layer::full_config_wf(cfg),
+        t4_c1_layer::storage_parametric_context(cfg, context),
+        t4_c1_layer::plugged_wal_exec(cfg, context, source),
+        t5_r0_layer::recovery_episode(source.machine.events, crash, finish),
+    ensures t5_c1_statement(cfg, context, source, crash, finish),
+{
+    t4_c1_layer::plugged_wal_embeds(cfg, context, source);
+    t4_layer::canonical_contextual_wal_broker_composition(
+        cfg, context, source,
+    );
+    canonical_mapped_commit_histories_equal(cfg, source.machine);
+    canonical_mapped_recovery_commit_history_extends(
         cfg, source.machine, crash, finish,
     );
 }
@@ -614,7 +805,7 @@ pub proof fn t5_c0_contextual_recovery_preservation<A, S>(
         t4_c1_layer::plugged_wal_exec(
             t1_layer::paper_broker_config(cfg), context, source,
         ),
-        t5_r0_layer::recovery_episode(
+        t5_r0_layer::commit_stuttering_recovery_episode(
             source.machine.events, crash, finish,
         ),
     ensures t5_c0_statement(

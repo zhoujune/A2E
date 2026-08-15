@@ -142,8 +142,8 @@ closer system appears.
 | Deduplicated protected execution and mediation | T6-DD3 | Complete for the distinguished DD2 execution |
 | Deduplicated P0/X0 instantiation | T6-DD4 | Complete for the distinguished DD2 execution |
 | Request-indexed family of operational/protected executions | T6-DD5 coverage-conditioned family theorem with DD2 nonvacuity | Complete at the formal family boundary; production construction remains an implementation refinement |
-| Finite M4 admission-manifest configuration and append refinement | K4-C0 maps executable capability budgets and immutable request bindings into a total well-formed R1 configuration; K4-R0/R1 prove parameterized Authorize, Prepare, and Start guards; K4-R2/R3 prove accepted Authorize and Prepare durable mutations; K4-R4 proves the Arm guard and mutation; K4-R5 proves the Start attempt-log mutation; K4-R6 proves the Outcome guard and mutation; K4-R7 proves the Commit guard and mutation; K4-A0 carries the six-record Idempotent profile through a generic B1/C1 append certificate, exact K3 record projection, and all-prefix checkpoints; K4-A1 threads that profile through a manifest-aware concrete K3 append state, dispatching all six durable mutations with exact LSN/cut agreement; K4-A2 generalizes the concrete bridge to arbitrary legal sequences of those six supported record kinds, including manifest-budget materialization, request-generic committed-state reflection, and a premise-free terminal witness; M4 binds and validates the matching manifest | Configuration, six core guards, six accepted phase/attempt/outcome/terminal mutations, a bounded manifest append certificate, and generic supported-record concrete append-state refinement complete; Revoke/Fail/Unknown, crash/recovery, byte-WAL, and Rust-broker implementation refinement remain open |
-| Executable broker event loop and physical WAL | M4 `reference-broker`: generated IDs, capability budgets, one slot, framed file WAL, recovery, correlation, terminal retrieval, and three adapters; K4-I0 runs representative broker WAL traces through the compiled proof-erased K4-A2 boundary | Complete as an unverified reference prototype with compiled integration evidence; no production or byte-WAL refinement claim |
+| Finite M4 admission-manifest configuration and append refinement | K4-C0 through K4-A3 refine manifest-bound ordinary and terminal typed-record guards/mutations with exact append state; K4-A4 adds executable Online/Crashed/Recovering control, terminal-only Commit/Fail/Unknown recovery appends, exact recovery completion, a durable-success Commit witness, the preview/WAL-commit boundary, and an executable class-sensitive resume predicate; M4 binds and validates the matching manifest | Configuration, ordinary and terminal typed-record guards/mutations, exact append-state refinement, durable-success/conservative recovery, and safe recovery resumption are complete at the typed kernel; Revoke, byte-WAL, and Rust-broker whole-program refinement remain open |
+| Executable broker event loop and physical WAL | M4 `reference-broker`: generated IDs, capability budgets, one slot, framed file WAL, recovery, correlation, terminal retrieval, and three adapters; K4-I0 injects a compiled K4-A4 `AppendGate` into selected real append/replay traces; K4-I1 requires immutable manifests and that gate for every submission-evaluation broker open, including Commit/Fail/Unknown, replay, conservative Uncontrolled `Unknown(Recovery)`, durable-success recovery Commit, and retry-safe resume | Complete as an unverified reference prototype with selected K4-I0 traces and fail-closed K4-I1 evaluation attestation; production, byte-WAL, and whole-program control-flow refinement remain open |
 | Byte/fsync/filesystem refinement | Typed-record abstraction only | Explicitly out of theorem scope; assumptions must be evaluated and documented |
 
 The ReadOnly row is intentionally not a complete-mediation row. T6-RO0 does
@@ -254,22 +254,30 @@ The `reference-broker` standard-Rust crate now provides all of these elements.
 Its dependency-free WAL uses versioned length frames, CRC32, synchronous file
 flushes, exact one-based LSNs, and deterministic torn-tail recovery. The
 `Start` LSN is the invocation identifier, so only the invocation occupying the
-single volatile executor slot can deliver an outcome. Recovery conservatively
-records an unmatched `Start` as ambiguous before either retrying an Idempotent
-or Deduplicated request or terminalizing an Uncontrolled request as Unknown.
+single volatile executor slot can deliver an outcome. In ordinary mode,
+recovery records an unmatched `Start` as ambiguous before either retrying an
+Idempotent or Deduplicated request or terminalizing an Uncontrolled request as
+Unknown. The explicit K4 gate applies the formal class-sensitive policy: a
+restarted Idempotent or Deduplicated Armed request may resume, while an
+Uncontrolled or ReadOnly request may resume only before a durable Start exists.
+The demonstrated unsafe Uncontrolled prefix is terminalized as
+`Unknown(Recovery)` with Start/Outcome/Arm evidence and is never re-invoked.
+K4-I1 exercises both the terminal and verified-resume branches.
 
 The test suite covers all nine record codecs, capability rejection and budget
 reconstruction, normal and ambiguous adapter behavior, stale-delivery
 rejection, lost terminal returns, torn final frames, and the product of all
 seven durable/volatile crash sites with all three required adapter examples
-(21 crash cases). `cargo fmt --check`, Clippy, and all 14 integration tests pass
-with the pinned Rust 1.96 toolchain on Linux.
+(21 crash cases). rustfmt, Clippy, and all 32 integration tests pass with the
+pinned Rust 1.96 toolchain on Linux.
 
 The crate README explicitly separates K1-K3 concepts from the trusted
 standard-Rust wrapper and the unverified filesystem, encoding, adapter,
-transport, and deployment layers. M4 does not prove that its byte WAL refines
-the typed-WAL model or that production executions inhabit T6-DD5's covered
-family.
+transport, and deployment layers. `Broker::open_with_gate` exposes the
+executable append/replay boundary used by K4-I0; K4-I1 makes it mandatory for
+the submission evaluation and retains a counter-based attestation. M4 still does not
+prove that its byte WAL or surrounding Rust control refines the typed-WAL model
+or that production executions inhabit T6-DD5's covered family.
 
 ## 7. Evaluation contract
 

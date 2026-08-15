@@ -1,0 +1,421 @@
+{
+  "schema": "proveai.k4-i1-submission-evaluation",
+  "schema_version": 1,
+  "gate_profile": "k4-a4-required",
+  "broker_opens": 47,
+  "gate_evidence": {
+    "gates_created": 47,
+    "previews": 1573,
+    "commits": 1573,
+    "replays": 675,
+    "recoveries_started": 47,
+    "recoveries_finished": 40,
+    "recoveries_resumed": 7
+  },
+  "evaluation": {
+    "schema_version": 1,
+    "generated_unix_seconds": 1786788418,
+    "iterations": 100,
+    "retry_iterations": 10,
+    "environment": {
+      "hostname": "nb-24cb14da0659f04784-6dd8ddfd6-ffj8p",
+      "target": "x86_64-linux",
+      "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)",
+      "source_revision": "unknown",
+      "build_profile": "debug",
+      "package_version": "0.1.0",
+      "logical_cpus": 36
+    },
+    "rq1": {
+      "all_passed": true,
+      "stale_delivery_rejected": true,
+      "case_count": 21,
+      "cases": [
+        {
+          "adapter": "uncontrolled",
+          "crash_site": "after_authorize",
+          "terminal": "committed",
+          "terminal_attempt": 1,
+          "physical_invocations": 1,
+          "abstract_effects": 1,
+          "terminal_records": 1,
+          "authorization_ancestry": true,
+          "retry_bound_respected": true,
+          "effect_oracle_satisfied": true,
+          "passed": true
+        },
+        {
+          "adapter": "uncontrolled",
+          "crash_site": "after_prepare",
+          "terminal": "committed",
+          "terminal_attempt": 1,
+          "physical_invocations": 1,
+          "abstract_effects": 1,
+          "terminal_records": 1,
+          "authorization_ancestry": true,
+          "retry_bound_respected": true,
+          "effect_oracle_satisfied": true,
+          "passed": true
+        },
+        {
+          "adapter": "uncontrolled",
+          "crash_site": "after_arm",
+          "terminal": "committed",
+          "terminal_attempt": 1,
+          "physical_invocations": 1,
+          "abstract_effects": 1,
+          "terminal_records": 1,
+          "authorization_ancestry": true,
+          "retry_bound_respected": true,
+          "effect_oracle_satisfied": true,
+          "passed": true
+        },
+        {
+          "adapter": "uncontrolled",
+          "crash_site": "after_start",
+          "terminal": "unknown",
+          "terminal_attempt": 1,
+          "physical_invocations": 0,
+          "abstract_effects": 0,
+          "terminal_records": 1,
+          "authorization_ancestry": true,
+          "retry_bound_respected": true,
+          "effect_oracle_satisfied": true,
+          "passed": true
+        },
+        {
+          "adapter": "uncontrolled",
+          "crash_site": "after_invoke",
+          "terminal": "unknown",
+          "terminal_attempt": 1,
+          "physical_invocations": 1,
+          "abstract_effects": 1,
+          "terminal_records": 1,
+          "authorization_ancestry": true,
+          "retry_bound_respected": true,
+          "effect_oracle_satisfied": true,
+          "passed": true
+        },
+        {
+          "adapter": "uncontrolled",
+          "crash_site": "after_outcome",
+          "terminal": "committed",
+          "terminal_attempt": 1,
+          "physical_invocations": 1,
+          "abstract_effects": 1,
+          "terminal_records": 1,
+          "authorization_ancestry": true,
+          "retry_bound_respected": true,
+          "effect_oracle_satisfied": true,
+          "passed": true
+        },
+        {
+          "adapter": "uncontrolled",
+          "crash_site": "after_terminal",
+          "terminal": "committed",
+          "terminal_attempt": 1,
+          "physical_invocations": 1,
+          "abstract_effects": 1,
+          "terminal_records": 1,
+          "authorization_ancestry": true,
+          "retry_bound_respected": true,
+          "effect_oracle_satisfied": true,
+          "passed": true
+        },
+        {
+          "adapter": "idempotent",
+          "crash_site": "after_authorize",
+          "terminal": "committed",
+          "terminal_attempt": 1,
+          "physical_invocations": 1,
+          "abstract_effects": 1,
+          "terminal_records": 1,
+          "authorization_ancestry": true,
+          "retry_bound_respected": true,
+          "effect_oracle_satisfied": true,
+          "passed": true
+        },
+        {
+          "adapter": "idempotent",
+          "crash_site": "after_prepare",
+          "terminal": "committed",
+          "terminal_attempt": 1,
+          "physical_invocations": 1,
+          "abstract_effects": 1,
+          "terminal_records": 1,
+          "authorization_ancestry": true,
+          "retry_bound_respected": true,
+          "effect_oracle_satisfied": true,
+          "passed": true
+        },
+        {
+          "adapter": "idempotent",
+          "crash_site": "after_arm",
+          "terminal": "committed",
+          "terminal_attempt": 1,
+          "physical_invocations": 1,
+          "abstract_effects": 1,
+          "terminal_records": 1,
+          "authorization_ancestry": true,
+          "retry_bound_respected": true,
+          "effect_oracle_satisfied": true,
+          "passed": true
+        },
+        {
+          "adapter": "idempotent",
+          "crash_site": "after_start",
+          "terminal": "committed",
+          "terminal_attempt": 2,
+          "physical_invocations": 1,
+          "abstract_effects": 1,
+          "terminal_records": 1,
+          "authorization_ancestry": true,
+          "retry_bound_respected": true,
+          "effect_oracle_satisfied": true,
+          "passed": true
+        },
+        {
+          "adapter": "idempotent",
+          "crash_site": "after_invoke",
+          "terminal": "committed",
+          "terminal_attempt": 2,
+          "physical_invocations": 2,
+          "abstract_effects": 1,
+          "terminal_records": 1,
+          "authorization_ancestry": true,
+          "retry_bound_respected": true,
+          "effect_oracle_satisfied": true,
+          "passed": true
+        },
+        {
+          "adapter": "idempotent",
+          "crash_site": "after_outcome",
+          "terminal": "committed",
+          "terminal_attempt": 1,
+          "physical_invocations": 1,
+          "abstract_effects": 1,
+          "terminal_records": 1,
+          "authorization_ancestry": true,
+          "retry_bound_respected": true,
+          "effect_oracle_satisfied": true,
+          "passed": true
+        },
+        {
+          "adapter": "idempotent",
+          "crash_site": "after_terminal",
+          "terminal": "committed",
+          "terminal_attempt": 1,
+          "physical_invocations": 1,
+          "abstract_effects": 1,
+          "terminal_records": 1,
+          "authorization_ancestry": true,
+          "retry_bound_respected": true,
+          "effect_oracle_satisfied": true,
+          "passed": true
+        },
+        {
+          "adapter": "deduplicated",
+          "crash_site": "after_authorize",
+          "terminal": "committed",
+          "terminal_attempt": 1,
+          "physical_invocations": 1,
+          "abstract_effects": 1,
+          "terminal_records": 1,
+          "authorization_ancestry": true,
+          "retry_bound_respected": true,
+          "effect_oracle_satisfied": true,
+          "passed": true
+        },
+        {
+          "adapter": "deduplicated",
+          "crash_site": "after_prepare",
+          "terminal": "committed",
+          "terminal_attempt": 1,
+          "physical_invocations": 1,
+          "abstract_effects": 1,
+          "terminal_records": 1,
+          "authorization_ancestry": true,
+          "retry_bound_respected": true,
+          "effect_oracle_satisfied": true,
+          "passed": true
+        },
+        {
+          "adapter": "deduplicated",
+          "crash_site": "after_arm",
+          "terminal": "committed",
+          "terminal_attempt": 1,
+          "physical_invocations": 1,
+          "abstract_effects": 1,
+          "terminal_records": 1,
+          "authorization_ancestry": true,
+          "retry_bound_respected": true,
+          "effect_oracle_satisfied": true,
+          "passed": true
+        },
+        {
+          "adapter": "deduplicated",
+          "crash_site": "after_start",
+          "terminal": "committed",
+          "terminal_attempt": 2,
+          "physical_invocations": 1,
+          "abstract_effects": 1,
+          "terminal_records": 1,
+          "authorization_ancestry": true,
+          "retry_bound_respected": true,
+          "effect_oracle_satisfied": true,
+          "passed": true
+        },
+        {
+          "adapter": "deduplicated",
+          "crash_site": "after_invoke",
+          "terminal": "committed",
+          "terminal_attempt": 2,
+          "physical_invocations": 2,
+          "abstract_effects": 1,
+          "terminal_records": 1,
+          "authorization_ancestry": true,
+          "retry_bound_respected": true,
+          "effect_oracle_satisfied": true,
+          "passed": true
+        },
+        {
+          "adapter": "deduplicated",
+          "crash_site": "after_outcome",
+          "terminal": "committed",
+          "terminal_attempt": 1,
+          "physical_invocations": 1,
+          "abstract_effects": 1,
+          "terminal_records": 1,
+          "authorization_ancestry": true,
+          "retry_bound_respected": true,
+          "effect_oracle_satisfied": true,
+          "passed": true
+        },
+        {
+          "adapter": "deduplicated",
+          "crash_site": "after_terminal",
+          "terminal": "committed",
+          "terminal_attempt": 1,
+          "physical_invocations": 1,
+          "abstract_effects": 1,
+          "terminal_records": 1,
+          "authorization_ancestry": true,
+          "retry_bound_respected": true,
+          "effect_oracle_satisfied": true,
+          "passed": true
+        }
+      ]
+    },
+    "rq2": {
+      "methodology": {
+        "scope": "single-process local microbenchmark",
+        "latency_clock": "monotonic wall clock",
+        "mediated_flush_policy": "sync_data after every protocol record",
+        "journaled_ablation": "sync_data after Start and result; no adapter effect contract"
+      },
+      "workloads": {
+        "mediated": {
+          "requests": 100,
+          "duration_ns": 94697615,
+          "throughput_requests_per_second": 1055.993,
+          "latency_ns": {
+            "mean": 946445,
+            "p50": 709867,
+            "p95": 2094181,
+            "p99": 2990078
+          },
+          "wal_bytes": 27500,
+          "flushes": 600,
+          "recovery_ns": 6797842,
+          "physical_invocations": 100,
+          "abstract_effects": 100
+        },
+        "direct": {
+          "requests": 100,
+          "duration_ns": 12530,
+          "throughput_requests_per_second": 7980845.970,
+          "latency_ns": {
+            "mean": 47,
+            "p50": 40,
+            "p95": 50,
+            "p99": 50
+          },
+          "wal_bytes": 0,
+          "flushes": 0,
+          "recovery_ns": 0,
+          "physical_invocations": 100,
+          "abstract_effects": 100
+        },
+        "journaled_at_least_once": {
+          "requests": 100,
+          "duration_ns": 16040404,
+          "throughput_requests_per_second": 6234.257,
+          "latency_ns": {
+            "mean": 160169,
+            "p50": 111259,
+            "p95": 403948,
+            "p99": 1035536
+          },
+          "wal_bytes": 4200,
+          "flushes": 200,
+          "recovery_ns": 59810,
+          "physical_invocations": 100,
+          "abstract_effects": 100
+        }
+      },
+      "retry_scenarios": [
+        {
+          "mechanism": "mediated_idempotent",
+          "requests": 10,
+          "duration_ns": 7027091,
+          "latency_ns": {
+            "mean": 702226,
+            "p50": 540858,
+            "p95": 1051526,
+            "p99": 1051526
+          },
+          "physical_invocations": 20,
+          "abstract_effects": 10,
+          "extra_invocations": 10,
+          "extra_effects": 0,
+          "wal_bytes": 3700,
+          "flushes": 80
+        },
+        {
+          "mechanism": "mediated_deduplicated",
+          "requests": 10,
+          "duration_ns": 6115415,
+          "latency_ns": {
+            "mean": 611155,
+            "p50": 543887,
+            "p95": 597668,
+            "p99": 597668
+          },
+          "physical_invocations": 20,
+          "abstract_effects": 10,
+          "extra_invocations": 10,
+          "extra_effects": 0,
+          "wal_bytes": 4260,
+          "flushes": 80
+        },
+        {
+          "mechanism": "journaled_at_least_once",
+          "requests": 10,
+          "duration_ns": 3149337,
+          "latency_ns": {
+            "mean": 314642,
+            "p50": 245639,
+            "p95": 348459,
+            "p99": 348459
+          },
+          "physical_invocations": 20,
+          "abstract_effects": 20,
+          "extra_invocations": 10,
+          "extra_effects": 10,
+          "wal_bytes": 840,
+          "flushes": 40
+        }
+      ]
+    }
+  }
+}

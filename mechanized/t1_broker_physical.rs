@@ -33,6 +33,31 @@ pub enum PhysicalEvent {
     },
 }
 
+pub open spec fn delivery_source(
+    history: Seq<PhysicalEvent>,
+    request: replay_layer::RequestId,
+    attempt: replay_layer::AttemptId,
+    observation: replay_layer::Observation,
+) -> Option<PhysicalIndex>
+    decreases history.len()
+{
+    if history.len() == 0 {
+        Option::None
+    } else {
+        match history.last() {
+            PhysicalEvent::Delivered {
+                request: r, attempt: a, observation: o, ..
+            } if r == request && a == attempt && o == observation => {
+                Option::Some((history.len() - 1) as nat)
+            },
+            PhysicalEvent::Invoke { .. }
+            | PhysicalEvent::Delivered { .. } => {
+                delivery_source(history.drop_last(), request, attempt, observation)
+            },
+        }
+    }
+}
+
 pub struct PhysicalEvidence {
     pub physical: Seq<PhysicalEvent>,
     pub slot_source: Option<PhysicalIndex>,
@@ -271,8 +296,18 @@ pub open spec fn commit_source_after_record(
 ) -> IMap<replay_layer::RequestId, Option<PhysicalIndex>> {
     match event {
         record_layer::Event::BrokerLinearize {
-            record: replay_layer::JournalRecord::CommitRec { request, .. },
-        } => state.physical.commit_source.insert(request, state.physical.slot_source),
+            record: replay_layer::JournalRecord::CommitRec {
+                request, attempt, value, ..
+            },
+        } => state.physical.commit_source.insert(
+            request,
+            delivery_source(
+                state.physical.physical,
+                request,
+                attempt,
+                replay_layer::Observation::Success(value),
+            ),
+        ),
         record_layer::Event::JournalAppendCall { .. }
         | record_layer::Event::BrokerLinearize { .. }
         | record_layer::Event::JournalAppendReturn { .. }

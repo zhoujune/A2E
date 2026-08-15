@@ -28,11 +28,11 @@ trap cleanup EXIT
 
 (
     cd "$output_dir"
-    "$VERUS_BIN" "$repo_root/mechanized/k4_generic_append_state_bridge.rs" \
+    "$VERUS_BIN" "$repo_root/mechanized/k4_crash_recovery_control.rs" \
         --crate-type lib --no-cheating --compile --num-threads "$threads"
 )
 
-kernel_rlib="$output_dir/libk4_generic_append_state_bridge.rlib"
+kernel_rlib="$output_dir/libk4_crash_recovery_control.rlib"
 test -f "$kernel_rlib"
 export RUSTC
 export CARGO_TARGET_DIR="$output_dir/reference-broker-target"
@@ -45,7 +45,7 @@ reference_broker_dependency_dir="$(CDPATH= cd -- "$(dirname -- "$reference_broke
 "$RUSTC" --edition=2021 "$repo_root/artifact/k4-i0-broker-kernel-harness.rs" \
     -L "dependency=$verus_library_dir" \
     -L "dependency=$reference_broker_dependency_dir" \
-    --extern "k4_generic_append_state_bridge=$kernel_rlib" \
+    --extern "k4_crash_recovery_control=$kernel_rlib" \
     --extern "proveai_reference_broker=$reference_broker_rlib" \
     --extern "vstd=$vstd_rlib" \
     --extern "verus_builtin=$verus_builtin_rlib" \

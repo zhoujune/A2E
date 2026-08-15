@@ -655,6 +655,7 @@ premises so that the protected-effect conclusion cannot be mistaken for an
 unconditional property of arbitrary deployments.
 
 \begin{theorem}[Authorization-to-effect consistency]
+\label{thm:authorization-to-effect}
 Let $C$ be a well-formed configuration and $\tau$ any finite execution admitted
 by the serialized fail-stop Broker/Journal/typed-WAL semantics.
 
@@ -1189,6 +1190,67 @@ effects under explicit premises. The verified record kernel and
 kernel-in-the-loop broker traces make part of that boundary executable, while
 the Rust runtime, byte persistence, adapters, and deployment remain outside
 whole-program refinement.
+
+\appendix
+\section{Theorem and Premise Traceability}
+\label{app:traceability}
+
+The artifact includes the machine-readable manifest
+\texttt{formal/theorem-premise-traceability.v1.json} and its versioned schema.
+It maps each paper claim to exact formal symbols, premises, conclusions,
+witnesses, verification targets or executable attestations, and caveats. The
+dependency-free validator is
+\texttt{formal/validate\_traceability.py}. The compact map below is intended
+for independent assessment; the manifest remains the authoritative list of
+symbols and evidence assertions.
+
+\begin{table*}[t]
+  \caption{Claim and premise traceability summary.}
+  \label{tab:traceability}
+  \small
+  \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.21\textwidth}YY}
+    \toprule
+    \textbf{Claim} & \textbf{Premises and formal boundary} & \textbf{Evidence and limitation} \\
+    \midrule
+    T5-R1 durable-success recovery &
+      Finite admitted WAL execution, recovery episode, non-online repair guard,
+      and exact crash-prefix Outcome provenance. The theorem exports history
+      prefix extension and exhaustive recovery decision classification. &
+      Verus target T5-R1 and H2 witness; T5-C0 maps the result to the
+      contextual Broker. It is not a byte-WAL or Rust refinement. \\
+    T6-X0 generic contextual composition &
+      A well-formed paper config, storage context, plugged WAL, AdapterVerified,
+      AdapterRely, and terminal-evidence premise are required; mediation is a
+      separate transport consequence of P0 coupling and a closed interface. &
+      T6-X0 transports terminal/effect refinement to the canonical Broker;
+      it does not construct coverage members or prove arbitrary Rust/WAL
+      executions. \\
+    T6-DD5 request-indexed family composition &
+      Every terminal request must have a valid DD5 family member with stable-key
+      coupling, DD4 prefix product, and the shared T6-X0 contextual premises. &
+      T6-DD5 and its DD2 non-vacuity witness establish the specialized family
+      endpoint; production code does not synthesize or discharge family members. \\
+    K4-A4 executable kernel &
+      Well-formed immutable manifest, post-WAL durable LSN, and the proved
+      class-sensitive resume predicate. &
+      K4-A4 verifies the supported typed-record kernel. Revoke, bytes,
+      filesystem, and arbitrary Rust control flow remain outside. \\
+    K4-I0/K4-I1 executable evidence &
+      The selected broker path must preview before WAL, commit after durable
+      LSN, replay the durable prefix, and use immutable manifests in the
+      submission profile. &
+      K4-I0 harness traces and the K4-I1 retained attestation (47/47 opens,
+      1,573 preview/commit pairs, 675 replays, 40 finished plus 7 resumed
+      recoveries), bound to the exact source manifest and executable hashes.
+      This is finite integration evidence. \\
+    Rust implementation boundary &
+      Record translation, byte persistence, filesystem, adapters, transport,
+      and deployment are explicit trusted or unverified components. &
+      The artifact and paper preserve this limitation; no whole-program Rust
+      refinement claim is made. \\
+    \bottomrule
+  \end{tabularx}
+\end{table*}
 
 \section*{Data Availability}
 

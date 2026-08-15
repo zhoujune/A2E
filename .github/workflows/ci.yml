@@ -28,6 +28,8 @@ jobs:
           python3 reference-broker/evaluation/validate_repeated_rq2.py reference-broker/evaluation/results/rq2-repeated-wsl2-ext4.json
           python3 reference-broker/evaluation/validate_rq3.py reference-broker/evaluation/results/rq3-proof-effort.json
           python3 reference-broker/evaluation/validate_rq4.py reference-broker/evaluation/rq4-fault-matrix.v1.json
+          python3 reference-broker/evaluation/validate_k4_i1.py reference-broker/evaluation/results/k4-i1-submission.json
+          python3 formal/validate_traceability.py formal/theorem-premise-traceability.v1.json
       - name: TLA+ smoke packaging preflight
         run: ./reproduce.sh smoke --dry-run --skip-verus --output-directory "$RUNNER_TEMP/proveai-smoke"
       - name: Anonymous release scan

@@ -6,6 +6,27 @@ mechanisms, dual-write recovery, capability systems, and machine-checked crash
 refinement. Its bibliography is retained in
 [`related-work.bib`](related-work.bib).
 
+## Theorem and premise traceability
+
+The machine-readable [theorem/premise traceability manifest](theorem-premise-traceability.v1.json)
+maps each paper-level claim to its paper label, formal source symbols, explicit
+premises, conclusions, witnesses, retained verification target or executable
+attestation, and caveats. The [schema](theorem-premise-traceability.schema.v1.json)
+defines the versioned format. Validate it from the repository root with:
+
+```sh
+python3 formal/validate_traceability.py \
+  formal/theorem-premise-traceability.v1.json
+```
+
+The validator is dependency-free and fail-closed: it checks exact manifest
+keys, resolved paper labels, source files and symbols, passed Verus targets
+with matching source hashes, witness symbols, explicit premise/conclusion
+symbols, and the retained K4-I1 attestation assertions. The generic T6-X0
+composition entry is separate from the specialized T6-DD5 request-indexed
+family entry. The human-readable [traceability index](theorem-premise-traceability.md)
+summarizes the same boundary without replacing the manifest.
+
 ## Verification boundary
 
 The agent and external tools are adversarial or nondeterministic environment

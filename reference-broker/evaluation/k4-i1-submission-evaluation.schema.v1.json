@@ -7,6 +7,7 @@
   "required": [
     "schema",
     "schema_version",
+    "provenance",
     "gate_profile",
     "broker_opens",
     "gate_evidence",
@@ -15,6 +16,28 @@
   "properties": {
     "schema": { "const": "proveai.k4-i1-submission-evaluation" },
     "schema_version": { "const": 1 },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_revision",
+        "source_manifest_sha256",
+        "harness_sha256",
+        "kernel_rlib_sha256",
+        "broker_rlib_sha256",
+        "verus_executable_sha256",
+        "rustc_executable_sha256"
+      ],
+      "properties": {
+        "source_revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "source_manifest_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "harness_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "kernel_rlib_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "broker_rlib_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "verus_executable_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "rustc_executable_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
     "gate_profile": { "const": "k4-a4-required" },
     "broker_opens": { "type": "integer", "minimum": 1 },
     "gate_evidence": {

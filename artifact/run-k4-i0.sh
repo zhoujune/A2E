@@ -50,4 +50,12 @@ reference_broker_dependency_dir="$(CDPATH= cd -- "$(dirname -- "$reference_broke
     --extern "vstd=$vstd_rlib" \
     --extern "verus_builtin=$verus_builtin_rlib" \
     -o "$output_dir/k4-i0-broker-kernel-harness"
+eval "$(python3 "$repo_root/artifact/k4_i1_provenance.py" \
+    --repository "$repo_root" \
+    --harness "$output_dir/k4-i0-broker-kernel-harness" \
+    --kernel "$kernel_rlib" \
+    --broker "$reference_broker_rlib" \
+    --verus "$VERUS_BIN" \
+    --rustc "$RUSTC" \
+    --shell)"
 "$output_dir/k4-i0-broker-kernel-harness"

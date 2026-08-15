@@ -1,0 +1,449 @@
+{
+  "schema": "proveai.theorem-premise-traceability",
+  "schema_version": 1,
+  "verification_report": "mechanized/results/verification-report.json",
+  "paper_source": "paper/main.tex",
+  "entries": [
+    {
+      "id": "T5-R1-durable-success-recovery",
+      "claim_class": "core-theorem",
+      "boundary": "proved",
+      "paper": {
+        "anchors": ["sec:proof", "thm:authorization-to-effect"],
+        "claim": "Every admitted recovery episode extends committed history monotonically, and every recovery Commit cites a matching successful Outcome already durable at the crash prefix."
+      },
+      "formal": {
+        "source_files": [
+          "mechanized/t5_durable_success_recovery.rs",
+          "mechanized/t5_commit_recovery.rs"
+        ],
+        "symbols": [
+          "recovery_decision_class_is_complete",
+          "recovery_decision_guard_is_sound_and_complete",
+          "wal_recovery_decision_composes_with_history",
+          "wal_recovery_episode_crash_prefix_provenance",
+          "wal_recovery_episode_commit_history_extends",
+          "t5_r1_durable_success_recovery",
+          "recovery_commit_backed_by_durable_success",
+          "recovery_episode"
+        ],
+        "premise_symbols": [
+          "wal_runtime_layer::exec",
+          "recovery_episode",
+          "recovery_decision_guard_is_sound_and_complete",
+          "recovery_commit_backed_by_durable_success"
+        ],
+        "conclusion_symbols": [
+          "recovery_decision_class_is_complete",
+          "wal_recovery_episode_has_crash_prefix_provenance",
+          "wal_recovery_episode_commit_history_extends",
+          "t5_r1_durable_success_recovery"
+        ],
+        "premises": [
+          "wal_runtime_layer::exec(cfg, execution)",
+          "t5_r0_layer::recovery_episode(execution.events, crash, finish)",
+          "recovery repair is enabled only while mode != Mode::Online",
+          "a recovery Commit must match request, attempt, value, and outcome_ref in the crash-prefix durable Journal"
+        ],
+        "conclusions": [
+          "is_prefix(alpha_commit_wal(crash), alpha_commit_wal(finish + 1))",
+          "wal_recovery_episode_has_crash_prefix_provenance(execution, crash, finish)",
+          "Commit, Fail, Unknown, and NotRecovery are classified exhaustively"
+        ]
+      },
+      "evidence": {
+        "kind": "verus-target",
+        "targets": ["T5-R1"],
+        "witnesses": [
+          {
+            "path": "mechanized/h2_durable_success_recovery_witness.rs",
+            "symbols": ["h2_durable_success_recovery_witness"]
+          }
+        ]
+      },
+      "caveats": [
+        "The theorem is about the typed WAL model and does not refine byte persistence or the Rust broker."
+      ]
+    },
+    {
+      "id": "T6-X0-contextual-protected-effect-composition",
+      "claim_class": "generic-protected-effect-theorem",
+      "boundary": "conditional-composition",
+      "paper": {
+        "anchors": ["sec:proof", "thm:authorization-to-effect"],
+        "claim": "For any well-formed adapter, storage context, and plugged WAL execution satisfying the adapter rely relation, the canonical Broker terminal and per-request effect refinement are transported from the WAL execution; complete mediation transports when the coupled projection premise is supplied."
+      },
+      "formal": {
+        "source_files": [
+          "mechanized/t6_contextual_end_to_end.rs",
+          "mechanized/t6_adapter_executable_refinement.rs",
+          "mechanized/t6_terminal_definitions.rs"
+        ],
+        "symbols": [
+          "x0_contextual_terminal_outcome_refines",
+          "x0_contextual_broker_terminal_outcome_refines",
+          "x0_projection_transports_terminal_refinement",
+          "x0_projection_transports_complete_mediation",
+          "x0_contextual_per_request_effect_refines",
+          "per_request_effect_refinement"
+        ],
+        "premise_symbols": [
+          "storage_parametric_context",
+          "plugged_wal_exec",
+          "adapter_verified",
+          "adapter_rely",
+          "terminal",
+          "t4_projection_agreement",
+          "complete_mediation"
+        ],
+        "conclusion_symbols": [
+          "t4_c2_statement",
+          "x0_contextual_per_request_effect_refines",
+          "x0_contextual_broker_terminal_outcome_refines",
+          "x0_projection_transports_complete_mediation",
+          "refines",
+          "per_request_effect_refinement"
+        ],
+        "premises": [
+          "the PaperConfig is well formed and its adapter satisfies AdapterVerified",
+          "storage_parametric_context and plugged_wal_exec relate the context and typed WAL",
+          "adapter_rely holds for the selected request and external run",
+          "the WAL has the stated terminal outcome; the P0 prefix product supplies any protected-call coupling needed for mediation"
+        ],
+        "conclusions": [
+          "the canonical Broker has the same terminal outcome and adapter projection",
+          "the terminal refines the adapter abstract run and satisfies per_request_effect_refinement",
+          "complete mediation is transported from the coupled projection rather than assumed by the generic terminal theorem"
+        ]
+      },
+      "evidence": {
+        "kind": "verus-target",
+        "targets": ["T6-X0"],
+        "witnesses": [
+          {
+            "path": "mechanized/t6_contextual_end_to_end.rs",
+            "symbols": ["t6_x0_executable_crash_retry_end_to_end"]
+          }
+        ]
+      },
+      "caveats": [
+        "This is a conditional composition theorem: it does not construct a coverage member or prove arbitrary adapters, services, Rust executions, or byte persistence.",
+        "The generic terminal theorem and the separate mediation transport lemma must not be read as an unconditional protected-effect guarantee."
+      ]
+    },
+    {
+      "id": "T6-DD5-request-indexed-family-composition",
+      "claim_class": "specialized-protected-effect-theorem",
+      "boundary": "conditional-composition",
+      "paper": {
+        "anchors": ["sec:proof", "thm:authorization-to-effect"],
+        "claim": "For a request-indexed Deduplicated family that covers every terminal request, each selected family member supplies the generic contextual composition obligations and yields a mediated, adapter-relative terminal refinement."
+      },
+      "formal": {
+        "source_files": [
+          "mechanized/t6_deduplicated_request_family.rs",
+          "mechanized/t6_deduplicated_contextual.rs",
+          "mechanized/t6_deduplicated_mediation.rs",
+          "mechanized/t6_contextual_end_to_end.rs",
+          "mechanized/t6_terminal_definitions.rs"
+        ],
+        "symbols": [
+          "dd5_operational_member_valid",
+          "dd5_family_covers_terminal_requests",
+          "dd5_terminal_member_statement",
+          "dd5_request_family_contextual_statement",
+          "dd5_request_family_contextual_refinement",
+          "t6_dd5_request_indexed_contextual_refinement",
+          "t6_dd5_request_family_nonvacuity"
+        ],
+        "premise_symbols": [
+          "dd5_operational_member_valid",
+          "dd5_family_covers_terminal_requests",
+          "dd4_prefix_product",
+          "dd5_member_derives_prefix_product_and_rely",
+          "dd3_coupled_exec",
+          "t4_c2_statement",
+          "x0_contextual_terminal_outcome_refines",
+          "x0_contextual_broker_terminal_outcome_refines",
+          "x0_projection_transports_complete_mediation"
+        ],
+        "conclusion_symbols": [
+          "dd5_terminal_member_statement",
+          "dd5_request_family_contextual_statement",
+          "dd5_request_family_contextual_refinement",
+          "t6_dd5_request_indexed_contextual_refinement",
+          "t6_dd5_request_family_nonvacuity",
+          "per_request_effect_refinement",
+          "complete_mediation"
+        ],
+        "premises": [
+          "every terminal request is covered by a DD5OperationalMember whose stable key and coupled adapter/protected executions match the WAL",
+          "the member derives the DD4 prefix product, adapter rely, and protected-call mediation obligations",
+          "the generic T6-X0 contextual premises hold for the shared typed WAL and storage context"
+        ],
+        "conclusions": [
+          "the family statement holds for every terminal request and its selected member",
+          "canonical Broker terminal/effect refinement and complete mediation are obtained per request",
+          "the DD2 family witness proves non-vacuity of the request-indexed coverage endpoint"
+        ]
+      },
+      "evidence": {
+        "kind": "verus-target",
+        "targets": ["T6-DD5"],
+        "witnesses": [
+          {
+            "path": "mechanized/t6_deduplicated_request_family.rs",
+            "symbols": ["t6_dd5_request_family_nonvacuity"]
+          }
+        ]
+      },
+      "caveats": [
+        "The family theorem is coverage-conditioned; production Rust does not automatically construct or discharge DD5 family members.",
+        "The retained non-vacuity witness is the Deduplicated DD2 instance, not a proof that every deployment satisfies the family premises."
+      ]
+    },
+    {
+      "id": "K4-A4-executable-recovery-kernel",
+      "claim_class": "executable-kernel",
+      "boundary": "proved",
+      "paper": {
+        "anchors": ["sec:implementation"],
+        "claim": "The executable typed-record kernel checks preview, post-WAL commit, crash/recovery control, durable-success Commit, terminal evidence, and class-sensitive resume for its supported record alphabet."
+      },
+      "formal": {
+        "source_files": [
+          "mechanized/k4_crash_recovery_control.rs",
+          "mechanized/k4_terminal_recovery_bridge.rs"
+        ],
+        "symbols": [
+          "k4_a4_preview",
+          "k4_a4_commit_after_wal",
+          "k4_a4_crash",
+          "k4_a4_begin_recovery",
+          "k4_a4_finish_recovery",
+          "k4_a4_request_allows_resume",
+          "k4_a4_recovery_append_one",
+          "k4_a4_durable_success_recovery_witness"
+        ],
+        "premise_symbols": [
+          "KManifestConfig",
+          "k4_a4_commit_after_wal",
+          "k4_a4_request_allows_resume",
+          "k4_a4_recovery_complete"
+        ],
+        "conclusion_symbols": [
+          "k4_a4_preview",
+          "k4_a4_commit_after_wal",
+          "k4_a4_durable_success_recovery_witness",
+          "k4_a4_recovery_append_one"
+        ],
+        "premises": [
+          "the input is a structurally legal sequence under a well-formed immutable manifest",
+          "kernel commit occurs only after the caller supplies the durable WAL LSN",
+          "resume is permitted only by the class-sensitive recovery predicate"
+        ],
+        "conclusions": [
+          "typed durable state and LSN/cut coupling are preserved",
+          "durable-success recovery Commit is accepted without another adapter invocation",
+          "unsafe Uncontrolled/ReadOnly prefixes remain fail closed"
+        ]
+      },
+      "evidence": {
+        "kind": "verus-target",
+        "targets": ["K4-A4"],
+        "witnesses": []
+      },
+      "caveats": [
+        "Revoke, byte encoding, filesystem durability, and whole-program Rust control flow remain outside this target."
+      ]
+    },
+    {
+      "id": "K4-I0-kernel-in-loop-traces",
+      "claim_class": "executable-integration",
+      "boundary": "kernel-in-loop-evidence",
+      "paper": {
+        "anchors": ["sec:implementation"],
+        "claim": "Selected real Rust broker append/replay traces pass through the compiled K4 gate at exact durable cuts and exercise terminal and recovery branches."
+      },
+      "formal": {
+        "source_files": [
+          "artifact/k4-i0-broker-kernel-harness.rs",
+          "artifact/run-k4-i0.sh",
+          "reference-broker/src/broker.rs",
+          "mechanized/k4_crash_recovery_control.rs"
+        ],
+        "symbols": [
+          "AppendGate",
+          "run_submission_evaluation",
+          "open_with_gate",
+          "k4_a4_preview",
+          "k4_a4_commit_after_wal"
+        ],
+        "premise_symbols": [
+          "AppendGate",
+          "open_with_gate",
+          "k4_a4_preview",
+          "k4_a4_commit_after_wal",
+          "replay"
+        ],
+        "conclusion_symbols": [
+          "k4_a4_preview",
+          "k4_a4_commit_after_wal",
+          "k4_a4_begin_recovery",
+          "k4_a4_finish_recovery"
+        ],
+        "premises": [
+          "the harness supplies a proof-erased K4-A4 library and a manifest-bound broker configuration",
+          "the selected append path previews before WAL and commits after the durable LSN",
+          "reopen replays the complete durable prefix before serving requests"
+        ],
+        "conclusions": [
+          "the exercised traces conform at typed-record prefixes, cuts, terminal state, and recovery classification"
+        ]
+      },
+      "evidence": {
+        "kind": "kernel-in-loop",
+        "targets": [],
+        "paths": [
+          "artifact/run-k4-i0.sh",
+          "artifact/k4-i0-broker-kernel-harness.rs"
+        ],
+        "witnesses": []
+      },
+      "caveats": [
+        "This is finite integration evidence, not a whole-program Rust or byte-WAL refinement theorem."
+      ]
+    },
+    {
+      "id": "K4-I1-fail-closed-submission-profile",
+      "claim_class": "evaluation-attestation",
+      "boundary": "dynamic-attestation",
+      "paper": {
+        "anchors": ["sec:implementation", "sec:evaluation"],
+        "claim": "The retained submission evaluation uses immutable manifests and a K4 gate for every broker open, and attests preview/commit pairing, replay, and recovery closure."
+      },
+      "formal": {
+        "source_files": [
+          "reference-broker/src/evaluation.rs",
+          "reference-broker/src/broker.rs",
+          "artifact/run-k4-i1.sh",
+          "reference-broker/evaluation/validate_k4_i1.py"
+        ],
+        "symbols": [
+          "run_submission_evaluation",
+          "open_with_gate",
+          "k4-a4-required",
+          "gate/open count mismatch"
+        ],
+        "premise_symbols": [
+          "run_submission_evaluation",
+          "open_with_gate",
+          "SubmissionProvenance",
+          "gate/open count mismatch",
+          "validate_evaluation"
+        ],
+        "conclusion_symbols": [
+          "SubmissionProvenance",
+          "provenance",
+          "run_submission_evaluation",
+          "gate/open count mismatch"
+        ],
+        "premises": [
+          "every submission configuration carries an immutable admission manifest",
+          "the evaluation has no ungated Broker::open fallback",
+          "the retained attestation is validated independently"
+        ],
+        "conclusions": [
+          "47/47 opens created gates",
+          "1,573/1,573 previews had post-WAL commits",
+          "675 replays and 40 finished plus 7 resumed recoveries were observed",
+          "RQ1 passed 21/21"
+        ]
+      },
+      "evidence": {
+        "kind": "attestation",
+        "targets": [],
+        "paths": [
+          "reference-broker/evaluation/results/k4-i1-submission.json",
+          "reference-broker/evaluation/validate_k4_i1.py",
+          "reference-broker/evaluation/k4-i1-submission-evaluation.schema.v1.json"
+        ],
+        "attestation": {
+          "path": "reference-broker/evaluation/results/k4-i1-submission.json",
+          "validator": "reference-broker/evaluation/validate_k4_i1.py",
+          "assertions": [
+            {"path": "provenance.source_revision", "equals": "cf3e465a2d32fc6ccadd98fcd0a0544dd085cc2f"},
+            {"path": "provenance.source_manifest_sha256", "equals": "ff9686a10e59f4b591a4e9a603dd36e9aeb17da71920b8fd489eaf7781ad4f36"},
+            {"path": "gate_profile", "equals": "k4-a4-required"},
+            {"path": "broker_opens", "equals": 47},
+            {"path": "gate_evidence.gates_created", "equals": 47},
+            {"path": "gate_evidence.previews", "equals": 1573},
+            {"path": "gate_evidence.commits", "equals": 1573},
+            {"path": "gate_evidence.replays", "equals": 675},
+            {"path": "gate_evidence.recoveries_finished", "equals": 40},
+            {"path": "gate_evidence.recoveries_resumed", "equals": 7},
+            {"path": "evaluation.rq1.all_passed", "equals": true},
+            {"path": "evaluation.rq1.case_count", "equals": 21}
+          ]
+        },
+        "witnesses": []
+      },
+      "caveats": [
+        "The attestation checks the retained evaluation configuration; it does not prove arbitrary Rust executions or deployment isolation."
+      ]
+    },
+    {
+      "id": "rust-reference-boundary",
+      "claim_class": "implementation-boundary",
+      "boundary": "unverified-implementation",
+      "paper": {
+        "anchors": ["sec:implementation", "sec:limitations"],
+        "claim": "The Rust broker, byte WAL, filesystem, adapters, transport, and deployment are reference or trusted components rather than a whole-program refinement of the Verus model."
+      },
+      "formal": {
+        "source_files": [
+          "reference-broker/README.md",
+          "formal/threat-model.md",
+          "formal/refinement.md"
+        ],
+        "symbols": [
+          "this is not an implementation-refinement theorem",
+          "Whole-program Rust/WAL refinement",
+          "Unverified reference implementation"
+        ],
+        "premise_symbols": [
+          "Unverified reference implementation",
+          "Whole-program Rust/WAL refinement",
+          "K4-I0",
+          "K4-I1"
+        ],
+        "conclusion_symbols": [
+          "this is not an implementation-refinement theorem",
+          "Whole-program Rust/WAL refinement",
+          "Unverified reference implementation"
+        ],
+        "premises": [
+          "K4-I0 and K4-I1 close only selected append/replay and submission-evaluation boundaries",
+          "record translation, byte persistence, filesystem, adapters, transport, and deployment are not verified"
+        ],
+        "conclusions": [
+          "the paper must state the implementation-refinement limitation explicitly",
+          "kernel-in-loop evidence is not promoted to whole-program refinement"
+        ]
+      },
+      "evidence": {
+        "kind": "documented-boundary",
+        "targets": [],
+        "paths": [
+          "reference-broker/README.md",
+          "formal/threat-model.md",
+          "formal/refinement.md"
+        ],
+        "witnesses": []
+      },
+      "caveats": [
+        "This entry records a limitation and trust boundary, not a positive implementation theorem."
+      ]
+    }
+  ]
+}

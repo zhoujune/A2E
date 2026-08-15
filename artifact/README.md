@@ -217,6 +217,31 @@ python3 reference-broker/evaluation/validate_k4_i1.py \
   reference-broker/evaluation/results/k4-i1-submission.json
 ```
 
+The wrapper attestation also records the exact 40-hex source revision, a
+deterministic manifest hash over the K4-I1 source closure, and SHA-256 hashes
+for the harness, proof-erased K4 library, broker library, Verus executable,
+and rustc used by the run. The runner computes these values after compilation;
+the validator recomputes the source manifest, checks that the recorded Git
+revision still has identical manifest inputs, and requires the nested
+evaluation environment to name the same revision. This permits a follow-up
+report-only commit without weakening source matching. When validating an
+exported tree without `.git` or an expanded `artifact/source-revision.txt`,
+set `PROVEAI_SOURCE_REVISION` to the archive's immutable revision.
+
 K4-I1 is finite integration evidence. Rust control flow outside the gate,
 record translation, byte encoding, CRC, filesystem durability, adapters,
 transport, and deployment remain outside whole-program refinement.
+
+## Claim traceability
+
+The release includes a machine-readable theorem/premise map at
+`formal/theorem-premise-traceability.v1.json` and its schema. It connects the
+paper theorem and its conditional protected-effect clause to exact formal
+symbols, premises, witnesses, verification targets, K4-I1 attestation fields,
+and implementation caveats. Run the dependency-free validator before an
+archive preflight:
+
+```sh
+python3 formal/validate_traceability.py \
+  formal/theorem-premise-traceability.v1.json
+```

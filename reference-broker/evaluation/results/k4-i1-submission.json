@@ -1,6 +1,15 @@
 {
   "schema": "proveai.k4-i1-submission-evaluation",
   "schema_version": 1,
+  "provenance": {
+    "source_revision": "cf3e465a2d32fc6ccadd98fcd0a0544dd085cc2f",
+    "source_manifest_sha256": "ff9686a10e59f4b591a4e9a603dd36e9aeb17da71920b8fd489eaf7781ad4f36",
+    "harness_sha256": "04a8d332b40e0e42bc54269e80cfa97afb64d9c6ff8247dfb953ae31bd148e9d",
+    "kernel_rlib_sha256": "85b20c300db1bc1a873d794bb48a2c6a672b0047515e2e2fd35a37c243f87a75",
+    "broker_rlib_sha256": "ab2af30154d46b5c852aac38079d2619861c57724375abd8395761560ad49a8b",
+    "verus_executable_sha256": "1f730173d4c771c2817c1e9979ab52fa3f394d4965a92d343b1428abb9b69eaa",
+    "rustc_executable_sha256": "ba4b837efb6612dfa8d941c5a72b8a50d1d03a0f36216743b173949aa8d9eb75"
+  },
   "gate_profile": "k4-a4-required",
   "broker_opens": 47,
   "gate_evidence": {
@@ -14,14 +23,14 @@
   },
   "evaluation": {
     "schema_version": 1,
-    "generated_unix_seconds": 1786788418,
+    "generated_unix_seconds": 1786798075,
     "iterations": 100,
     "retry_iterations": 10,
     "environment": {
       "hostname": "nb-24cb14da0659f04784-6dd8ddfd6-ffj8p",
       "target": "x86_64-linux",
       "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)",
-      "source_revision": "unknown",
+      "source_revision": "cf3e465a2d32fc6ccadd98fcd0a0544dd085cc2f",
       "build_profile": "debug",
       "package_version": "0.1.0",
       "logical_cpus": 36
@@ -316,29 +325,29 @@
       "workloads": {
         "mediated": {
           "requests": 100,
-          "duration_ns": 94697615,
-          "throughput_requests_per_second": 1055.993,
+          "duration_ns": 62698160,
+          "throughput_requests_per_second": 1594.943,
           "latency_ns": {
-            "mean": 946445,
-            "p50": 709867,
-            "p95": 2094181,
-            "p99": 2990078
+            "mean": 626669,
+            "p50": 631958,
+            "p95": 723668,
+            "p99": 736037
           },
           "wal_bytes": 27500,
           "flushes": 600,
-          "recovery_ns": 6797842,
+          "recovery_ns": 5135812,
           "physical_invocations": 100,
           "abstract_effects": 100
         },
         "direct": {
           "requests": 100,
-          "duration_ns": 12530,
-          "throughput_requests_per_second": 7980845.970,
+          "duration_ns": 10350,
+          "throughput_requests_per_second": 9661835.749,
           "latency_ns": {
-            "mean": 47,
+            "mean": 40,
             "p50": 40,
-            "p95": 50,
-            "p99": 50
+            "p95": 40,
+            "p99": 40
           },
           "wal_bytes": 0,
           "flushes": 0,
@@ -348,17 +357,17 @@
         },
         "journaled_at_least_once": {
           "requests": 100,
-          "duration_ns": 16040404,
-          "throughput_requests_per_second": 6234.257,
+          "duration_ns": 10288044,
+          "throughput_requests_per_second": 9720.021,
           "latency_ns": {
-            "mean": 160169,
-            "p50": 111259,
-            "p95": 403948,
-            "p99": 1035536
+            "mean": 102675,
+            "p50": 100980,
+            "p95": 107349,
+            "p99": 147279
           },
           "wal_bytes": 4200,
           "flushes": 200,
-          "recovery_ns": 59810,
+          "recovery_ns": 27379,
           "physical_invocations": 100,
           "abstract_effects": 100
         }
@@ -367,12 +376,12 @@
         {
           "mechanism": "mediated_idempotent",
           "requests": 10,
-          "duration_ns": 7027091,
+          "duration_ns": 5251041,
           "latency_ns": {
-            "mean": 702226,
-            "p50": 540858,
-            "p95": 1051526,
-            "p99": 1051526
+            "mean": 524752,
+            "p50": 508138,
+            "p95": 554618,
+            "p99": 554618
           },
           "physical_invocations": 20,
           "abstract_effects": 10,
@@ -384,12 +393,12 @@
         {
           "mechanism": "mediated_deduplicated",
           "requests": 10,
-          "duration_ns": 6115415,
+          "duration_ns": 5357952,
           "latency_ns": {
-            "mean": 611155,
-            "p50": 543887,
-            "p95": 597668,
-            "p99": 597668
+            "mean": 535433,
+            "p50": 510049,
+            "p95": 560198,
+            "p99": 560198
           },
           "physical_invocations": 20,
           "abstract_effects": 10,
@@ -401,12 +410,12 @@
         {
           "mechanism": "journaled_at_least_once",
           "requests": 10,
-          "duration_ns": 3149337,
+          "duration_ns": 2158452,
           "latency_ns": {
-            "mean": 314642,
-            "p50": 245639,
-            "p95": 348459,
-            "p99": 348459
+            "mean": 215552,
+            "p50": 198939,
+            "p95": 234219,
+            "p99": 234219
           },
           "physical_invocations": 20,
           "abstract_effects": 20,

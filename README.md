@@ -238,6 +238,10 @@ transactional contract; those adapter laws enter the later end-to-end theorem.
 - [Mechanization contract](formal/mechanization-contract.md) is the normative
   statement of theorem V1, including the independent abstract and concrete
   machines, labeled executions, rely conditions, and theorem layers T1--T6.
+- [Theorem/premise traceability](formal/theorem-premise-traceability.md) maps
+  paper claims to formal symbols, premises, witnesses, verification targets,
+  executable attestations, and explicit trust-boundary caveats. Its
+  dependency-free validator checks the machine-readable manifest.
 - [Verified mechanization checkpoints](mechanized/README.md) document M0, R1,
   B1, C1, D1, Q1, K1, K2-G0, K2-T0, K3-A0, K4-C0, K4-R0, K4-R1, K4-R2, K4-R3, K4-R4, K4-R5, K4-R6, K4-R7, K4-A0, K4-A1, K4-A2, K4-A3, K4-A4, B2-R, B2-C, B2-P0, B2-P1, B2-P2,
   B2-P3, B2-L, B2-A,
@@ -569,7 +573,10 @@ and recovery closure. The retained 100-request report records 47/47 gated
 opens, 1,573/1,573 preview/commit calls, 675 replays, and 40 finished plus 7
 verified-resume recoveries while retaining RQ1 21/21. This is a finite dynamic
 check that the submission evaluation stayed inside K4, not a proof of the
-surrounding Rust control flow, translation, byte WAL, or filesystem.
+surrounding Rust control flow, translation, byte WAL, or filesystem. The
+retained wrapper also binds the run to its exact source revision and source
+manifest, and records hashes for the harness, K4 kernel, broker library, Verus,
+and rustc used to produce it.
 
 B2-R adds the actual record-side Broker modes, complete slot ADT and record
 transformer, append/recovery control, durable slot agreement, and all-prefix

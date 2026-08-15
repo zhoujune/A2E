@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:proveai:schema:theorem-premise-traceability:1",
+  "title": "ProveAI theorem and premise traceability manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "schema_version", "verification_report", "paper_source", "entries"],
+  "properties": {
+    "schema": {"const": "proveai.theorem-premise-traceability"},
+    "schema_version": {"const": 1},
+    "verification_report": {"type": "string", "minLength": 1},
+    "paper_source": {"type": "string", "minLength": 1},
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/entry"}
+    }
+  },
+  "$defs": {
+    "paper": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["anchors", "claim"],
+      "properties": {
+        "anchors": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "claim": {"type": "string", "minLength": 1}
+      }
+    },
+    "formal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_files", "symbols", "premise_symbols", "conclusion_symbols", "premises", "conclusions"],
+      "properties": {
+        "source_files": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "symbols": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "premise_symbols": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "conclusion_symbols": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "premises": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "conclusions": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "witness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "symbols"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "symbols": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "attestation_assertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "equals"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "equals": {}
+      }
+    },
+    "attestation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "validator", "assertions"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "validator": {"type": "string", "minLength": 1},
+        "assertions": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/attestation_assertion"}}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "targets", "witnesses"],
+      "properties": {
+        "kind": {"enum": ["verus-target", "kernel-in-loop", "attestation", "documented-boundary"]},
+        "targets": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "paths": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "attestation": {"$ref": "#/$defs/attestation"},
+        "witnesses": {"type": "array", "items": {"$ref": "#/$defs/witness"}}
+      }
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "claim_class", "boundary", "paper", "formal", "evidence", "caveats"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "claim_class": {"type": "string", "minLength": 1},
+        "boundary": {"enum": ["proved", "conditional-composition", "kernel-in-loop-evidence", "dynamic-attestation", "unverified-implementation"]},
+        "paper": {"$ref": "#/$defs/paper"},
+        "formal": {"$ref": "#/$defs/formal"},
+        "evidence": {"$ref": "#/$defs/evidence"},
+        "caveats": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+      }
+    }
+  }
+}

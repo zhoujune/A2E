@@ -195,6 +195,17 @@ pub struct EvaluationGateEvidence {
     pub recoveries_resumed: u64,
 }
 
+#[derive(Clone, Debug)]
+pub struct SubmissionProvenance {
+    pub source_revision: String,
+    pub source_manifest_sha256: String,
+    pub harness_sha256: String,
+    pub kernel_rlib_sha256: String,
+    pub broker_rlib_sha256: String,
+    pub verus_executable_sha256: String,
+    pub rustc_executable_sha256: String,
+}
+
 /// Factory required by the fail-closed submission evaluation entry point.
 ///
 /// The evaluation owns every broker construction and always calls
@@ -216,6 +227,7 @@ pub struct SubmissionEvaluationReport {
     pub gate_profile: &'static str,
     pub broker_opens: u64,
     pub gate: EvaluationGateEvidence,
+    pub provenance: SubmissionProvenance,
     pub evaluation: EvaluationReport,
 }
 
@@ -255,6 +267,7 @@ pub fn run_submission_evaluation<Factory: EvaluationGateFactory>(
     iterations: u64,
     factory: &mut Factory,
 ) -> Result<SubmissionEvaluationReport, EvaluationError> {
+    let provenance = SubmissionProvenance::from_environment()?;
     let gate_profile = factory.profile_name();
     if gate_profile.is_empty() {
         return Err(EvaluationError::InvalidArgument(
@@ -290,10 +303,16 @@ pub fn run_submission_evaluation<Factory: EvaluationGateFactory>(
             "submission gate left a recovery instance unclosed",
         ));
     }
+    if evaluation.environment.source_revision != provenance.source_revision {
+        return Err(EvaluationError::Invariant(
+            "submission provenance revision disagrees with evaluation environment",
+        ));
+    }
     Ok(SubmissionEvaluationReport {
         gate_profile,
         broker_opens,
         gate,
+        provenance,
         evaluation,
     })
 }
@@ -1028,6 +1047,60 @@ fn terminal_name(terminal: TerminalResult) -> &'static str {
     }
 }
 
+impl SubmissionProvenance {
+    fn from_environment() -> Result<Self, EvaluationError> {
+        Ok(Self {
+            source_revision: required_provenance_value(
+                "PROVEAI_SOURCE_REVISION",
+                40,
+                "K4-I1 source revision is missing or malformed",
+            )?,
+            source_manifest_sha256: required_provenance_value(
+                "PROVEAI_K4_I1_SOURCE_MANIFEST_SHA256",
+                64,
+                "K4-I1 source manifest hash is missing or malformed",
+            )?,
+            harness_sha256: required_provenance_value(
+                "PROVEAI_K4_I1_HARNESS_SHA256",
+                64,
+                "K4-I1 harness hash is missing or malformed",
+            )?,
+            kernel_rlib_sha256: required_provenance_value(
+                "PROVEAI_K4_I1_KERNEL_RLIB_SHA256",
+                64,
+                "K4-I1 kernel hash is missing or malformed",
+            )?,
+            broker_rlib_sha256: required_provenance_value(
+                "PROVEAI_K4_I1_BROKER_RLIB_SHA256",
+                64,
+                "K4-I1 broker hash is missing or malformed",
+            )?,
+            verus_executable_sha256: required_provenance_value(
+                "PROVEAI_K4_I1_VERUS_SHA256",
+                64,
+                "K4-I1 Verus hash is missing or malformed",
+            )?,
+            rustc_executable_sha256: required_provenance_value(
+                "PROVEAI_K4_I1_RUSTC_SHA256",
+                64,
+                "K4-I1 rustc hash is missing or malformed",
+            )?,
+        })
+    }
+}
+
+fn required_provenance_value(
+    name: &'static str,
+    length: usize,
+    message: &'static str,
+) -> Result<String, EvaluationError> {
+    let value = std::env::var(name).map_err(|_| EvaluationError::InvalidArgument(message))?;
+    if value.len() != length || !value.bytes().all(|byte| byte.is_ascii_hexdigit()) {
+        return Err(EvaluationError::InvalidArgument(message));
+    }
+    Ok(value.to_ascii_lowercase())
+}
+
 fn environment() -> Environment {
     let hostname = std::env::var("HOSTNAME")
         .or_else(|_| std::env::var("COMPUTERNAME"))
@@ -1119,6 +1192,43 @@ impl fmt::Display for SubmissionEvaluationReport {
             formatter,
             "  \"schema_version\": {SUBMISSION_REPORT_SCHEMA_VERSION},"
         )?;
+        writeln!(formatter, "  \"provenance\": {{")?;
+        writeln!(
+            formatter,
+            "    \"source_revision\": {},",
+            JsonString(&self.provenance.source_revision)
+        )?;
+        writeln!(
+            formatter,
+            "    \"source_manifest_sha256\": {},",
+            JsonString(&self.provenance.source_manifest_sha256)
+        )?;
+        writeln!(
+            formatter,
+            "    \"harness_sha256\": {},",
+            JsonString(&self.provenance.harness_sha256)
+        )?;
+        writeln!(
+            formatter,
+            "    \"kernel_rlib_sha256\": {},",
+            JsonString(&self.provenance.kernel_rlib_sha256)
+        )?;
+        writeln!(
+            formatter,
+            "    \"broker_rlib_sha256\": {},",
+            JsonString(&self.provenance.broker_rlib_sha256)
+        )?;
+        writeln!(
+            formatter,
+            "    \"verus_executable_sha256\": {},",
+            JsonString(&self.provenance.verus_executable_sha256)
+        )?;
+        writeln!(
+            formatter,
+            "    \"rustc_executable_sha256\": {}",
+            JsonString(&self.provenance.rustc_executable_sha256)
+        )?;
+        writeln!(formatter, "  }},")?;
         writeln!(
             formatter,
             "  \"gate_profile\": {},",

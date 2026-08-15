@@ -457,6 +457,13 @@ Supporting tables cover adapter contracts, RQ4 fault classification, and proof
 effort. Do not put the complete internal theorem dependency graph in the main
 paper.
 
+The appendix should include a compact theorem/premise traceability table. The
+machine-readable source of truth is
+`formal/theorem-premise-traceability.v1.json`; it maps each paper claim to
+formal symbols, premises, witnesses, verification targets or executable
+attestations, and explicit limitations. The appendix table should explain the
+boundary categories without duplicating the full manifest.
+
 ## Continuity and claim checks
 
 Before submission, verify that:

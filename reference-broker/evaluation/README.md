@@ -46,6 +46,12 @@ broker with the compiled K4-A4 `AppendGate`; there is no ungated opener in
 preview/commit pairs, replayed records, and terminal-finish versus verified-
 resume recovery closure. These counters establish finite kernel-in-the-loop
 coverage of the retained run, not whole-program Rust or byte-WAL refinement.
+The wrapper additionally records source revision/manifest provenance and hashes
+of every executable/library used to produce the attestation. The independent
+validator rejects a report whose source revision or source manifest differs
+from the checkout. A retained report may live in a later report-only commit,
+but every source-manifest input must remain byte-identical to its recorded
+source revision.
 
 ## RQ1 fields
 

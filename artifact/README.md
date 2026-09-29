@@ -63,7 +63,10 @@ Before archiving an anonymous release candidate, run:
 
 ```sh
 python3 artifact/check-release.py
-python3 artifact/create-release.py --output /tmp/proveai-fse-artifact.tar.gz
+python3 artifact/create-release.py \
+  --verified-source-revision <fresh-report-revision> \
+  --verified-source-manifest-sha256 <fresh-report-source-manifest> \
+  --output /tmp/proveai-fse-artifact.tar.gz
 ```
 
 It scans tracked text files and fails on credentials, private server addresses,

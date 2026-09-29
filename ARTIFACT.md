@@ -75,8 +75,18 @@ finite kernel-in-the-loop integration evidence, not such a refinement.
 - `kernel/`: executable-kernel support source.
 
 The authoritative release command is `artifact/create-release.py`. It creates
-an artifact-only archive and excludes paper material and build products. After
-extraction, the manifest records both `verified_source_revision` (the bytes
-used for correctness evidence) and `archive_revision` (the report archive).
+an artifact-only archive and excludes paper material and build products. Pass
+the revision and source manifest measured by the fresh reports:
+
+```sh
+python3 artifact/create-release.py \
+  --verified-source-revision <fresh-report-revision> \
+  --verified-source-manifest-sha256 <fresh-report-source-manifest> \
+  --output /tmp/proveai-fse-artifact.tar.gz
+```
+
+After extraction, the manifest records the verified revision, exact K4 source
+manifest, and archive revision. The builder rejects either value when it does
+not match the release checkout.
 
 See `TROUBLESHOOTING.md` for common toolchain and platform issues.

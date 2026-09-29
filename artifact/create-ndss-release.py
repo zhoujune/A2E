@@ -15,6 +15,7 @@ from pathlib import Path, PurePosixPath
 
 PREFIX = "proveai-fse-artifact"
 REVISION = re.compile(r"^[0-9a-f]{40}$")
+SHA256 = re.compile(r"^[0-9a-f]{64}$")
 ROOT_FILES = (
     ".gitattributes",
     ".gitignore",
@@ -118,12 +119,24 @@ def main():
     parser.add_argument("--output", required=True)
     parser.add_argument("--allow-dirty", action="store_true")
     parser.add_argument("--verified-source-revision", required=True)
+    parser.add_argument("--verified-source-manifest-sha256", required=True)
     args = parser.parse_args()
-    if not REVISION.fullmatch(args.verified_source_revision.lower()):
-        fail("--verified-source-revision must be a 40-digit lowercase hexadecimal revision")
-
     root = Path(args.repository).resolve()
     output = Path(args.output).resolve()
+    if not REVISION.fullmatch(args.verified_source_revision.lower()):
+        fail("--verified-source-revision must be a 40-digit lowercase hexadecimal revision")
+    if not SHA256.fullmatch(args.verified_source_manifest_sha256.lower()):
+        fail("--verified-source-manifest-sha256 must be a 64-digit lowercase hexadecimal digest")
+    try:
+        from k4_i1_provenance import source_manifest_sha256, source_revision_matches
+        observed_manifest = source_manifest_sha256(root)
+        if observed_manifest != args.verified_source_manifest_sha256.lower():
+            fail("verified source manifest does not match the release checkout")
+        if not source_revision_matches(root, args.verified_source_revision.lower()):
+            fail("verified source revision does not identify the release checkout")
+    except ImportError as error:
+        fail(f"cannot load K4 provenance checker: {error}")
+
     if output.exists():
         fail(f"refusing to overwrite release archive: {output}")
     state = dirty(root)
@@ -158,6 +171,7 @@ def main():
             "created_utc": "1970-01-01T00:00:00+00:00",
             "archive_revision": exported_revision,
             "verified_source_revision": args.verified_source_revision.lower(),
+            "verified_source_manifest_sha256": args.verified_source_manifest_sha256.lower(),
             "dirty_worktree_snapshot": state,
             "paper_material_included": False,
             "files": manifest_files,

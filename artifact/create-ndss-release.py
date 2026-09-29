@@ -2,17 +2,19 @@
 """Build an anonymous artifact-only archive from the current source tree."""
 
 import argparse
+import gzip
 import hashlib
 import json
 import os
 import subprocess
 import tarfile
 import tempfile
-from datetime import datetime, timezone
+import re
 from pathlib import Path, PurePosixPath
 
 
 PREFIX = "proveai-fse-artifact"
+REVISION = re.compile(r"^[0-9a-f]{40}$")
 ROOT_FILES = (
     ".gitattributes",
     ".gitignore",
@@ -80,25 +82,6 @@ def admitted(relative):
     )
 
 
-def portable_bytes(source, root):
-    data = source.read_bytes()
-    try:
-        text = data.decode("utf-8")
-    except UnicodeDecodeError:
-        return data
-    root_text = str(root).replace("\\", "/")
-    mounted_workspace = "/mnt/c/" + "Users/" + "57408/Documents/ProveAI-worktrees/fse-executable"
-    replacements = {
-        root_text: ".",
-        mounted_workspace: ".",
-        "/home/june/.cache/proveai-review-rust-1.96": "<toolchain-cache>",
-        "C:\\Users\\57408\\Documents\\ProveAI-worktrees\\fse-executable": ".",
-    }
-    for old, new in replacements.items():
-        text = text.replace(old, new)
-    return text.encode("utf-8")
-
-
 def selected_files(root):
     paths = []
     for name in ROOT_FILES:
@@ -132,7 +115,10 @@ def main():
     parser.add_argument("--repository", default=".")
     parser.add_argument("--output", required=True)
     parser.add_argument("--allow-dirty", action="store_true")
+    parser.add_argument("--verified-source-revision", required=True)
     args = parser.parse_args()
+    if not REVISION.fullmatch(args.verified_source_revision.lower()):
+        fail("--verified-source-revision must be a 40-digit lowercase hexadecimal revision")
 
     root = Path(args.repository).resolve()
     output = Path(args.output).resolve()
@@ -149,11 +135,15 @@ def main():
             relative = source.relative_to(root)
             destination = staging / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
-            destination.write_bytes(portable_bytes(source, root))
+            destination.write_bytes(source.read_bytes())
+            mode = source.stat().st_mode & 0o777
+            if relative.suffix == ".sh" or relative.name == "reproduce.sh":
+                mode = 0o755
+            destination.chmod(mode)
 
         exported_revision = revision(root)
         (staging / "artifact" / "source-revision.txt").write_text(
-            exported_revision + "\n", encoding="utf-8"
+            args.verified_source_revision.lower() + "\n", encoding="utf-8"
         )
 
         manifest_files = {}
@@ -163,9 +153,9 @@ def main():
         manifest = {
             "schema": "proveai.fse.artifact-release",
             "schema_version": 1,
-            "created_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+            "created_utc": "1970-01-01T00:00:00+00:00",
             "archive_revision": exported_revision,
-            "verified_source_revision": exported_revision,
+            "verified_source_revision": args.verified_source_revision.lower(),
             "dirty_worktree_snapshot": state,
             "paper_material_included": False,
             "files": manifest_files,
@@ -174,10 +164,12 @@ def main():
         manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
         output.parent.mkdir(parents=True, exist_ok=True)
-        with tarfile.open(output, "w:gz", format=tarfile.PAX_FORMAT) as archive:
-            for path in sorted(staging.rglob("*")):
-                if path.is_file():
-                    add_file(archive, path, f"{PREFIX}/{path.relative_to(staging).as_posix()}")
+        with output.open("wb") as raw:
+            with gzip.GzipFile(fileobj=raw, mode="wb", filename="", mtime=0) as compressed:
+                with tarfile.open(fileobj=compressed, mode="w", format=tarfile.PAX_FORMAT) as archive:
+                    for path in sorted(staging.rglob("*")):
+                        if path.is_file():
+                            add_file(archive, path, f"{PREFIX}/{path.relative_to(staging).as_posix()}")
 
     print(f"created {output}")
     print(f"sha256 {sha256(output)}")

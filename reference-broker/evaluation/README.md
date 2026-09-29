@@ -127,7 +127,7 @@ Validate each retained report independently with `validate_repeated_rq2.py`.
 
 The retained `rq2-repeated-wsl2-ext4.json` report is the independent-host
 condition. Run it from a clone under the WSL2 Linux filesystem (for example
-`/home/june`, not `/mnt/c`), set `TMPDIR` to that same ext4 filesystem, and
+`<toolchain-home>`, not `/mnt/c`), set `TMPDIR` to that same ext4 filesystem, and
 retain the WSL2 kernel and `/dev/sdc` mount provenance. It is persistent virtual
 storage, not native direct-device evidence; pair it with the server's NVMe
 condition rather than conflating the two.

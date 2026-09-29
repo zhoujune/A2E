@@ -34,11 +34,11 @@
   },
   "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)",
   "command": [
-    "/home/june/.cache/proveai-review-rust-1.96/toolchain/bin/cargo",
+    "<toolchain-home>/.cache/proveai-review-rust-1.96/toolchain/bin/cargo",
     "test",
     "--offline",
     "--manifest-path",
-    "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/Cargo.toml",
+    "<workspace>/reference-broker/Cargo.toml",
     "--test",
     "decision_discrimination",
     "--test",
@@ -76,7 +76,7 @@
   ],
   "exit_code": 0,
   "stdout": "\nrunning 7 tests\ntest uncontrolled_ambiguity_is_not_retried ... ok\ntest failure_after_uncertain_idempotent_attempt_is_not_reported_as_conclusive ... ok\ntest deduplicated_retry_reuses_the_keyed_decision ... ok\ntest retry_safe_invalid_result_is_retried ... ok\ntest idempotent_retry_repeats_the_call_but_not_the_effect ... ok\ntest retry_limit_terminalizes_persistent_ambiguity ... ok\ntest retry_safe_adapters_normalize_scripted_success_values ... ok\n\ntest result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s\n\n\nrunning 3 tests\ntest service_worker ... ok\nDISCRIMINATION|success|1|Commit|Commit\nDISCRIMINATION|conclusive_failure|0|Fail|Fail\ntest conclusive_controls_do_not_degenerate_to_always_unknown ... ok\nDISCRIMINATION|uninvoked_then_rejected|0|Unknown|Fail\nDISCRIMINATION|effect_then_rejected|1|Unknown|Fail\ntest identical_evidence_with_zero_and_one_effect_rejects_last_response_wins ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s\n\n\nrunning 1 test\ntest recovery_can_be_interrupted_and_resumed_for_each_adapter ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s\n\n",
-  "stderr": "   Compiling proveai-reference-broker v0.1.0 (/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.24s\n     Running tests/adapter_semantics.rs (/home/june/.cache/proveai-review-rust-1.96/target/debug/deps/adapter_semantics-3ba09b01e333a472)\n     Running tests/decision_discrimination.rs (/home/june/.cache/proveai-review-rust-1.96/target/debug/deps/decision_discrimination-7b81c707f4a90735)\n     Running tests/recovery_interruption.rs (/home/june/.cache/proveai-review-rust-1.96/target/debug/deps/recovery_interruption-d8043930b2335d76)\n",
+  "stderr": "   Compiling proveai-reference-broker v0.1.0 (<workspace>/reference-broker)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.24s\n     Running tests/adapter_semantics.rs (<toolchain-home>/.cache/proveai-review-rust-1.96/target/debug/deps/adapter_semantics-3ba09b01e333a472)\n     Running tests/decision_discrimination.rs (<toolchain-home>/.cache/proveai-review-rust-1.96/target/debug/deps/decision_discrimination-7b81c707f4a90735)\n     Running tests/recovery_interruption.rs (<toolchain-home>/.cache/proveai-review-rust-1.96/target/debug/deps/recovery_interruption-d8043930b2335d76)\n",
   "scope": {
     "broker": "ungated reference Broker::open",
     "service": "fresh child process per call, synced marker file",

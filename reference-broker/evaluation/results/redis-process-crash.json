@@ -14,7 +14,7 @@
         "--unixsocketperm",
         "700",
         "--dir",
-        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-uninvoked_then_rejected/service",
+        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-uninvoked_then_rejected/service",
         "--appendonly",
         "yes",
         "--appendfsync",
@@ -22,7 +22,7 @@
         "--save",
         "",
         "--logfile",
-        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-uninvoked_then_rejected/service/redis.log"
+        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-uninvoked_then_rejected/service/redis.log"
       ],
       "broker_exit_codes": [
         -9,
@@ -59,7 +59,7 @@
         "--unixsocketperm",
         "700",
         "--dir",
-        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-effect_then_rejected/service",
+        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-effect_then_rejected/service",
         "--appendonly",
         "yes",
         "--appendfsync",
@@ -67,7 +67,7 @@
         "--save",
         "",
         "--logfile",
-        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-effect_then_rejected/service/redis.log"
+        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-effect_then_rejected/service/redis.log"
       ],
       "broker_exit_codes": [
         -9,
@@ -114,7 +114,7 @@
         "--unixsocketperm",
         "700",
         "--dir",
-        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-conclusive_failure/service",
+        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-conclusive_failure/service",
         "--appendonly",
         "yes",
         "--appendfsync",
@@ -122,7 +122,7 @@
         "--save",
         "",
         "--logfile",
-        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-conclusive_failure/service/redis.log"
+        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-conclusive_failure/service/redis.log"
       ],
       "broker_exit_codes": [
         0,
@@ -156,7 +156,7 @@
         "--unixsocketperm",
         "700",
         "--dir",
-        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-success/service",
+        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-success/service",
         "--appendonly",
         "yes",
         "--appendfsync",
@@ -164,7 +164,7 @@
         "--save",
         "",
         "--logfile",
-        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-success/service/redis.log"
+        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-success/service/redis.log"
       ],
       "broker_exit_codes": [
         0,
@@ -198,7 +198,7 @@
         "--unixsocketperm",
         "700",
         "--dir",
-        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-uninvoked_then_rejected/service",
+        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-uninvoked_then_rejected/service",
         "--appendonly",
         "yes",
         "--appendfsync",
@@ -206,7 +206,7 @@
         "--save",
         "",
         "--logfile",
-        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-uninvoked_then_rejected/service/redis.log"
+        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-uninvoked_then_rejected/service/redis.log"
       ],
       "broker_exit_codes": [
         -9,
@@ -243,7 +243,7 @@
         "--unixsocketperm",
         "700",
         "--dir",
-        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-effect_then_rejected/service",
+        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-effect_then_rejected/service",
         "--appendonly",
         "yes",
         "--appendfsync",
@@ -251,7 +251,7 @@
         "--save",
         "",
         "--logfile",
-        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-effect_then_rejected/service/redis.log"
+        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-effect_then_rejected/service/redis.log"
       ],
       "broker_exit_codes": [
         -9,
@@ -298,7 +298,7 @@
         "--unixsocketperm",
         "700",
         "--dir",
-        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-conclusive_failure/service",
+        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-conclusive_failure/service",
         "--appendonly",
         "yes",
         "--appendfsync",
@@ -306,7 +306,7 @@
         "--save",
         "",
         "--logfile",
-        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-conclusive_failure/service/redis.log"
+        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-conclusive_failure/service/redis.log"
       ],
       "broker_exit_codes": [
         0,
@@ -340,7 +340,7 @@
         "--unixsocketperm",
         "700",
         "--dir",
-        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-success/service",
+        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-success/service",
         "--appendonly",
         "yes",
         "--appendfsync",
@@ -348,7 +348,7 @@
         "--save",
         "",
         "--logfile",
-        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-success/service/redis.log"
+        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-success/service/redis.log"
       ],
       "broker_exit_codes": [
         0,
@@ -373,7 +373,7 @@
   ],
   "started_at_utc": "2026-09-28T14:16:14.988049+00:00",
   "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39",
-  "artifacts": "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z",
+  "artifacts": "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z",
   "source_sha256": {
     "reference-broker/Cargo.lock": "87c7ba0e4bb42443a1ef86d556e1eee2b3274264d65a1bbbd31d5aa60b629f4b",
     "reference-broker/Cargo.toml": "0ee2a3ac7365890d6912c3f217f8faea7e356adc9629d7c8efe551023171e7a2",

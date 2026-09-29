@@ -103,6 +103,8 @@ def selected_files(root):
 
 def add_file(archive, source, arcname):
     info = archive.gettarinfo(str(source), arcname)
+    if PurePosixPath(arcname).suffix == ".sh":
+        info.mode = 0o755
     info.uid = info.gid = 0
     info.uname = info.gname = ""
     info.mtime = 0

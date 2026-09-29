@@ -7,7 +7,8 @@ use common::{config, TestDirectory};
 use proveai_reference_broker::adapters::{IdempotentAdapter, UncontrolledAdapter};
 use proveai_reference_broker::{
     AppendGate, Broker, BrokerError, CapabilityId, CrashPlan, CrashSite, Digest, GateError,
-    JournalRecord, RequestSpec, RetryClass, TerminalResult, UnknownReason, Value,
+    JournalRecord, Observation, RecoveryDecision, RequestSpec, RetryClass, TerminalResult,
+    UnknownReason, Value,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -189,6 +190,16 @@ fn conservative_gate_terminalizes_a_restarted_attempt() {
 
     let mut broker = Broker::open_with_gate(directory.wal(), config(2), ConservativeGate)
         .expect("reopen conservative broker");
+    assert_eq!(
+        broker
+            .recovery_decision(request, RetryClass::Uncontrolled.max_attempts())
+            .expect("classify interrupted uncontrolled request"),
+        RecoveryDecision::Unknown {
+            attempt: Some(1),
+            reason: UnknownReason::Recovery,
+            evidence_ref: 4,
+        }
+    );
     let mut adapter = UncontrolledAdapter::default();
     assert_eq!(
         broker
@@ -233,6 +244,16 @@ fn durable_success_precedes_conservative_unknown_recovery() {
 
     let mut broker = Broker::open_with_gate(directory.wal(), config(2), ConservativeGate)
         .expect("reopen conservative broker");
+    assert_eq!(
+        broker
+            .recovery_decision(request, RetryClass::Idempotent.max_attempts())
+            .expect("classify durable success"),
+        RecoveryDecision::Commit {
+            attempt: 1,
+            value: Value(1),
+            outcome_ref: 5,
+        }
+    );
     let mut adapter = IdempotentAdapter::default();
     assert_eq!(
         broker
@@ -247,6 +268,117 @@ fn durable_success_precedes_conservative_unknown_recovery() {
     assert!(matches!(
         broker.wal_records().last(),
         Some(JournalRecord::Commit { outcome_ref: 5, .. })
+    ));
+}
+
+#[test]
+fn conclusive_failure_precedes_conservative_unknown_recovery() {
+    let directory = TestDirectory::new("append-gate-durable-failure");
+    let spec = RequestSpec::uncontrolled(Digest(12));
+    let request;
+    {
+        let mut broker = Broker::open_with_gate(directory.wal(), config(2), ConservativeGate)
+            .expect("open conservative broker");
+        request = broker
+            .admit(CapabilityId(7), spec.digest)
+            .expect("admit request");
+        broker.prepare(request, spec).expect("prepare request");
+        broker.set_crash_plan(Some(CrashPlan::once(CrashSite::AfterOutcome)));
+        let mut adapter = UncontrolledAdapter::scripted([Observation::Failure]);
+        assert!(matches!(
+            broker.run(
+                request,
+                RetryClass::Uncontrolled.max_attempts(),
+                &mut adapter
+            ),
+            Err(BrokerError::SimulatedCrash(CrashSite::AfterOutcome))
+        ));
+        assert_eq!(adapter.effect_count(), 1);
+    }
+
+    let mut broker = Broker::open_with_gate(directory.wal(), config(2), ConservativeGate)
+        .expect("reopen conservative broker");
+    assert_eq!(
+        broker
+            .recovery_decision(request, RetryClass::Uncontrolled.max_attempts())
+            .expect("classify durable failure"),
+        RecoveryDecision::Fail {
+            attempt: 1,
+            outcome_ref: 5,
+        }
+    );
+    let mut adapter = UncontrolledAdapter::default();
+    assert_eq!(
+        broker
+            .run(
+                request,
+                RetryClass::Uncontrolled.max_attempts(),
+                &mut adapter
+            )
+            .expect("resolve durable failure"),
+        TerminalResult::Failed { attempt: 1 }
+    );
+    assert_eq!(adapter.effect_count(), 0);
+    assert!(matches!(
+        broker.wal_records().last(),
+        Some(JournalRecord::Fail { outcome_ref: 5, .. })
+    ));
+}
+
+#[test]
+fn nonconclusive_failure_precedes_conservative_unknown_recovery() {
+    let directory = TestDirectory::new("append-gate-nonconclusive-failure");
+    let spec = RequestSpec::idempotent(Digest(13));
+    let request;
+    {
+        let mut broker = Broker::open_with_gate(directory.wal(), config(2), ConservativeGate)
+            .expect("open conservative broker");
+        request = broker
+            .admit(CapabilityId(7), spec.digest)
+            .expect("admit request");
+        broker.prepare(request, spec).expect("prepare request");
+        broker.set_crash_plan(Some(CrashPlan::on_occurrence(CrashSite::AfterOutcome, 2)));
+        let mut adapter =
+            IdempotentAdapter::scripted([Observation::Ambiguous, Observation::Failure]);
+        assert!(matches!(
+            broker.run(request, RetryClass::Idempotent.max_attempts(), &mut adapter),
+            Err(BrokerError::SimulatedCrash(CrashSite::AfterOutcome))
+        ));
+        assert_eq!(adapter.invocation_count(), 2);
+        assert_eq!(adapter.mutation_count(), 1);
+    }
+
+    let mut broker = Broker::open_with_gate(directory.wal(), config(2), ConservativeGate)
+        .expect("reopen conservative broker");
+    assert_eq!(
+        broker
+            .recovery_decision(request, RetryClass::Idempotent.max_attempts())
+            .expect("classify nonconclusive failure"),
+        RecoveryDecision::Unknown {
+            attempt: Some(2),
+            reason: UnknownReason::NonConclusiveFailure,
+            evidence_ref: 7,
+        }
+    );
+    let mut adapter = IdempotentAdapter::default();
+    assert_eq!(
+        broker
+            .run(request, RetryClass::Idempotent.max_attempts(), &mut adapter)
+            .expect("resolve nonconclusive failure"),
+        TerminalResult::Unknown {
+            attempt: Some(2),
+            reason: UnknownReason::NonConclusiveFailure,
+        }
+    );
+    assert_eq!(adapter.invocation_count(), 0);
+    assert_eq!(adapter.mutation_count(), 0);
+    assert!(matches!(
+        broker.wal_records().last(),
+        Some(JournalRecord::Unknown {
+            reason: UnknownReason::NonConclusiveFailure,
+            evidence_ref: 7,
+            ..
+        })
     ));
 }
 
@@ -274,6 +406,12 @@ fn retry_safe_gate_resumes_and_repairs_an_interrupted_attempt() {
 
     let mut broker = Broker::open_with_gate(directory.wal(), config(2), RetrySafeResumeGate)
         .expect("reopen retry-safe broker");
+    assert_eq!(
+        broker
+            .recovery_decision(request, RetryClass::Idempotent.max_attempts())
+            .expect("classify interrupted retry-safe request"),
+        RecoveryDecision::Retry { next_attempt: 2 }
+    );
     assert_eq!(
         broker
             .run(request, RetryClass::Idempotent.max_attempts(), &mut adapter)

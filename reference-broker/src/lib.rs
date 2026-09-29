@@ -19,5 +19,5 @@ pub use broker::{
 pub use fault::{CrashPlan, CrashSite};
 pub use model::{
     CapabilityId, DedupKey, Digest, Invocation, InvocationId, JournalRecord, Observation, Phase,
-    RequestId, RequestSpec, RetryClass, TerminalResult, UnknownReason, Value,
+    RecoveryDecision, RequestId, RequestSpec, RetryClass, TerminalResult, UnknownReason, Value,
 };

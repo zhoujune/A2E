@@ -83,40 +83,40 @@ relational `ProgramContext<S>`, and structural plugged executions for the WAL,
 Journal, and Broker. It proves exact append-I/O recovery, hidden-step
 stuttering, T2/T3 history compatibility, erasure, prefix closure, shared
 zero-step witnesses, and a positive shared one-`Crash` witness. The cumulative
-T4-C1 target verifies 721 obligations, 44 beyond T4-C0. T4-C2 then compresses
+T4-C1 target verifies 733 obligations, 44 beyond T4-C0. T4-C2 then compresses
 context states exactly for WAL events whose T3 translation is `Some`, constructs
 the canonical plugged Journal and Broker executions, and proves exact context-
 state and ordered endpoint `ContextView` equality at every canonical mapped
-prefix. Its cumulative target verifies 735 obligations, 14 beyond T4-C1; the 31
-targets registered through T4-C2 contained 771 dependency-aware non-duplicated
-obligations. T5-S0 now proves exact one-step committed-history laws for all
-three theorem machines. Its cumulative target verifies 744 obligations, 9
+prefix. Its cumulative target verifies 747 obligations, 14 beyond T4-C1. The
+historical 31-target registry through T4-C2 contained 771 dependency-aware
+non-duplicated obligations. T5-S0 now proves exact one-step committed-history laws for all
+three theorem machines. Its cumulative target verifies 756 obligations, 9
 beyond T4-C2. T5-E0 lifts those laws across arbitrary finite execution
-intervals and verifies 748 cumulative obligations, 4 beyond T5-S0. T5-R0 proves
+intervals and verifies 760 cumulative obligations, 4 beyond T5-S0. T5-R0 proves
 exact first-`FinishRecover` equality under a no-recovery-Commit predicate and
-verifies 773 cumulative obligations, 23 beyond T5-E0. T5-R1 proves general
+verifies 783 cumulative obligations, 23 beyond T5-E0. T5-R1 proves general
 recovery prefix extension and crash-prefix successful-Outcome provenance,
 exhaustive Commit/Fail/Unknown decision classification, and durable-success
-guard composition, verifying 787 obligations, 14 beyond T5-R0. T5-C0 completes the contextual
-mapped export and verifies 805 cumulative obligations, 18 beyond T5-R1. H1 is
+guard composition, verifying 797 obligations, 14 beyond T5-R0. T5-C0 completes the contextual
+mapped export and verifies 815 cumulative obligations, 18 beyond T5-R1. H1 is
 the stuttering artifact/nonvacuity checkpoint: it adds 3 obligations and
-verifies 808 cumulative obligations. H2 independently adds a premise-free
+verifies 818 cumulative obligations. H2 independently adds a premise-free
 strict-extension recovery-Commit witness. H1
 constructs a concrete total well-formed `FullConfig` and, without premises,
 inhabits the complete T5-C0 premise/conclusion package. T1--T5 are complete;
 T6-D0 subsequently freezes the machine-checked adapter, terminal-outcome,
 unique selector, outcome-evidence, compatibility, and Journal/WAL bridge
-statement interfaces. Its target verifies 821 cumulative obligations, 16
+statement interfaces. Its target verifies 832 cumulative obligations, 17
 beyond its T5-C0 parent. T6-E0 then proves the generic/event Broker
 `OutcomeEvidence` implication from the Broker invariant, exact Journal and
-physical projections, and a unique terminal outcome. It verifies 839
+physical projections, and a unique terminal outcome. It verifies 850
 cumulative obligations, 18 beyond T6-D0. T6-C0 then proves the corresponding
 generic/event `BrokerOutcomeCompatible` implication under `AdapterRely`, by
-terminal-outcome and retry-class case analysis. It verifies 856 cumulative
+terminal-outcome and retry-class case analysis. It verifies 867 cumulative
 obligations, 17 beyond T6-E0. T6-S0 combines the evidence and compatibility
 implications into the frozen conjunction and transports it through the atomic-
-Journal and typed-WAL backend statements. Its current target verifies 862
-cumulative obligations, 6 beyond T6-C0; the historical retained checkpoint
+Journal and typed-WAL backend statements. Its current target verifies 873
+ cumulative obligations, 6 beyond T6-C0; the historical retained checkpoint
 verifies 858. T6-A0 then proves the generic
 conjunction-to-`Refines` closure under Journal legality and `AdapterRely`, and
 the first concrete `AdapterVerified` instance: an idempotent `EnsureMember`
@@ -130,7 +130,7 @@ Failure2`: the first invocation linearizes but its success is not journaled
 before the crash, the second invocation fails without linearizing, and the
 seven-record execution terminates `Unknown(NonConclusiveFailure)` while
 denoting exactly one abstract set-insert effect. The T6-A1 target
-verifies 937 cumulative obligations with zero errors, 52 beyond T6-A0's 885.
+verifies 949 cumulative obligations with zero errors, 52 beyond T6-A0's 897.
 At the retained T6-A1 checkpoint, all 42/42 registered targets passed, containing
 956 dependency-aware non-duplicated obligations and 20,867 summed target
 obligations. T6-M0 then introduces a separately defined protected-service
@@ -139,8 +139,8 @@ audit context. Its prefix
 proofs derive both generated invocation traces, establish
 `CompleteMediation`, and connect every target-changing service linearization to
 a prior canonical Broker invocation with T1 durable authorization ancestry. The
-T6-M0 target verifies 998 cumulative obligations with zero errors, 61 beyond
-T6-A1. T6-P0 verifies 1,021 cumulative obligations with zero errors, 23
+T6-M0 target verifies 1,010 cumulative obligations with zero errors, 61 beyond
+T6-A1. T6-P0 verifies 1,033 cumulative obligations with zero errors, 23
 beyond T6-M0. It relates independently valid A1, protected-service, and
 typed-WAL executions with a weak prefix index: observed global events consume
 one WAL label, while service linearization and environment interference
@@ -157,13 +157,19 @@ adapter's selected terminal refinement to the canonical plugged Broker under
 terminal refinement, all-prefix context and T1
 safety agreement, complete mediation, and durable authorization; the concrete
 crash/retry theorem grounds the external run in the independently executed
-protected state and proves exactly one abstract effect. T6-X0 verifies 1,043
+protected state and proves exactly one abstract effect. T6-X0 verifies 1,055
 cumulative obligations with zero errors, 22 beyond T6-P0. The historical
 pre-K4/DD run passed all 45/45 registered targets, contained 1,062 dependency-aware
-non-duplicated obligations, and sums to 23,866 target obligations. The
-one-obligation change to every cumulative target from T1 onward is inherited
-from a conservative definitional T1 configuration-accessor lemma required by
-the concrete package.
+non-duplicated obligations, and sums to 23,866 target obligations. The current
+cumulative values include the shared classifier and conservative T1
+configuration-accessor obligations required by the concrete package; the
+historical pre-K4/DD counts above are retained for comparison.
+The final retained run also includes the ReadOnly and Deduplicated operational
+packages and request-indexed family: T6-RO0 verifies 1,118 obligations, T6-DD0
+1,120, T6-DD1 1,148, T6-DD2 1,180, T6-DD3 1,219, T6-DD4 1,259, and T6-DD5
+1,265. Across all 72 registered targets, the report records 1,534
+dependency-aware non-duplicated obligations and 39,706 summed target
+obligations.
 The adversary, trusted base, guarantees, and non-goals are fixed in
 [threat-model.md](threat-model.md).
 Adapter-specific trace interpretation and proof obligations are defined in

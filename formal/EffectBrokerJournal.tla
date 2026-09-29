@@ -283,6 +283,23 @@ FailureIsConclusive(log, r) ==
         /\ OutcomeKindAt(log, r, attempt) = "Failure"
         /\ (RetryClass(r) = "Idempotent" => AllAttemptsFailed(log, r))
 
+HasDurableSuccess(log, r) ==
+    \E attempt \in 1..StartedCount(log, r) :
+        OutcomeKindAt(log, r, attempt) = "Success"
+
+EvidenceDecision(log, r) ==
+    IF PhaseAt(log, r) # "Armed" THEN "Stable"
+    ELSE IF HasDurableSuccess(log, r) THEN "Commit"
+    ELSE IF FailureIsConclusive(log, r) THEN "Fail"
+    ELSE IF LatestAttempt(log, r) > 0
+            /\ OutcomeKindAt(log, r, LatestAttempt(log, r)) = "Failure"
+         THEN "Unknown"
+    ELSE IF StartedCount(log, r) < MaxAttempts
+            /\ (StartedCount(log, r) = 0
+                \/ RetryClass(r) # "Uncontrolled")
+         THEN "Retry"
+    ELSE "Unknown"
+
 HasDurableUncertainty(log, r) ==
     \E attempt \in 1..StartedCount(log, r) :
         OutcomeKindAt(log, r, attempt)
@@ -392,7 +409,7 @@ RecordEnabled(log, rec) ==
                 /\ attempt = StartedCount(log, r) + 1
                 /\ ref = ArmIndex(log, r)
                 /\ ref > 0
-                /\ ~FailureIsConclusive(log, r)
+                /\ EvidenceDecision(log, r) = "Retry"
                 /\ (RetryClass(r) = "Uncontrolled" =>
                         StartedCount(log, r) = 0)
                 /\ rec = StartRecord(r, attempt, ref)
@@ -408,6 +425,7 @@ RecordEnabled(log, rec) ==
                 /\ rec = OutcomeRecord(r, attempt, ref, detail, value)
        [] tag = "Commit" ->
                 /\ PhaseAt(log, r) = "Armed"
+                /\ EvidenceDecision(log, r) = "Commit"
                 /\ attempt = LatestAttempt(log, r)
                 /\ attempt > 0
                 /\ ref = OutcomeIndex(log, r, attempt)
@@ -417,6 +435,7 @@ RecordEnabled(log, rec) ==
                 /\ rec = CommitRecord(r, attempt, ref, value)
        [] tag = "Fail" ->
                 /\ PhaseAt(log, r) = "Armed"
+                /\ EvidenceDecision(log, r) = "Fail"
                 /\ attempt = LatestAttempt(log, r)
                 /\ attempt > 0
                 /\ ref = OutcomeIndex(log, r, attempt)
@@ -425,6 +444,7 @@ RecordEnabled(log, rec) ==
                 /\ rec = FailRecord(r, attempt, ref)
        [] tag = "Unknown" ->
                 /\ PhaseAt(log, r) = "Armed"
+                /\ EvidenceDecision(log, r) = "Unknown"
                 /\ attempt = LatestAttempt(log, r)
                 /\ ref = LatestEvidenceIndex(log, r)
                 /\ ref > 0
@@ -434,6 +454,7 @@ RecordEnabled(log, rec) ==
                    [] detail = "Recovery" ->
                             /\ RetryClass(r) = "Uncontrolled"
                             /\ ~FailureIsConclusive(log, r)
+                            /\ ~HasDurableSuccess(log, r)
                    [] detail = "NonConclusiveFailure" ->
                             /\ attempt > 0
                             /\ OutcomeKindAt(log, r, attempt) = "Failure"

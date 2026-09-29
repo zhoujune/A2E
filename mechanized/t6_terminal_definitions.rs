@@ -599,6 +599,7 @@ pub open spec fn unknown_reason_guard(
                 && !replay_layer::failure_conclusive(
                     erased, records, request,
                 )
+                && !replay_layer::has_durable_success(records, request)
         },
         Option::Some(current) => {
             current == started
@@ -616,6 +617,7 @@ pub open spec fn unknown_reason_guard(
                             && !replay_layer::failure_conclusive(
                                 erased, records, request,
                             )
+                            && !replay_layer::has_durable_success(records, request)
                     },
                     replay_layer::UnknownReason::NonConclusiveFailure => {
                         replay_layer::outcome_observation(
@@ -1019,6 +1021,102 @@ pub open spec fn refines<X, I>(
                 )
             },
         }
+}
+
+pub open spec fn adapter_success_sound<X, I>(
+    paper: t1_layer::PaperConfig<Adapter<X, I>>,
+) -> bool {
+    let cfg = t1_layer::paper_broker_config(paper);
+    let adapter = paper.adapter;
+    forall|request: replay_layer::RequestId,
+           history: Seq<p0_layer::PhysicalEvent>,
+           run: ExternalRun<X, I>,
+           attempt: replay_layer::AttemptId,
+           value: replay_layer::Value| {
+        &&& adapter_rely_trace(paper, request, history, run)
+        &&& commit_outcome_compatible(
+            cfg, request, history, attempt, value,
+        )
+    } ==> {
+        &&& (adapter.result_spec)(request, value, run)
+        &&& if cfg.request[request].retry_class
+                == replay_layer::RetryClass::ReadOnly {
+            (adapter.zero_effect)(request, run)
+        } else {
+            (adapter.one_effect)(request, run)
+        }
+    }
+}
+
+pub open spec fn adapter_resolved_failure_sound<X, I>(
+    paper: t1_layer::PaperConfig<Adapter<X, I>>,
+) -> bool {
+    let cfg = t1_layer::paper_broker_config(paper);
+    let adapter = paper.adapter;
+    forall|request: replay_layer::RequestId,
+           history: Seq<p0_layer::PhysicalEvent>,
+           run: ExternalRun<X, I>,
+           attempt: replay_layer::AttemptId| {
+        &&& adapter_rely_trace(paper, request, history, run)
+        &&& fail_outcome_compatible(cfg, request, history, attempt)
+    } ==> (adapter.zero_effect)(request, run)
+}
+
+pub open spec fn adapter_effect_bounded<X, I>(
+    paper: t1_layer::PaperConfig<Adapter<X, I>>,
+) -> bool {
+    let adapter = paper.adapter;
+    forall|request: replay_layer::RequestId,
+           history: Seq<p0_layer::PhysicalEvent>,
+           run: ExternalRun<X, I>|
+        adapter_rely_trace(paper, request, history, run) ==> {
+            ||| (adapter.zero_effect)(request, run)
+            ||| (adapter.one_effect)(request, run)
+        }
+}
+
+pub open spec fn primitive_adapter_laws<X, I>(
+    paper: t1_layer::PaperConfig<Adapter<X, I>>,
+) -> bool {
+    adapter_success_sound(paper)
+        && adapter_resolved_failure_sound(paper)
+        && adapter_effect_bounded(paper)
+}
+
+pub proof fn primitive_adapter_laws_imply_verified<X, I>(
+    paper: t1_layer::PaperConfig<Adapter<X, I>>,
+)
+    requires primitive_adapter_laws(paper),
+    ensures adapter_verified(paper),
+{
+    let cfg = t1_layer::paper_broker_config(paper);
+    let adapter = paper.adapter;
+    assert forall|request: replay_layer::RequestId,
+                  records: Seq<replay_layer::JournalRecord>,
+                  history: Seq<p0_layer::PhysicalEvent>,
+                  run: ExternalRun<X, I>,
+                  outcome: TerminalOutcome| {
+        &&& replay_layer::journal_legal(
+            config_layer::erase_config(cfg), records,
+        )
+        &&& adapter_rely_trace(paper, request, history, run)
+        &&& outcome_evidence(cfg, records, request, history, outcome)
+        &&& broker_outcome_compatible(
+            cfg, records, request, history, outcome,
+        )
+    } implies refines(paper, request, history, run, outcome) by {
+        match outcome {
+            TerminalOutcome::Commit { attempt, value } => {
+                assert(adapter_success_sound(paper));
+            },
+            TerminalOutcome::Fail { attempt } => {
+                assert(adapter_resolved_failure_sound(paper));
+            },
+            TerminalOutcome::UnknownOutcome { .. } => {
+                assert(adapter_effect_bounded(paper));
+            },
+        }
+    }
 }
 
 pub open spec fn adapter_verified<X, I>(

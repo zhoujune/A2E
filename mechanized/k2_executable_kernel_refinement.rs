@@ -846,6 +846,7 @@ pub fn k_guard_fail(
                 Ghost(k_demo_config()),
                 Ghost(durable),
             );
+            let has_success = k_has_durable_success_exec(entry);
             proof {
                 let spec_request = k_request_id(request);
                 assert(k_request_entry_couples(*entry, durable));
@@ -855,8 +856,16 @@ pub fn k_guard_fail(
                 assert(phase_armed == (
                     durable.phase[spec_request] == replay_layer::Phase::Armed
                 ));
+                k_has_durable_success_couples(*entry, durable);
+                assert(has_success == query_layer::d_has_durable_success(
+                    durable, spec_request,
+                ));
+                assert(conclusive == query_layer::d_failure_conclusive(
+                    k_demo_config(), durable, spec_request,
+                ));
             }
             phase_armed && fields_match && attempt_latest && conclusive
+                && !has_success
         },
         Option::None => {
             proof {
@@ -915,11 +924,18 @@ pub fn k_unknown_enabled(
         Ghost(k_demo_config()),
         Ghost(durable),
     );
+    let has_success = k_has_durable_success_exec(entry);
     let started = entry.outcomes.len();
+    proof {
+        k_has_durable_success_couples(*entry, durable);
+        assert(has_success == query_layer::d_has_durable_success(
+            durable, k_request_id(entry.request),
+        ));
+    }
     if !attempt_present {
         let enabled = match reason {
             KUnknownReason::Recovery => {
-                started == 0 && class_is_uncontrolled && !conclusive
+                started == 0 && class_is_uncontrolled && !conclusive && !has_success
             },
             _ => false,
         };
@@ -978,7 +994,7 @@ pub fn k_unknown_enabled(
             let uncertain = k_uncertain(entry, Ghost(durable));
             started == max_attempts && uncertain
         },
-        KUnknownReason::Recovery => class_is_uncontrolled && !conclusive,
+        KUnknownReason::Recovery => class_is_uncontrolled && !conclusive && !has_success,
         KUnknownReason::NonConclusiveFailure => {
             let latest = k_latest_outcome(entry);
             let failed = match latest {
@@ -1088,6 +1104,22 @@ pub fn k_guard_unknown(
                 reason,
                 Ghost(durable),
             );
+            let lane = entry.request % 4;
+            let class_is_idempotent = lane == 1;
+            let conclusive = k_failure_conclusive(
+                entry,
+                class_is_idempotent,
+                Ghost(k_demo_config()),
+                Ghost(durable),
+            );
+            let has_success = k_has_durable_success_exec(entry);
+            let classifier_unknown = if !attempt_present {
+                false
+            } else if !unknown_enabled {
+                false
+            } else {
+                true
+            };
             proof {
                 let spec_request = k_request_id(request);
                 assert(k_request_entry_couples(*entry, durable));
@@ -1097,8 +1129,26 @@ pub fn k_guard_unknown(
                 assert(phase_armed == (
                     durable.phase[spec_request] == replay_layer::Phase::Armed
                 ));
+                k_has_durable_success_couples(*entry, durable);
+                assert(has_success == query_layer::d_has_durable_success(
+                    durable, spec_request,
+                ));
+                if phase_armed && attempt_present && unknown_enabled
+                        && !conclusive && !has_success {
+                    query_layer::unknown_terminal_implies_unknown_decision(
+                        k_demo_config(),
+                        durable,
+                        spec_request,
+                        attempt as nat,
+                        k_unknown_reason_view(reason),
+                    );
+                    assert(query_layer::d_evidence_complete_decision(
+                        k_demo_config(), durable, spec_request,
+                    ) == replay_layer::EvidenceDecision::Unknown);
+                }
             }
-            phase_armed && fields_match && unknown_enabled
+            phase_armed && fields_match && unknown_enabled && classifier_unknown
+                && !conclusive && !has_success
         },
         Option::None => {
             proof {

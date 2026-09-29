@@ -1248,9 +1248,9 @@ Unknown obtains the exact prefix `StructuralEnabled` rule and reason-specific
 durable anchor from Journal legality; it makes no claim that unpersisted
 physical outcomes are absent.
 
-T6-E0 verifies 820 cumulative obligations with zero errors, adding 18 over its
-T6-D0 parent. Both the focused source check and the retained 38-target run pass;
-the retained report records 17,390 summed target obligations and 857
+T6-E0 verifies 850 cumulative obligations with zero errors, adding 18 over its
+T6-D0 parent. The historical 38-target checkpoint passed;
+the historical report records 17,390 summed target obligations and 857
 dependency-aware non-duplicated obligations.
 The result does not use an `ExternalRun`, `AdapterRely`, or adapter effect
 relation, and it does not prove `BrokerOutcomeCompatible`, `Refines`, an
@@ -1326,8 +1326,8 @@ WAL trace agreement and T4-C0's composed WAL-to-Broker representation, whose
 Journal projection carries the same evidence, to prove the frozen
 `wal_t6_s0_statement`.
 
-T6-S0 verifies 843 cumulative obligations with zero errors, adding 6 over its
-T6-C0 parent. The retained 40-target run passes and records 19,064 summed target
+T6-S0 verifies 873 cumulative obligations with zero errors, adding 6 over its
+T6-C0 parent. The historical 40-target checkpoint recorded 19,064 summed target
 obligations and 880 dependency-aware non-duplicated obligations.
 
 This is a conditional composition and backend-transport result. It defines no
@@ -1369,13 +1369,14 @@ Invoke, and one delivered Success. The exact terminal Commit, final
 representation, adapter history, external run, and one-effect/not-zero result
 are exported by a premise-free existential package.
 
-T6-A0 verifies 866 cumulative obligations with zero errors, adding 23 over the
-current 841-obligation T6-S0 closure. The retained 41-target run records 19,951
+T6-A0 verifies 897 cumulative obligations with zero errors, adding 24 over the
+current 873-obligation T6-S0 closure. The historical 41-target checkpoint recorded 19,951
 summed target obligations and 904 dependency-aware non-duplicated obligations.
 T6-S0's originally retained checkpoint remains 840 cumulative obligations over
-40 targets and 880 non-duplicated obligations; the current closure is one larger
-because T6-A0 adds a conservative definitional `PaperConfig` accessor lemma in
-the shared T1 layer.
+40 targets and 880 non-duplicated obligations. The current closure is larger
+because the shared T1 layer now includes the classifier and conservative
+`PaperConfig` accessor obligations; T6-A0 contributes the 24 adapter-specific
+obligations above that closure.
 
 The result verifies a semantic adapter contract, not executable adapter code or
 the external service. The mixed retry example is not a realizable Broker/WAL
@@ -1439,7 +1440,7 @@ single abstract effect, and Fail impossibility.
 sequence is fixed directly, not only through projections that erase control
 events.
 
-T6-A1 verifies 918 cumulative obligations with zero errors, adding 52 over its
+T6-A1 verifies 949 cumulative obligations with zero errors, adding 52 over its
 T6-A0 parent. The historical retained T6-A1 42-target run records 20,867 summed
 target obligations and 956 dependency-aware non-duplicated obligations.
 
@@ -1577,7 +1578,7 @@ final A1/protected effect-state agreement.
 `t6_p0_prefix_product_nonvacuity` exposes the package existentially without
 premises.
 
-T6-P0 verifies 1,021 cumulative obligations with zero errors, adding 23 over
+T6-P0 verifies 1,033 cumulative obligations with zero errors, adding 23 over
 T6-M0. It remains a fixed single-request `EnsureMember` model result and does
 not construct WAL executions from arbitrary A1 runs. T6-X0 supplies its
 storage-parametric contextual lift.
@@ -1639,7 +1640,7 @@ canonical Broker context's final invocation audit with the protected accepted
 calls, and durable authorization for every linearization.
 `t6_x0_contextual_end_to_end_nonvacuity` exports the package existentially.
 
-T6-X0 verifies 1,043 cumulative obligations with zero errors, adding 22 over
+T6-X0 verifies 1,055 cumulative obligations with zero errors, adding 22 over
 T6-P0. The historical pre-K4/DD X0 checkpoint passed all 45/45 targets, with 1,062
 dependency-aware non-duplicated obligations and 23,866 summed target
 obligations.
@@ -1704,8 +1705,8 @@ A1, whose Idempotent class made `Fail` impossible and terminated `Unknown`.
 `t6_ro0_executable_crash_retry_nonvacuity` proves the premise-free operational
 and semantic crash/retry package.
 
-T6-RO0 verifies 1,104 cumulative obligations with zero errors, adding 61 over
-its T6-X0 parent. The retained RO0 checkpoint passed all 46/46 targets,
+T6-RO0 verifies 1,118 cumulative obligations with zero errors, adding 63 over
+its T6-X0 parent. The historical RO0 checkpoint passed all 46/46 targets,
 contained 1,123 dependency-aware non-duplicated obligations, and summed to
 24,949 target obligations.
 
@@ -1732,7 +1733,7 @@ events, state, enabledness, transition, execution, and prefix relations. As a
 standalone definitions checkpoint it deliberately stops before the invariant,
 rely derivation, and concrete terminal witness.
 
-T6-DD0 verifies 1,106 cumulative obligations with zero errors, adding 2 over
+T6-DD0 verifies 1,120 cumulative obligations with zero errors, adding 2 over
 T6-RO0.
 
 ## T6-DD1: deduplicated invariant and adapter rely
@@ -1754,7 +1755,7 @@ generic terminal obligation: Commit selects the applied memo and one effect,
 Fail selects the rejected memo and zero effects, and Unknown admits the
 factored zero-or-one alternatives.
 
-T6-DD1 verifies 1,132 cumulative obligations with zero errors, adding 26 over
+T6-DD1 verifies 1,148 cumulative obligations with zero errors, adding 28 over
 T6-DD0. DD1 is the universal safety parent of the concrete DD2 witness.
 
 ## T6-DD2: deduplicated coupled crash/retry witness
@@ -1778,7 +1779,7 @@ trace agreement, canonical closed WAL/Broker representation, the exact terminal
 Commit, `AdapterRely`, `Refines`, per-request effect refinement, and combined
 premise-free operational and semantic nonvacuity packages.
 
-T6-DD2 verifies 1,164 cumulative obligations with zero errors, adding 32 over
+T6-DD2 verifies 1,180 cumulative obligations with zero errors, adding 32 over
 T6-DD1. DD2 stops at the adapter/WAL/Broker model boundary. Its historical
 retained suite passed all 53/53 targets with 1,287 dependency-aware non-
 duplicated obligations and 29,082 summed target obligations. A separate P0/X0
@@ -1805,7 +1806,7 @@ indices 12 and 22 discharge durable authorization for both calls, while the only
 protected decision is shown to inherit that authorization. The final package
 retains DD2's terminal/effect theorem and is inhabited without premises.
 
-T6-DD3 verifies 1,203 cumulative obligations with zero errors, adding 39 over
+T6-DD3 verifies 1,219 cumulative obligations with zero errors, adding 39 over
 T6-DD2. Its historical retained suite passed all 54/54 targets, contained 1,326
 dependency-aware non-duplicated obligations, and summed to 30,264 target
 obligations. DD3 closes protected-service execution and mediation for the
@@ -1826,9 +1827,10 @@ the adapter's final history and transport the same outcome, `Refines`, and per-
 request effect refinement to the canonical Broker trace. A premise-free closed
 package retains the DD2 crash/retry and DD3 mediation packages.
 
-T6-DD4 verifies 1,243 cumulative obligations with zero errors, adding 40 over
-T6-DD3. The retained suite passes all 55/55 targets, contains 1,366 dependency-
-aware non-duplicated obligations, and sums to 31,486 target obligations. DD4
+T6-DD4 verifies 1,259 cumulative obligations with zero errors, adding 40 over
+T6-DD3. The historical DD4 checkpoint passed all 55/55 targets, contained
+1,366 dependency-aware non-duplicated obligations, and summed to 31,486 target
+obligations. DD4
 closes M2 for the distinguished DD2 execution; DD5 closes M3 at the
 coverage-conditioned request-indexed family boundary.
 
@@ -1847,10 +1849,10 @@ terminal request, request 0, and its family member is the DD2/DD3 pair. Thus the
 family theorem is request-indexed and non-vacuous while keeping family coverage
 as an explicit admission condition for arbitrary shared executions.
 
-T6-DD5 verifies 1,249 cumulative obligations with zero errors, 6 more than
+T6-DD5 verifies 1,265 cumulative obligations with zero errors, 6 more than
 T6-DD4. With T5-R1, H2, and K4-A4 registered, the retained suite passes all
-72/72 targets, contains 1,511 dependency-aware non-duplicated obligations, and
-sums to 38,952
+72/72 targets, contains 1,534 dependency-aware non-duplicated obligations, and
+sums to 39,706
 target obligations. M3 is
 closed as a coverage-conditioned family theorem; constructing members directly
 from production adapter executions remains an implementation refinement.
@@ -1879,8 +1881,8 @@ pwsh -NoLogo -NoProfile -File mechanized/verify.ps1
 
 The Linux runner requires `chmod` and `unzip`, and explicitly binds Verus to
 the Z3 executable inside the hash-checked Verus tree. The source-current
-retained run passes all 72/72 targets with 1,511 dependency-aware
-non-duplicated obligations and 38,952 summed target obligations.
+retained run passes all 72/72 targets with 1,534 dependency-aware
+non-duplicated obligations and 39,706 summed target obligations.
 
 The clean-room Linux run at source revision
 `5d8e8ed39e492b05f52ba093782a043d204f1192` is retained as
@@ -1947,128 +1949,129 @@ retained 72-target full suite:
 
 ```text
 M0 verified obligations: 21
-R1 verified obligations: 86
+R1 verified obligations: 91
 B1 verified obligations: 39
-C1 verified obligations: 128
-D1 verified obligations: 144
-Q1 verified obligations: 144
-K1 verified obligations: 159
-K2-G0 verified obligations: 179
-K2-T0 verified obligations: 208
-K3-A0 verified obligations: 248
+C1 verified obligations: 133
+D1 verified obligations: 149
+Q1 verified obligations: 152
+K1 verified obligations: 170
+K2-G0 verified obligations: 190
+K2-T0 verified obligations: 219
+K3-A0 verified obligations: 259
 K3-A0 target delta over K2-T0: 40
-K4-C0 verified obligations: 255
+K4-C0 verified obligations: 266
 K4-C0 target delta over K3-A0: 7
-K4-R0 verified obligations: 266
+K4-R0 verified obligations: 277
 K4-R0 target delta over K4-C0: 11
-K4-R1 verified obligations: 274
+K4-R1 verified obligations: 285
 K4-R1 target delta over K4-R0: 8
-K4-R2 verified obligations: 276
+K4-R2 verified obligations: 287
 K4-R2 target delta over K4-R1: 2
-K4-R3 verified obligations: 278
+K4-R3 verified obligations: 289
 K4-R3 target delta over K4-R2: 2
-K4-R4 verified obligations: 281
+K4-R4 verified obligations: 292
 K4-R4 target delta over K4-R3: 3
-K4-R5 verified obligations: 283
+K4-R5 verified obligations: 294
 K4-R5 target delta over K4-R4: 2
-K4-R6 verified obligations: 286
+K4-R6 verified obligations: 297
 K4-R6 target delta over K4-R5: 3
-K4-R7 verified obligations: 289
+K4-R7 verified obligations: 300
 K4-R7 target delta over K4-R6: 3
-K4-A0 verified obligations: 301
+K4-A0 verified obligations: 312
 K4-A0 target delta over K4-R7: 12
-K4-A1 verified obligations: 309
+K4-A1 verified obligations: 320
 K4-A1 target delta over K4-A0: 8
-K4-A2 verified obligations: 326
+K4-A2 verified obligations: 337
 K4-A2 target delta over K4-A1: 17
-K4-A3 verified obligations: 347
+K4-A3 verified obligations: 359
 K4-A3 target delta over K4-A2: 21
-K4-A4 verified obligations: 365
+K4-A4 verified obligations: 380
 K4-A4 target delta over K4-A3: 18
-B2-R verified obligations: 169
-B2-C verified obligations: 175
-B2-P0 verified obligations: 194
-B2-P1 verified obligations: 252
-B2-P2 verified obligations: 278
-B2-P3 verified obligations: 294
-B2-L verified obligations: 312
-B2-A verified obligations: 337
-G0 verified obligations: 344
-G1-P verified obligations: 412
-G1-E verified obligations: 431
-T1 verified obligations: 464
-T2-J0 verified obligations: 478
-T2-J1 verified obligations: 489
-T2-E verified obligations: 511
-T2-R verified obligations: 523
-T2 verified obligations: 534
-T3-W0 verified obligations: 580
-T3-W1-T verified obligations: 591
-T3-W1-E verified obligations: 629
-T3-W1-R verified obligations: 644
-T3 verified obligations: 662
-T4-C0 verified obligations: 679
-T4-C1 verified obligations: 723
-T4-C2 verified obligations: 737
-T5-S0 verified obligations: 746
-T5-E0 verified obligations: 750
-T5-R0 verified obligations: 773
-T5-R1 verified obligations: 787
+B2-R verified obligations: 177
+B2-C verified obligations: 183
+B2-P0 verified obligations: 202
+B2-P1 verified obligations: 262
+B2-P2 verified obligations: 288
+B2-P3 verified obligations: 304
+B2-L verified obligations: 322
+B2-A verified obligations: 347
+G0 verified obligations: 354
+G1-P verified obligations: 422
+G1-E verified obligations: 441
+T1 verified obligations: 474
+T2-J0 verified obligations: 488
+T2-J1 verified obligations: 499
+T2-E verified obligations: 521
+T2-R verified obligations: 533
+T2 verified obligations: 544
+T3-W0 verified obligations: 590
+T3-W1-T verified obligations: 601
+T3-W1-E verified obligations: 639
+T3-W1-R verified obligations: 654
+T3 verified obligations: 672
+T4-C0 verified obligations: 689
+T4-C1 verified obligations: 733
+T4-C2 verified obligations: 747
+T5-S0 verified obligations: 756
+T5-E0 verified obligations: 760
+T5-R0 verified obligations: 783
+T5-R1 verified obligations: 797
 T5-R1 target delta over T5-R0: 14
-T5-C0 verified obligations: 805
+T5-C0 verified obligations: 815
 T5-C0 target delta over T5-R1: 18
-H1 verified obligations: 808
-T6-D0 verified obligations: 821
-T6-E0 verified obligations: 839
-T6-C0 verified obligations: 856
-T6-S0 verified obligations: 862
-T6-A0 verified obligations: 885
-T6-A1 verified obligations: 937
-H2 verified obligations: 886
+H1 verified obligations: 818
+T6-D0 verified obligations: 832
+T6-E0 verified obligations: 850
+T6-C0 verified obligations: 867
+T6-S0 verified obligations: 873
+T6-A0 verified obligations: 897
+T6-A1 verified obligations: 949
+H2 verified obligations: 898
 H2 target delta over T6-A0: 1
-T6-M0 verified obligations: 998
-T6-P0 verified obligations: 1,021
+T6-M0 verified obligations: 1,010
+T6-P0 verified obligations: 1,033
 T6-P0 target delta over T6-M0: 23
-T6-P0 non-duplicated verified artifact obligations: 1,283
-T6-P0 summed target obligations: 29,708
-T6-X0 verified obligations: 1,043
+T6-P0 non-duplicated verified artifact obligations: 1,302
+T6-P0 summed target obligations: 30,342
+T6-X0 verified obligations: 1,055
 T6-X0 target delta over T6-P0: 22
-T6-X0 non-duplicated verified artifact obligations: 1,305
-T6-X0 summed target obligations: 30,751
-T6-RO0 verified obligations: 1,104
-T6-RO0 target delta over T6-X0: 61
-T6-RO0 non-duplicated verified artifact obligations: 1,366
-T6-RO0 summed target obligations: 31,855
-T6-DD0 verified obligations: 1,106
+T6-X0 non-duplicated verified artifact obligations: 1,324
+T6-X0 summed target obligations: 31,397
+T6-RO0 verified obligations: 1,118
+T6-RO0 target delta over T6-X0: 63
+T6-RO0 non-duplicated verified artifact obligations: 1,387
+T6-RO0 summed target obligations: 32,515
+T6-DD0 verified obligations: 1,120
 T6-DD0 target delta over T6-RO0: 2
-T6-DD0 non-duplicated verified artifact obligations: 1,368
-T6-DD0 summed target obligations: 32,961
-T6-DD1 verified obligations: 1,132
-T6-DD1 target delta over T6-DD0: 26
-T6-DD1 non-duplicated verified artifact obligations: 1,394
-T6-DD1 summed target obligations: 34,093
-T6-DD2 verified obligations: 1,164
+T6-DD0 non-duplicated verified artifact obligations: 1,389
+T6-DD0 summed target obligations: 33,635
+T6-DD1 verified obligations: 1,148
+T6-DD1 target delta over T6-DD0: 28
+T6-DD1 non-duplicated verified artifact obligations: 1,417
+T6-DD1 summed target obligations: 34,783
+T6-DD2 verified obligations: 1,180
 T6-DD2 target delta over T6-DD1: 32
-T6-DD2 non-duplicated verified artifact obligations: 1,426
-T6-DD2 summed target obligations: 35,257
-T6-DD3 verified obligations: 1,203
+T6-DD2 non-duplicated verified artifact obligations: 1,449
+T6-DD2 summed target obligations: 35,963
+T6-DD3 verified obligations: 1,219
 T6-DD3 target delta over T6-DD2: 39
-T6-DD3 non-duplicated verified artifact obligations: 1,465
-T6-DD3 summed target obligations: 36,460
-T6-DD4 verified obligations: 1,243
+T6-DD3 non-duplicated verified artifact obligations: 1,488
+T6-DD3 summed target obligations: 37,182
+T6-DD4 verified obligations: 1,259
 T6-DD4 target delta over T6-DD3: 40
-T6-DD4 non-duplicated verified artifact obligations: 1,505
-T6-DD4 summed target obligations: 37,703
-T6-DD5 verified obligations: 1,249
+T6-DD4 non-duplicated verified artifact obligations: 1,528
+T6-DD4 summed target obligations: 38,441
+T6-DD5 verified obligations: 1,265
 T6-DD5 target delta over T6-DD4: 6
-T6-DD5 non-duplicated verified artifact obligations: 1,511
-T6-DD5 summed target obligations: 38,952
+T6-DD5 non-duplicated verified artifact obligations: 1,534
+T6-DD5 summed target obligations: 39,706
 ```
 
-C1's 128 obligations include the 86 R1 and 39 B1 obligations imported into the
-composition crate, plus 3 composition-specific obligations. D1 and Q1 each
-include that same C1 closure plus 16 new obligations. K1 imports Q1 and adds 15
-executable-summary and guard obligations; K2-G0 imports K1 and adds 20 guard
+C1's 133 obligations include the 91 R1 and 39 B1 obligations imported into the
+composition crate, plus 3 composition-specific obligations. D1 imports C1 and
+adds 16 obligations; Q1 imports C1 and adds 19 durable-query/classifier
+obligations. K1 imports Q1 and adds 18 executable-summary and guard obligations;
+K2-G0 imports K1 and adds 20 guard
 obligations; K2-T0 imports K2-G0 and adds 29 mutation/coupling obligations; and
 K3-A0 imports K2-T0 and adds 40 exact-reference, append-state, replay-coupling,
 and B1 projection obligations. K4-C0 imports K3-A0 and adds 7 finite-manifest
@@ -2148,7 +2151,7 @@ transport, the equality corollary, contextual export, and the inert-context
 witness. H1 adds 3 obligations for
 the concrete total configuration, the concrete T5-C0 premise/conclusion
 package, and the final existential artifact-nonvacuity theorem. T6-D0 imports
-T5-C0 directly and adds 16 definition-boundary obligations for the three
+T5-C0 directly and adds 17 definition-boundary obligations for the three
 evidence branches, three compatibility branches, empty/singleton/duplicate
 terminal selection, unique/duplicate delivery cases, exact Unknown-rule
 decomposition, and adapter-rely and adapter-verification unfolding.
@@ -2166,7 +2169,7 @@ event/core compatibility exports.
 T6-S0 imports T6-C0 directly and adds 6 composition and backend-transport
 obligations: the generic conjunction and frozen core statement, plus the
 requires-style and implication-style atomic-Journal and typed-WAL wrappers.
-T6-A0 imports T6-S0 directly and adds 23 obligations for generic refinement
+T6-A0 imports T6-S0 directly and adds 24 obligations for generic refinement
 closure, the concrete `EnsureMember` adapter laws and `AdapterVerified` instance,
 the typed-WAL execution/rely witness, exact terminal package, and premise-free
 semantic nonvacuity theorem.
@@ -2195,7 +2198,7 @@ contextual Broker terminal refinement under `AdapterVerified` and
 `AdapterRely`, source and target mediation transport, the conditional
 single-request `EnsureMember` theorem, and its premise-free crash/retry and
 existential nonvacuity packages.
-T6-RO0 imports T6-X0 directly and adds 61 obligations for the read-only
+T6-RO0 imports T6-X0 directly and adds 63 obligations for the read-only
 adapter interpretation and its `AdapterVerified` instance, the sampled-read
 operational machine, its inductive invariant and finite-execution closure,
 derivation of `AdapterRely`, the coupled crash/retry adapter and typed-WAL
@@ -2205,7 +2208,7 @@ nonvacuity package.
 T6-DD0 imports T6-RO0 directly and adds 2 obligations for the fixed
 Deduplicated configuration's well-formedness. The adapter interpretation and
 memoizing operational transition system are defined. T6-DD1 imports T6-DD0
-directly and adds 26 obligations for decision/history provenance, slot and
+directly and adds 28 obligations for decision/history provenance, slot and
 observation invariants, step and finite-execution preservation, pairwise
 deduplicated consistency, the service law and `AdapterRely` derivation, and
 the Deduplicated `AdapterVerified` instance. T6-DD2 imports T6-DD1 directly and
@@ -2243,8 +2246,8 @@ dependency-aware non-duplicated obligations and summed to 24,949 target
 obligations. The current registry adds K1, K2-G0, K2-T0, K3-A0, K4-C0, K4-R0,
 K4-R1, K4-R2, K4-R3, K4-R4, K4-R5, K4-R6, K4-R7, K4-A0, K4-A1, K4-A2,
 K4-A3, K4-A4, T5-R1, H2, T6-DD0, T6-DD1, T6-DD2, T6-DD3, T6-DD4, and
-T6-DD5: it contains 72 targets and 1,511 dependency-aware non-duplicated
-obligations, and the retained run sums to 38,952 obligations.
+T6-DD5: it contains 72 targets and 1,534 dependency-aware non-duplicated
+obligations, and the retained run sums to 39,706 obligations.
 The historical retained T6-A0 checkpoint had 41 targets, 904 non-duplicated
 obligations, and a 19,951 target sum. The historical retained T6-S0 checkpoint
 had 40 targets, 880 non-duplicated obligations, and a 19,064 target sum before

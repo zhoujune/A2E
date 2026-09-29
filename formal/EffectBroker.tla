@@ -230,7 +230,18 @@ LatestAttemptFailed(r) ==
 
 FailureIsConclusive(r) ==
     /\ LatestAttemptFailed(r)
-    /\ (RetryClass(r) = "Idempotent" => AllDurableAttemptsFailed(r))
+        /\ (RetryClass(r) = "Idempotent" => AllDurableAttemptsFailed(r))
+
+EvidenceDecision(r) ==
+    IF phase[r] # "Armed" THEN "Stable"
+    ELSE IF HasDurableAttemptEvent(r, "Success") THEN "Commit"
+    ELSE IF FailureIsConclusive(r) THEN "Fail"
+    ELSE IF LatestAttemptFailed(r) THEN "Unknown"
+    ELSE IF DurableAttemptCount(r) < MaxAttempts
+            /\ (DurableAttemptCount(r) = 0
+                \/ RetryClass(r) # "Uncontrolled")
+         THEN "Retry"
+    ELSE "Unknown"
 
 UnsafeUncontrolled(r) ==
     /\ phase[r] = "Armed"
@@ -239,8 +250,7 @@ UnsafeUncontrolled(r) ==
 
 RecoveryComplete ==
     \A r \in Requests :
-        /\ ~UnsafeUncontrolled(r)
-        /\ ~(phase[r] = "Armed" /\ FailureIsConclusive(r))
+        phase[r] # "Armed" \/ EvidenceDecision(r) = "Retry"
 
 Running == ~crashed /\ ~recovering
 
@@ -370,7 +380,7 @@ ReserveAttempt(r) ==
                   \union observedOK \union observedErr
                   \union observedUnknown
     /\ DurableAttemptCount(r) < MaxAttempts
-    /\ ~FailureIsConclusive(r)
+    /\ EvidenceDecision(r) = "Retry"
     /\ (RetryClass(r) = "Uncontrolled" => DurableAttemptCount(r) = 0)
     /\ ready' = ready \union {r}
     /\ readyAttempt' = [readyAttempt EXCEPT ![r] = attempt]
@@ -622,6 +632,7 @@ RecordObservedUnknown(r) ==
     /\ phase[r] = "Armed"
     /\ r \in observedUnknown
     /\ RetryClass(r) = "Uncontrolled"
+    /\ EvidenceDecision(r) = "Unknown"
     /\ AttemptLogEntryCount(
            r, DurableAttemptCount(r), "Ambiguous")
        + AttemptLogEntryCount(
@@ -643,6 +654,7 @@ Commit(r) ==
     /\ Running
     /\ phase[r] = "Armed"
     /\ r \in observedOK
+    /\ EvidenceDecision(r) = "Commit"
     /\ observedValue[r] \in AllowedResults
     /\ observedAttempt[r] \in 1..MaxAttempts
     /\ commitCount[r] = 0
@@ -674,6 +686,7 @@ RecordFailure(r) ==
     /\ phase[r] = "Armed"
     /\ r \in observedErr
     /\ FailureIsConclusive(r)
+    /\ EvidenceDecision(r) = "Fail"
     /\ observedErrAttempt[r] = DurableAttemptCount(r)
     /\ phase' = [phase EXCEPT ![r] = "Failed"]
     /\ failureAttempt' =
@@ -696,6 +709,7 @@ RecordUnknown(r) ==
     /\ phase[r] = "Armed"
     /\ r \in observedErr
     /\ ~FailureIsConclusive(r)
+    /\ EvidenceDecision(r) = "Unknown"
     /\ phase' = [phase EXCEPT ![r] = "Unknown"]
     /\ observedErr' = observedErr \ {r}
     /\ observedErrSource' = [observedErrSource EXCEPT ![r] = 0]
@@ -737,6 +751,7 @@ RecoverRecordedFailure(r) ==
                   \union observedOK \union observedErr
                   \union observedUnknown
     /\ FailureIsConclusive(r)
+    /\ EvidenceDecision(r) = "Fail"
     /\ phase' = [phase EXCEPT ![r] = "Failed"]
     /\ failureAttempt' =
            [failureAttempt EXCEPT ![r] = DurableAttemptCount(r)]
@@ -759,6 +774,7 @@ ExhaustedUnknown(r) ==
                   \union observedUnknown
     /\ DurableAttemptCount(r) = MaxAttempts
     /\ HasDurableUncertainty(r)
+    /\ EvidenceDecision(r) = "Unknown"
     /\ phase' = [phase EXCEPT ![r] = "Unknown"]
     /\ UNCHANGED <<
            capRemaining, revoked, authWitness, authCount, authLog,
@@ -867,7 +883,6 @@ Next ==
     \/ \E r \in Requests : Commit(r)
     \/ \E r \in Requests : RecordFailure(r)
     \/ \E r \in Requests : RecordUnknown(r)
-    \/ \E r \in Requests : RetryAfterUncertainFailure(r)
     \/ \E r \in Requests : RecoverRecordedFailure(r)
     \/ \E r \in Requests : ExhaustedUnknown(r)
     \/ Crash

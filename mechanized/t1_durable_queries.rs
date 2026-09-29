@@ -98,6 +98,17 @@ pub open spec fn d_failure_conclusive(
             ==> d_all_failed(durable, request))
 }
 
+pub open spec fn d_has_durable_success(
+    durable: replay_layer::DurableBroker,
+    request: replay_layer::RequestId,
+) -> bool {
+    exists|attempt: replay_layer::AttemptId,
+           value: replay_layer::Value| #![auto]
+        1 <= attempt && attempt <= d_started(durable, request)
+            && d_outcome(durable, request, attempt)
+                == Option::Some(replay_layer::Observation::Success(value))
+}
+
 pub open spec fn recorded_success_j(
     journal: Seq<replay_layer::JournalRecord>,
     request: replay_layer::RequestId,
@@ -141,7 +152,34 @@ pub open spec fn unsafe_uncontrolled_j(
     replay_layer::replay(cfg, journal).phase[request] == replay_layer::Phase::Armed
         && cfg.request_class[request] == replay_layer::RetryClass::Uncontrolled
         && !replay_layer::failure_conclusive(cfg, journal, request)
-        && !recorded_success_j(journal, request)
+        && !replay_layer::has_durable_success(journal, request)
+}
+
+pub open spec fn d_evidence_complete_decision(
+    cfg: replay_layer::Config,
+    durable: replay_layer::DurableBroker,
+    request: replay_layer::RequestId,
+) -> replay_layer::EvidenceDecision {
+    let started = d_started(durable, request);
+    if durable.phase[request] != replay_layer::Phase::Armed {
+        replay_layer::EvidenceDecision::Stable
+    } else if d_has_durable_success(durable, request) {
+        replay_layer::EvidenceDecision::Commit
+    } else if d_failure_conclusive(cfg, durable, request) {
+        replay_layer::EvidenceDecision::Fail
+    } else if started > 0
+            && d_outcome(durable, request, started)
+                == Option::Some(replay_layer::Observation::Failure) {
+        replay_layer::EvidenceDecision::Unknown
+    } else if (started == 0
+                || replay_layer::retry_class_allows_repetition(
+                    cfg.request_class[request],
+                ))
+            && started < cfg.max_attempts[request] {
+        replay_layer::EvidenceDecision::Retry
+    } else {
+        replay_layer::EvidenceDecision::Unknown
+    }
 }
 
 pub open spec fn unsafe_uncontrolled_d(
@@ -152,7 +190,7 @@ pub open spec fn unsafe_uncontrolled_d(
     durable.phase[request] == replay_layer::Phase::Armed
         && cfg.request_class[request] == replay_layer::RetryClass::Uncontrolled
         && !d_failure_conclusive(cfg, durable, request)
-        && !recorded_success_d(durable, request)
+        && !d_has_durable_success(durable, request)
 }
 
 pub open spec fn recovery_complete_j(
@@ -160,10 +198,11 @@ pub open spec fn recovery_complete_j(
     journal: Seq<replay_layer::JournalRecord>,
 ) -> bool {
     forall|request: replay_layer::RequestId|
-        !#[trigger] unsafe_uncontrolled_j(cfg, journal, request)
-            && !(replay_layer::replay(cfg, journal).phase[request]
-                    == replay_layer::Phase::Armed
-                && replay_layer::failure_conclusive(cfg, journal, request))
+        replay_layer::replay(cfg, journal).phase[request]
+                != replay_layer::Phase::Armed
+            || #[trigger] replay_layer::evidence_complete_decision(
+                cfg, journal, request,
+            ) == replay_layer::EvidenceDecision::Retry
 }
 
 pub open spec fn recovery_complete_d(
@@ -171,9 +210,10 @@ pub open spec fn recovery_complete_d(
     durable: replay_layer::DurableBroker,
 ) -> bool {
     forall|request: replay_layer::RequestId|
-        !#[trigger] unsafe_uncontrolled_d(cfg, durable, request)
-            && !(durable.phase[request] == replay_layer::Phase::Armed
-                && d_failure_conclusive(cfg, durable, request))
+        durable.phase[request] != replay_layer::Phase::Armed
+            || #[trigger] d_evidence_complete_decision(
+                cfg, durable, request,
+            ) == replay_layer::EvidenceDecision::Retry
 }
 
 pub open spec fn d_unknown_enabled(
@@ -190,6 +230,7 @@ pub open spec fn d_unknown_enabled(
                 && started == 0
                 && cfg.request_class[request] == replay_layer::RetryClass::Uncontrolled
                 && !d_failure_conclusive(cfg, durable, request)
+                && !d_has_durable_success(durable, request)
         },
         Option::Some(a) => {
             a == started
@@ -202,6 +243,7 @@ pub open spec fn d_unknown_enabled(
                     replay_layer::UnknownReason::Recovery => {
                         cfg.request_class[request] == replay_layer::RetryClass::Uncontrolled
                             && !d_failure_conclusive(cfg, durable, request)
+                            && !d_has_durable_success(durable, request)
                     },
                     replay_layer::UnknownReason::NonConclusiveFailure => {
                         d_outcome(durable, request, a)
@@ -223,6 +265,34 @@ pub open spec fn d_unknown_enabled(
                     },
                 }
         },
+    }
+}
+
+pub proof fn unknown_terminal_implies_unknown_decision(
+    cfg: replay_layer::Config,
+    durable: replay_layer::DurableBroker,
+    request: replay_layer::RequestId,
+    attempt: replay_layer::AttemptId,
+    reason: replay_layer::UnknownReason,
+)
+    requires
+        durable.phase[request] == replay_layer::Phase::Armed,
+        d_unknown_enabled(
+            cfg, durable, request, Option::Some(attempt), reason,
+        ),
+        !d_has_durable_success(durable, request),
+        !d_failure_conclusive(cfg, durable, request),
+    ensures d_evidence_complete_decision(cfg, durable, request)
+        == replay_layer::EvidenceDecision::Unknown,
+{
+    reveal(d_evidence_complete_decision);
+    reveal(d_unknown_enabled);
+    match reason {
+        replay_layer::UnknownReason::Exhausted
+        | replay_layer::UnknownReason::Recovery
+        | replay_layer::UnknownReason::NonConclusiveFailure
+        | replay_layer::UnknownReason::AmbiguousOutcome
+        | replay_layer::UnknownReason::InvalidResultReason => {},
     }
 }
 
@@ -266,7 +336,8 @@ pub open spec fn abstract_record_enabled(
                 && replay_layer::request_fields_match(cfg, request, digest, key)
                 && attempt == d_started(durable, request) + 1
                 && attempt <= cfg.max_attempts[request]
-                && !d_failure_conclusive(cfg, durable, request)
+                && d_evidence_complete_decision(cfg, durable, request)
+                    == replay_layer::EvidenceDecision::Retry
                 && (cfg.request_class[request] == replay_layer::RetryClass::Uncontrolled
                     ==> d_started(durable, request) == 0)
         },
@@ -284,6 +355,8 @@ pub open spec fn abstract_record_enabled(
             request, attempt, value, digest, key, ..
         } => {
             durable.phase[request] == replay_layer::Phase::Armed
+                && d_evidence_complete_decision(cfg, durable, request)
+                    == replay_layer::EvidenceDecision::Commit
                 && replay_layer::request_fields_match(cfg, request, digest, key)
                 && attempt > 0
                 && attempt == d_started(durable, request)
@@ -294,6 +367,8 @@ pub open spec fn abstract_record_enabled(
             request, attempt, digest, key, ..
         } => {
             durable.phase[request] == replay_layer::Phase::Armed
+                && d_evidence_complete_decision(cfg, durable, request)
+                    == replay_layer::EvidenceDecision::Fail
                 && replay_layer::request_fields_match(cfg, request, digest, key)
                 && attempt > 0
                 && attempt == d_started(durable, request)
@@ -303,6 +378,8 @@ pub open spec fn abstract_record_enabled(
             request, attempt, reason, digest, key, ..
         } => {
             durable.phase[request] == replay_layer::Phase::Armed
+                && d_evidence_complete_decision(cfg, durable, request)
+                    == replay_layer::EvidenceDecision::Unknown
                 && replay_layer::request_fields_match(cfg, request, digest, key)
                 && d_unknown_enabled(cfg, durable, request, attempt, reason)
         },
@@ -543,6 +620,85 @@ pub proof fn replay_d_failure_conclusive_exact(
     replay_d_all_failed_exact(cfg, journal, request);
 }
 
+pub proof fn replay_d_has_durable_success_exact(
+    cfg: replay_layer::Config,
+    journal: Seq<replay_layer::JournalRecord>,
+    request: replay_layer::RequestId,
+)
+    ensures
+        d_has_durable_success(replay_layer::replay(cfg, journal), request)
+            <==> replay_layer::has_durable_success(journal, request),
+{
+    replay_d_started_exact(cfg, journal, request);
+    assert forall|attempt: replay_layer::AttemptId|
+        d_outcome(replay_layer::replay(cfg, journal), request, attempt)
+            == #[trigger] replay_layer::outcome_observation(
+                journal, request, attempt,
+            ) by {
+        replay_d_outcome_exact(cfg, journal, request, attempt);
+    }
+    if d_has_durable_success(replay_layer::replay(cfg, journal), request) {
+        let attempt = choose|attempt: replay_layer::AttemptId|
+            exists|value: replay_layer::Value| #![auto]
+                1 <= attempt
+                    && attempt <= d_started(
+                        replay_layer::replay(cfg, journal), request,
+                    )
+                    && #[trigger] d_outcome(
+                        replay_layer::replay(cfg, journal), request, attempt,
+                    ) == Option::Some(replay_layer::Observation::Success(value));
+        let value = choose|value: replay_layer::Value| #![auto]
+            1 <= attempt
+                && attempt <= d_started(
+                    replay_layer::replay(cfg, journal), request,
+                )
+                && #[trigger] d_outcome(
+                    replay_layer::replay(cfg, journal), request, attempt,
+                ) == Option::Some(replay_layer::Observation::Success(value));
+        assert(1 <= attempt
+            && attempt <= replay_layer::started_count(journal, request));
+        assert(replay_layer::outcome_observation(journal, request, attempt)
+            == Option::Some(replay_layer::Observation::Success(value)));
+    }
+    if replay_layer::has_durable_success(journal, request) {
+        let attempt = choose|attempt: replay_layer::AttemptId|
+            exists|value: replay_layer::Value| #![auto]
+                1 <= attempt
+                    && attempt <= replay_layer::started_count(journal, request)
+                    && #[trigger] replay_layer::outcome_observation(
+                        journal, request, attempt,
+                    ) == Option::Some(replay_layer::Observation::Success(value));
+        let value = choose|value: replay_layer::Value| #![auto]
+            1 <= attempt
+                && attempt <= replay_layer::started_count(journal, request)
+                && #[trigger] replay_layer::outcome_observation(
+                    journal, request, attempt,
+                ) == Option::Some(replay_layer::Observation::Success(value));
+        assert(1 <= attempt
+            && attempt <= d_started(replay_layer::replay(cfg, journal), request));
+        assert(d_outcome(replay_layer::replay(cfg, journal), request, attempt)
+            == Option::Some(replay_layer::Observation::Success(value)));
+    }
+}
+
+pub proof fn replay_d_evidence_complete_decision_exact(
+    cfg: replay_layer::Config,
+    journal: Seq<replay_layer::JournalRecord>,
+    request: replay_layer::RequestId,
+)
+    ensures
+        d_evidence_complete_decision(
+            cfg, replay_layer::replay(cfg, journal), request,
+        ) == replay_layer::evidence_complete_decision(cfg, journal, request),
+{
+    replay_d_started_exact(cfg, journal, request);
+    replay_d_outcome_exact(
+        cfg, journal, request, replay_layer::started_count(journal, request),
+    );
+    replay_d_has_durable_success_exact(cfg, journal, request);
+    replay_d_failure_conclusive_exact(cfg, journal, request);
+}
+
 pub proof fn replay_d_uncertain_exact(
     cfg: replay_layer::Config,
     journal: Seq<replay_layer::JournalRecord>,
@@ -626,52 +782,50 @@ pub proof fn replay_recovery_predicates_exact(
             replay_layer::started_count(journal, request),
         );
         replay_d_failure_conclusive_exact(cfg, journal, request);
+        replay_d_has_durable_success_exact(cfg, journal, request);
     }
     assert forall|request: replay_layer::RequestId|
-        d_failure_conclusive(cfg, replay_layer::replay(cfg, journal), request)
-            <==> #[trigger] replay_layer::failure_conclusive(
-                cfg, journal, request,
-            ) by {
-        replay_d_failure_conclusive_exact(cfg, journal, request);
+        d_evidence_complete_decision(
+            cfg, replay_layer::replay(cfg, journal), request,
+        ) == #[trigger] replay_layer::evidence_complete_decision(
+            cfg, journal, request,
+        ) by {
+        replay_d_evidence_complete_decision_exact(cfg, journal, request);
     }
-    if recovery_complete_d(cfg, replay_layer::replay(cfg, journal)) {
-        assert(recovery_complete_j(cfg, journal)) by {
-            assert forall|request: replay_layer::RequestId|
-                !#[trigger] unsafe_uncontrolled_j(cfg, journal, request)
-                    && !(replay_layer::replay(cfg, journal).phase[request]
-                            == replay_layer::Phase::Armed
-                        && replay_layer::failure_conclusive(
+    assert(recovery_complete_d(cfg, replay_layer::replay(cfg, journal))
+        <==> recovery_complete_j(cfg, journal)) by {
+        if recovery_complete_d(cfg, replay_layer::replay(cfg, journal)) {
+            assert(recovery_complete_j(cfg, journal)) by {
+                assert forall|request: replay_layer::RequestId|
+                    replay_layer::replay(cfg, journal).phase[request]
+                            != replay_layer::Phase::Armed
+                        || #[trigger] replay_layer::evidence_complete_decision(
                             cfg, journal, request,
-                        )) by {
-                assert(!unsafe_uncontrolled_d(
-                    cfg, replay_layer::replay(cfg, journal), request,
-                ));
-                assert(!(replay_layer::replay(cfg, journal).phase[request]
-                        == replay_layer::Phase::Armed
-                    && d_failure_conclusive(
-                        cfg, replay_layer::replay(cfg, journal), request,
-                    )));
-                replay_d_failure_conclusive_exact(cfg, journal, request);
+                        ) == replay_layer::EvidenceDecision::Retry by {
+                    if replay_layer::replay(cfg, journal).phase[request]
+                            == replay_layer::Phase::Armed {
+                        assert(d_evidence_complete_decision(
+                            cfg, replay_layer::replay(cfg, journal), request,
+                        ) == replay_layer::EvidenceDecision::Retry);
+                    }
+                }
             }
         }
-    }
-    if recovery_complete_j(cfg, journal) {
-        assert(recovery_complete_d(cfg, replay_layer::replay(cfg, journal))) by {
-            assert forall|request: replay_layer::RequestId|
-                !#[trigger] unsafe_uncontrolled_d(
-                    cfg, replay_layer::replay(cfg, journal), request,
-                ) && !(replay_layer::replay(cfg, journal).phase[request]
-                        == replay_layer::Phase::Armed
-                    && d_failure_conclusive(
-                        cfg, replay_layer::replay(cfg, journal), request,
-                    )) by {
-                assert(!unsafe_uncontrolled_j(cfg, journal, request));
-                assert(!(replay_layer::replay(cfg, journal).phase[request]
-                        == replay_layer::Phase::Armed
-                    && replay_layer::failure_conclusive(
-                        cfg, journal, request,
-                    )));
-                replay_d_failure_conclusive_exact(cfg, journal, request);
+        if recovery_complete_j(cfg, journal) {
+            assert(recovery_complete_d(cfg, replay_layer::replay(cfg, journal))) by {
+                assert forall|request: replay_layer::RequestId|
+                    replay_layer::replay(cfg, journal).phase[request]
+                            != replay_layer::Phase::Armed
+                        || #[trigger] d_evidence_complete_decision(
+                            cfg, replay_layer::replay(cfg, journal), request,
+                        ) == replay_layer::EvidenceDecision::Retry by {
+                    if replay_layer::replay(cfg, journal).phase[request]
+                            == replay_layer::Phase::Armed {
+                        assert(replay_layer::evidence_complete_decision(
+                            cfg, journal, request,
+                        ) == replay_layer::EvidenceDecision::Retry);
+                    }
+                }
             }
         }
     }
@@ -735,6 +889,8 @@ pub proof fn structural_enabled_implies_abstract_record_enabled(
         replay_layer::JournalRecord::Start { request, .. } => {
             replay_d_started_exact(cfg, journal, request);
             replay_d_failure_conclusive_exact(cfg, journal, request);
+            replay_d_has_durable_success_exact(cfg, journal, request);
+            replay_d_evidence_complete_decision_exact(cfg, journal, request);
         },
         replay_layer::JournalRecord::Outcome { request, attempt, .. } => {
             replay_d_started_exact(cfg, journal, request);
@@ -744,15 +900,19 @@ pub proof fn structural_enabled_implies_abstract_record_enabled(
         replay_layer::JournalRecord::CommitRec { request, attempt, .. } => {
             replay_d_started_exact(cfg, journal, request);
             replay_d_outcome_exact(cfg, journal, request, attempt);
+            replay_d_evidence_complete_decision_exact(cfg, journal, request);
         },
         replay_layer::JournalRecord::FailRec { request, .. } => {
             replay_d_started_exact(cfg, journal, request);
             replay_d_failure_conclusive_exact(cfg, journal, request);
+            replay_d_evidence_complete_decision_exact(cfg, journal, request);
         },
         replay_layer::JournalRecord::UnknownRec { request, attempt, reason, .. } => {
             replay_d_started_exact(cfg, journal, request);
             replay_d_failure_conclusive_exact(cfg, journal, request);
+            replay_d_has_durable_success_exact(cfg, journal, request);
             replay_d_uncertain_exact(cfg, journal, request);
+            replay_d_evidence_complete_decision_exact(cfg, journal, request);
             match attempt {
                 Option::None => {},
                 Option::Some(a) => {
@@ -796,6 +956,14 @@ pub proof fn durable_query_bridge(
                 cfg, replay_layer::replay(cfg, journal), request,
             ) <==> replay_layer::failure_conclusive(cfg, journal, request),
         forall|request: replay_layer::RequestId|
+            #[trigger] d_has_durable_success(
+                replay_layer::replay(cfg, journal), request,
+            ) <==> replay_layer::has_durable_success(journal, request),
+        forall|request: replay_layer::RequestId|
+            #[trigger] d_evidence_complete_decision(
+                cfg, replay_layer::replay(cfg, journal), request,
+            ) == replay_layer::evidence_complete_decision(cfg, journal, request),
+        forall|request: replay_layer::RequestId|
             #[trigger] recorded_success_d(
                 replay_layer::replay(cfg, journal), request,
             ) <==> recorded_success_j(journal, request),
@@ -833,6 +1001,21 @@ pub proof fn durable_query_bridge(
                 cfg, journal, request,
             ) by {
         replay_d_failure_conclusive_exact(cfg, journal, request);
+    }
+    assert forall|request: replay_layer::RequestId|
+        d_has_durable_success(replay_layer::replay(cfg, journal), request)
+            <==> #[trigger] replay_layer::has_durable_success(
+                journal, request,
+            ) by {
+        replay_d_has_durable_success_exact(cfg, journal, request);
+    }
+    assert forall|request: replay_layer::RequestId|
+        d_evidence_complete_decision(
+            cfg, replay_layer::replay(cfg, journal), request,
+        ) == #[trigger] replay_layer::evidence_complete_decision(
+            cfg, journal, request,
+        ) by {
+        replay_d_evidence_complete_decision_exact(cfg, journal, request);
     }
     assert forall|request: replay_layer::RequestId|
         recorded_success_d(replay_layer::replay(cfg, journal), request)

@@ -358,7 +358,6 @@ Next ==
     \/ \E r \in Requests, attempt \in 1..MaxAttempts,
           value \in Results \ AllowedResults :
            DeliverInvalidResult(r, attempt, value)
-    \/ \E r \in Requests : RetryAfterUncertainFailure(r)
     \/ Crash
     \/ BeginScan
     \/ FinishScan

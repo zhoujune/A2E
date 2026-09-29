@@ -8,7 +8,7 @@ verus! {
 use k4_r0_layer::*;
 use k4_r0_layer::k4_layer::*;
 use k4_r0_layer::k4_layer::k3_layer::{
-    k_retry_class_equal, KRetryClass,
+    k_retry_class_equal, KObservation, KRetryClass,
 };
 use k4_r0_layer::k4_layer::k3_layer::k2_record_layer::k2_guard_layer::{
     k_key_view, k_retry_class_view, k_phase_view_reflects,
@@ -16,7 +16,8 @@ use k4_r0_layer::k4_layer::k3_layer::k2_record_layer::k2_guard_layer::{
 use k4_r0_layer::k4_layer::k3_layer::k2_record_layer::k2_guard_layer::k1_layer::{
     k_durable_inv, k_failure_conclusive, k_find_request, k_phase_view,
     k_request_entry_couples, k_request_id, k_capability_id,
-    k_digest_id, KDurable, KPhase,
+    k_digest_id, k_has_durable_success_couples, k_has_durable_success_exec,
+    KDurable, KPhase,
 };
 use k4_r0_layer::k4_layer::k3_layer::k2_record_layer::k2_guard_layer::k1_layer::query_layer;
 use query_layer::c1_layer::replay_layer;
@@ -510,6 +511,15 @@ pub fn k_manifest_start_enabled(
                 Ghost(cfg),
                 Ghost(durable),
             );
+            let has_success = k_has_durable_success_exec(entry);
+            let latest_failed = if started == 0 {
+                false
+            } else {
+                match entry.outcomes[started - 1] {
+                    Option::Some(KObservation::Failure) => true,
+                    _ => false,
+                }
+            };
             let uncontrolled_fresh =
                 !class_is_uncontrolled || started == 0;
             proof {
@@ -523,9 +533,21 @@ pub fn k_manifest_start_enabled(
                         == replay_layer::RetryClass::Uncontrolled
                     ==> query_layer::d_started(durable, spec_request) == 0
                 ));
+                k_has_durable_success_couples(*entry, durable);
+                assert(has_success == query_layer::d_has_durable_success(
+                    durable, spec_request,
+                ));
+                assert(latest_failed == (
+                    started > 0
+                        && query_layer::d_outcome(
+                            durable, spec_request,
+                            query_layer::d_started(durable, spec_request),
+                        ) == Option::Some(replay_layer::Observation::Failure)
+                ));
             }
             phase_armed && fields_match && attempt_is_next && within_limit
                 && not_conclusive && uncontrolled_fresh
+                && !has_success && !latest_failed
         },
         Option::None => {
             proof {

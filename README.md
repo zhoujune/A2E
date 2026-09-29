@@ -38,7 +38,26 @@ evidence to the exact checked sources and toolchain. T6-D0 then freezes the
 request-local adapter rely, duplicate-rejecting terminal and delivery
 selectors, configuration-explicit outcome evidence, compatibility branches,
 and separate Journal/WAL bridge statement boundaries without claiming the
-bridge theorem. T6-E0 proves the generic Broker-side evidence half: an
+bridge theorem.
+The replay and durable-query layers now share the total
+`evidence_complete_decision` classifier. For an Armed request its explicit
+priority is durable Success, conclusive Failure, Unknown after a
+non-conclusive Failure, Retry, then residual Unknown; Stable covers already
+terminal phases. `unknown_after_failure` and `retry_eligible` are named
+predicates, so retry guards do not silently diverge between replay, durable
+queries, TLA+, and the executable kernel. This is complete relative to the
+declared durable evidence and retry budget, not an inference about an
+unpersisted remote linearization.
+
+T6-D0 also factors the old monolithic adapter premise into three primitive
+laws: `adapter_success_sound`, `adapter_resolved_failure_sound`, and
+`adapter_effect_bounded`. The generic
+`primitive_adapter_laws_imply_verified` lemma composes these laws with the
+broker evidence/compatibility boundary. EnsureMember, ReadOnly, and
+Deduplicated each prove the primitive-law package before deriving
+`AdapterVerified`.
+
+T6-E0 proves the generic Broker-side evidence half: an
 invariant Broker snapshot whose Journal and physical histories equal the event
 projections and whose trace has a unique terminal outcome satisfies
 `OutcomeEvidence` over the request-local adapter projection. T6-C0 proves
@@ -91,7 +110,8 @@ third instance, for the Deduplicated retry class, by
 defining the keyed decision/memoization semantics, a well-formed fixed
 configuration, and the operational transition system. T6-DD1 proves that
 machine's inductive invariant, derives the deduplication service law and
-`AdapterRely` for every finite execution, and discharges `AdapterVerified`.
+`AdapterRely` for every finite execution, proves the three primitive adapter
+laws, and derives `AdapterVerified` through the generic composition lemma.
 T6-DD2 makes that safety theorem operationally non-vacuous with a premise-free
 31-adapter-event/30-WAL-event witness: attempt 1 silently applies and memoizes a
 value, a crash occurs before its delivery, and attempt 2 reuses the stable key,
@@ -439,35 +459,36 @@ version-pinned Rust toolchain into a fresh per-run environment. The driver
 verifies from an exact read-only source snapshot, enforces the proof/import
 policy, and emits a source-hashed verification report with the observed Rust
 tree digest.
-The current result is M0 21, R1 86, B1 39, C1 128,
-D1 144, Q1 144, K1 159, K2-G0 179, K2-T0 208, K3-A0 248, K4-C0 255,
-K4-R0 266, K4-R1 274, K4-R2 276, K4-R3 278, K4-R4 281, K4-R5 283,
-K4-R6 286, K4-R7 289, K4-A0 301, K4-A1 309, K4-A2 326, K4-A3 347,
-K4-A4 365, B2-R 169, B2-C 175, B2-P0 194, B2-P1 252, B2-P2 278,
-B2-P3 294, B2-L 312, B2-A 337, G0 344, G1-P 412, G1-E 431, T1 464,
-T2-J0 478, T2-J1 489, T2-E 511, T2-R 523, T2 534, T3-W0 580,
-T3-W1-T 591, T3-W1-E 629, T3-W1-R 644, T3 662, T4-C0 679, T4-C1 723,
-T4-C2 737, T5-S0 746, T5-E0 750, T5-R0 773, T5-R1 787, T5-C0 805,
-H1 808, T6-D0 821, T6-E0 839, T6-C0 856, T6-S0 862, T6-A0 885,
-T6-A1 937, H2 886, T6-M0 998, T6-P0 1,021, T6-X0 1,043,
-T6-RO0 1,104, T6-DD0 1,106, T6-DD1 1,132, T6-DD2 1,164,
-T6-DD3 1,203, T6-DD4 1,243, and T6-DD5 1,249 obligations, all
-with zero errors. K1 adds 15 obligations beyond Q1, K2-G0 adds 20 beyond K1,
+The current result is M0 21, R1 91, B1 39, C1 133,
+D1 149, Q1 152, K1 170, K2-G0 190, K2-T0 219, K3-A0 259, K4-C0 266,
+K4-R0 277, K4-R1 285, K4-R2 287, K4-R3 289, K4-R4 292, K4-R5 294,
+K4-R6 297, K4-R7 300, K4-A0 312, K4-A1 320, K4-A2 337, K4-A3 359,
+K4-A4 380, B2-R 177, B2-C 183, B2-P0 202, B2-P1 262, B2-P2 288,
+B2-P3 304, B2-L 322, B2-A 347, G0 354, G1-P 422, G1-E 441, T1 474,
+T2-J0 488, T2-J1 499, T2-E 521, T2-R 533, T2 544, T3-W0 590,
+T3-W1-T 601, T3-W1-E 639, T3-W1-R 654, T3 672, T4-C0 689, T4-C1 733,
+T4-C2 747, T5-S0 756, T5-E0 760, T5-R0 783, T5-R1 797, T5-C0 815,
+H1 818, T6-D0 832, T6-E0 850, T6-C0 867, T6-S0 873, T6-A0 897,
+T6-A1 949, H2 898, T6-M0 1,010, T6-P0 1,033, T6-X0 1,055,
+T6-RO0 1,118, T6-DD0 1,120, T6-DD1 1,148, T6-DD2 1,180,
+T6-DD3 1,219, T6-DD4 1,259, and T6-DD5 1,265 obligations, all
+with zero errors. K1 adds 18 obligations beyond Q1, K2-G0 adds 20 beyond K1,
 K2-T0 adds 29 beyond K2-G0, K3-A0 adds 40 beyond K2-T0, K4-C0 adds 7 beyond
-K3-A0, K4-R0 adds 11 beyond K4-C0, K4-R1 adds 8 beyond K4-R0, K4-R2 adds 2 beyond K4-R1, K4-R3 adds 2 beyond K4-R2, K4-R4 adds 3 beyond K4-R3, K4-R5 adds 2 beyond K4-R4, K4-R6 adds 3 beyond K4-R5, K4-R7 adds 3 beyond K4-R6, K4-A0 adds 12 beyond K4-R7, K4-A1 adds 8 beyond K4-A0, K4-A2 adds 17 beyond K4-A1, K4-A3 adds 21 beyond K4-A2, K4-A4 adds 18 beyond K4-A3, T5-R1 adds 14 beyond T5-R0, T5-C0 adds 18 beyond T5-R1, H2 adds one independent witness beyond T6-A0, and T6-X0 adds 22 beyond
-T6-P0, T6-RO0 adds 61 beyond T6-X0, T6-DD0 adds 2 beyond T6-RO0, and T6-DD1
-adds 26 beyond T6-DD0; T6-DD2 adds 32 beyond T6-DD1; T6-DD3 adds 39 beyond
+K3-A0, K4-R0 adds 11 beyond K4-C0, K4-R1 adds 8 beyond K4-R0, K4-R2 adds 2 beyond K4-R1, K4-R3 adds 2 beyond K4-R2, K4-R4 adds 3 beyond K4-R3, K4-R5 adds 2 beyond K4-R4, K4-R6 adds 3 beyond K4-R5, K4-R7 adds 3 beyond K4-R6, K4-A0 adds 12 beyond K4-R7, K4-A1 adds 8 beyond K4-A0, K4-A2 adds 17 beyond K4-A1, K4-A3 adds 22 beyond K4-A2, K4-A4 adds 21 beyond K4-A3, T5-R1 adds 14 beyond T5-R0, T5-C0 adds 18 beyond T5-R1, H2 adds one independent witness beyond T6-A0, and T6-X0 adds 22 beyond
+T6-P0, T6-RO0 adds 63 beyond T6-X0, T6-DD0 adds 2 beyond T6-RO0, and T6-DD1
+adds 28 beyond T6-DD0; T6-DD2 adds 32 beyond T6-DD1; T6-DD3 adds 39 beyond
 T6-DD2; T6-DD4 adds 40 beyond T6-DD3; T6-DD5 adds 6 beyond T6-DD4. The new
 conservative definitional `PaperConfig` accessor lemma
 lives in T1, so every cumulative target from T1 is one obligation above its
-historical checkpoint count. The original T6-S0 checkpoint had 40 targets, 840
-cumulative obligations, and 880 dependency-aware non-duplicated obligations.
+historical checkpoint count. The current values include the shared classifier,
+primitive-law, and accessor obligations; the original T6-S0 checkpoint had 40
+targets, 840 cumulative obligations, and 880 dependency-aware non-duplicated obligations.
 The historical retained T6-A1 run had 42 targets, 956 non-duplicated
 obligations, and 20,867 summed target obligations. The historical retained
 T6-X0 run had 45 targets, 1,062 non-duplicated obligations, and 23,866 summed
 target obligations. The current retained run passes all 72/72 registered
-targets, contains 1,511 dependency-aware non-duplicated obligations, and sums
-to 38,952 target obligations.
+targets, contains 1,534 dependency-aware non-duplicated obligations, and sums
+to 39,706 target obligations.
 
 ## Current boundary
 
@@ -553,6 +574,12 @@ manifest-aware conclusiveness/uncertainty guards, exact evidence ancestry, and
   and ReadOnly may do so only before a durable Start exists. Unsafe prefixes
   remain in recovery; the demonstrated Uncontrolled profile terminalizes them
   as `Unknown(Recovery)` with Start/Outcome/Arm evidence.
+
+K4-A3 also contains the concrete lost-reply witness
+`k4_a3_lost_reply_indistinguishable_worlds`: the same four-record
+`Authorize/Prepare/Arm/Start(1)` prefix is classified `Unknown` while abstract
+effect cardinalities `0` and `1` remain possible. This is an evidence boundary,
+not a claim that the kernel observes the protected service.
 
 K4-I0 adds a separate compiled integration checkpoint. It injects a K4 gate
 into the actual Rust broker append/replay path and runs executions spanning two

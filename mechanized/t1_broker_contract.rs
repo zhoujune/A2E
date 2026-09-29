@@ -782,8 +782,10 @@ pub proof fn p3_implies_rich_scope_confinement(
 {
     let records = state.core.evidence.records;
     let durable = state.core.broker.durable;
-    assert forall|request: replay_layer::RequestId| #![auto]
-        !config_layer::matches(cfg, request, cfg.request[request].capability)
+    assert forall|request: replay_layer::RequestId|
+        !#[trigger] config_layer::matches(
+            cfg, request, cfg.request[request].capability,
+        )
             implies {
                 &&& durable.phase[request] == replay_layer::Phase::New
                 &&& replay_layer::authorize_count_for_request(records, request) == 0

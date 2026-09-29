@@ -27,12 +27,12 @@ The surviving contribution is narrower and more technically specific:
 
 > Based on the sources checked through 2026-08-10, we are not aware of prior
 > work that machine-checks a coverage-conditioned compositional refinement for
-> a serialized AI tool-effect broker from durable capability authorization and
-> complete mediation for protected Idempotent and Deduplicated instances,
-> through fail-stop crash/recovery, to an abstract adapter layer that explicitly
-> distinguishes ReadOnly, Idempotent, Deduplicated, and Uncontrolled effects,
-> including `Unknown` for irreducible ambiguity. The ReadOnly operational
-> instance is proved only through its adapter/WAL/Broker refinement boundary.
+> a serialized AI tool-effect broker whose single evidence-complete classifier
+> orders durable Success, conclusive Failure, non-conclusive Failure, retry, and
+> residual Unknown, and whose three-law adapter interface connects that decision
+> to covered, completely mediated Idempotent and Deduplicated protected effects
+> through fail-stop Journal/WAL refinement. ReadOnly instantiates the adapter
+> laws only through its adapter/WAL/Broker refinement boundary.
 
 This is a qualified synthesis claim, not an absolute priority claim. The paper
 should lead with the exact verified composition and its boundary, not with
@@ -225,15 +225,18 @@ The paper must reject these formulations:
 The paper may defend these contribution statements, with the existing scope
 qualifiers:
 
-1. A machine-checked broker semantics that puts authorization, attempt intent,
-   delivery evidence, terminal outcomes, and abstract effects in one crash-
-   aware transition system.
+1. A machine-checked evidence-complete classifier that gives durable Success,
+   conclusive Failure, non-conclusive Failure, retry, and residual Unknown one
+   explicit priority across replay, durable queries, Journal/WAL guards, TLA+,
+   and the executable kernel.
 2. A compositional refinement chain from Broker through Journal, typed WAL,
    contextual replacement, and independently defined protected-service
    executions.
-3. Explicit adapter-class theorems that distinguish ReadOnly, Idempotent,
-   Deduplicated, and Uncontrolled effects rather than advertising generic
-   exactly-once execution.
+3. A three-law adapter interface (successful-result soundness,
+   resolved-failure soundness, and effect boundedness) that generically derives
+   the terminal refinement premise and is instantiated by ReadOnly, Idempotent,
+   and Deduplicated models rather than advertising generic exactly-once
+   execution.
 4. Non-vacuous crash/retry witnesses and an executable reference artifact that
    expose `Unknown` as the correct outcome when the external effect cannot be
    resolved safely.

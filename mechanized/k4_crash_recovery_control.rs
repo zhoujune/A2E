@@ -28,7 +28,7 @@ use k3_layer::{
 use k3_layer::k2_record_layer::k2_guard_layer::k1_layer::query_layer;
 use k3_layer::k2_record_layer::k_update_inv;
 use k3_layer::k2_record_layer::k2_guard_layer::k1_layer::{
-    k_durable_inv, k_phase_view, k_request_entry_couples, k_request_id,
+    k_durable_inv, k_phase_view, k_request_entry_couples, k_request_id, KRequestEntry,
 };
 use query_layer::c1_layer;
 use c1_layer::{append_layer, replay_layer};
@@ -370,9 +370,86 @@ pub open spec fn k4_a4_binding_allows_resume(
 ) -> bool {
     &&& binding.request == request
     &&& match binding.class {
-        KRetryClass::Idempotent | KRetryClass::Deduplicated => true,
+        KRetryClass::Idempotent | KRetryClass::Deduplicated => started < 3,
         KRetryClass::ReadOnly | KRetryClass::Uncontrolled =>
             started == 0,
+    }
+}
+
+pub open spec fn k4_a4_has_durable_success(
+    outcomes: Seq<Option<KObservation>>,
+) -> bool {
+    exists|index: int| 0 <= index < outcomes.len()
+        && match #[trigger] outcomes[index] {
+            Option::Some(KObservation::Success { .. }) => true,
+            Option::None
+            | Option::Some(KObservation::Failure)
+            | Option::Some(KObservation::Ambiguous)
+            | Option::Some(KObservation::InvalidResult { .. }) => false,
+        }
+}
+
+pub fn k4_a4_has_durable_success_exec(
+    entry: &KRequestEntry,
+) -> (has_success: bool)
+    ensures has_success == k4_a4_has_durable_success(entry.outcomes@),
+{
+    let mut index: usize = 0;
+    while index < entry.outcomes.len()
+        invariant
+            index <= entry.outcomes@.len(),
+            forall|scanned: int| 0 <= scanned < index ==>
+                match #[trigger] entry.outcomes@[scanned] {
+                    Option::Some(KObservation::Success { .. }) => false,
+                    Option::None
+                    | Option::Some(KObservation::Failure)
+                    | Option::Some(KObservation::Ambiguous)
+                    | Option::Some(KObservation::InvalidResult { .. }) => true,
+                },
+        decreases entry.outcomes@.len() - index,
+    {
+        if matches!(
+            entry.outcomes[index],
+            Option::Some(KObservation::Success { .. })
+        ) {
+            proof {
+                assert(exists|witness: int| 0 <= witness < entry.outcomes@.len()
+                    && match #[trigger] entry.outcomes@[witness] {
+                        Option::Some(KObservation::Success { .. }) => true,
+                        Option::None
+                        | Option::Some(KObservation::Failure)
+                        | Option::Some(KObservation::Ambiguous)
+                        | Option::Some(KObservation::InvalidResult { .. }) => false,
+                    }) by {
+                    let witness = index as int;
+                }
+            }
+            return true;
+        }
+        index = index + 1;
+    }
+    false
+}
+
+pub open spec fn k4_a4_latest_is_failure(
+    outcomes: Seq<Option<KObservation>>,
+) -> bool {
+    outcomes.len() > 0
+        && outcomes.last() == Option::Some(KObservation::Failure)
+}
+
+pub fn k4_a4_latest_is_failure_exec(
+    entry: &KRequestEntry,
+) -> (failed: bool)
+    ensures failed == k4_a4_latest_is_failure(entry.outcomes@),
+{
+    if entry.outcomes.len() == 0 {
+        false
+    } else {
+        matches!(
+            entry.outcomes[entry.outcomes.len() - 1],
+            Option::Some(KObservation::Failure)
+        )
     }
 }
 
@@ -405,7 +482,7 @@ pub fn k4_a4_request_allows_resume_exec(
         Option::Some(index) => {
             let binding = config.bindings[index];
             let allowed = match binding.class {
-                KRetryClass::Idempotent | KRetryClass::Deduplicated => true,
+                KRetryClass::Idempotent | KRetryClass::Deduplicated => started < 3,
                 KRetryClass::ReadOnly | KRetryClass::Uncontrolled =>
                     started == 0,
             };
@@ -468,29 +545,36 @@ pub open spec fn k4_a4_entry_allows_resume(
     config: KManifestConfig,
     phase: KPhase,
     request: u64,
-    started: nat,
+    outcomes: Seq<Option<KObservation>>,
 ) -> bool {
     phase != KPhase::Armed
-        || k4_a4_request_allows_resume(config, request, started)
+        || (k4_a4_request_allows_resume(
+                config, request, outcomes.len(),
+            )
+            && !k4_a4_has_durable_success(outcomes)
+            && !k4_a4_latest_is_failure(outcomes))
 }
 
 pub fn k4_a4_entry_allows_resume_exec(
     config: &KManifestConfig,
-    phase: KPhase,
-    request: u64,
-    started: usize,
+    entry: &KRequestEntry,
 ) -> (allowed: bool)
     requires
         k_manifest_wf(*config),
     ensures
         allowed == k4_a4_entry_allows_resume(
-            *config, phase, request, started as nat,
+            *config, entry.phase, entry.request, entry.outcomes@,
         ),
 {
-    match phase {
-        KPhase::Armed => k4_a4_request_allows_resume_exec(
-            config, request, started,
-        ),
+    match entry.phase {
+        KPhase::Armed => {
+            let retry_allowed = k4_a4_request_allows_resume_exec(
+                config, entry.request, entry.outcomes.len(),
+            );
+            let has_success = k4_a4_has_durable_success_exec(entry);
+            let latest_failed = k4_a4_latest_is_failure_exec(entry);
+            retry_allowed && !has_success && !latest_failed
+        },
         KPhase::New
         | KPhase::Authorized
         | KPhase::Prepared
@@ -510,7 +594,7 @@ pub open spec fn k4_a4_recovery_resumable(
                 config,
                 #[trigger] state.core.durable.requests@[index].phase,
                 state.core.durable.requests@[index].request,
-                state.core.durable.requests@[index].outcomes@.len(),
+                state.core.durable.requests@[index].outcomes@,
             )
 }
 
@@ -535,21 +619,12 @@ pub fn k4_a4_recovery_resumable_exec(
                     *config,
                     #[trigger] state.core.durable.requests@[prior].phase,
                     state.core.durable.requests@[prior].request,
-                    state.core.durable.requests@[prior].outcomes@.len(),
+                    state.core.durable.requests@[prior].outcomes@,
                 ),
         decreases state.core.durable.requests.len() - index,
     {
-        let phase = state.core.durable.requests[index].phase;
-        let request = state.core.durable.requests[index].request;
-        let started = state.core.durable.requests[index].outcomes.len();
-        proof {
-            assert(state.core.durable.requests@[index as int].phase == phase);
-            assert(state.core.durable.requests@[index as int].request == request);
-            assert(state.core.durable.requests@[index as int].outcomes@.len()
-                == started);
-        }
         let allowed = k4_a4_entry_allows_resume_exec(
-            config, phase, request, started,
+            config, &state.core.durable.requests[index],
         );
         if !allowed {
             proof {
@@ -557,7 +632,7 @@ pub fn k4_a4_recovery_resumable_exec(
                     *config,
                     state.core.durable.requests@[index as int].phase,
                     state.core.durable.requests@[index as int].request,
-                    state.core.durable.requests@[index as int].outcomes@.len(),
+                    state.core.durable.requests@[index as int].outcomes@,
                 ));
                 assert(!k4_a4_recovery_resumable(*config, *state)) by {
                     if k4_a4_recovery_resumable(*config, *state) {
@@ -565,7 +640,7 @@ pub fn k4_a4_recovery_resumable_exec(
                             *config,
                             state.core.durable.requests@[index as int].phase,
                             state.core.durable.requests@[index as int].request,
-                            state.core.durable.requests@[index as int].outcomes@.len(),
+                            state.core.durable.requests@[index as int].outcomes@,
                         ));
                     }
                 }
@@ -577,7 +652,7 @@ pub fn k4_a4_recovery_resumable_exec(
                 *config,
                 state.core.durable.requests@[index as int].phase,
                 state.core.durable.requests@[index as int].request,
-                state.core.durable.requests@[index as int].outcomes@.len(),
+                state.core.durable.requests@[index as int].outcomes@,
             ));
         }
         index = index + 1;
@@ -589,7 +664,7 @@ pub fn k4_a4_recovery_resumable_exec(
                     *config,
                     #[trigger] state.core.durable.requests@[entry].phase,
                     state.core.durable.requests@[entry].request,
-                    state.core.durable.requests@[entry].outcomes@.len(),
+                    state.core.durable.requests@[entry].outcomes@,
                 ) by {
             assert(entry < index);
         }

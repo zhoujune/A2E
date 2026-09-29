@@ -375,7 +375,7 @@ proof fn ro_selected_delivery_is_classified(
     assert(ro_classification_ok(request, attempt, observation, run));
 }
 
-pub proof fn ro_adapter_is_verified()
+proof fn ro_adapter_verified_direct()
     ensures adapter_verified(ro_paper()),
 {
     let paper = ro_paper();
@@ -3918,6 +3918,89 @@ pub proof fn ro_adapter_final_environment_update()
     );
     assert(before.configs.last().environment_updates
         == Seq::empty().push(true));
+}
+
+pub proof fn ro_primitive_adapter_laws()
+    ensures primitive_adapter_laws(ro_paper()),
+{
+    let paper = ro_paper();
+    let cfg = ro_full_config();
+    let adapter = ro_adapter();
+    t1_layer::paper_broker_config_is_broker(paper);
+    assert(t1_layer::paper_broker_config(paper) == cfg);
+    assert forall|request: replay_layer::RequestId,
+                  history: Seq<p0_layer::PhysicalEvent>,
+                  run: ExternalRun<bool, ReadOnlyWitness>,
+                  attempt: replay_layer::AttemptId,
+                  value: replay_layer::Value| #![auto] {
+        &&& adapter_rely_trace(paper, request, history, run)
+        &&& commit_outcome_compatible(cfg, request, history, attempt, value)
+    } implies {
+        &&& (adapter.result_spec)(request, value, run)
+        &&& (adapter.zero_effect)(request, run)
+    } by {
+        assert(adapter_rely_trace(paper, request, history, run));
+        assert((adapter.env_rely)(request, history, run));
+        assert(ro_env_rely(request, history, run));
+        assert(ro_zero_effect(request, run));
+        assert(delivered_observations_classified(
+            cfg, adapter, history, request, run,
+        ));
+        assert(p1_layer::physical_unique(history));
+        assert(delivery(history, request, attempt)
+            == Option::Some(replay_layer::Observation::Success(value)));
+        ro_selected_delivery_is_classified(
+            cfg, history, request, attempt,
+            replay_layer::Observation::Success(value), run,
+        );
+        assert(ro_has_sample_value(
+            run.interference.samples, attempt, value,
+        ));
+        let index = choose|index: int|
+            0 <= index < run.interference.samples.len()
+                && run.interference.samples[index].attempt == attempt
+                && value == ro_result_value(
+                    run.interference.samples[index].present,
+                );
+        assert(ro_result_spec(request, value, run)) by {
+            assert(exists|selected: int|
+                0 <= selected < run.interference.samples.len()
+                    && value == ro_result_value(
+                        run.interference.samples[selected].present,
+                    )) by {
+                let selected = index;
+            }
+        }
+        assert((adapter.result_spec)(request, value, run));
+        assert((adapter.zero_effect)(request, run));
+    }
+    assert forall|request: replay_layer::RequestId,
+                  history: Seq<p0_layer::PhysicalEvent>,
+                  run: ExternalRun<bool, ReadOnlyWitness>,
+                  attempt: replay_layer::AttemptId| #![auto] {
+        &&& adapter_rely_trace(paper, request, history, run)
+        &&& fail_outcome_compatible(cfg, request, history, attempt)
+    } implies (adapter.zero_effect)(request, run) by {
+        assert(ro_env_rely(request, history, run));
+        assert(ro_zero_effect(request, run));
+    }
+    assert forall|request: replay_layer::RequestId,
+                  history: Seq<p0_layer::PhysicalEvent>,
+                  run: ExternalRun<bool, ReadOnlyWitness>| #![auto]
+        adapter_rely_trace(paper, request, history, run) implies {
+            ||| (adapter.zero_effect)(request, run)
+            ||| (adapter.one_effect)(request, run)
+        } by {
+        assert(ro_env_rely(request, history, run));
+        assert(ro_zero_effect(request, run));
+    }
+}
+
+pub proof fn ro_adapter_is_verified()
+    ensures adapter_verified(ro_paper()),
+{
+    ro_primitive_adapter_laws();
+    t6_d0_layer::primitive_adapter_laws_imply_verified(ro_paper());
 }
 
 pub open spec fn ro_retry_run()

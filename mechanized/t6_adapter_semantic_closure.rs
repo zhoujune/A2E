@@ -804,95 +804,103 @@ proof fn ensure_member_all_failed_has_no_linearized_attempt(
     }
 }
 
-pub proof fn ensure_member_adapter_is_verified()
-    ensures adapter_verified(ensure_member_paper()),
+pub proof fn ensure_member_primitive_adapter_laws()
+    ensures primitive_adapter_laws(ensure_member_paper()),
 {
     let paper = ensure_member_paper();
     let cfg = ensure_member_full_config();
+    let adapter = ensure_member_adapter();
     t1_layer::paper_broker_config_is_broker(paper);
     assert(t1_layer::paper_broker_config(paper) == cfg);
     assert forall|request: replay_layer::RequestId,
-                  records: Seq<replay_layer::JournalRecord>,
                   history: Seq<p0_layer::PhysicalEvent>,
                   run: ExternalRun<
                       ISet<config_layer::Resource>,
                       EnsureMemberWitness,
                   >,
-                  outcome: TerminalOutcome| #![auto] {
-        &&& replay_layer::journal_legal(
-            config_layer::erase_config(cfg), records,
+                  attempt: replay_layer::AttemptId,
+                  value: replay_layer::Value| #![auto] {
+        &&& adapter_rely_trace(paper, request, history, run)
+        &&& commit_outcome_compatible(
+            cfg, request, history, attempt, value,
         )
-        &&& adapter_rely_trace(
-            paper, request, history, run,
-        )
-        &&& outcome_evidence(
-            cfg, records, request, history, outcome,
-        )
-        &&& broker_outcome_compatible(
-            cfg, records, request, history, outcome,
-        )
-    } implies refines(
-        paper, request, history, run, outcome,
-    ) by {
-        let adapter = ensure_member_adapter();
+    } implies {
+        &&& (adapter.result_spec)(request, value, run)
+        &&& (adapter.one_effect)(request, run)
+    } by {
         assert(cfg.request[request].retry_class
             == replay_layer::RetryClass::Idempotent);
-        assert(adapter_rely_trace(
-            paper, request, history, run,
-        ));
         assert((adapter.env_rely)(request, history, run));
         assert(ensure_member_env_rely(request, history, run));
         assert(delivered_observations_classified(
             cfg, adapter, history, request, run,
         ));
         assert(p1_layer::physical_unique(history));
-        match outcome {
-            TerminalOutcome::Commit { attempt, value } => {
-                assert(delivery(history, request, attempt)
-                    == Option::Some(
-                        replay_layer::Observation::Success(value),
-                    ));
-                ensure_member_selected_delivery_is_classified(
-                    cfg,
-                    history,
-                    request,
-                    attempt,
-                    replay_layer::Observation::Success(value),
-                    run,
-                );
-                assert(run.interference.linearized_attempts
-                    .contains(attempt));
-                assert(value.id == 1);
-                assert(ensure_member_has_linearized_attempt(run));
-                assert(ensure_member_one_effect(request, run));
-                assert(run.post.contains(
-                    ensure_member_target(request),
-                ));
-                assert(ensure_member_result_spec(
-                    request, value, run,
-                ));
-            },
-            TerminalOutcome::Fail { attempt } => {
-                assert(delivery(history, request, attempt)
-                    == Option::Some(
-                        replay_layer::Observation::Failure,
-                    ));
-                assert(all_invocations_failed(history, request));
-                ensure_member_all_failed_has_no_linearized_attempt(
-                    cfg, history, request, run,
-                );
-                assert(!ensure_member_has_linearized_attempt(run));
-                assert(ensure_member_zero_effect(request, run));
-            },
-            TerminalOutcome::UnknownOutcome { .. } => {
-                if ensure_member_has_linearized_attempt(run) {
-                    assert(ensure_member_one_effect(request, run));
-                } else {
-                    assert(ensure_member_zero_effect(request, run));
-                }
-            },
+        ensure_member_selected_delivery_is_classified(
+            cfg,
+            history,
+            request,
+            attempt,
+            replay_layer::Observation::Success(value),
+            run,
+        );
+        assert(run.interference.linearized_attempts.contains(attempt));
+        assert(value.id == 1);
+        assert(ensure_member_has_linearized_attempt(run));
+        assert(ensure_member_one_effect(request, run));
+        assert(run.post.contains(ensure_member_target(request)));
+        assert(ensure_member_result_spec(request, value, run));
+    }
+    assert forall|request: replay_layer::RequestId,
+                  history: Seq<p0_layer::PhysicalEvent>,
+                  run: ExternalRun<
+                      ISet<config_layer::Resource>,
+                      EnsureMemberWitness,
+                  >,
+                  attempt: replay_layer::AttemptId| #![auto] {
+        &&& adapter_rely_trace(paper, request, history, run)
+        &&& fail_outcome_compatible(cfg, request, history, attempt)
+    } implies (adapter.zero_effect)(request, run) by {
+        assert(cfg.request[request].retry_class
+            == replay_layer::RetryClass::Idempotent);
+        assert((adapter.env_rely)(request, history, run));
+        assert(ensure_member_env_rely(request, history, run));
+        assert(delivered_observations_classified(
+            cfg, adapter, history, request, run,
+        ));
+        assert(p1_layer::physical_unique(history));
+        assert(all_invocations_failed(history, request));
+        ensure_member_all_failed_has_no_linearized_attempt(
+            cfg, history, request, run,
+        );
+        assert(!ensure_member_has_linearized_attempt(run));
+        assert(ensure_member_zero_effect(request, run));
+    }
+    assert forall|request: replay_layer::RequestId,
+                  history: Seq<p0_layer::PhysicalEvent>,
+                  run: ExternalRun<
+                      ISet<config_layer::Resource>,
+                      EnsureMemberWitness,
+                  >| #![auto]
+        adapter_rely_trace(paper, request, history, run) implies {
+            ||| (adapter.zero_effect)(request, run)
+            ||| (adapter.one_effect)(request, run)
+        } by {
+        if ensure_member_has_linearized_attempt(run) {
+            assert(ensure_member_one_effect(request, run));
+        } else {
+            assert(ensure_member_zero_effect(request, run));
         }
     }
+}
+
+pub proof fn ensure_member_adapter_is_verified()
+    ensures adapter_verified(ensure_member_paper()),
+{
+    ensure_member_primitive_adapter_laws();
+    t6_d0_layer::primitive_adapter_laws_imply_verified(
+        ensure_member_paper(),
+    );
 }
 
 pub open spec fn ensure_member_request_zero()

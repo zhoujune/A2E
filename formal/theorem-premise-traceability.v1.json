@@ -5,6 +5,141 @@
   "paper_source": "paper/main.tex",
   "entries": [
     {
+      "id": "R1-Q1-evidence-complete-classifier",
+      "claim_class": "core-theorem",
+      "boundary": "proved",
+      "paper": {
+        "anchors": ["sec:contract", "sec:proof", "thm:authorization-to-effect"],
+        "claim": "One total durable-evidence classifier prioritizes Commit, conclusive Fail, Unknown after non-conclusive Failure, Retry, and residual Unknown; the stored durable query is exactly equal to replay, and the lost-reply witness preserves distinct zero- and one-effect worlds."
+      },
+      "formal": {
+        "source_files": [
+          "mechanized/t1_replay.rs",
+          "mechanized/t1_durable_queries.rs",
+          "mechanized/k4_terminal_recovery_bridge.rs"
+        ],
+        "symbols": [
+          "evidence_complete_decision",
+          "unknown_after_failure",
+          "retry_eligible",
+          "d_evidence_complete_decision",
+          "replay_d_evidence_complete_decision_exact",
+          "k4_a3_unknown_effect_cardinality_allowed",
+          "k4_a3_lost_reply_indistinguishable_worlds"
+        ],
+        "premise_symbols": [
+          "has_durable_success",
+          "failure_conclusive",
+          "retry_class_allows_repetition",
+          "journal_legal"
+        ],
+        "conclusion_symbols": [
+          "evidence_decision_prioritizes_success",
+          "evidence_decision_prioritizes_conclusive_failure",
+          "evidence_decision_prioritizes_nonconclusive_failure",
+          "evidence_decision_allows_retry_only_after_unknown_guard",
+          "replay_d_evidence_complete_decision_exact",
+          "k4_a3_lost_reply_indistinguishable_worlds"
+        ],
+        "premises": [
+          "classification uses only replayed durable phase, typed attempt outcomes, retry class, and the configured attempt bound",
+          "the Journal prefix is legal when the classifier is consumed by a record guard",
+          "the K4 lost-reply witness uses one Uncontrolled Authorize/Prepare/Arm/Start(1) prefix"
+        ],
+        "conclusions": [
+          "durable Success prevents retry and selects Commit",
+          "conclusive Failure selects Fail, while a latest non-conclusive Failure selects Unknown before retry eligibility",
+          "the durable-state implementation of the classifier equals replay exactly",
+          "the same lost-reply prefix classifies Unknown and both the zero-effect and one-effect worlds satisfy k4_a3_unknown_effect_cardinality_allowed while remaining distinct"
+        ]
+      },
+      "evidence": {
+        "kind": "verus-target",
+        "targets": ["R1", "Q1", "K4-A3"],
+        "witnesses": [
+          {
+            "path": "mechanized/k4_terminal_recovery_bridge.rs",
+            "symbols": [
+              "k4_a3_unknown_effect_cardinality_allowed",
+              "k4_a3_lost_reply_indistinguishable_worlds"
+            ]
+          }
+        ]
+      },
+      "caveats": [
+        "Evidence-complete means complete relative to the durable record language, retry class, and attempt budget; it does not reveal an unpersisted remote linearization or claim epistemic maximality over arbitrary external systems."
+      ]
+    },
+    {
+      "id": "T6-D0-primitive-adapter-laws",
+      "claim_class": "adapter-interface-theorem",
+      "boundary": "proved",
+      "paper": {
+        "anchors": ["sec:contract", "sec:proof", "thm:authorization-to-effect"],
+        "claim": "Successful-result soundness, resolved-failure soundness, and effect boundedness form a reusable primitive adapter interface whose generic composition derives AdapterVerified; the Idempotent, ReadOnly, and Deduplicated packages instantiate that interface."
+      },
+      "formal": {
+        "source_files": [
+          "mechanized/t6_terminal_definitions.rs",
+          "mechanized/t6_adapter_semantic_closure.rs",
+          "mechanized/t6_readonly_operational.rs",
+          "mechanized/t6_deduplicated_invariant.rs"
+        ],
+        "symbols": [
+          "adapter_success_sound",
+          "adapter_resolved_failure_sound",
+          "adapter_effect_bounded",
+          "primitive_adapter_laws",
+          "primitive_adapter_laws_imply_verified",
+          "ensure_member_primitive_adapter_laws",
+          "ro_primitive_adapter_laws",
+          "dd_primitive_adapter_laws"
+        ],
+        "premise_symbols": [
+          "adapter_rely_trace",
+          "commit_outcome_compatible",
+          "fail_outcome_compatible",
+          "broker_outcome_compatible"
+        ],
+        "conclusion_symbols": [
+          "primitive_adapter_laws_imply_verified",
+          "ensure_member_adapter_is_verified",
+          "ro_adapter_is_verified",
+          "dd_adapter_is_verified"
+        ],
+        "premises": [
+          "a compatible Commit must satisfy result_spec and the class-appropriate zero-effect or one-effect relation",
+          "a compatible resolved Fail must satisfy zero_effect",
+          "every external run admitted by AdapterRely must satisfy zero_effect or one_effect"
+        ],
+        "conclusions": [
+          "the three primitive laws imply the retained AdapterVerified terminal-refinement interface",
+          "the EnsureMember, ReadOnly, and Deduplicated packages derive AdapterVerified through the same generic lemma"
+        ]
+      },
+      "evidence": {
+        "kind": "verus-target",
+        "targets": ["T6-D0", "T6-A0", "T6-RO0", "T6-DD1"],
+        "witnesses": [
+          {
+            "path": "mechanized/t6_adapter_semantic_closure.rs",
+            "symbols": ["ensure_member_primitive_adapter_laws"]
+          },
+          {
+            "path": "mechanized/t6_readonly_operational.rs",
+            "symbols": ["ro_primitive_adapter_laws"]
+          },
+          {
+            "path": "mechanized/t6_deduplicated_invariant.rs",
+            "symbols": ["dd_primitive_adapter_laws"]
+          }
+        ]
+      },
+      "caveats": [
+        "The primitive laws make adapter assumptions explicit but do not verify arbitrary production adapters, remote services, or deployment isolation."
+      ]
+    },
+    {
       "id": "T5-R1-durable-success-recovery",
       "claim_class": "core-theorem",
       "boundary": "proved",
@@ -71,7 +206,7 @@
       "boundary": "conditional-composition",
       "paper": {
         "anchors": ["sec:proof", "thm:authorization-to-effect"],
-        "claim": "For any well-formed adapter, storage context, and plugged WAL execution satisfying the adapter rely relation, the canonical Broker terminal and per-request effect refinement are transported from the WAL execution; complete mediation transports when the coupled projection premise is supplied."
+        "claim": "For any well-formed adapter whose primitive laws derive AdapterVerified, storage context, and plugged WAL execution satisfying the adapter rely relation, the canonical Broker terminal and per-request effect refinement are transported from the WAL execution; complete mediation transports when the coupled projection premise is supplied."
       },
       "formal": {
         "source_files": [
@@ -105,7 +240,7 @@
           "per_request_effect_refinement"
         ],
         "premises": [
-          "the PaperConfig is well formed and its adapter satisfies AdapterVerified",
+          "the PaperConfig is well formed and its adapter satisfies the primitive laws that generically derive AdapterVerified",
           "storage_parametric_context and plugged_wal_exec relate the context and typed WAL",
           "adapter_rely holds for the selected request and external run",
           "the WAL has the stated terminal outcome; the P0 prefix product supplies any protected-call coupling needed for mediation"
@@ -372,8 +507,8 @@
           "path": "reference-broker/evaluation/results/k4-i1-submission.json",
           "validator": "reference-broker/evaluation/validate_k4_i1.py",
           "assertions": [
-            {"path": "provenance.source_revision", "equals": "ab992cf51157f762185279eb34f0b5e61f653ae0"},
-            {"path": "provenance.source_manifest_sha256", "equals": "d5140e1e314a4bb59f6beb67d2c4bae5bd24a34ea08fdfaa4cf5bd17b9c9aee0"},
+            {"path": "provenance.source_revision", "equals": "1e37979b8341ca37c6ac97e66c3e2947af8e6fa3"},
+            {"path": "provenance.source_manifest_sha256", "equals": "8e73b937944cf8bc809ec6bdbdf08b9b5595f1c362a2a7a93d574ee183c1b80d"},
             {"path": "gate_profile", "equals": "k4-a4-required"},
             {"path": "broker_opens", "equals": 47},
             {"path": "gate_evidence.gates_created", "equals": 47},

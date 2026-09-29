@@ -109,6 +109,47 @@ to the replay layer's rule, preventing the two definitions from silently
 drifting.
 These definitions do not themselves establish the T6 bridge.
 
+The replay layer also exposes one total, deterministic evidence classifier,
+`evidence_complete_decision(Cfg,j,r)`.  For an `Armed` request its priority is
+
+```text
+durable Success  >  conclusive Failure
+  >  Unknown after a non-conclusive Failure  >  Retry  >  Unknown.
+```
+
+`Stable` is returned for a request that is no longer `Armed`.  The named
+`unknown_after_failure` and `retry_eligible` predicates make the third and
+fourth branches explicit; `structural_enabled` and the durable Q1 guards use
+the classifier rather than independently re-implementing retry tests.  Thus a
+durable successful outcome cannot be bypassed by a retry, and a later Failure
+cannot erase an earlier unresolved attempt.  This is evidence-complete with
+respect to the declared durable evidence and retry budget.  It is not a claim
+that the broker can infer an unpersisted remote linearization.
+
+The abstract `Unknown` interpretation intentionally admits both zero and one
+effect.  K4-A3 names that cardinality relation as
+`k4_a3_unknown_effect_cardinality_allowed`; the
+`k4_a3_lost_reply_indistinguishable_worlds` theorem checks it on the concrete
+`Authorize/Prepare/Arm/Start(1)` prefix.  The same durable prefix classifies as
+`Unknown`, and the distinct `0`- and `1`-effect worlds both satisfy the named
+admissibility predicate.  The Rust `recovery_classifier` test exercises the
+same lost-reply boundary against the reference broker.
+
+The monolithic `AdapterVerified` implication is now factored into three
+auditable primitive laws in T6-D0:
+
+```text
+AdapterSuccessSound       successful evidence -> resultSpec and class effect
+AdapterResolvedFailureSound  conclusive failure -> zeroEffect
+AdapterEffectBounded      every relied-on run -> zeroEffect or oneEffect
+```
+
+`primitive_adapter_laws_imply_verified` composes exactly these laws with the
+broker-side evidence and compatibility predicates.  The concrete EnsureMember,
+ReadOnly, and Deduplicated packages each prove their primitive-law theorem and
+derive `AdapterVerified`; the generic contextual theorem therefore consumes a
+reusable interface rather than a backend-specific proof bundle.
+
 T6-E0 proves the adapter-independent evidence implication. At the history
 level, Journal legality, physical-delivery uniqueness, durable
 Outcome-to-delivery causality, and a selected terminal outcome imply

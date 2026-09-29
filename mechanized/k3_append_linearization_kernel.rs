@@ -779,6 +779,12 @@ pub proof fn k_abstract_exact_is_structural(
                 query_layer::replay_d_failure_conclusive_exact(
                     cfg, journal, request,
                 );
+                query_layer::replay_d_has_durable_success_exact(
+                    cfg, journal, request,
+                );
+                query_layer::replay_d_evidence_complete_decision_exact(
+                    cfg, journal, request,
+                );
             },
             replay_layer::JournalRecord::Outcome {
                 request, attempt, ..
@@ -786,6 +792,9 @@ pub proof fn k_abstract_exact_is_structural(
                 query_layer::replay_d_started_exact(cfg, journal, request);
                 query_layer::replay_d_outcome_exact(
                     cfg, journal, request, attempt,
+                );
+                query_layer::replay_d_evidence_complete_decision_exact(
+                    cfg, journal, request,
                 );
                 k_outcome_none_iff_count_zero(journal, request, attempt);
             },
@@ -795,6 +804,9 @@ pub proof fn k_abstract_exact_is_structural(
                 query_layer::replay_d_started_exact(cfg, journal, request);
                 query_layer::replay_d_outcome_exact(
                     cfg, journal, request, attempt,
+                );
+                query_layer::replay_d_evidence_complete_decision_exact(
+                    cfg, journal, request,
                 );
             },
             replay_layer::JournalRecord::FailRec {
@@ -807,6 +819,9 @@ pub proof fn k_abstract_exact_is_structural(
                 query_layer::replay_d_failure_conclusive_exact(
                     cfg, journal, request,
                 );
+                query_layer::replay_d_evidence_complete_decision_exact(
+                    cfg, journal, request,
+                );
             },
             replay_layer::JournalRecord::UnknownRec {
                 request, attempt, ..
@@ -815,7 +830,13 @@ pub proof fn k_abstract_exact_is_structural(
                 query_layer::replay_d_failure_conclusive_exact(
                     cfg, journal, request,
                 );
+                query_layer::replay_d_has_durable_success_exact(
+                    cfg, journal, request,
+                );
                 query_layer::replay_d_uncertain_exact(cfg, journal, request);
+                query_layer::replay_d_evidence_complete_decision_exact(
+                    cfg, journal, request,
+                );
                 match attempt {
                     Option::Some(selected) => {
                         query_layer::replay_d_outcome_exact(

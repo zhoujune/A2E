@@ -2,11 +2,11 @@
   "schema": "proveai.k4-i1-submission-evaluation",
   "schema_version": 1,
   "provenance": {
-    "source_revision": "ab992cf51157f762185279eb34f0b5e61f653ae0",
-    "source_manifest_sha256": "d5140e1e314a4bb59f6beb67d2c4bae5bd24a34ea08fdfaa4cf5bd17b9c9aee0",
-    "harness_sha256": "04a8d332b40e0e42bc54269e80cfa97afb64d9c6ff8247dfb953ae31bd148e9d",
-    "kernel_rlib_sha256": "3592975310bfc3029ba3f6c4868224b4b6db563e0d69000bc19bed73c768a8a5",
-    "broker_rlib_sha256": "cff3550538aae95b013311efd0858b9a9289e6d3f343e0e3bc76442c7b8305da",
+    "source_revision": "1e37979b8341ca37c6ac97e66c3e2947af8e6fa3",
+    "source_manifest_sha256": "8e73b937944cf8bc809ec6bdbdf08b9b5595f1c362a2a7a93d574ee183c1b80d",
+    "harness_sha256": "4bc5b631dea471994c2c10cd7988373b55d3bc7b7add72215dfad55d5a2ccfe1",
+    "kernel_rlib_sha256": "3ae479086766d532bc3526edb0de8bcae7412529822fca3ef898b103810d1ee0",
+    "broker_rlib_sha256": "2795bd04eba9ce7c3baece5bbd336a9cfe4bec3868c79c451c3baa6ebd37de40",
     "verus_executable_sha256": "1f730173d4c771c2817c1e9979ab52fa3f394d4965a92d343b1428abb9b69eaa",
     "rustc_executable_sha256": "ba4b837efb6612dfa8d941c5a72b8a50d1d03a0f36216743b173949aa8d9eb75"
   },
@@ -23,14 +23,14 @@
   },
   "evaluation": {
     "schema_version": 1,
-    "generated_unix_seconds": 1786799184,
+    "generated_unix_seconds": 1786891719,
     "iterations": 100,
     "retry_iterations": 10,
     "environment": {
       "hostname": "nb-24cb14da0659f04784-6dd8ddfd6-ffj8p",
       "target": "x86_64-linux",
       "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)",
-      "source_revision": "ab992cf51157f762185279eb34f0b5e61f653ae0",
+      "source_revision": "1e37979b8341ca37c6ac97e66c3e2947af8e6fa3",
       "build_profile": "debug",
       "package_version": "0.1.0",
       "logical_cpus": 36
@@ -325,26 +325,26 @@
       "workloads": {
         "mediated": {
           "requests": 100,
-          "duration_ns": 75347779,
-          "throughput_requests_per_second": 1327.179,
+          "duration_ns": 70701281,
+          "throughput_requests_per_second": 1414.402,
           "latency_ns": {
-            "mean": 753104,
-            "p50": 665757,
-            "p95": 946496,
-            "p99": 2559009
+            "mean": 706704,
+            "p50": 708158,
+            "p95": 766808,
+            "p99": 808507
           },
           "wal_bytes": 27500,
           "flushes": 600,
-          "recovery_ns": 5976804,
+          "recovery_ns": 5148563,
           "physical_invocations": 100,
           "abstract_effects": 100
         },
         "direct": {
           "requests": 100,
-          "duration_ns": 10410,
-          "throughput_requests_per_second": 9606147.935,
+          "duration_ns": 10030,
+          "throughput_requests_per_second": 9970089.731,
           "latency_ns": {
-            "mean": 41,
+            "mean": 36,
             "p50": 40,
             "p95": 40,
             "p99": 40
@@ -357,17 +357,17 @@
         },
         "journaled_at_least_once": {
           "requests": 100,
-          "duration_ns": 11748760,
-          "throughput_requests_per_second": 8511.537,
+          "duration_ns": 11336172,
+          "throughput_requests_per_second": 8821.320,
           "latency_ns": {
-            "mean": 117294,
-            "p50": 107179,
-            "p95": 161030,
-            "p99": 246469
+            "mean": 113207,
+            "p50": 109249,
+            "p95": 130770,
+            "p99": 168999
           },
           "wal_bytes": 4200,
           "flushes": 200,
-          "recovery_ns": 38479,
+          "recovery_ns": 27879,
           "physical_invocations": 100,
           "abstract_effects": 100
         }
@@ -376,12 +376,12 @@
         {
           "mechanism": "mediated_idempotent",
           "requests": 10,
-          "duration_ns": 5815125,
+          "duration_ns": 5444931,
           "latency_ns": {
-            "mean": 581170,
-            "p50": 527268,
-            "p95": 629547,
-            "p99": 629547
+            "mean": 544141,
+            "p50": 521308,
+            "p95": 530198,
+            "p99": 530198
           },
           "physical_invocations": 20,
           "abstract_effects": 10,
@@ -393,12 +393,12 @@
         {
           "mechanism": "mediated_deduplicated",
           "requests": 10,
-          "duration_ns": 6522312,
+          "duration_ns": 5838291,
           "latency_ns": {
-            "mean": 651662,
-            "p50": 583977,
-            "p95": 869776,
-            "p99": 869776
+            "mean": 583493,
+            "p50": 571489,
+            "p95": 612898,
+            "p99": 612898
           },
           "physical_invocations": 20,
           "abstract_effects": 10,
@@ -410,12 +410,12 @@
         {
           "mechanism": "journaled_at_least_once",
           "requests": 10,
-          "duration_ns": 2309660,
+          "duration_ns": 2250313,
           "latency_ns": {
-            "mean": 230589,
-            "p50": 228539,
-            "p95": 254208,
-            "p99": 254208
+            "mean": 224762,
+            "p50": 218550,
+            "p95": 223699,
+            "p99": 223699
           },
           "physical_invocations": 20,
           "abstract_effects": 20,

@@ -88,11 +88,15 @@ assumption, not a typed-WAL refinement theorem.
    append.
 5. `Outcome` and exactly one of `Commit`, `Fail`, or `Unknown` make the result
    recoverable through `terminal`.
-   A Failure is reported as Fail only when the formal conclusiveness condition
-   holds; an Idempotent Failure following prior uncertainty becomes
-   `Unknown(NonConclusiveFailure)`. Retry-safe InvalidResult observations retry
-   until success or the class-derived limit, while Uncontrolled InvalidResult
-   becomes Unknown immediately.
+   Recovery classification uses one evidence-complete priority: durable
+   Success, conclusive Failure, Unknown after a non-conclusive Failure, Retry,
+   then residual Unknown. A Failure is reported as Fail only when the formal
+   conclusiveness condition holds; an Idempotent Failure following prior
+   uncertainty becomes `Unknown(NonConclusiveFailure)`. Retry-safe InvalidResult
+   observations retry until success or the class-derived limit, while
+   Uncontrolled InvalidResult becomes Unknown immediately. The public
+   `Broker::recovery_decision` exposes this classification for gate and audit
+   code.
 6. Recovery first resolves a durable successful `Outcome` to `Commit`; a K4
    gate validates that terminal append while still in Recovering mode. Without
    such evidence, ordinary mode converts an unmatched `Start` into an ambiguous
@@ -146,3 +150,9 @@ every broker construction and writes a separately validated attestation.
 
 The [evaluation guide](evaluation/README.md) defines the RQ1/RQ2 report fields,
 ablations, schema validation, and limits of the retained microbenchmark data.
+
+The Redis process-crash campaign compares the complete classifier with a
+single-branch failure-coverage ablation against an independent service-state
+oracle. Its reproduction command and scope are documented in
+`evaluation/redis-process-crash.md`; the retained report is
+`evaluation/results/redis-process-crash.json`.

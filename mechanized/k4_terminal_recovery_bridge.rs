@@ -32,7 +32,8 @@ use k3_layer::k2_record_layer::k2_guard_layer::{
 use k3_layer::k2_record_layer::k2_guard_layer::k1_layer::{
     k_digest_id, k_durable_inv, k_failure_conclusive, k_find_request,
     k_outcome_view, k_phase_view, k_request_entry_couples, k_request_id,
-    k_tracks_request, KDurable, KPhase, KRequestEntry,
+    k_tracks_request, k_has_durable_success_couples, k_has_durable_success_exec,
+    KDurable, KPhase, KRequestEntry,
 };
 use k3_layer::k2_record_layer::k2_guard_layer::k1_layer::query_layer;
 use query_layer::c1_layer;
@@ -257,16 +258,28 @@ pub open spec fn k4_a3_recovery_arm_record()
     }
 }
 
+pub open spec fn k4_a3_recovery_start_record()
+    -> replay_layer::JournalRecord
+{
+    replay_layer::JournalRecord::Start {
+        request: replay_layer::RequestId { id: 1nat },
+        attempt: 1nat,
+        digest: replay_layer::Digest { id: 1nat },
+        key: Option::None,
+        arm_ref: 3nat,
+    }
+}
+
 pub open spec fn k4_a3_recovery_unknown_record()
     -> replay_layer::JournalRecord
 {
     replay_layer::JournalRecord::UnknownRec {
         request: replay_layer::RequestId { id: 1nat },
-        attempt: Option::None,
+        attempt: Option::Some(1nat),
         reason: replay_layer::UnknownReason::Recovery,
         digest: replay_layer::Digest { id: 1nat },
         key: Option::None,
-        evidence_ref: 3nat,
+        evidence_ref: 4nat,
     }
 }
 
@@ -277,7 +290,96 @@ pub open spec fn k4_a3_recovery_records()
         .push(k4_a3_recovery_authorize_record())
         .push(k4_a3_recovery_prepare_record())
         .push(k4_a3_recovery_arm_record())
+        .push(k4_a3_recovery_start_record())
         .push(k4_a3_recovery_unknown_record())
+}
+
+// The four-record prefix is the durable view after an armed invocation whose
+// reply was lost.  The Journal cannot distinguish a service that linearized
+// from one that did not, so the abstract effect cardinality intentionally has
+// both interpretations.
+pub open spec fn k4_a3_lost_reply_prefix()
+    -> Seq<replay_layer::JournalRecord>
+{
+    k4_a3_recovery_records().take(4)
+}
+
+pub open spec fn k4_a3_lost_reply_effect_worlds() -> Seq<nat> {
+    Seq::empty().push(0nat).push(1nat)
+}
+
+pub open spec fn k4_a3_unknown_effect_cardinality_allowed(
+    effect_count: nat,
+) -> bool {
+    effect_count == 0nat || effect_count == 1nat
+}
+
+pub proof fn k4_a3_lost_reply_indistinguishable_worlds(
+    config: KManifestConfig,
+)
+    requires
+        k4_a3_uncontrolled_profile(config),
+    ensures
+        replay_layer::journal_legal(
+            k_manifest_config_view(config), k4_a3_lost_reply_prefix(),
+        ),
+        replay_layer::replay(
+            k_manifest_config_view(config), k4_a3_lost_reply_prefix(),
+        ).phase[k4_a0_request()] == replay_layer::Phase::Armed,
+        replay_layer::evidence_complete_decision(
+            k_manifest_config_view(config), k4_a3_lost_reply_prefix(),
+            k4_a0_request(),
+        ) == replay_layer::EvidenceDecision::Unknown,
+        k4_a3_lost_reply_effect_worlds().len() == 2,
+        k4_a3_lost_reply_effect_worlds()[0] == 0,
+        k4_a3_lost_reply_effect_worlds()[1] == 1,
+        k4_a3_unknown_effect_cardinality_allowed(
+            k4_a3_lost_reply_effect_worlds()[0],
+        ),
+        k4_a3_unknown_effect_cardinality_allowed(
+            k4_a3_lost_reply_effect_worlds()[1],
+        ),
+        k4_a3_lost_reply_effect_worlds()[0]
+            != k4_a3_lost_reply_effect_worlds()[1],
+{
+    let cfg = k_manifest_config_view(config);
+    let prefix = k4_a3_lost_reply_prefix();
+    k4_a3_recovery_records_legal(config);
+    replay_layer::journal_legal_take(
+        cfg, k4_a3_recovery_records(), 4nat,
+    );
+    reveal_with_fuel(replay_layer::replay, 8);
+    reveal_with_fuel(replay_layer::started_count, 8);
+    reveal_with_fuel(replay_layer::outcome_observation, 8);
+    reveal(replay_layer::all_attempts_failed);
+    reveal(replay_layer::failure_conclusive);
+    reveal(replay_layer::has_durable_success);
+    reveal(replay_layer::evidence_complete_decision);
+    assert(prefix == k4_a3_recovery_records().take(4));
+    assert(replay_layer::replay(cfg, prefix).phase[k4_a0_request()]
+        == replay_layer::Phase::Armed);
+    assert(replay_layer::started_count(prefix, k4_a0_request()) == 1nat);
+    assert(replay_layer::outcome_observation(
+        prefix, k4_a0_request(), 1nat,
+    ).is_none());
+    assert(!replay_layer::has_durable_success(prefix, k4_a0_request()));
+    assert(!replay_layer::failure_conclusive(
+        cfg, prefix, k4_a0_request(),
+    ));
+    assert(replay_layer::evidence_complete_decision(
+        cfg, prefix, k4_a0_request(),
+    ) == replay_layer::EvidenceDecision::Unknown);
+    assert(k4_a3_lost_reply_effect_worlds().len() == 2);
+    assert(k4_a3_lost_reply_effect_worlds()[0] == 0nat);
+    assert(k4_a3_lost_reply_effect_worlds()[1] == 1nat);
+    assert(k4_a3_unknown_effect_cardinality_allowed(
+        k4_a3_lost_reply_effect_worlds()[0],
+    ));
+    assert(k4_a3_unknown_effect_cardinality_allowed(
+        k4_a3_lost_reply_effect_worlds()[1],
+    ));
+    assert(k4_a3_lost_reply_effect_worlds()[0]
+        != k4_a3_lost_reply_effect_worlds()[1]);
 }
 
 pub proof fn k4_a3_fail_records_legal(config: KManifestConfig)
@@ -379,12 +481,14 @@ pub proof fn k4_a3_recovery_records_legal(config: KManifestConfig)
     let journal1 = journal0.push(k4_a3_recovery_authorize_record());
     let journal2 = journal1.push(k4_a3_recovery_prepare_record());
     let journal3 = journal2.push(k4_a3_recovery_arm_record());
+    let journal4 = journal3.push(k4_a3_recovery_start_record());
 
     k_manifest_config_is_well_formed(config);
     reveal_with_fuel(replay_layer::replay, 8);
     reveal_with_fuel(replay_layer::authorize_lsn, 8);
     reveal_with_fuel(replay_layer::prepare_lsn, 8);
     reveal_with_fuel(replay_layer::arm_lsn, 8);
+    reveal_with_fuel(replay_layer::start_lsn, 8);
     reveal_with_fuel(replay_layer::started_count, 8);
     reveal_with_fuel(replay_layer::outcome_observation, 8);
     reveal(replay_layer::all_attempts_failed);
@@ -424,18 +528,45 @@ pub proof fn k4_a3_recovery_records_legal(config: KManifestConfig)
     ));
     assert(replay_layer::started_count(journal3, request) == 0nat);
     assert(!replay_layer::failure_conclusive(cfg, journal3, request));
+    assert(!replay_layer::has_durable_success(journal3, request));
+    assert(replay_layer::evidence_complete_decision(cfg, journal3, request)
+        == replay_layer::EvidenceDecision::Retry);
     assert(replay_layer::arm_lsn(journal3, request)
         == Option::Some(3nat));
-    assert(replay_layer::latest_evidence_lsn(journal3, request)
-        == Option::Some(3nat));
     assert(replay_layer::structural_enabled(
-        cfg, journal3, k4_a3_recovery_unknown_record(),
+        cfg, journal3, k4_a3_recovery_start_record(),
     ));
     replay_layer::journal_legal_push(
-        cfg, journal3, k4_a3_recovery_unknown_record(),
+        cfg, journal3, k4_a3_recovery_start_record(),
+    );
+
+    replay_layer::replay_domains(cfg, journal4);
+    reveal(replay_layer::latest_evidence_lsn);
+    reveal_with_fuel(replay_layer::outcome_lsn, 8);
+    assert(replay_layer::replay(cfg, journal4).phase[request]
+        == replay_layer::Phase::Armed);
+    assert(replay_layer::started_count(journal4, request) == 1nat);
+    assert(replay_layer::outcome_observation(journal4, request, 1nat).is_none());
+    assert(!replay_layer::failure_conclusive(cfg, journal4, request));
+    assert(!replay_layer::has_durable_success(journal4, request));
+    assert(replay_layer::evidence_complete_decision(cfg, journal4, request)
+        == replay_layer::EvidenceDecision::Unknown);
+    assert(replay_layer::start_lsn(journal4, request, 1nat)
+        == Option::Some(4nat));
+    assert(replay_layer::latest_attempt(journal4, request)
+        == Option::Some(1nat));
+    assert(replay_layer::outcome_lsn(journal4, request, 1nat)
+        == Option::None);
+    assert(replay_layer::latest_evidence_lsn(journal4, request)
+        == Option::Some(4nat));
+    assert(replay_layer::structural_enabled(
+        cfg, journal4, k4_a3_recovery_unknown_record(),
+    ));
+    replay_layer::journal_legal_push(
+        cfg, journal4, k4_a3_recovery_unknown_record(),
     );
     assert(k4_a3_recovery_records()
-        == journal3.push(k4_a3_recovery_unknown_record()));
+        == journal4.push(k4_a3_recovery_unknown_record()));
 }
 
 pub fn k4_a3_fail_record_exec(index: u64) -> (record: KJournalRecord)
@@ -494,7 +625,7 @@ pub fn k4_a3_fail_record_exec(index: u64) -> (record: KJournalRecord)
 pub fn k4_a3_recovery_record_exec(index: u64)
     -> (record: KJournalRecord)
     ensures
-        1 <= index <= 4 ==> k_journal_record_view(record)
+        1 <= index <= 5 ==> k_journal_record_view(record)
             == k4_a3_recovery_records()[index as int - 1],
 {
     match index {
@@ -516,15 +647,23 @@ pub fn k4_a3_recovery_record_exec(index: u64)
             key: 0,
             prepare_ref: 2,
         },
+        4 => KJournalRecord::Start {
+            request: 1,
+            attempt: 1,
+            digest: 1,
+            key_present: false,
+            key: 0,
+            arm_ref: 3,
+        },
         _ => KJournalRecord::Unknown {
             request: 1,
-            attempt_present: false,
-            attempt: 0,
+            attempt_present: true,
+            attempt: 1,
             reason: KUnknownReason::Recovery,
             digest: 1,
             key_present: false,
             key: 0,
-            evidence_ref: 3,
+            evidence_ref: 4,
         },
     }
 }
@@ -653,6 +792,7 @@ pub fn k_manifest_fail_enabled(
             let conclusive = k_failure_conclusive(
                 entry, class_is_idempotent, Ghost(cfg), Ghost(durable),
             );
+            let has_success = k_has_durable_success_exec(entry);
             proof {
                 assert(k_phase_view(entry.phase)
                     == durable.phase[spec_request]);
@@ -663,8 +803,13 @@ pub fn k_manifest_fail_enabled(
                     durable.phase[spec_request]
                         == replay_layer::Phase::Armed
                 ));
+                k_has_durable_success_couples(*entry, durable);
+                assert(has_success == query_layer::d_has_durable_success(
+                    durable, spec_request,
+                ));
             }
             phase_armed && fields_match && attempt_latest && conclusive
+                && !has_success
         },
         Option::None => {
             proof {
@@ -714,12 +859,19 @@ pub fn k_manifest_unknown_enabled(
     let conclusive = k_failure_conclusive(
         entry, class_is_idempotent, Ghost(cfg), Ghost(durable),
     );
+    let has_success = k_has_durable_success_exec(entry);
     let started = entry.outcomes.len();
+    proof {
+        k_has_durable_success_couples(*entry, durable);
+        assert(has_success == query_layer::d_has_durable_success(
+            durable, spec_request,
+        ));
+    }
 
     if !attempt_present {
         let enabled = match reason {
             KUnknownReason::Recovery => {
-                started == 0 && class_is_uncontrolled && !conclusive
+                started == 0 && class_is_uncontrolled && !conclusive && !has_success
             },
             _ => false,
         };
@@ -776,7 +928,7 @@ pub fn k_manifest_unknown_enabled(
             let uncertain = k_uncertain(entry, Ghost(durable));
             started as u64 == max_attempts && uncertain
         },
-        KUnknownReason::Recovery => class_is_uncontrolled && !conclusive,
+        KUnknownReason::Recovery => class_is_uncontrolled && !conclusive && !has_success,
         KUnknownReason::NonConclusiveFailure => {
             let latest = k_latest_outcome(entry);
             let failed = match latest {
@@ -898,6 +1050,18 @@ pub fn k_manifest_guard_unknown(
                 reason,
                 Ghost(durable),
             );
+            let profile = k_manifest_attempt_profile(config, request);
+            let conclusive = k_failure_conclusive(
+                entry, profile.0, Ghost(cfg), Ghost(durable),
+            );
+            let has_success = k_has_durable_success_exec(entry);
+            let classifier_unknown = if !attempt_present {
+                false
+            } else if !unknown_enabled {
+                false
+            } else {
+                true
+            };
             proof {
                 assert(k_phase_view(entry.phase)
                     == durable.phase[spec_request]);
@@ -908,8 +1072,29 @@ pub fn k_manifest_guard_unknown(
                     durable.phase[spec_request]
                         == replay_layer::Phase::Armed
                 ));
+                k_has_durable_success_couples(*entry, durable);
+                assert(has_success == query_layer::d_has_durable_success(
+                    durable, spec_request,
+                ));
+                assert(conclusive == query_layer::d_failure_conclusive(
+                    cfg, durable, spec_request,
+                ));
+                if phase_armed && attempt_present && unknown_enabled
+                        && !conclusive && !has_success {
+                    query_layer::unknown_terminal_implies_unknown_decision(
+                        cfg,
+                        durable,
+                        spec_request,
+                        attempt as nat,
+                        k_unknown_reason_view(reason),
+                    );
+                    assert(query_layer::d_evidence_complete_decision(
+                        cfg, durable, spec_request,
+                    ) == replay_layer::EvidenceDecision::Unknown);
+                }
             }
-            phase_armed && fields_match && unknown_enabled
+            phase_armed && fields_match && unknown_enabled && classifier_unknown
+                && !conclusive && !has_success
         },
         Option::None => {
             proof {
@@ -1759,7 +1944,7 @@ pub fn k4_a3_fail_append_witness()
 pub fn k4_a3_recovery_append_witness()
     -> (result: (usize, usize, u64))
     ensures
-        result == (4usize, 4usize, 4u64),
+        result == (5usize, 5usize, 5u64),
         exists|config: KManifestConfig, state: KKernelState| {
             &&& k4_a3_uncontrolled_profile(config)
             &&& k4_a3_inv(config, state)
@@ -1771,7 +1956,7 @@ pub fn k4_a3_recovery_append_witness()
                 &&& state.durable.requests@[index].request == 1
                 &&& state.durable.requests@[index].phase
                     == KPhase::Unknown
-                &&& state.durable.requests@[index].outcomes@.len() == 0
+                &&& state.durable.requests@[index].outcomes@.len() == 1
             }
         },
 {
@@ -1847,9 +2032,14 @@ pub fn k4_a3_recovery_append_witness()
 
     let fourth = k4_a3_recovery_record_exec(4);
     proof {
-        replay_layer::journal_legal_last(
+        replay_layer::journal_legal_take(
             k_manifest_config_view(config),
             k4_a3_recovery_records(),
+            4nat,
+        );
+        replay_layer::journal_legal_last(
+            k_manifest_config_view(config),
+            k4_a3_recovery_records().take(4),
         );
     }
     let ghost before_fourth = state;
@@ -1857,8 +2047,24 @@ pub fn k4_a3_recovery_append_witness()
     proof {
         k4_a2_journal_push_view(before_fourth, state, fourth);
         assert(k_journal_seq_view(state.journal@)
-            == k4_a3_recovery_records());
+            == k4_a3_recovery_records().take(4));
         assert(cut4 == 4u64);
+    }
+
+    let fifth = k4_a3_recovery_record_exec(5);
+    proof {
+        replay_layer::journal_legal_last(
+            k_manifest_config_view(config),
+            k4_a3_recovery_records(),
+        );
+    }
+    let ghost before_fifth = state;
+    let cut5 = k4_a3_append_one(&config, &mut state, fifth);
+    proof {
+        k4_a2_journal_push_view(before_fifth, state, fifth);
+        assert(k_journal_seq_view(state.journal@)
+            == k4_a3_recovery_records());
+        assert(cut5 == 5u64);
     }
 
     proof {
@@ -1888,7 +2094,7 @@ pub fn k4_a3_recovery_append_witness()
             replay_layer::RequestId { id: 1nat },
         );
         reveal_with_fuel(replay_layer::started_count, 8);
-        assert(entry.outcomes@.len() == 0);
+        assert(entry.outcomes@.len() == 1);
         assert(exists|candidate_config: KManifestConfig,
                        candidate_state: KKernelState| {
             &&& k4_a3_uncontrolled_profile(candidate_config)
@@ -1904,13 +2110,13 @@ pub fn k4_a3_recovery_append_witness()
                 &&& candidate_state.durable.requests@[candidate].phase
                     == KPhase::Unknown
                 &&& candidate_state.durable.requests@[candidate]
-                    .outcomes@.len() == 0
+                    .outcomes@.len() == 1
             }
         }) by {
             assert(k4_a3_uncontrolled_profile(config));
         }
     }
-    (state.journal.len(), state.ack_cuts.len(), cut4)
+    (state.journal.len(), state.ack_cuts.len(), cut5)
 }
 
 } // verus!

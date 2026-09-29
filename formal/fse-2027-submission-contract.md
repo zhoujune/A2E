@@ -111,12 +111,13 @@ The paper must therefore use this narrower, qualified proposition:
 
 > Based on the sources checked through 2026-08-10, we are not aware of prior
 > work that machine-checks a coverage-conditioned compositional refinement for
-> a serialized AI tool-effect broker from durable capability authorization and
-> complete mediation for protected Idempotent and Deduplicated instances,
-> through fail-stop crash/recovery, to an abstract adapter layer that explicitly
-> distinguishes ReadOnly, Idempotent, Deduplicated, and Uncontrolled effects,
-> including `Unknown` for irreducible ambiguity. The ReadOnly operational
-> instance is proved only through its adapter/WAL/Broker refinement boundary.
+> a serialized AI tool-effect broker around one evidence-complete durable
+> classifier and one three-law adapter interface. The classifier orders durable
+> Success, conclusive Failure, non-conclusive Failure, Retry, and residual
+> Unknown; the primitive laws connect those decisions through fail-stop
+> Journal/WAL refinement to completely mediated Idempotent and Deduplicated
+> protected effects. The ReadOnly instance reaches only its
+> adapter/WAL/Broker refinement boundary.
 
 This is a synthesis claim about the complete chain, not a claim that capability
 enforcement, durable workflows, crash refinement, ambiguous retry,
@@ -128,6 +129,8 @@ closer system appears.
 
 | Paper claim | Current evidence | Submission status |
 |---|---|---|
+| Evidence-complete recovery classification | R1 priority lemmas, Q1 replay/durable-query equality, TLA+ record guards, K4-A3 lost-reply zero/one-effect witness, and Rust `recovery_classifier` test | Complete relative to the durable evidence vocabulary, declared retry class, and attempt budget; no claim of observing unpersisted remote state |
+| Primitive adapter-law interface | T6-D0 generic `primitive_adapter_laws_imply_verified`; concrete EnsureMember, ReadOnly, and Deduplicated primitive-law proofs | Complete for the three modeled retry-safe adapter packages; arbitrary production adapters remain proof obligations |
 | Broker authorization, budget, provenance, and terminal safety | T1 and its Journal/physical-history prerequisites | Complete |
 | Atomic-Journal refinement | T2 | Complete |
 | Typed-WAL weak simulation and recovery durability | T3, T4, and T5 | Complete at the typed-record abstraction |

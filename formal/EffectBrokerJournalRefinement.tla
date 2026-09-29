@@ -246,7 +246,6 @@ Next ==
     \/ \E r \in Requests : AppendCommit(r)
     \/ \E r \in Requests : AppendFailure(r)
     \/ \E r \in Requests : AppendNonConclusiveUnknown(r)
-    \/ \E r \in Requests : RetryAfterUncertainFailure(r)
     \/ \E r \in Requests : AppendRecoveredFailure(r)
     \/ \E r \in Requests : AppendExhaustedUnknown(r)
     \/ Crash

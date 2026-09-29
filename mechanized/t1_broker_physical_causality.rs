@@ -1787,6 +1787,27 @@ pub proof fn stuttering_control_preserves_physical_slot(
     }
 }
 
+pub proof fn retry_release_clears_physical_slot(
+    cfg: config_layer::FullConfig,
+    state: p0_layer::State,
+    request: replay_layer::RequestId,
+)
+    ensures physical_slot_agreement(p0_layer::apply(
+        cfg, state, p0_layer::Event::RetryRelease { request },
+    )),
+{
+}
+
+pub proof fn crash_clears_physical_slot(
+    cfg: config_layer::FullConfig,
+    state: p0_layer::State,
+)
+    ensures physical_slot_agreement(p0_layer::apply(
+        cfg, state, p0_layer::Event::Crash,
+    )),
+{
+}
+
 pub proof fn clearing_control_preserves_physical_slot(
     cfg: config_layer::FullConfig,
     state: p0_layer::State,
@@ -1799,11 +1820,11 @@ pub proof fn clearing_control_preserves_physical_slot(
     ensures physical_slot_agreement(p0_layer::apply(cfg, state, event)),
 {
     match event {
-        p0_layer::Event::RetryRelease { .. }
-        | p0_layer::Event::Crash => {
-            assert(p0_layer::apply(cfg, state, event).core.broker.slot
-                == record_layer::ExecSlot::Idle);
-            assert(p0_layer::apply(cfg, state, event).physical.slot_source.is_none());
+        p0_layer::Event::RetryRelease { request } => {
+            retry_release_clears_physical_slot(cfg, state, request);
+        },
+        p0_layer::Event::Crash => {
+            crash_clears_physical_slot(cfg, state);
         },
         p0_layer::Event::JournalAppendCall { .. }
         | p0_layer::Event::BrokerLinearize { .. }

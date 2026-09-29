@@ -685,6 +685,24 @@ pub open spec fn all_attempts_failed(
                     == Option::Some(Observation::Failure)
 }
 
+#[derive(PartialEq, Eq)]
+pub enum EvidenceDecision {
+    Commit,
+    Fail,
+    Retry,
+    Unknown,
+    Stable,
+}
+
+pub open spec fn has_durable_success(
+    journal: Seq<JournalRecord>, request: RequestId,
+) -> bool {
+    exists|attempt: AttemptId, value: Value| #![auto]
+        1 <= attempt && attempt <= started_count(journal, request)
+            && outcome_observation(journal, request, attempt)
+                == Option::Some(Observation::Success(value))
+}
+
 pub open spec fn failure_conclusive(
     cfg: Config, journal: Seq<JournalRecord>, request: RequestId,
 ) -> bool {
@@ -706,6 +724,129 @@ pub open spec fn durably_uncertain(
                 Option::Some(Observation::Failure) => false,
                 Option::Some(_) => true,
             }
+}
+
+pub open spec fn retry_class_allows_repetition(class: RetryClass) -> bool {
+    class != RetryClass::Uncontrolled
+}
+
+// A durable Failure is deliberately checked before retry eligibility.  For an
+// Idempotent request this is the case where an earlier attempt is not known to
+// have failed, so retrying would discard evidence rather than resolve it.
+pub open spec fn unknown_after_failure(
+    cfg: Config,
+    journal: Seq<JournalRecord>,
+    request: RequestId,
+) -> bool {
+    let started = started_count(journal, request);
+    started > 0
+        && outcome_observation(journal, request, started)
+            == Option::Some(Observation::Failure)
+        && !has_durable_success(journal, request)
+        && !failure_conclusive(cfg, journal, request)
+}
+
+pub open spec fn retry_eligible(
+    cfg: Config,
+    journal: Seq<JournalRecord>,
+    request: RequestId,
+) -> bool {
+    let started = started_count(journal, request);
+    !unknown_after_failure(cfg, journal, request)
+        && (started == 0
+            || retry_class_allows_repetition(cfg.request_class[request]))
+        && started < cfg.max_attempts[request]
+}
+
+pub open spec fn evidence_complete_decision(
+    cfg: Config,
+    journal: Seq<JournalRecord>,
+    request: RequestId,
+) -> EvidenceDecision {
+    let durable = replay(cfg, journal);
+    if durable.phase[request] != Phase::Armed {
+        EvidenceDecision::Stable
+    } else if has_durable_success(journal, request) {
+        EvidenceDecision::Commit
+    } else if failure_conclusive(cfg, journal, request) {
+        EvidenceDecision::Fail
+    } else if unknown_after_failure(cfg, journal, request) {
+        EvidenceDecision::Unknown
+    } else if retry_eligible(cfg, journal, request) {
+        EvidenceDecision::Retry
+    } else {
+        EvidenceDecision::Unknown
+    }
+}
+
+pub proof fn evidence_decision_prioritizes_success(
+    cfg: Config,
+    journal: Seq<JournalRecord>,
+    request: RequestId,
+)
+    requires
+        replay(cfg, journal).phase[request] == Phase::Armed,
+        has_durable_success(journal, request),
+    ensures evidence_complete_decision(cfg, journal, request)
+        == EvidenceDecision::Commit,
+{
+}
+
+pub proof fn evidence_decision_prioritizes_conclusive_failure(
+    cfg: Config,
+    journal: Seq<JournalRecord>,
+    request: RequestId,
+)
+    requires
+        replay(cfg, journal).phase[request] == Phase::Armed,
+        !has_durable_success(journal, request),
+        failure_conclusive(cfg, journal, request),
+    ensures evidence_complete_decision(cfg, journal, request)
+        == EvidenceDecision::Fail,
+{
+}
+
+pub proof fn evidence_decision_prioritizes_nonconclusive_failure(
+    cfg: Config,
+    journal: Seq<JournalRecord>,
+    request: RequestId,
+)
+    requires
+        replay(cfg, journal).phase[request] == Phase::Armed,
+        unknown_after_failure(cfg, journal, request),
+    ensures evidence_complete_decision(cfg, journal, request)
+        == EvidenceDecision::Unknown,
+{
+}
+
+pub proof fn evidence_decision_allows_retry_only_after_unknown_guard(
+    cfg: Config,
+    journal: Seq<JournalRecord>,
+    request: RequestId,
+)
+    requires
+        replay(cfg, journal).phase[request] == Phase::Armed,
+        !has_durable_success(journal, request),
+        !failure_conclusive(cfg, journal, request),
+        !unknown_after_failure(cfg, journal, request),
+        retry_eligible(cfg, journal, request),
+    ensures evidence_complete_decision(cfg, journal, request)
+        == EvidenceDecision::Retry,
+{
+}
+
+pub proof fn unknown_decision_has_no_decisive_evidence(
+    cfg: Config,
+    journal: Seq<JournalRecord>,
+    request: RequestId,
+)
+    requires evidence_complete_decision(cfg, journal, request)
+        == EvidenceDecision::Unknown,
+    ensures
+        replay(cfg, journal).phase[request] == Phase::Armed,
+        !has_durable_success(journal, request),
+        !failure_conclusive(cfg, journal, request),
+{
 }
 
 pub open spec fn apply_record(
@@ -812,6 +953,7 @@ pub open spec fn unknown_enabled(
                 && started == 0
                 && cfg.request_class[request] == RetryClass::Uncontrolled
                 && !failure_conclusive(cfg, journal, request)
+                && !has_durable_success(journal, request)
                 && ref_is(evidence_ref, arm_lsn(journal, request))
         },
         Option::Some(a) => {
@@ -826,6 +968,7 @@ pub open spec fn unknown_enabled(
                     UnknownReason::Recovery => {
                         cfg.request_class[request] == RetryClass::Uncontrolled
                             && !failure_conclusive(cfg, journal, request)
+                            && !has_durable_success(journal, request)
                     },
                     UnknownReason::NonConclusiveFailure => {
                         outcome_observation(journal, request, a)
@@ -884,7 +1027,8 @@ pub open spec fn structural_enabled(
                 && request_fields_match(cfg, request, digest, key)
                 && attempt == started_count(journal, request) + 1
                 && attempt <= cfg.max_attempts[request]
-                && !failure_conclusive(cfg, journal, request)
+                && evidence_complete_decision(cfg, journal, request)
+                    == EvidenceDecision::Retry
                 && ref_is(arm_ref, arm_lsn(journal, request))
                 && (cfg.request_class[request] == RetryClass::Uncontrolled
                     ==> started_count(journal, request) == 0)
@@ -904,6 +1048,8 @@ pub open spec fn structural_enabled(
             request, attempt, value, digest, key, outcome_ref,
         } => {
             durable.phase[request] == Phase::Armed
+                && evidence_complete_decision(cfg, journal, request)
+                    == EvidenceDecision::Commit
                 && request_fields_match(cfg, request, digest, key)
                 && attempt > 0
                 && attempt == started_count(journal, request)
@@ -915,6 +1061,8 @@ pub open spec fn structural_enabled(
             request, attempt, digest, key, outcome_ref,
         } => {
             durable.phase[request] == Phase::Armed
+                && evidence_complete_decision(cfg, journal, request)
+                    == EvidenceDecision::Fail
                 && request_fields_match(cfg, request, digest, key)
                 && attempt > 0
                 && attempt == started_count(journal, request)
@@ -925,6 +1073,8 @@ pub open spec fn structural_enabled(
             request, attempt, reason, digest, key, evidence_ref,
         } => {
             durable.phase[request] == Phase::Armed
+                && evidence_complete_decision(cfg, journal, request)
+                    == EvidenceDecision::Unknown
                 && request_fields_match(cfg, request, digest, key)
                 && unknown_enabled(
                     cfg, journal, request, attempt, reason, evidence_ref,

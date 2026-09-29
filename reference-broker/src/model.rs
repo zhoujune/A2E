@@ -132,6 +132,28 @@ pub enum TerminalResult {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum RecoveryDecision {
+    Commit {
+        attempt: u64,
+        value: Value,
+        outcome_ref: u64,
+    },
+    Fail {
+        attempt: u64,
+        outcome_ref: u64,
+    },
+    Retry {
+        next_attempt: u64,
+    },
+    Unknown {
+        attempt: Option<u64>,
+        reason: UnknownReason,
+        evidence_ref: u64,
+    },
+    Stable,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum JournalRecord {
     Authorize {
         request: RequestId,

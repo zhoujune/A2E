@@ -614,6 +614,110 @@ pub fn k_all_outcomes_failed(entry: &KRequestEntry) -> (all_failed: bool)
     true
 }
 
+// Evidence queries shared by the executable guards.  A Success remains
+// durable even when its terminal record has not yet been appended.
+pub open spec fn k_has_durable_success(entry: KRequestEntry) -> bool {
+    exists|index: int| 0 <= index < entry.outcomes@.len()
+        && match #[trigger] entry.outcomes@[index] {
+            Option::Some(KObservation::Success { .. }) => true,
+            Option::None
+            | Option::Some(KObservation::Failure)
+            | Option::Some(KObservation::Ambiguous)
+            | Option::Some(KObservation::InvalidResult { .. }) => false,
+        }
+}
+
+pub fn k_has_durable_success_exec(entry: &KRequestEntry) -> (has_success: bool)
+    ensures has_success == k_has_durable_success(*entry),
+{
+    let mut index: usize = 0;
+    while index < entry.outcomes.len()
+        invariant
+            index <= entry.outcomes@.len(),
+            forall|scanned: int| 0 <= scanned < index ==>
+                match #[trigger] entry.outcomes@[scanned] {
+                    Option::Some(KObservation::Success { .. }) => false,
+                    Option::None
+                    | Option::Some(KObservation::Failure)
+                    | Option::Some(KObservation::Ambiguous)
+                    | Option::Some(KObservation::InvalidResult { .. }) => true,
+                },
+        decreases entry.outcomes@.len() - index,
+    {
+        if matches!(entry.outcomes[index], Option::Some(KObservation::Success { .. })) {
+            proof {
+                assert(exists|witness: int| 0 <= witness < entry.outcomes@.len()
+                    && match #[trigger] entry.outcomes@[witness] {
+                        Option::Some(KObservation::Success { .. }) => true,
+                        Option::None
+                        | Option::Some(KObservation::Failure)
+                        | Option::Some(KObservation::Ambiguous)
+                        | Option::Some(KObservation::InvalidResult { .. }) => false,
+                    }) by {
+                    let witness = index as int;
+                }
+            }
+            return true;
+        }
+        index = index + 1;
+    }
+    false
+}
+
+pub proof fn k_has_durable_success_couples(
+    entry: KRequestEntry,
+    durable: replay_layer::DurableBroker,
+)
+    requires k_request_entry_couples(entry, durable),
+    ensures k_has_durable_success(entry)
+        == query_layer::d_has_durable_success(
+            durable, k_request_id(entry.request),
+        ),
+{
+    let request = k_request_id(entry.request);
+    if k_has_durable_success(entry) {
+        let index = choose|index: int|
+            0 <= index < entry.outcomes@.len()
+                && match #[trigger] entry.outcomes@[index] {
+                    Option::Some(KObservation::Success { .. }) => true,
+                    Option::None
+                    | Option::Some(KObservation::Failure)
+                    | Option::Some(KObservation::Ambiguous)
+                    | Option::Some(KObservation::InvalidResult { .. }) => false,
+                };
+        let attempt = (index + 1) as nat;
+        assert(1 <= attempt && attempt <= query_layer::d_started(durable, request));
+        assert(query_layer::d_outcome(durable, request, attempt)
+            == k_outcome_view(entry.outcomes@[index]));
+        assert(k_outcome_view(entry.outcomes@[index])
+            == Option::Some(replay_layer::Observation::Success(
+                replay_layer::Value { id: 0nat },
+            )) || k_outcome_view(entry.outcomes@[index]).is_some());
+        assert(query_layer::d_has_durable_success(durable, request));
+    }
+    if query_layer::d_has_durable_success(durable, request) {
+        let attempt = choose|attempt: replay_layer::AttemptId|
+            exists|value: replay_layer::Value| #![auto]
+                1 <= attempt && attempt <= query_layer::d_started(durable, request)
+                    && #[trigger] query_layer::d_outcome(durable, request, attempt)
+                        == Option::Some(replay_layer::Observation::Success(value));
+        assert(1 <= attempt && attempt <= entry.outcomes@.len());
+        let index = (attempt - 1) as int;
+        assert(query_layer::d_outcome(durable, request, attempt)
+            == k_outcome_view(entry.outcomes@[index]));
+        match entry.outcomes@[index] {
+            Option::Some(KObservation::Success { .. }) => {},
+            Option::None
+            | Option::Some(KObservation::Failure)
+            | Option::Some(KObservation::Ambiguous)
+            | Option::Some(KObservation::InvalidResult { .. }) => {
+                assert(false);
+            },
+        }
+        assert(k_has_durable_success(entry));
+    }
+}
+
 // Executable mirror of Q1's `d_failure_conclusive` for a tracked entry.
 pub fn k_failure_conclusive(
     entry: &KRequestEntry,
@@ -811,6 +915,15 @@ pub fn k_guard_start(
                 Ghost(cfg),
                 Ghost(durable),
             );
+            let has_success = k_has_durable_success_exec(entry);
+            let latest_failed = if started == 0 {
+                false
+            } else {
+                match entry.outcomes[started - 1] {
+                    Option::Some(KObservation::Failure) => true,
+                    _ => false,
+                }
+            };
             let uncontrolled_fresh: bool =
                 !class_is_uncontrolled || started == 0;
             proof {
@@ -819,9 +932,21 @@ pub fn k_guard_start(
                         == replay_layer::RetryClass::Uncontrolled
                     ==> query_layer::d_started(durable, spec_request) == 0
                 ));
+                k_has_durable_success_couples(*entry, durable);
+                assert(has_success == query_layer::d_has_durable_success(
+                    durable, spec_request,
+                ));
+                assert(latest_failed == (
+                    started > 0
+                        && query_layer::d_outcome(
+                            durable, spec_request,
+                            query_layer::d_started(durable, spec_request),
+                        ) == Option::Some(replay_layer::Observation::Failure)
+                ));
             }
             phase_armed && digest_matches && key_matches && attempt_is_next
                 && within_limit && not_conclusive && uncontrolled_fresh
+                && !has_success && !latest_failed
         },
         Option::None => {
             // Untracked requests are in phase New, so Start is disabled.

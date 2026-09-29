@@ -8,7 +8,7 @@ use crate::adapter::{Adapter, Delivery};
 use crate::fault::{CrashPlan, CrashSite};
 use crate::model::{
     CapabilityId, DedupKey, Digest, Invocation, InvocationId, JournalRecord, Observation, Phase,
-    RequestId, RequestSpec, RetryClass, TerminalResult, UnknownReason,
+    RecoveryDecision, RequestId, RequestSpec, RetryClass, TerminalResult, UnknownReason,
 };
 use crate::wal::{FileWal, RecoveryReport, WalError, WalMetrics};
 
@@ -663,6 +663,97 @@ impl DurableState {
             .iter()
             .find_map(|(request, state)| (state.phase == Phase::Armed).then_some(*request))
     }
+
+    fn recovery_decision(
+        &self,
+        request: RequestId,
+        max_attempts: u64,
+    ) -> Result<RecoveryDecision, BrokerError> {
+        let state = self.request(request)?;
+        if state.phase != Phase::Armed || state.terminal.is_some() {
+            return Ok(RecoveryDecision::Stable);
+        }
+
+        if let Some(outcome) = state.outcome {
+            return Ok(match outcome.observation {
+                Observation::Success(value) => RecoveryDecision::Commit {
+                    attempt: outcome.attempt,
+                    value,
+                    outcome_ref: outcome.outcome_ref,
+                },
+                Observation::Failure
+                    if state.class == Some(RetryClass::Idempotent)
+                        && !state.all_attempts_failed =>
+                {
+                    RecoveryDecision::Unknown {
+                        attempt: Some(outcome.attempt),
+                        reason: UnknownReason::NonConclusiveFailure,
+                        evidence_ref: outcome.outcome_ref,
+                    }
+                }
+                Observation::Failure => RecoveryDecision::Fail {
+                    attempt: outcome.attempt,
+                    outcome_ref: outcome.outcome_ref,
+                },
+                Observation::Ambiguous | Observation::InvalidResult(_)
+                    if state.class != Some(RetryClass::Uncontrolled)
+                        && state.attempts < max_attempts =>
+                {
+                    RecoveryDecision::Retry {
+                        next_attempt: state.attempts.saturating_add(1),
+                    }
+                }
+                Observation::Ambiguous => RecoveryDecision::Unknown {
+                    attempt: Some(outcome.attempt),
+                    reason: if state.class == Some(RetryClass::Uncontrolled) {
+                        UnknownReason::AmbiguousOutcome
+                    } else {
+                        UnknownReason::Exhausted
+                    },
+                    evidence_ref: outcome.outcome_ref,
+                },
+                Observation::InvalidResult(_) => RecoveryDecision::Unknown {
+                    attempt: Some(outcome.attempt),
+                    reason: if state.class == Some(RetryClass::Uncontrolled) {
+                        UnknownReason::InvalidResult
+                    } else {
+                        UnknownReason::Exhausted
+                    },
+                    evidence_ref: outcome.outcome_ref,
+                },
+            });
+        }
+
+        if let Some(pending) = state.pending {
+            if state.class != Some(RetryClass::Uncontrolled) && state.attempts < max_attempts {
+                return Ok(RecoveryDecision::Retry {
+                    next_attempt: state.attempts.saturating_add(1),
+                });
+            }
+            return Ok(RecoveryDecision::Unknown {
+                attempt: Some(pending.attempt),
+                reason: if state.class == Some(RetryClass::Uncontrolled) {
+                    UnknownReason::Recovery
+                } else {
+                    UnknownReason::Exhausted
+                },
+                evidence_ref: pending.start_ref,
+            });
+        }
+
+        if state.attempts == 0 {
+            return Ok(RecoveryDecision::Retry { next_attempt: 1 });
+        }
+
+        let evidence_ref = state
+            .arm_ref
+            .ok_or(BrokerError::Protocol("armed request lacks Arm reference"))?;
+        Ok(RecoveryDecision::Unknown {
+            attempt: None,
+            reason: UnknownReason::Recovery,
+            evidence_ref,
+        })
+    }
 }
 
 pub struct Broker {
@@ -770,6 +861,14 @@ impl Broker {
 
     pub fn terminal(&self, request: RequestId) -> Result<Option<TerminalResult>, BrokerError> {
         self.state.request(request).map(|state| state.terminal)
+    }
+
+    pub fn recovery_decision(
+        &self,
+        request: RequestId,
+        max_attempts: u64,
+    ) -> Result<RecoveryDecision, BrokerError> {
+        self.state.recovery_decision(request, max_attempts)
     }
 
     pub fn admit(
@@ -1060,27 +1159,29 @@ impl Broker {
                 return Ok(());
             }
 
-            // A successful Outcome is already a durable recovery decision.
-            // Resolve it while the gate is still in Recovering mode so the
-            // verified K4-A4 path validates the recovery Commit itself.
-            let durable_success = matches!(
-                self.state.request(request)?.outcome,
-                Some(RecordedOutcome {
-                    observation: Observation::Success(_),
-                    ..
-                })
-            );
-            if durable_success {
+            // A durable Outcome may already determine a terminal recovery
+            // decision. Resolve every such branch while the gate is still in
+            // Recovering mode so a conservative fallback cannot discard
+            // stronger durable evidence.
+            let decision = self.state.recovery_decision(request, max_attempts)?;
+            let outcome_backed_terminal = self.state.request(request)?.outcome.is_some()
+                && matches!(
+                    decision,
+                    RecoveryDecision::Commit { .. }
+                        | RecoveryDecision::Fail { .. }
+                        | RecoveryDecision::Unknown { .. }
+                );
+            if outcome_backed_terminal {
                 let resolved = self.resolve_recorded_outcome(request, Some(max_attempts))?;
-                if !matches!(resolved, Some(TerminalResult::Committed { .. })) {
+                if resolved.is_none() {
                     return Err(BrokerError::Protocol(
-                        "durable success did not resolve to Commit",
+                        "durable terminal decision did not resolve",
                     ));
                 }
                 self.recovery_pending = false;
                 if !self.gate.finish_recovery()? {
                     return Err(BrokerError::AppendGate(GateError(
-                        "gate refused to finish durable-success recovery",
+                        "gate refused to finish durable-outcome recovery",
                     )));
                 }
                 return Ok(());
@@ -1163,84 +1264,55 @@ impl Broker {
             return Ok(Some(terminal));
         }
         let request_state = self.state.request(request)?;
-        let Some(outcome) = request_state.outcome else {
-            return Ok(None);
-        };
         let class = request_state
             .class
             .ok_or(BrokerError::RequestNotPrepared(request))?;
+        let limit = max_attempts.unwrap_or_else(|| class.max_attempts());
+        let decision = self.state.recovery_decision(request, limit)?;
         let digest = request_state.digest;
         let key = request_state.key;
-        let all_attempts_failed = request_state.all_attempts_failed;
-        match outcome.observation {
-            Observation::Success(value) => {
+        match decision {
+            RecoveryDecision::Commit {
+                attempt,
+                value,
+                outcome_ref,
+            } => {
                 self.append(JournalRecord::Commit {
                     request,
-                    attempt: outcome.attempt,
+                    attempt,
                     value,
                     digest,
                     key,
-                    outcome_ref: outcome.outcome_ref,
+                    outcome_ref,
                 })?;
             }
-            Observation::Failure => {
-                if class == RetryClass::Idempotent && !all_attempts_failed {
-                    self.append(JournalRecord::Unknown {
-                        request,
-                        attempt: Some(outcome.attempt),
-                        reason: UnknownReason::NonConclusiveFailure,
-                        digest,
-                        key,
-                        evidence_ref: outcome.outcome_ref,
-                    })?;
-                } else {
-                    self.append(JournalRecord::Fail {
-                        request,
-                        attempt: outcome.attempt,
-                        digest,
-                        key,
-                        outcome_ref: outcome.outcome_ref,
-                    })?;
-                }
+            RecoveryDecision::Fail {
+                attempt,
+                outcome_ref,
+            } => {
+                self.append(JournalRecord::Fail {
+                    request,
+                    attempt,
+                    digest,
+                    key,
+                    outcome_ref,
+                })?;
             }
-            Observation::InvalidResult(_) => {
-                let exhausted = max_attempts.is_some_and(|limit| outcome.attempt >= limit);
-                if class == RetryClass::Uncontrolled || exhausted {
-                    self.append(JournalRecord::Unknown {
-                        request,
-                        attempt: Some(outcome.attempt),
-                        reason: if class == RetryClass::Uncontrolled {
-                            UnknownReason::InvalidResult
-                        } else {
-                            UnknownReason::Exhausted
-                        },
-                        digest,
-                        key,
-                        evidence_ref: outcome.outcome_ref,
-                    })?;
-                } else {
-                    return Ok(None);
-                }
+            RecoveryDecision::Unknown {
+                attempt,
+                reason,
+                evidence_ref,
+            } => {
+                self.append(JournalRecord::Unknown {
+                    request,
+                    attempt,
+                    reason,
+                    digest,
+                    key,
+                    evidence_ref,
+                })?;
             }
-            Observation::Ambiguous => {
-                let exhausted = max_attempts.is_some_and(|limit| outcome.attempt >= limit);
-                if class == RetryClass::Uncontrolled || exhausted {
-                    self.append(JournalRecord::Unknown {
-                        request,
-                        attempt: Some(outcome.attempt),
-                        reason: if class == RetryClass::Uncontrolled {
-                            UnknownReason::AmbiguousOutcome
-                        } else {
-                            UnknownReason::Exhausted
-                        },
-                        digest,
-                        key,
-                        evidence_ref: outcome.outcome_ref,
-                    })?;
-                } else {
-                    return Ok(None);
-                }
-            }
+            RecoveryDecision::Retry { .. } | RecoveryDecision::Stable => return Ok(None),
         }
         self.crash(CrashSite::AfterTerminal)?;
         self.terminal(request)

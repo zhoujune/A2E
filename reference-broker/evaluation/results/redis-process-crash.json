@@ -1,0 +1,436 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "cases": [
+    {
+      "variant": "full",
+      "scenario": "uninvoked_then_rejected",
+      "redis_command": [
+        "/tmp/redis-server-a2e",
+        "--port",
+        "0",
+        "--unixsocket",
+        "/tmp/a2e-redis-8ac8lu4o/redis.sock",
+        "--unixsocketperm",
+        "700",
+        "--dir",
+        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-uninvoked_then_rejected/service",
+        "--appendonly",
+        "yes",
+        "--appendfsync",
+        "always",
+        "--save",
+        "",
+        "--logfile",
+        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-uninvoked_then_rejected/service/redis.log"
+      ],
+      "broker_exit_codes": [
+        -9,
+        0,
+        0
+      ],
+      "service_pid": 912,
+      "oracle": {
+        "initial": 0,
+        "before_kill": 0,
+        "after_kill": 0,
+        "decision_boundary": 0,
+        "after_reopen": 0
+      },
+      "terminal": "Unknown",
+      "effect": 0,
+      "reopened_calls": 0,
+      "service_survived": true,
+      "observed_effect_violation": false,
+      "preterminal_wal_sha256": "d87c3e183818dc66c537c73c005213ee9e82f5117958e1541586137ef8c73f76",
+      "preterminal_records": "[\n    Authorize {\n        request: RequestId(\n            1,\n        ),\n        capability: CapabilityId(\n            7,\n        ),\n        digest: Digest(\n            102,\n        ),\n    },\n    Prepare {\n        request: RequestId(\n            1,\n        ),\n        class: Idempotent,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        auth_ref: 1,\n    },\n    Arm {\n        request: RequestId(\n            1,\n        ),\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        prepare_ref: 2,\n    },\n    Start {\n        request: RequestId(\n            1,\n        ),\n        attempt: 1,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        arm_ref: 3,\n    },\n    Outcome {\n        request: RequestId(\n            1,\n        ),\n        attempt: 1,\n        observation: Ambiguous,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        start_ref: 4,\n    },\n    Start {\n        request: RequestId(\n            1,\n        ),\n        attempt: 2,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        arm_ref: 3,\n    },\n    Outcome {\n        request: RequestId(\n            1,\n        ),\n        attempt: 2,\n        observation: Failure,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        start_ref: 6,\n    },\n]\n",
+      "preterminal_records_sha256": "9e5c01e782fc5633f6662b77756c442c4d2df12495da904858dffa6f6db374b2",
+      "initial_wal_sha256": "d458377791cf6d37fd9112e1f7ce2b9a8f6e56f3444da034084db366e4374e30"
+    },
+    {
+      "variant": "full",
+      "scenario": "effect_then_rejected",
+      "redis_command": [
+        "/tmp/redis-server-a2e",
+        "--port",
+        "0",
+        "--unixsocket",
+        "/tmp/a2e-redis-8ac8lu4o/redis.sock",
+        "--unixsocketperm",
+        "700",
+        "--dir",
+        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-effect_then_rejected/service",
+        "--appendonly",
+        "yes",
+        "--appendfsync",
+        "always",
+        "--save",
+        "",
+        "--logfile",
+        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-effect_then_rejected/service/redis.log"
+      ],
+      "broker_exit_codes": [
+        -9,
+        0,
+        0
+      ],
+      "service_pid": 922,
+      "oracle": {
+        "initial": 0,
+        "before_kill": 1,
+        "after_kill": 1,
+        "decision_boundary": 1,
+        "after_reopen": 1
+      },
+      "withheld_reply": [
+        {
+          "command": "AUTH",
+          "reply": "OK"
+        },
+        {
+          "command": "SADD",
+          "reply": 1
+        }
+      ],
+      "terminal": "Unknown",
+      "effect": 1,
+      "reopened_calls": 0,
+      "service_survived": true,
+      "observed_effect_violation": false,
+      "preterminal_wal_sha256": "d87c3e183818dc66c537c73c005213ee9e82f5117958e1541586137ef8c73f76",
+      "preterminal_records": "[\n    Authorize {\n        request: RequestId(\n            1,\n        ),\n        capability: CapabilityId(\n            7,\n        ),\n        digest: Digest(\n            102,\n        ),\n    },\n    Prepare {\n        request: RequestId(\n            1,\n        ),\n        class: Idempotent,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        auth_ref: 1,\n    },\n    Arm {\n        request: RequestId(\n            1,\n        ),\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        prepare_ref: 2,\n    },\n    Start {\n        request: RequestId(\n            1,\n        ),\n        attempt: 1,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        arm_ref: 3,\n    },\n    Outcome {\n        request: RequestId(\n            1,\n        ),\n        attempt: 1,\n        observation: Ambiguous,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        start_ref: 4,\n    },\n    Start {\n        request: RequestId(\n            1,\n        ),\n        attempt: 2,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        arm_ref: 3,\n    },\n    Outcome {\n        request: RequestId(\n            1,\n        ),\n        attempt: 2,\n        observation: Failure,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        start_ref: 6,\n    },\n]\n",
+      "preterminal_records_sha256": "9e5c01e782fc5633f6662b77756c442c4d2df12495da904858dffa6f6db374b2",
+      "initial_wal_sha256": "d458377791cf6d37fd9112e1f7ce2b9a8f6e56f3444da034084db366e4374e30"
+    },
+    {
+      "variant": "full",
+      "scenario": "conclusive_failure",
+      "redis_command": [
+        "/tmp/redis-server-a2e",
+        "--port",
+        "0",
+        "--unixsocket",
+        "/tmp/a2e-redis-8ac8lu4o/redis.sock",
+        "--unixsocketperm",
+        "700",
+        "--dir",
+        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-conclusive_failure/service",
+        "--appendonly",
+        "yes",
+        "--appendfsync",
+        "always",
+        "--save",
+        "",
+        "--logfile",
+        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-conclusive_failure/service/redis.log"
+      ],
+      "broker_exit_codes": [
+        0,
+        0
+      ],
+      "service_pid": 933,
+      "oracle": {
+        "initial": 0,
+        "decision_boundary": 0,
+        "after_reopen": 0
+      },
+      "terminal": "Fail",
+      "effect": 0,
+      "reopened_calls": 0,
+      "service_survived": true,
+      "observed_effect_violation": false,
+      "preterminal_wal_sha256": "b433003ab52c0f9e841c4033b334ef6db68b9883b2c2c20f88bdf933e5a1a712",
+      "preterminal_records": "[\n    Authorize {\n        request: RequestId(\n            1,\n        ),\n        capability: CapabilityId(\n            7,\n        ),\n        digest: Digest(\n            102,\n        ),\n    },\n    Prepare {\n        request: RequestId(\n            1,\n        ),\n        class: Idempotent,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        auth_ref: 1,\n    },\n    Arm {\n        request: RequestId(\n            1,\n        ),\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        prepare_ref: 2,\n    },\n    Start {\n        request: RequestId(\n            1,\n        ),\n        attempt: 1,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        arm_ref: 3,\n    },\n    Outcome {\n        request: RequestId(\n            1,\n        ),\n        attempt: 1,\n        observation: Failure,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        start_ref: 4,\n    },\n]\n",
+      "preterminal_records_sha256": "bb92e996f3749d09989c463539f332e9c393cfddb17e04cb780bb4b7a8222c01",
+      "initial_wal_sha256": null
+    },
+    {
+      "variant": "full",
+      "scenario": "success",
+      "redis_command": [
+        "/tmp/redis-server-a2e",
+        "--port",
+        "0",
+        "--unixsocket",
+        "/tmp/a2e-redis-8ac8lu4o/redis.sock",
+        "--unixsocketperm",
+        "700",
+        "--dir",
+        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-success/service",
+        "--appendonly",
+        "yes",
+        "--appendfsync",
+        "always",
+        "--save",
+        "",
+        "--logfile",
+        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-success/service/redis.log"
+      ],
+      "broker_exit_codes": [
+        0,
+        0
+      ],
+      "service_pid": 941,
+      "oracle": {
+        "initial": 0,
+        "decision_boundary": 1,
+        "after_reopen": 1
+      },
+      "terminal": "Commit",
+      "effect": 1,
+      "reopened_calls": 0,
+      "service_survived": true,
+      "observed_effect_violation": false,
+      "preterminal_wal_sha256": "3b1552e44a99961fa9f4134a4e0f05e46849aec668eed072ea71e4636b756f10",
+      "preterminal_records": "[\n    Authorize {\n        request: RequestId(\n            1,\n        ),\n        capability: CapabilityId(\n            7,\n        ),\n        digest: Digest(\n            102,\n        ),\n    },\n    Prepare {\n        request: RequestId(\n            1,\n        ),\n        class: Idempotent,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        auth_ref: 1,\n    },\n    Arm {\n        request: RequestId(\n            1,\n        ),\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        prepare_ref: 2,\n    },\n    Start {\n        request: RequestId(\n            1,\n        ),\n        attempt: 1,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        arm_ref: 3,\n    },\n    Outcome {\n        request: RequestId(\n            1,\n        ),\n        attempt: 1,\n        observation: Success(\n            Value(\n                1,\n            ),\n        ),\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        start_ref: 4,\n    },\n]\n",
+      "preterminal_records_sha256": "d3db4c222c4fcfba9bdf21cbaba1fbac3fb5b93d2e00201068d13c9307398157",
+      "initial_wal_sha256": null
+    },
+    {
+      "variant": "without_failure_coverage",
+      "scenario": "uninvoked_then_rejected",
+      "redis_command": [
+        "/tmp/redis-server-a2e",
+        "--port",
+        "0",
+        "--unixsocket",
+        "/tmp/a2e-redis-8ac8lu4o/redis.sock",
+        "--unixsocketperm",
+        "700",
+        "--dir",
+        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-uninvoked_then_rejected/service",
+        "--appendonly",
+        "yes",
+        "--appendfsync",
+        "always",
+        "--save",
+        "",
+        "--logfile",
+        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-uninvoked_then_rejected/service/redis.log"
+      ],
+      "broker_exit_codes": [
+        -9,
+        0,
+        0
+      ],
+      "service_pid": 949,
+      "oracle": {
+        "initial": 0,
+        "before_kill": 0,
+        "after_kill": 0,
+        "decision_boundary": 0,
+        "after_reopen": 0
+      },
+      "terminal": "Fail",
+      "effect": 0,
+      "reopened_calls": 0,
+      "service_survived": true,
+      "observed_effect_violation": false,
+      "preterminal_wal_sha256": "d87c3e183818dc66c537c73c005213ee9e82f5117958e1541586137ef8c73f76",
+      "preterminal_records": "[\n    Authorize {\n        request: RequestId(\n            1,\n        ),\n        capability: CapabilityId(\n            7,\n        ),\n        digest: Digest(\n            102,\n        ),\n    },\n    Prepare {\n        request: RequestId(\n            1,\n        ),\n        class: Idempotent,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        auth_ref: 1,\n    },\n    Arm {\n        request: RequestId(\n            1,\n        ),\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        prepare_ref: 2,\n    },\n    Start {\n        request: RequestId(\n            1,\n        ),\n        attempt: 1,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        arm_ref: 3,\n    },\n    Outcome {\n        request: RequestId(\n            1,\n        ),\n        attempt: 1,\n        observation: Ambiguous,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        start_ref: 4,\n    },\n    Start {\n        request: RequestId(\n            1,\n        ),\n        attempt: 2,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        arm_ref: 3,\n    },\n    Outcome {\n        request: RequestId(\n            1,\n        ),\n        attempt: 2,\n        observation: Failure,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        start_ref: 6,\n    },\n]\n",
+      "preterminal_records_sha256": "9e5c01e782fc5633f6662b77756c442c4d2df12495da904858dffa6f6db374b2",
+      "initial_wal_sha256": "d458377791cf6d37fd9112e1f7ce2b9a8f6e56f3444da034084db366e4374e30"
+    },
+    {
+      "variant": "without_failure_coverage",
+      "scenario": "effect_then_rejected",
+      "redis_command": [
+        "/tmp/redis-server-a2e",
+        "--port",
+        "0",
+        "--unixsocket",
+        "/tmp/a2e-redis-8ac8lu4o/redis.sock",
+        "--unixsocketperm",
+        "700",
+        "--dir",
+        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-effect_then_rejected/service",
+        "--appendonly",
+        "yes",
+        "--appendfsync",
+        "always",
+        "--save",
+        "",
+        "--logfile",
+        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-effect_then_rejected/service/redis.log"
+      ],
+      "broker_exit_codes": [
+        -9,
+        0,
+        0
+      ],
+      "service_pid": 959,
+      "oracle": {
+        "initial": 0,
+        "before_kill": 1,
+        "after_kill": 1,
+        "decision_boundary": 1,
+        "after_reopen": 1
+      },
+      "withheld_reply": [
+        {
+          "command": "AUTH",
+          "reply": "OK"
+        },
+        {
+          "command": "SADD",
+          "reply": 1
+        }
+      ],
+      "terminal": "Fail",
+      "effect": 1,
+      "reopened_calls": 0,
+      "service_survived": true,
+      "observed_effect_violation": true,
+      "preterminal_wal_sha256": "d87c3e183818dc66c537c73c005213ee9e82f5117958e1541586137ef8c73f76",
+      "preterminal_records": "[\n    Authorize {\n        request: RequestId(\n            1,\n        ),\n        capability: CapabilityId(\n            7,\n        ),\n        digest: Digest(\n            102,\n        ),\n    },\n    Prepare {\n        request: RequestId(\n            1,\n        ),\n        class: Idempotent,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        auth_ref: 1,\n    },\n    Arm {\n        request: RequestId(\n            1,\n        ),\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        prepare_ref: 2,\n    },\n    Start {\n        request: RequestId(\n            1,\n        ),\n        attempt: 1,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        arm_ref: 3,\n    },\n    Outcome {\n        request: RequestId(\n            1,\n        ),\n        attempt: 1,\n        observation: Ambiguous,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        start_ref: 4,\n    },\n    Start {\n        request: RequestId(\n            1,\n        ),\n        attempt: 2,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        arm_ref: 3,\n    },\n    Outcome {\n        request: RequestId(\n            1,\n        ),\n        attempt: 2,\n        observation: Failure,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        start_ref: 6,\n    },\n]\n",
+      "preterminal_records_sha256": "9e5c01e782fc5633f6662b77756c442c4d2df12495da904858dffa6f6db374b2",
+      "initial_wal_sha256": "d458377791cf6d37fd9112e1f7ce2b9a8f6e56f3444da034084db366e4374e30"
+    },
+    {
+      "variant": "without_failure_coverage",
+      "scenario": "conclusive_failure",
+      "redis_command": [
+        "/tmp/redis-server-a2e",
+        "--port",
+        "0",
+        "--unixsocket",
+        "/tmp/a2e-redis-8ac8lu4o/redis.sock",
+        "--unixsocketperm",
+        "700",
+        "--dir",
+        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-conclusive_failure/service",
+        "--appendonly",
+        "yes",
+        "--appendfsync",
+        "always",
+        "--save",
+        "",
+        "--logfile",
+        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-conclusive_failure/service/redis.log"
+      ],
+      "broker_exit_codes": [
+        0,
+        0
+      ],
+      "service_pid": 970,
+      "oracle": {
+        "initial": 0,
+        "decision_boundary": 0,
+        "after_reopen": 0
+      },
+      "terminal": "Fail",
+      "effect": 0,
+      "reopened_calls": 0,
+      "service_survived": true,
+      "observed_effect_violation": false,
+      "preterminal_wal_sha256": "b433003ab52c0f9e841c4033b334ef6db68b9883b2c2c20f88bdf933e5a1a712",
+      "preterminal_records": "[\n    Authorize {\n        request: RequestId(\n            1,\n        ),\n        capability: CapabilityId(\n            7,\n        ),\n        digest: Digest(\n            102,\n        ),\n    },\n    Prepare {\n        request: RequestId(\n            1,\n        ),\n        class: Idempotent,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        auth_ref: 1,\n    },\n    Arm {\n        request: RequestId(\n            1,\n        ),\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        prepare_ref: 2,\n    },\n    Start {\n        request: RequestId(\n            1,\n        ),\n        attempt: 1,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        arm_ref: 3,\n    },\n    Outcome {\n        request: RequestId(\n            1,\n        ),\n        attempt: 1,\n        observation: Failure,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        start_ref: 4,\n    },\n]\n",
+      "preterminal_records_sha256": "bb92e996f3749d09989c463539f332e9c393cfddb17e04cb780bb4b7a8222c01",
+      "initial_wal_sha256": null
+    },
+    {
+      "variant": "without_failure_coverage",
+      "scenario": "success",
+      "redis_command": [
+        "/tmp/redis-server-a2e",
+        "--port",
+        "0",
+        "--unixsocket",
+        "/tmp/a2e-redis-8ac8lu4o/redis.sock",
+        "--unixsocketperm",
+        "700",
+        "--dir",
+        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-success/service",
+        "--appendonly",
+        "yes",
+        "--appendfsync",
+        "always",
+        "--save",
+        "",
+        "--logfile",
+        "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-success/service/redis.log"
+      ],
+      "broker_exit_codes": [
+        0,
+        0
+      ],
+      "service_pid": 978,
+      "oracle": {
+        "initial": 0,
+        "decision_boundary": 1,
+        "after_reopen": 1
+      },
+      "terminal": "Commit",
+      "effect": 1,
+      "reopened_calls": 0,
+      "service_survived": true,
+      "observed_effect_violation": false,
+      "preterminal_wal_sha256": "3b1552e44a99961fa9f4134a4e0f05e46849aec668eed072ea71e4636b756f10",
+      "preterminal_records": "[\n    Authorize {\n        request: RequestId(\n            1,\n        ),\n        capability: CapabilityId(\n            7,\n        ),\n        digest: Digest(\n            102,\n        ),\n    },\n    Prepare {\n        request: RequestId(\n            1,\n        ),\n        class: Idempotent,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        auth_ref: 1,\n    },\n    Arm {\n        request: RequestId(\n            1,\n        ),\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        prepare_ref: 2,\n    },\n    Start {\n        request: RequestId(\n            1,\n        ),\n        attempt: 1,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        arm_ref: 3,\n    },\n    Outcome {\n        request: RequestId(\n            1,\n        ),\n        attempt: 1,\n        observation: Success(\n            Value(\n                1,\n            ),\n        ),\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        start_ref: 4,\n    },\n]\n",
+      "preterminal_records_sha256": "d3db4c222c4fcfba9bdf21cbaba1fbac3fb5b93d2e00201068d13c9307398157",
+      "initial_wal_sha256": null
+    }
+  ],
+  "started_at_utc": "2026-09-28T14:16:14.988049+00:00",
+  "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "artifacts": "/mnt/c/Users/57408/Documents/ProveAI-worktrees/fse-executable/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z",
+  "source_sha256": {
+    "reference-broker/Cargo.lock": "87c7ba0e4bb42443a1ef86d556e1eee2b3274264d65a1bbbd31d5aa60b629f4b",
+    "reference-broker/Cargo.toml": "0ee2a3ac7365890d6912c3f217f8faea7e356adc9629d7c8efe551023171e7a2",
+    "reference-broker/evaluation/run_redis_process_crash.py": "9d4a0eb8be05ca9efc57ebd5715e21b1be920f7898ba160224baaf457edfca07",
+    "reference-broker/examples/redis_crash_worker.rs": "9e5a4e1f5f57cb2010429846447c2214ad228b23bbfcfb1ee0e5d84143e73d41",
+    "reference-broker/src/adapter.rs": "9aeefdf0a1c8b220c5aa9de6774c866ab7237389987a423c6753190705c947b5",
+    "reference-broker/src/adapters/deduplicated.rs": "491ce129f3cd9dfacd888cc0b2c8857dda43b776145f0278ca346165117dd960",
+    "reference-broker/src/adapters/idempotent.rs": "c430aa3634a725623806d6e3d3b1719dc674176dab80886943832906c38c8e44",
+    "reference-broker/src/adapters/mod.rs": "5db2e9512fc5cf8168f6ccca692a4b17fe9288ed9be63f9298d49084ccb824fd",
+    "reference-broker/src/adapters/uncontrolled.rs": "c35a9f11a43afe36cf4960c4412650a000a179901797f23d2ca1751bc02f25ae",
+    "reference-broker/src/bin/evaluate.rs": "0b68f12cfa70870e77ee4d1f5f26f9c532019574d4ff6a8263c89891656ba731",
+    "reference-broker/src/broker.rs": "2a4f1fa4e0c060816d941ee3fa51c50a5efbf7f4cf894c2896ab9dc8881b22a1",
+    "reference-broker/src/evaluation.rs": "4f1c51c96be08ed2ce7b0cad041a0686589c191712b5001a70dab20e99943d69",
+    "reference-broker/src/fault.rs": "fcb522c5b2688f3c20399f458c6bf2c4242b8d42fbbc10e359923986bbdd481d",
+    "reference-broker/src/lib.rs": "1f1caf3d7e51a4c17f31711e85804c2936f5a5a8ba582ca3d7227c5bf002d5e1",
+    "reference-broker/src/model.rs": "c92f23906e2d2927596653a98575d1ff8d91a59f297979dc8f93a4294f324c6e",
+    "reference-broker/src/wal.rs": "6ecc05f15ef8b37f5f96a91c495d82b6de5ae702293b864e7af3a7446ed8f437"
+  },
+  "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)",
+  "redis": "Redis server v=7.2.5 sha=00000000:0 malloc=libc bits=64 build=2b2fe96a4f839385",
+  "redis_binary_sha256": "9f929ad96820aa63a2974276f0ccc7ef5b8b17e64218e0d5342012c824d4c961",
+  "redis_archive_sha256": "5981179706f8391f03be91d951acafaeda91af7fac56beffb2701963103e423d",
+  "scope": "Four controlled scenarios, two variants; serialized reference broker, observer gate only; Redis process survives broker SIGKILL; no power loss or machine-checked Redis refinement.",
+  "ablation": {
+    "removed_branch": "                Observation::Failure\n                    if state.class == Some(RetryClass::Idempotent)\n                        && !state.all_attempts_failed =>\n                {\n                    RecoveryDecision::Unknown {\n                        attempt: Some(outcome.attempt),\n                        reason: UnknownReason::NonConclusiveFailure,\n                        evidence_ref: outcome.outcome_ref,\n                    }\n                }\n",
+    "mutant_broker_sha256": "361f42e0a5a95205e010bda73b4147f7986e675e14a3431dff3a52f7f4383908",
+    "description": "Delete only the classifier branch that maps incomplete idempotent failure coverage to Unknown."
+  },
+  "pair_checks": [
+    {
+      "variant": "full",
+      "identical_initial_wal": true,
+      "identical_preterminal_wal": true,
+      "identical_preterminal_records": true
+    },
+    {
+      "variant": "without_failure_coverage",
+      "identical_initial_wal": true,
+      "identical_preterminal_wal": true,
+      "identical_preterminal_records": true
+    }
+  ],
+  "summary": {
+    "full": {
+      "executions": 4,
+      "observed_effect_violations": 0,
+      "paired_unknown_decisions": 2,
+      "conclusive_controls_correct": 2,
+      "reopen_without_invocation": 4
+    },
+    "without_failure_coverage": {
+      "executions": 4,
+      "observed_effect_violations": 1,
+      "paired_unknown_decisions": 0,
+      "conclusive_controls_correct": 2,
+      "reopen_without_invocation": 4
+    }
+  },
+  "finished_at_utc": "2026-09-28T14:16:25.574458+00:00"
+}

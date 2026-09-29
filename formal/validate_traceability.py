@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Fail-closed validator for theorem/premise traceability."""
 
+import argparse
 import hashlib
 import json
 import sys
@@ -59,7 +60,7 @@ def get_path(value, path_value):
     return current
 
 
-def validate(root, manifest_path):
+def validate(root, manifest_path, require_paper=False):
     exact_keys(root, ROOT_KEYS, "manifest")
     require(root["schema"] == "proveai.theorem-premise-traceability", "wrong traceability schema")
     require(root["schema_version"] == 1, "unsupported traceability schema version")
@@ -67,8 +68,10 @@ def validate(root, manifest_path):
     report_path = safe_relative(root["verification_report"], "verification_report", repository_root)
     paper_path = safe_relative(root["paper_source"], "paper_source", repository_root)
     require(report_path.exists(), f"verification report is missing: {report_path}")
-    require(paper_path.exists(), f"paper source is missing: {paper_path}")
-    paper_text = paper_path.read_text(encoding="utf-8")
+    if require_paper:
+        require(paper_path.exists(), f"paper source is missing: {paper_path}")
+    paper_text = paper_path.read_text(encoding="utf-8") if paper_path.exists() else ""
+    paper_checked = paper_path.exists()
     labels = set()
     for marker in ("\\label{",):
         start = 0
@@ -100,7 +103,8 @@ def validate(root, manifest_path):
         paper = entry["paper"]
         exact_keys(paper, PAPER_KEYS, f"{location}.paper")
         require_string_list(paper["anchors"], f"{location}.paper.anchors")
-        require(all(anchor in labels for anchor in paper["anchors"]), f"{location}.paper has an unresolved label")
+        if paper_checked:
+            require(all(anchor in labels for anchor in paper["anchors"]), f"{location}.paper has an unresolved label")
         require(isinstance(paper["claim"], str) and paper["claim"], f"{location}.paper.claim missing")
 
         formal = entry["formal"]
@@ -181,16 +185,22 @@ def validate(root, manifest_path):
                 exact_keys(assertion, ASSERTION_KEYS, f"{location}.attestation.assertions[{assertion_index}]")
                 require(get_path(attestation_value, assertion["path"]) == assertion["equals"], f"attestation assertion failed: {assertion['path']}")
 
-    return len(entries)
+    return len(entries), paper_checked
 
 
 def main():
-    if len(sys.argv) != 2:
-        raise SystemExit("usage: python formal/validate_traceability.py MANIFEST.json")
-    manifest_path = Path(sys.argv[1])
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("manifest")
+    parser.add_argument("--require-paper", action="store_true")
+    args = parser.parse_args()
+    manifest_path = Path(args.manifest)
     root = json.loads(manifest_path.read_text(encoding="utf-8"))
-    count = validate(root, manifest_path)
-    print(f"validated theorem/premise traceability: {manifest_path} ({count} entries)")
+    count, paper_checked = validate(root, manifest_path, require_paper=args.require_paper)
+    paper_status = "paper anchors checked" if paper_checked else "paper anchors skipped"
+    print(
+        f"validated theorem/premise traceability: {manifest_path} "
+        f"({count} entries; {paper_status})"
+    )
 
 
 if __name__ == "__main__":

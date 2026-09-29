@@ -11,32 +11,31 @@ The historical retained T6-S0 terminal-bridge checkpoint verified 840 proof
 obligations with zero errors, 6 beyond its T6-C0 parent. Across its 40 registered
 targets, the dependency-aware non-duplicated total was 880 obligations and the
 sum of all target obligations was 19,064. T6-A0 completes the first concrete
-adapter-semantic closure at 885 cumulative obligations. T6-A1 completes the
-first executable adapter-protocol refinement. Its target verifies 937
+adapter-semantic closure at 897 cumulative obligations. T6-A1 completes the
+first executable adapter-protocol refinement. Its target verifies 949
   cumulative obligations with zero errors, 52 beyond T6-A0. Across the historical
 retained 42-target A1 registry, the dependency-aware non-duplicated total is 956 and the
 sum of all target obligations is 20,867. T6-M0 adds a first-class protected-
 service execution and a closed-interface audit context. Its target
-verifies 998 cumulative obligations with zero errors, 61 beyond T6-A1, and
+verifies 1,010 cumulative obligations with zero errors, 61 beyond T6-A1, and
 derives protected-trace mediation and durable authorization provenance for the
 concrete crash/retry execution. T6-P0 completes the
-prefix-indexed execution product at 1,021 cumulative obligations with zero
+prefix-indexed execution product at 1,033 cumulative obligations with zero
 errors, 23 beyond T6-M0. T6-X0 completes the storage-parametric contextual
-lift and conditional single-request `EnsureMember` end-to-end theorem at 1,043
+lift and conditional single-request `EnsureMember` end-to-end theorem at 1,055
 cumulative obligations with zero errors, 22 beyond T6-P0. The current retained
-run passes all 72/72 registered targets, contains 1,511 dependency-aware
-non-duplicated obligations, and sums to 38,952 target obligations; the
+run passes all 72/72 registered targets, contains 1,534 dependency-aware
+non-duplicated obligations, and sums to 39,706 target obligations; the
 artifact-generated verification report records the exact source and tool
-hashes. The one-obligation
-increase in the
-imported T6-S0 closure is a conservative definitional `PaperConfig` accessor
-lemma added at T1 for the concrete package. The current T6-C0 compatibility
-target verifies 856 cumulative obligations; T6-E0 verifies 839 and T6-D0
-verifies 821. The preceding pre-K4/DD checkpoints (T6-C0 834 across 39
+hashes. The current imported T6-S0 closure includes the shared classifier and
+conservative definitional `PaperConfig` accessor obligations added at T1 for
+the concrete package. The current T6-C0 compatibility
+target verifies 867 cumulative obligations; T6-E0 verifies 850 and T6-D0
+verifies 832. The preceding pre-K4/DD checkpoints (T6-C0 834 across 39
 targets, T6-E0 817 across 38, and T6-D0 799 across 37) are retained as
 historical evidence. The former pre-R1 T5-C0 checkpoint is retained as
-evidence; the current T5 chain verifies T5-R0 at 773 obligations, T5-R1 at 787,
-and T5-C0 at 805. T4-C2 closes theorem T4 with
+evidence; the current T5 chain verifies T5-R0 at 783 obligations, T5-R1 at 797,
+and T5-C0 at 815. T4-C2 closes theorem T4 with
 canonical finite forward contextual replacement. T5-S0 proves the exact
 one-step committed-history laws, T5-E0
 lifts them over arbitrary finite execution intervals, T5-R0 proves exact first-
@@ -271,6 +270,35 @@ that outcome exists, and that attempt's `Start` LSN otherwise. It may be `None`
 off a legal/Armed input; every enabled Unknown requires it to be `Some` of the
 record's reference.
 
+Define `HasDurableSuccess(j,r)` when any started attempt has a durable
+`Success(v)` outcome, and define
+
+```text
+UnknownAfterFailure(Cfg,j,r) :=
+  started(j,r) > 0
+  and outcome(j,r,started(j,r)) = Some(Failure)
+  and not HasDurableSuccess(j,r)
+  and not FailureConclusive(Cfg,j,r)
+
+RetryEligible(Cfg,j,r) :=
+  not UnknownAfterFailure(Cfg,j,r)
+  and (started(j,r)=0 or class(r) != Uncontrolled)
+  and started(j,r) < max_attempts(r)
+
+EvidenceDecision(Cfg,j,r) :=
+  if Replay(j).phase(r) != Armed then Stable
+  else if HasDurableSuccess(j,r) then Commit
+  else if FailureConclusive(Cfg,j,r) then Fail
+  else if UnknownAfterFailure(Cfg,j,r) then Unknown
+  else if RetryEligible(Cfg,j,r) then Retry
+  else Unknown
+```
+
+This is the normative evidence-complete priority. It is total on malformed as
+well as legal inputs; legality is required by the surrounding safety theorem.
+`Unknown` means that neither Commit nor Fail is justified by durable evidence,
+not that the protected service performed no effect.
+
 The abstract Broker computes retry and recovery guards from its stored durable
 state, never from proof ghosts. Define these total durable queries:
 
@@ -293,6 +321,15 @@ d_failure_conclusive(Cfg,d,r) :=
   and d_outcome(d,r,d_started(d,r))=Some(Failure)
   and (class(r)=Idempotent => d_all_failed(d,r))
 
+d_has_success(d,r) :=
+  exists 1<=a<=d_started(d,r),v.
+    d_outcome(d,r,a)=Some(Success(v))
+
+d_evidence_decision(Cfg,d,r) :=
+  the same Stable/Commit/Fail/Unknown-after-Failure/Retry/Unknown priority as
+  EvidenceDecision, using d_started, d_outcome, d_has_success, and
+  d_failure_conclusive
+
 d_uncertain(d,r) :=
   exists 1<=a<=d_started(d,r).
     d_outcome(d,r,a)=None
@@ -309,6 +346,8 @@ d_started(Replay(j),r) = started(j,r)
 d_outcome(Replay(j),r,a) = outcome(j,r,a)
 d_all_failed(Replay(j),r) <=> AllAttemptsFailed(j,r)
 d_failure_conclusive(Cfg,Replay(j),r) <=> FailureConclusive(j,r)
+d_has_success(Replay(j),r) <=> HasDurableSuccess(j,r)
+d_evidence_decision(Cfg,Replay(j),r) = EvidenceDecision(Cfg,j,r)
 d_uncertain(Replay(j),r) <=> DurablyUncertain(j,r)
 ```
 
@@ -322,11 +361,11 @@ named reference must point to the stated unique earlier record.
 | `Revoke(k)` | `k` is not revoked |
 | `Prepare(r,auth_ref)` | phase is `Authorized`; reference is `Authorize(r,witness(r))` |
 | `Arm(r,prepare_ref)` | phase is `Prepared`; reference is `Prepare(r)` |
-| `Start(r,a,arm_ref)` | phase is `Armed`; `a = started(j,r)+1 <= max_attempts(r)`; no conclusive failure; reference is `Arm(r)`; if uncontrolled, `a=1` |
+| `Start(r,a,arm_ref)` | phase is `Armed`; `a = started(j,r)+1 <= max_attempts(r)`; `EvidenceDecision(Cfg,j,r)=Retry`; reference is `Arm(r)`; if uncontrolled, `a=1` |
 | `Outcome(r,a,o,start_ref)` | phase is `Armed`; `a=latest(j,r)`; no earlier outcome for `(r,a)`; reference is `Start(r,a)`; `Success(v)` requires `result_pred(r,v)` |
-| `CommitRec(r,a,v,outcome_ref)` | phase is `Armed`; latest outcome is `Success(v)` for `a`; reference names it |
-| `FailRec(r,a,outcome_ref)` | phase is `Armed`; `FailureConclusive(j,r)`; reference names the latest failure |
-| `UnknownRec(r,a,q,evidence_ref)` | phase is `Armed`; the reason-specific guard below holds; reference names the latest evidence |
+| `CommitRec(r,a,v,outcome_ref)` | phase is `Armed`; `EvidenceDecision(Cfg,j,r)=Commit`; latest outcome is `Success(v)` for `a`; reference names it |
+| `FailRec(r,a,outcome_ref)` | phase is `Armed`; `EvidenceDecision(Cfg,j,r)=Fail`; `FailureConclusive(j,r)`; reference names the latest failure |
+| `UnknownRec(r,a,q,evidence_ref)` | phase is `Armed`; `EvidenceDecision(Cfg,j,r)=Unknown`; the reason-specific guard below holds; reference names the latest evidence |
 
 The reason-specific guards and references are exact. `Exhausted` requires
 `attempt=latest(j,r)=Some(max_attempts(r))`, durable uncertainty, and
@@ -729,22 +768,23 @@ UnsafeUncontrolledD(Cfg,d,r) :=
   d.phase(r)=Armed
   and class(r)=Uncontrolled
   and not d_failure_conclusive(Cfg,d,r)
+  and not d_has_success(d,r)
 
 RecoveryCompleteD(Cfg,d) :=
   forall r.
-    not UnsafeUncontrolledD(Cfg,d,r)
-    and not (d.phase(r)=Armed
-             and d_failure_conclusive(Cfg,d,r))
+    d.phase(r) != Armed
+    or d_evidence_decision(Cfg,d,r)=Retry
 
 UnsafeUncontrolled(Cfg,j,r) :=
   Replay(j).phase(r)=Armed
   and class(r)=Uncontrolled
   and not FailureConclusive(j,r)
+  and not HasDurableSuccess(j,r)
 
 RecoveryComplete(Cfg,j) :=
   forall r.
-    not UnsafeUncontrolled(Cfg,j,r)
-    and not (Replay(j).phase(r)=Armed and FailureConclusive(j,r))
+    Replay(j).phase(r) != Armed
+    or EvidenceDecision(Cfg,j,r)=Retry
 ```
 
 For every legal `j`, the durable-query bridge gives:
@@ -1883,7 +1923,7 @@ H2 additionally constructs a premise-free 26-event typed-WAL execution with a
 durable successful Outcome, Crash/scan/BeginRecover, Commit while Recovering,
 and FinishRecover. It exports valid WAL, compressed Journal, and canonical
 Broker executions, proves committed-history lengths zero and one at the two
-endpoints, and proves `CommitStutteringRecoveryEpisode` false. H2 verifies 886
+endpoints, and proves `CommitStutteringRecoveryEpisode` false. H2 verifies 898
 cumulative obligations and contributes one witness obligation over T6-A0.
 
 Theorem T5 is complete. H1 below checks the stuttering contextual package and
@@ -1961,13 +2001,19 @@ proof without claiming the terminal bridge. The mechanized surface contains:
   only for exactly one request terminal;
 - `UnknownCause`, configuration-explicit `OutcomeEvidence`, and three separate
   outcome-indexed compatibility branches;
-- derived `Refines`, `AdapterVerified`, and per-request refinement predicates;
+- the total `evidence_complete_decision` vocabulary imported from R1, including
+  named `unknown_after_failure` and `retry_eligible` branches;
+- derived `Refines`, the primitive adapter laws
+  `adapter_success_sound`, `adapter_resolved_failure_sound`, and
+  `adapter_effect_bounded`, their conjunction `primitive_adapter_laws`, the
+  generic `primitive_adapter_laws_imply_verified` composition lemma,
+  `AdapterVerified`, and per-request refinement predicates;
   and
 - one broker-state core statement plus separate atomic-Journal and typed-WAL
   T6-S0 wrapper statements over the representation relations already proved by
   T2 and T4-C0.
 
-T6-D0 verifies 821 cumulative obligations with zero errors, 16 beyond its
+T6-D0 verifies 832 cumulative obligations with zero errors, 17 beyond its
 T5-C0 parent.
 
 `AdapterRelyTrace` itself requires every event in its input history to belong
@@ -1980,6 +2026,33 @@ and makes no negative claim about unpersisted physical outcomes.
 The checkpoint also proves that replay-layer `unknown_enabled` is exactly the
 conjunction of the frozen reason guard and evidence-anchor predicate, so a
 future replay-rule change cannot silently drift from the T6 vocabulary.
+
+`AdapterVerified(P)` remains the downstream terminal-refinement interface, but
+it is no longer the primitive proof obligation for concrete adapters. Define:
+
+```text
+AdapterSuccessSound(P) :=
+  every relied-on compatible Commit supplies result_spec and the class's
+  zero_effect (ReadOnly) or one_effect (all mutating classes)
+
+AdapterResolvedFailureSound(P) :=
+  every relied-on compatible Fail supplies zero_effect
+
+AdapterEffectBounded(P) :=
+  every relied-on external run satisfies zero_effect or one_effect
+
+PrimitiveAdapterLaws(P) :=
+  AdapterSuccessSound(P)
+  and AdapterResolvedFailureSound(P)
+  and AdapterEffectBounded(P)
+```
+
+`primitive_adapter_laws_imply_verified` proves
+`PrimitiveAdapterLaws(P) => AdapterVerified(P)` by the three terminal cases.
+The EnsureMember, ReadOnly, and Deduplicated packages prove the primitive laws
+and obtain `AdapterVerified` only through this generic lemma. This factoring
+does not weaken the rely, evidence, or compatibility premises; it makes the
+adapter-owned semantic obligations explicit and independently auditable.
 
 The definition checkpoint proves only constructor/unfolding and selector
 sanity obligations. T6-E0, described next, derives the `OutcomeEvidence` half;
@@ -2023,7 +2096,7 @@ branch, Journal legality supplies the exact prefix `StructuralEnabled` rule and
 its reason-specific durable anchor; the proof makes no negative assertion
 about unpersisted physical outcomes.
 
-T6-E0 verifies 839 cumulative obligations with zero errors, 18 beyond its
+T6-E0 verifies 850 cumulative obligations with zero errors, 18 beyond its
 T6-D0 parent. Its historical 38-target registry contained 857 dependency-aware
 non-duplicated obligations. The theorem neither assumes nor proves an adapter
 semantic interpretation: it does not establish `BrokerOutcomeCompatible`,
@@ -2073,7 +2146,7 @@ invocation counts. It then discharges every frozen compatibility branch:
   reason guard and durable evidence anchor, yielding `UnknownCause`. The
   Uncontrolled branch additionally inherits the at-most-one-invocation bound.
 
-T6-C0 verifies 856 cumulative obligations with zero errors, 17 beyond its
+T6-C0 verifies 867 cumulative obligations with zero errors, 17 beyond its
 T6-E0 parent. Its 39-target registry contains 874 dependency-aware
 non-duplicated obligations, and the sum of all registered target obligations is
 18,224. This checkpoint proves compatibility of the selected broker terminal
@@ -2193,7 +2266,7 @@ the selected terminal is the exact Commit; and the exported premise-free
 existential fixes the paper, request, external run, outcome, records, and
 physical history while proving `Refines`, one effect, and not zero effect.
 
-T6-A0 adds 23 obligations over the current T6-S0 closure and verifies 864 with
+T6-A0 adds 24 obligations over the current T6-S0 closure and verifies 897 with
 zero errors. The retained 41-target report contains 904 dependency-aware
 non-duplicated obligations and sums 19,951 target obligations. This checkpoint
 verifies a semantic adapter contract. It does not verify executable adapter or
@@ -2304,7 +2377,7 @@ control events.
 per-request effect refinement, exact one effect, not zero effect, the selected
 Unknown terminal, and failure of `all_invocations_failed`. The exact operational
 and semantic package is inhabited without premises by
-`t6_a1_executable_crash_retry_nonvacuity`. T6-A1 verifies 937 obligations with
+`t6_a1_executable_crash_retry_nonvacuity`. T6-A1 verifies 949 obligations with
 zero errors, 52 beyond T6-A0. The retained 42-target report contains 956
 dependency-aware non-duplicated obligations and sums 20,867 target obligations.
 
@@ -2476,7 +2549,7 @@ points, begins at zero, ends at 31, and satisfies `mu[13] = mu[14]` at
 effect-state agreement. `t6_p0_prefix_product_nonvacuity` exports the same
 package existentially without premises.
 
-T6-P0 verifies 1,021 cumulative obligations with zero errors, 23 beyond
+T6-P0 verifies 1,033 cumulative obligations with zero errors, 23 beyond
 T6-M0. It establishes no storage-parametric plugged-execution theorem, no
 conditional end-to-end T6 conclusion, no production Rust/network/service or
 OS-isolation refinement, no byte/fsync result, no caller-visible result action,
@@ -2559,11 +2632,14 @@ the canonical Broker context's final invocation audit with the protected
 accepted-call trace, and durable authorization of every linearization.
 `t6_x0_contextual_end_to_end_nonvacuity` exports this package existentially.
 
-T6-X0 verifies 1,043 cumulative obligations with zero errors, 22 beyond
+T6-X0 verifies 1,055 cumulative obligations with zero errors, 22 beyond
 T6-P0. The historical pre-K4/DD registry passed 45/45 targets and contained
 1,062 dependency-aware non-duplicated obligations with a 23,866 target sum.
-The current retained suite passes 72/72 targets, contains 1,511 dependency-aware
-non-duplicated obligations, and sums to 38,952 target obligations.
+The current retained suite passes 72/72 targets, contains 1,534 dependency-aware
+non-duplicated obligations, and sums to 39,706 target obligations. The final
+request-indexed extension reports T6-RO0 1,118, T6-DD0 1,120, T6-DD1 1,148,
+T6-DD2 1,180, T6-DD3 1,219, T6-DD4 1,259, and T6-DD5 1,265 cumulative
+obligations.
 
 T6-X0 does not verify production Rust adapter/runtime code, transport or
 remote-service behavior, OS/process/descriptor isolation, byte encoding or

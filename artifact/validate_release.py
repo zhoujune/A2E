@@ -29,7 +29,7 @@ def main():
     if not manifest_path.is_file():
         fail(f"release manifest is missing: {manifest_path}")
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    if manifest.get("schema") != "proveai.ndss27.artifact-release":
+    if manifest.get("schema") != "proveai.fse.artifact-release":
         fail("unsupported release manifest schema")
     if manifest.get("schema_version") != 1:
         fail("unsupported release manifest version")
@@ -56,7 +56,8 @@ def main():
         fail(f"release file hash mismatch: {mismatched}")
     print(
         f"validated release manifest: {len(expected)} files; "
-        f"revision={manifest.get('git_revision')}; "
+        f"archive_revision={manifest.get('archive_revision')}; "
+        f"verified_source_revision={manifest.get('verified_source_revision')}; "
         f"dirty_snapshot={manifest.get('dirty_worktree_snapshot')}"
     )
 

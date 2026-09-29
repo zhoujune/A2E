@@ -35,4 +35,4 @@ jobs:
       - name: Anonymous release scan
         run: python3 artifact/check-release.py
       - name: Build anonymous release archive
-        run: python3 artifact/create-release.py --output "$RUNNER_TEMP/proveai-artifact.tar.gz"
+        run: python3 artifact/create-release.py --output "$RUNNER_TEMP/proveai-fse-artifact.tar.gz"

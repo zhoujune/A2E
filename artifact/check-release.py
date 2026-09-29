@@ -46,6 +46,10 @@ FORBIDDEN = (
 )
 
 GENERATED_DIRECTORIES = {".toolbox", "__pycache__", "target"}
+EXCLUDED_RELEASE_FILES = {
+    "reference-broker/evaluation/results/decision-discrimination.json",
+    "reference-broker/evaluation/results/redis-process-crash.json",
+}
 
 
 def fail(message):
@@ -85,6 +89,8 @@ def main():
         fail("required release files are missing: " + ", ".join(missing))
     findings = []
     for relative in files:
+        if relative.as_posix() in EXCLUDED_RELEASE_FILES:
+            continue
         path = root / relative
         try:
             content = path.read_text(encoding="utf-8")

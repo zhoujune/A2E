@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 
 
-PREFIX = "proveai-ndss27-artifact"
+PREFIX = "proveai-fse-artifact"
 ROOT_FILES = (
     ".gitattributes",
     ".gitignore",
@@ -29,7 +29,10 @@ ROOT_DIRS = (".github", "artifact", "formal", "kernel", "mechanized", "reference
 EXCLUDED_DIRS = {".git", ".toolbox", "__pycache__", "target", "tmp"}
 EXCLUDED_SUFFIXES = {
     ".pyc", ".pdf", ".tex", ".aux", ".log", ".out", ".blg", ".bbl",
-    ".png", ".jpg", ".jpeg", ".svg", ".eps",
+    ".png", ".jpg", ".jpeg", ".svg", ".eps", ".rdb", ".aof", ".manifest",
+}
+EXCLUDED_FILES = {
+    "reference-broker/evaluation/results/decision-discrimination.json",
 }
 
 
@@ -71,7 +74,29 @@ def admitted(relative):
         return False
     if any(part in {"paper", "paper-ndss"} or part.startswith("paper-") for part in path.parts):
         return False
-    return path.suffix.lower() not in EXCLUDED_SUFFIXES
+    return (
+        path.as_posix() not in EXCLUDED_FILES
+        and path.suffix.lower() not in EXCLUDED_SUFFIXES
+    )
+
+
+def portable_bytes(source, root):
+    data = source.read_bytes()
+    try:
+        text = data.decode("utf-8")
+    except UnicodeDecodeError:
+        return data
+    root_text = str(root).replace("\\", "/")
+    mounted_workspace = "/mnt/c/" + "Users/" + "57408/Documents/ProveAI-worktrees/fse-executable"
+    replacements = {
+        root_text: ".",
+        mounted_workspace: ".",
+        "/home/june/.cache/proveai-review-rust-1.96": "<toolchain-cache>",
+        "C:\\Users\\57408\\Documents\\ProveAI-worktrees\\fse-executable": ".",
+    }
+    for old, new in replacements.items():
+        text = text.replace(old, new)
+    return text.encode("utf-8")
 
 
 def selected_files(root):
@@ -124,7 +149,7 @@ def main():
             relative = source.relative_to(root)
             destination = staging / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
-            destination.write_bytes(source.read_bytes())
+            destination.write_bytes(portable_bytes(source, root))
 
         exported_revision = revision(root)
         (staging / "artifact" / "source-revision.txt").write_text(
@@ -136,10 +161,11 @@ def main():
             if path.is_file():
                 manifest_files[path.relative_to(staging).as_posix()] = sha256(path)
         manifest = {
-            "schema": "proveai.ndss27.artifact-release",
+            "schema": "proveai.fse.artifact-release",
             "schema_version": 1,
             "created_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
-            "git_revision": exported_revision,
+            "archive_revision": exported_revision,
+            "verified_source_revision": exported_revision,
             "dirty_worktree_snapshot": state,
             "paper_material_included": False,
             "files": manifest_files,

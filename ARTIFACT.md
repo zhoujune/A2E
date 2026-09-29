@@ -74,4 +74,9 @@ finite kernel-in-the-loop integration evidence, not such a refinement.
 - `artifact/`: release checks, runners, tool locks, evidence map, and reports.
 - `kernel/`: executable-kernel support source.
 
+The authoritative release command is `artifact/create-release.py`. It creates
+an artifact-only archive and excludes paper material and build products. After
+extraction, the manifest records both `verified_source_revision` (the bytes
+used for correctness evidence) and `archive_revision` (the report archive).
+
 See `TROUBLESHOOTING.md` for common toolchain and platform issues.

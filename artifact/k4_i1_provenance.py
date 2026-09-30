@@ -40,9 +40,10 @@ def fail(message):
 
 def sha256_file(path):
     digest = hashlib.sha256()
-    with Path(path).open("rb") as stream:
-        for block in iter(lambda: stream.read(1024 * 1024), b""):
-            digest.update(block)
+    data = Path(path).read_bytes()
+    if Path(path).suffix.lower() in {".rs", ".toml", ".lock", ".py", ".json", ".sh"}:
+        data = data.replace(b"\r\n", b"\n")
+    digest.update(data)
     return digest.hexdigest()
 
 

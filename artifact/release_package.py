@@ -199,7 +199,7 @@ def main():
 
         exported_revision = revision(root)
         (staging / "artifact" / "source-revision.txt").write_text(
-            args.verified_source_revision.lower() + "\n", encoding="utf-8"
+            exported_revision + "\n", encoding="utf-8"
         )
 
         manifest_files = {}

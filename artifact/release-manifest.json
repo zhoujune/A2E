@@ -2,7 +2,7 @@
   "schema": "proveai.fse.artifact-release",
   "schema_version": 1,
   "created_utc": "1970-01-01T00:00:00+00:00",
-  "archive_revision": "a345e211e70eae603ef56c6ced28c59c9059cbab",
+  "archive_revision": "6e0a3ddc2e302427838d0fed2d5c0a5017779d10",
   "verified_source_revision": "12eeda63996701a3596908a55efa2b4331230354",
   "verified_source_manifest_sha256": "afe1417ef47a5b49bf5cedbee671e250d2799a1e8a8f8242754713bda030ecdf",
   "dirty_worktree_snapshot": false,

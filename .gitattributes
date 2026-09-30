@@ -3,4 +3,6 @@
 *.sh text eol=lf
 *.rs text eol=lf
 *.json text eol=lf
+*.toml text eol=lf
+*.lock text eol=lf
 artifact/source-revision.txt text eol=lf export-subst

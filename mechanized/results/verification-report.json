@@ -2,11 +2,11 @@
   "schema": "vetra.verus-verification-report",
   "schema_version": 1,
   "schema_path": "mechanized/results/verification-report.schema.v1.json",
-  "schema_sha256": "e78baa086903753253d7b948737ac2c41f42d65b855c10d0efd661554aa566ad",
+  "schema_sha256": "8ec3da49eb36140fe3a8716c2e23cccefc29bac650f5c20782061ea952066a26",
   "status": "passed",
-  "started_at_utc": "2026-08-16T08:47:54.1880128+00:00",
-  "completed_at_utc": "2026-08-16T09:37:58.8150515+00:00",
-  "duration_ms": 3004627,
+  "started_at_utc": "2026-09-30T08:35:09.9249079+00:00",
+  "completed_at_utc": "2026-09-30T09:16:33.7745856+00:00",
+  "duration_ms": 2483850,
   "error": null,
   "environment": {
     "os_description": "Ubuntu 24.04.2 LTS",
@@ -28,10 +28,10 @@
   },
   "source_snapshot": {
     "kind": "isolated-read-only-copy",
-    "run_id": "1c71fbd91215404f980c410ae5285723",
-    "created_at_utc": "2026-08-16T08:47:54.4163598+00:00",
+    "run_id": "7c8d0fa3b9ad4848b43cd7eea203fe04",
+    "created_at_utc": "2026-09-30T08:35:10.1688196+00:00",
     "source_file_count": 72,
-    "manifest_sha256": "741d7ff67a445e20897acafba96502c7e299bf3a67e776e0487e12effec1e849",
+    "manifest_sha256": "aae606e80e5cc8231b55f23cd713cdb4bbf14d7de6b2160e504afa4c55e06c94",
     "exact_membership_validated": true,
     "source_hashes_match_registry": true,
     "all_files_read_only": true,
@@ -44,7 +44,7 @@
     "lock_path": "mechanized/toolchain.lock.json",
     "lock_sha256": "1efb79ae6c17914d3f51aaaf4c9663600d3c9713b662e6da6bc23efcc603e6f5",
     "verification_driver_path": "mechanized/verify.ps1",
-    "verification_driver_sha256": "2526ecdd779550e9593b570895ed5239890f376564ce70b45e0563d9469dc4da",
+    "verification_driver_sha256": "6c2e7fcb3093ca0ab7b82154372f14269dd4a03026a57604bfba4ae743df5fcd",
     "declared": {
       "verus": {
         "version": "0.2026.07.05.49b8806",
@@ -77,8 +77,8 @@
       "rustc_executable_sha256": "ba4b837efb6612dfa8d941c5a72b8a50d1d03a0f36216743b173949aa8d9eb75",
       "rustc_version": "rustc 1.96.0 (ac68faa20 2026-05-25)",
       "cargo_executable_sha256": "f30f9fd1b1d0b8fd10dc33219eb4cd4bec3543f40e434ac71f5a03fd0359063f",
-      "rust_toolchain_tree_sha256": "769d6f4e989622880c2bea1d899ebf24bf059e19c437a2938765a10fde3a9642",
-      "rust_toolchain_file_count": 52128,
+      "rust_toolchain_tree_sha256": "749b7eca300bbcaed27556842b5d45eedd3c18848da225923621904bf6eb77f8",
+      "rust_toolchain_file_count": 154,
       "rust_toolchain_tree_unchanged": true,
       "fresh_rust_environment": true,
       "rustup_dist_server": "offline-bundle",
@@ -97,7 +97,7 @@
     {
       "name": "M0",
       "source_path": "mechanized/m0.rs",
-      "source_sha256": "622588edbe84c95f51dfb4ed72b69aa69598d4ef51926617551f343b70cc0c4f",
+      "source_sha256": "956b045e911a284ee19ff233c7cdb20260c6b173fa2d587e849ad1e86f8e1d25",
       "snapshot_source_path": "sources/m0.rs",
       "direct_path_imports": [],
       "contribution_mode": "full",
@@ -109,9 +109,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:49:44.9964819+00:00",
-      "completed_at_utc": "2026-08-16T08:49:46.4952044+00:00",
-      "duration_ms": 1499,
+      "started_at_utc": "2026-09-30T08:35:14.5402936+00:00",
+      "completed_at_utc": "2026-09-30T08:35:16.1506961+00:00",
+      "duration_ms": 1610,
       "verified_obligations_total": 21,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -122,7 +122,7 @@
     {
       "name": "R1",
       "source_path": "mechanized/t1_replay.rs",
-      "source_sha256": "0fa2092da5b1df11aca48baf4642c98e0f35bf2403f5619444dbfd410ef7a9f8",
+      "source_sha256": "c93beb95c6694f3cb7b8aa7175d7c0691ac3973a026c66d6054ae0017800058d",
       "snapshot_source_path": "sources/t1_replay.rs",
       "direct_path_imports": [],
       "contribution_mode": "excluded",
@@ -134,9 +134,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:49:46.4994893+00:00",
-      "completed_at_utc": "2026-08-16T08:49:50.6084618+00:00",
-      "duration_ms": 4109,
+      "started_at_utc": "2026-09-30T08:35:16.1565166+00:00",
+      "completed_at_utc": "2026-09-30T08:35:20.0706648+00:00",
+      "duration_ms": 3914,
       "verified_obligations_total": 91,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -147,7 +147,7 @@
     {
       "name": "B1",
       "source_path": "mechanized/t1_append.rs",
-      "source_sha256": "a349b59944011514a15f697f5295c512fbca2a731e2feffd73fcd583811c1dab",
+      "source_sha256": "44c30dbcca39db63ce212cb3d7a1bc244fc1afe39539949fbb380da871d6443c",
       "snapshot_source_path": "sources/t1_append.rs",
       "direct_path_imports": [],
       "contribution_mode": "excluded",
@@ -159,9 +159,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:49:50.6085628+00:00",
-      "completed_at_utc": "2026-08-16T08:49:52.1125058+00:00",
-      "duration_ms": 1504,
+      "started_at_utc": "2026-09-30T08:35:20.0707451+00:00",
+      "completed_at_utc": "2026-09-30T08:35:21.4314827+00:00",
+      "duration_ms": 1361,
       "verified_obligations_total": 39,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -172,7 +172,7 @@
     {
       "name": "C1",
       "source_path": "mechanized/t1_replay_append.rs",
-      "source_sha256": "f7836b78548b79a4303108222cd138eff43808ea6571edfabe5ca479272b6f9d",
+      "source_sha256": "6084b9cfd6da1e0a3569d3dd83c6654e3cd92cac3f6529a87d8a52a05b52c514",
       "snapshot_source_path": "sources/t1_replay_append.rs",
       "direct_path_imports": [
         "t1_replay.rs",
@@ -187,9 +187,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:49:52.1125589+00:00",
-      "completed_at_utc": "2026-08-16T08:49:56.8586701+00:00",
-      "duration_ms": 4746,
+      "started_at_utc": "2026-09-30T08:35:21.4315352+00:00",
+      "completed_at_utc": "2026-09-30T08:35:25.5206965+00:00",
+      "duration_ms": 4089,
       "verified_obligations_total": 133,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -200,7 +200,7 @@
     {
       "name": "D1",
       "source_path": "mechanized/t1_durable_append.rs",
-      "source_sha256": "d11a42a7d4553f3547d56e80686ea74dade7c3139921867473cd2911cc916a4c",
+      "source_sha256": "475bcf50973f6cb6528fd008a8bd74c802f299fc9d5261991a73d32ee380f25d",
       "snapshot_source_path": "sources/t1_durable_append.rs",
       "direct_path_imports": [
         "t1_replay_append.rs"
@@ -214,9 +214,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:49:56.8588217+00:00",
-      "completed_at_utc": "2026-08-16T08:50:02.1786147+00:00",
-      "duration_ms": 5320,
+      "started_at_utc": "2026-09-30T08:35:25.5207453+00:00",
+      "completed_at_utc": "2026-09-30T08:35:29.8296781+00:00",
+      "duration_ms": 4309,
       "verified_obligations_total": 149,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -227,7 +227,7 @@
     {
       "name": "Q1",
       "source_path": "mechanized/t1_durable_queries.rs",
-      "source_sha256": "2d2a3644fbd844e955c8388836e4cbd28265492154b356e8b3a41502f0964cae",
+      "source_sha256": "b8b1dac39c64c05e906401b2e750481973ab2ea13543b49bc3e29753364cc8f1",
       "snapshot_source_path": "sources/t1_durable_queries.rs",
       "direct_path_imports": [
         "t1_replay_append.rs"
@@ -241,9 +241,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:50:02.1786756+00:00",
-      "completed_at_utc": "2026-08-16T08:50:06.9722162+00:00",
-      "duration_ms": 4794,
+      "started_at_utc": "2026-09-30T08:35:29.8297305+00:00",
+      "completed_at_utc": "2026-09-30T08:35:34.1594945+00:00",
+      "duration_ms": 4330,
       "verified_obligations_total": 152,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -254,7 +254,7 @@
     {
       "name": "K1",
       "source_path": "mechanized/k1_executable_kernel.rs",
-      "source_sha256": "ae77153cb950b6c63a9e5c634433202829c309f3966163161e377977d869dbac",
+      "source_sha256": "4eaea79d95f8c6918c06800ecab24619ad299dbfeab43eab3571fa31cfab3c6c",
       "snapshot_source_path": "sources/k1_executable_kernel.rs",
       "direct_path_imports": [
         "t1_durable_queries.rs"
@@ -268,9 +268,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:50:06.9722877+00:00",
-      "completed_at_utc": "2026-08-16T08:50:12.0394101+00:00",
-      "duration_ms": 5067,
+      "started_at_utc": "2026-09-30T08:35:34.1595543+00:00",
+      "completed_at_utc": "2026-09-30T08:35:38.9489353+00:00",
+      "duration_ms": 4789,
       "verified_obligations_total": 170,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -295,9 +295,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:50:12.0394722+00:00",
-      "completed_at_utc": "2026-08-16T08:50:17.7360180+00:00",
-      "duration_ms": 5697,
+      "started_at_utc": "2026-09-30T08:35:38.9490157+00:00",
+      "completed_at_utc": "2026-09-30T08:35:43.9839722+00:00",
+      "duration_ms": 5035,
       "verified_obligations_total": 190,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -322,9 +322,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:50:17.7360890+00:00",
-      "completed_at_utc": "2026-08-16T08:50:24.7643687+00:00",
-      "duration_ms": 7028,
+      "started_at_utc": "2026-09-30T08:35:43.9840416+00:00",
+      "completed_at_utc": "2026-09-30T08:35:49.7310797+00:00",
+      "duration_ms": 5747,
       "verified_obligations_total": 219,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -349,9 +349,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:50:24.7644296+00:00",
-      "completed_at_utc": "2026-08-16T08:50:34.7359394+00:00",
-      "duration_ms": 9972,
+      "started_at_utc": "2026-09-30T08:35:49.7311604+00:00",
+      "completed_at_utc": "2026-09-30T08:35:58.1752842+00:00",
+      "duration_ms": 8444,
       "verified_obligations_total": 259,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -376,9 +376,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:50:34.7360072+00:00",
-      "completed_at_utc": "2026-08-16T08:50:45.1641945+00:00",
-      "duration_ms": 10428,
+      "started_at_utc": "2026-09-30T08:35:58.1753382+00:00",
+      "completed_at_utc": "2026-09-30T08:36:06.6972829+00:00",
+      "duration_ms": 8522,
       "verified_obligations_total": 266,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -403,9 +403,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:50:45.1642550+00:00",
-      "completed_at_utc": "2026-08-16T08:50:55.7348244+00:00",
-      "duration_ms": 10571,
+      "started_at_utc": "2026-09-30T08:36:06.6973850+00:00",
+      "completed_at_utc": "2026-09-30T08:36:15.6239260+00:00",
+      "duration_ms": 8927,
       "verified_obligations_total": 277,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -430,9 +430,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:50:55.7348793+00:00",
-      "completed_at_utc": "2026-08-16T08:51:06.4898655+00:00",
-      "duration_ms": 10755,
+      "started_at_utc": "2026-09-30T08:36:15.6239790+00:00",
+      "completed_at_utc": "2026-09-30T08:36:25.0153879+00:00",
+      "duration_ms": 9391,
       "verified_obligations_total": 285,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -457,9 +457,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:51:06.4899364+00:00",
-      "completed_at_utc": "2026-08-16T08:51:17.6117469+00:00",
-      "duration_ms": 11122,
+      "started_at_utc": "2026-09-30T08:36:25.0154370+00:00",
+      "completed_at_utc": "2026-09-30T08:36:34.2111339+00:00",
+      "duration_ms": 9196,
       "verified_obligations_total": 287,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -484,9 +484,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:51:17.6118016+00:00",
-      "completed_at_utc": "2026-08-16T08:51:29.4254087+00:00",
-      "duration_ms": 11814,
+      "started_at_utc": "2026-09-30T08:36:34.2111830+00:00",
+      "completed_at_utc": "2026-09-30T08:36:43.8173343+00:00",
+      "duration_ms": 9606,
       "verified_obligations_total": 289,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -511,9 +511,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:51:29.4254691+00:00",
-      "completed_at_utc": "2026-08-16T08:51:41.1693763+00:00",
-      "duration_ms": 11744,
+      "started_at_utc": "2026-09-30T08:36:43.8173869+00:00",
+      "completed_at_utc": "2026-09-30T08:36:53.5566751+00:00",
+      "duration_ms": 9739,
       "verified_obligations_total": 292,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -538,9 +538,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:51:41.1694426+00:00",
-      "completed_at_utc": "2026-08-16T08:51:52.5328885+00:00",
-      "duration_ms": 11363,
+      "started_at_utc": "2026-09-30T08:36:53.5567557+00:00",
+      "completed_at_utc": "2026-09-30T08:37:02.9476971+00:00",
+      "duration_ms": 9391,
       "verified_obligations_total": 294,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -565,9 +565,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:51:52.5329416+00:00",
-      "completed_at_utc": "2026-08-16T08:52:04.2720225+00:00",
-      "duration_ms": 11739,
+      "started_at_utc": "2026-09-30T08:37:02.9477453+00:00",
+      "completed_at_utc": "2026-09-30T08:37:12.9228026+00:00",
+      "duration_ms": 9975,
       "verified_obligations_total": 297,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -592,9 +592,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:52:04.2721200+00:00",
-      "completed_at_utc": "2026-08-16T08:52:16.4387763+00:00",
-      "duration_ms": 12167,
+      "started_at_utc": "2026-09-30T08:37:12.9228846+00:00",
+      "completed_at_utc": "2026-09-30T08:37:22.6097387+00:00",
+      "duration_ms": 9687,
       "verified_obligations_total": 300,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -619,9 +619,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:52:16.4388210+00:00",
-      "completed_at_utc": "2026-08-16T08:52:29.3133592+00:00",
-      "duration_ms": 12875,
+      "started_at_utc": "2026-09-30T08:37:22.6097785+00:00",
+      "completed_at_utc": "2026-09-30T08:37:32.7864866+00:00",
+      "duration_ms": 10177,
       "verified_obligations_total": 312,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -646,9 +646,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:52:29.3134054+00:00",
-      "completed_at_utc": "2026-08-16T08:52:44.9547084+00:00",
-      "duration_ms": 15641,
+      "started_at_utc": "2026-09-30T08:37:32.7865279+00:00",
+      "completed_at_utc": "2026-09-30T08:37:45.9711434+00:00",
+      "duration_ms": 13185,
       "verified_obligations_total": 320,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -673,9 +673,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:52:44.9547516+00:00",
-      "completed_at_utc": "2026-08-16T08:53:01.7623746+00:00",
-      "duration_ms": 16808,
+      "started_at_utc": "2026-09-30T08:37:45.9711859+00:00",
+      "completed_at_utc": "2026-09-30T08:37:59.7725463+00:00",
+      "duration_ms": 13801,
       "verified_obligations_total": 337,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -700,9 +700,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:53:01.7624275+00:00",
-      "completed_at_utc": "2026-08-16T08:53:24.3263765+00:00",
-      "duration_ms": 22564,
+      "started_at_utc": "2026-09-30T08:37:59.7725948+00:00",
+      "completed_at_utc": "2026-09-30T08:38:18.0719233+00:00",
+      "duration_ms": 18299,
       "verified_obligations_total": 359,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -727,9 +727,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:53:24.3264241+00:00",
-      "completed_at_utc": "2026-08-16T08:53:47.3595782+00:00",
-      "duration_ms": 23033,
+      "started_at_utc": "2026-09-30T08:38:18.0719718+00:00",
+      "completed_at_utc": "2026-09-30T08:38:36.2096180+00:00",
+      "duration_ms": 18138,
       "verified_obligations_total": 380,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -740,7 +740,7 @@
     {
       "name": "B2-R",
       "source_path": "mechanized/t1_broker_records.rs",
-      "source_sha256": "ba8396cb87de91917039cfe7e46d77c1ac073d64544673f99fb4e14e39035752",
+      "source_sha256": "231dda3e052064eb118826992cdfdb9ca70d8e191efb8f9cd7c9f87584154d54",
       "snapshot_source_path": "sources/t1_broker_records.rs",
       "direct_path_imports": [
         "t1_durable_queries.rs"
@@ -754,9 +754,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:53:47.3596280+00:00",
-      "completed_at_utc": "2026-08-16T08:53:55.6680708+00:00",
-      "duration_ms": 8308,
+      "started_at_utc": "2026-09-30T08:38:36.2096582+00:00",
+      "completed_at_utc": "2026-09-30T08:38:43.4885776+00:00",
+      "duration_ms": 7279,
       "verified_obligations_total": 177,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -767,7 +767,7 @@
     {
       "name": "B2-C",
       "source_path": "mechanized/t1_full_config.rs",
-      "source_sha256": "a9279199478c247d79796d3d9c651dc36c1cb6fa2b423661e4e5155c21afba0b",
+      "source_sha256": "d990b93ef62025130ea682b02f5eaa00e035578bfe8ba6555c32981f2ef1b08d",
       "snapshot_source_path": "sources/t1_full_config.rs",
       "direct_path_imports": [
         "t1_broker_records.rs"
@@ -781,9 +781,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:53:55.6681145+00:00",
-      "completed_at_utc": "2026-08-16T08:54:04.4655572+00:00",
-      "duration_ms": 8797,
+      "started_at_utc": "2026-09-30T08:38:43.4886177+00:00",
+      "completed_at_utc": "2026-09-30T08:38:50.8914461+00:00",
+      "duration_ms": 7403,
       "verified_obligations_total": 183,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -794,7 +794,7 @@
     {
       "name": "B2-P0",
       "source_path": "mechanized/t1_broker_physical.rs",
-      "source_sha256": "d44963cfb25bb567fc638634ae348e1acc75b668707e306d4cbb70ecd7e3a5d1",
+      "source_sha256": "934a80cc7ec3268b07eeb3537203799e22189d53be4c12c70e8962579576a8bb",
       "snapshot_source_path": "sources/t1_broker_physical.rs",
       "direct_path_imports": [
         "t1_full_config.rs"
@@ -808,9 +808,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:54:04.4656347+00:00",
-      "completed_at_utc": "2026-08-16T08:54:14.2174844+00:00",
-      "duration_ms": 9752,
+      "started_at_utc": "2026-09-30T08:38:50.8914869+00:00",
+      "completed_at_utc": "2026-09-30T08:38:58.9600810+00:00",
+      "duration_ms": 8069,
       "verified_obligations_total": 202,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -821,7 +821,7 @@
     {
       "name": "B2-P1",
       "source_path": "mechanized/t1_broker_physical_causality.rs",
-      "source_sha256": "7a459f994374d82e1739b07c58b9df974abcf056851a81e06762dcc85fc21f3d",
+      "source_sha256": "ab305f8143c4e72507e7fc23843487e4ce7d10115718b16c61f84f2090eab123",
       "snapshot_source_path": "sources/t1_broker_physical_causality.rs",
       "direct_path_imports": [
         "t1_broker_physical.rs"
@@ -835,9 +835,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:54:14.2175308+00:00",
-      "completed_at_utc": "2026-08-16T08:54:26.1512992+00:00",
-      "duration_ms": 11934,
+      "started_at_utc": "2026-09-30T08:38:58.9601182+00:00",
+      "completed_at_utc": "2026-09-30T08:39:09.0450194+00:00",
+      "duration_ms": 10085,
       "verified_obligations_total": 262,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -848,7 +848,7 @@
     {
       "name": "B2-P2",
       "source_path": "mechanized/t1_broker_physical_refinement.rs",
-      "source_sha256": "a50345bc5e124785d0ab91f958b8c16d139cdb5beff8c90c3d9774c2faede0c0",
+      "source_sha256": "690ab0effd894ab8d59d5bb713837743c376e5421d25161ca4a986fd5b3a07a7",
       "snapshot_source_path": "sources/t1_broker_physical_refinement.rs",
       "direct_path_imports": [
         "t1_broker_physical_causality.rs"
@@ -862,9 +862,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:54:26.1513408+00:00",
-      "completed_at_utc": "2026-08-16T08:54:40.4414464+00:00",
-      "duration_ms": 14290,
+      "started_at_utc": "2026-09-30T08:39:09.0451114+00:00",
+      "completed_at_utc": "2026-09-30T08:39:20.6583496+00:00",
+      "duration_ms": 11613,
       "verified_obligations_total": 288,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -875,7 +875,7 @@
     {
       "name": "B2-P3",
       "source_path": "mechanized/t1_broker_terminal_provenance.rs",
-      "source_sha256": "960d79d00b02dc26c533a0f3f8204699cde1b81e563cb0a3d453b19827dbdf91",
+      "source_sha256": "e07060d9d147507580f23fb88f3d8a46807abf1afef892ddb531a71c74538c8b",
       "snapshot_source_path": "sources/t1_broker_terminal_provenance.rs",
       "direct_path_imports": [
         "t1_broker_physical_refinement.rs"
@@ -889,9 +889,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:54:40.4414941+00:00",
-      "completed_at_utc": "2026-08-16T08:54:56.5084511+00:00",
-      "duration_ms": 16067,
+      "started_at_utc": "2026-09-30T08:39:20.6588037+00:00",
+      "completed_at_utc": "2026-09-30T08:39:33.6515945+00:00",
+      "duration_ms": 12993,
       "verified_obligations_total": 304,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -902,7 +902,7 @@
     {
       "name": "B2-L",
       "source_path": "mechanized/t1_broker_contract.rs",
-      "source_sha256": "ebe6c15140b1a54db3eeda58e2e130578e58e329816f9d69f63bc9709f377995",
+      "source_sha256": "6b4bd8e03765ac42f0fdd1a54c52707b1d3e56e98cfb81577b713006e9158354",
       "snapshot_source_path": "sources/t1_broker_contract.rs",
       "direct_path_imports": [
         "t1_broker_terminal_provenance.rs"
@@ -916,9 +916,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:54:56.5085039+00:00",
-      "completed_at_utc": "2026-08-16T08:55:11.6061672+00:00",
-      "duration_ms": 15098,
+      "started_at_utc": "2026-09-30T08:39:33.6516436+00:00",
+      "completed_at_utc": "2026-09-30T08:39:45.4985628+00:00",
+      "duration_ms": 11847,
       "verified_obligations_total": 322,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -929,7 +929,7 @@
     {
       "name": "B2-A",
       "source_path": "mechanized/t1_broker_append_bridge.rs",
-      "source_sha256": "147267cae418c6774c1cd8017a4f47bb50db6257fbd2c03eedc3489271d97bee",
+      "source_sha256": "b007b601e23197ed6d9f34c791b09552c84b6fa9d243b1f065ee581aaff9d4a6",
       "snapshot_source_path": "sources/t1_broker_append_bridge.rs",
       "direct_path_imports": [
         "t1_broker_contract.rs"
@@ -943,9 +943,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:55:11.6062271+00:00",
-      "completed_at_utc": "2026-08-16T08:55:27.1699608+00:00",
-      "duration_ms": 15564,
+      "started_at_utc": "2026-09-30T08:39:45.4986298+00:00",
+      "completed_at_utc": "2026-09-30T08:39:57.3624361+00:00",
+      "duration_ms": 11864,
       "verified_obligations_total": 347,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -956,7 +956,7 @@
     {
       "name": "G0",
       "source_path": "mechanized/t1_global_event.rs",
-      "source_sha256": "4328e52861162ad184dea8f1c2165737b8418b8dab598898d096bebc6c39b0d6",
+      "source_sha256": "2665d7d08b626ca92685bf3975619b3fc9ee0b9d0f60a28799b4339d15830d93",
       "snapshot_source_path": "sources/t1_global_event.rs",
       "direct_path_imports": [
         "t1_broker_append_bridge.rs"
@@ -970,9 +970,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:55:27.1700047+00:00",
-      "completed_at_utc": "2026-08-16T08:55:42.1349163+00:00",
-      "duration_ms": 14965,
+      "started_at_utc": "2026-09-30T08:39:57.3627782+00:00",
+      "completed_at_utc": "2026-09-30T08:40:09.4562151+00:00",
+      "duration_ms": 12093,
       "verified_obligations_total": 354,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -983,7 +983,7 @@
     {
       "name": "G1-P",
       "source_path": "mechanized/t1_global_projections.rs",
-      "source_sha256": "bdde56d476f42ceddda8bd9fe695b2e9cf5d18a5fc07f4244461b6e1e93eb044",
+      "source_sha256": "532f8e7c79c5d197ea68690df9fe51e8c6b71426b586d59c46c22460638447b5",
       "snapshot_source_path": "sources/t1_global_projections.rs",
       "direct_path_imports": [
         "t1_global_event.rs"
@@ -997,9 +997,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:55:42.1349421+00:00",
-      "completed_at_utc": "2026-08-16T08:55:59.4194773+00:00",
-      "duration_ms": 17285,
+      "started_at_utc": "2026-09-30T08:40:09.4562371+00:00",
+      "completed_at_utc": "2026-09-30T08:40:22.1490824+00:00",
+      "duration_ms": 12693,
       "verified_obligations_total": 422,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1010,7 +1010,7 @@
     {
       "name": "G1-E",
       "source_path": "mechanized/t1_broker_execution.rs",
-      "source_sha256": "0d28c1e66badcffaf13d26f14bdea25a0efe7072919a34655bafc16b087f1e31",
+      "source_sha256": "e417f9536d80d262195000312c5b02c4e89bf3a3e28218d7353551d25e2cd3e8",
       "snapshot_source_path": "sources/t1_broker_execution.rs",
       "direct_path_imports": [
         "t1_global_projections.rs"
@@ -1024,9 +1024,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:55:59.4195077+00:00",
-      "completed_at_utc": "2026-08-16T08:56:17.2946555+00:00",
-      "duration_ms": 17875,
+      "started_at_utc": "2026-09-30T08:40:22.1491084+00:00",
+      "completed_at_utc": "2026-09-30T08:40:34.8612748+00:00",
+      "duration_ms": 12712,
       "verified_obligations_total": 441,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1037,7 +1037,7 @@
     {
       "name": "T1",
       "source_path": "mechanized/t1_parameterized_broker_safety.rs",
-      "source_sha256": "6589e5592e6bbaee8c54af747996786dd908ae593e4c7dfdb63b3a59fc6ac959",
+      "source_sha256": "0e6c79750dd60227fbf465739a1c7d33551d34932e24995130160d9f84dcccac",
       "snapshot_source_path": "sources/t1_parameterized_broker_safety.rs",
       "direct_path_imports": [
         "t1_broker_execution.rs"
@@ -1051,9 +1051,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:56:17.2946896+00:00",
-      "completed_at_utc": "2026-08-16T08:56:39.3206651+00:00",
-      "duration_ms": 22026,
+      "started_at_utc": "2026-09-30T08:40:34.8612983+00:00",
+      "completed_at_utc": "2026-09-30T08:40:51.7291913+00:00",
+      "duration_ms": 16868,
       "verified_obligations_total": 474,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1064,7 +1064,7 @@
     {
       "name": "T2-J0",
       "source_path": "mechanized/t2_atomic_runtime.rs",
-      "source_sha256": "0d851faebafdc419477ccbfa5fdc1ebecf041c55ac7aba820113d4693a9bd638",
+      "source_sha256": "85845bb9efa18dba97c3ca4b24625a3090b06e1ab041f88f6c0e9c56933a5ff6",
       "snapshot_source_path": "sources/t2_atomic_runtime.rs",
       "direct_path_imports": [
         "t1_parameterized_broker_safety.rs"
@@ -1078,9 +1078,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:56:39.3206956+00:00",
-      "completed_at_utc": "2026-08-16T08:57:00.8177677+00:00",
-      "duration_ms": 21497,
+      "started_at_utc": "2026-09-30T08:40:51.7292194+00:00",
+      "completed_at_utc": "2026-09-30T08:41:09.9089519+00:00",
+      "duration_ms": 18180,
       "verified_obligations_total": 488,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1091,7 +1091,7 @@
     {
       "name": "T2-J1",
       "source_path": "mechanized/t2_atomic_trace.rs",
-      "source_sha256": "083bdf9def59507168c135b57b86394d0c25c5e336040b386eb020a54e43b39d",
+      "source_sha256": "14ce7f329fc3a1c8dea7670fbec4303c16b515dab065d97c7452abea621c5a83",
       "snapshot_source_path": "sources/t2_atomic_trace.rs",
       "direct_path_imports": [
         "t2_atomic_runtime.rs"
@@ -1105,9 +1105,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:57:00.8177974+00:00",
-      "completed_at_utc": "2026-08-16T08:57:19.2952925+00:00",
-      "duration_ms": 18477,
+      "started_at_utc": "2026-09-30T08:41:09.9089789+00:00",
+      "completed_at_utc": "2026-09-30T08:41:27.1618505+00:00",
+      "duration_ms": 17253,
       "verified_obligations_total": 499,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1118,7 +1118,7 @@
     {
       "name": "T2-E",
       "source_path": "mechanized/t2_event_projection.rs",
-      "source_sha256": "0f8ed115a133c65806428a7f7d15fd586464b0d624a08715190ad367c0ced8e4",
+      "source_sha256": "d83ad9f3e49945428d746d821b61bf6b48c3f88e5ead035b07bce874e364fa7e",
       "snapshot_source_path": "sources/t2_event_projection.rs",
       "direct_path_imports": [
         "t2_atomic_trace.rs"
@@ -1132,9 +1132,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:57:19.2953303+00:00",
-      "completed_at_utc": "2026-08-16T08:57:36.6698691+00:00",
-      "duration_ms": 17375,
+      "started_at_utc": "2026-09-30T08:41:27.1618747+00:00",
+      "completed_at_utc": "2026-09-30T08:41:45.2773812+00:00",
+      "duration_ms": 18116,
       "verified_obligations_total": 521,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1145,7 +1145,7 @@
     {
       "name": "T2-R",
       "source_path": "mechanized/t2_representation.rs",
-      "source_sha256": "dd5d97dbad15ae4339c5c454cba6fded854312c58d5337c4bffd6ff63c7645af",
+      "source_sha256": "2678d8360e01d6942aab65cca1869f4664878e8a857b557cf046c55a99ccd9da",
       "snapshot_source_path": "sources/t2_representation.rs",
       "direct_path_imports": [
         "t2_event_projection.rs"
@@ -1159,9 +1159,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:57:36.6698941+00:00",
-      "completed_at_utc": "2026-08-16T08:57:54.1052745+00:00",
-      "duration_ms": 17435,
+      "started_at_utc": "2026-09-30T08:41:45.2774053+00:00",
+      "completed_at_utc": "2026-09-30T08:42:03.1959088+00:00",
+      "duration_ms": 17919,
       "verified_obligations_total": 533,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1172,7 +1172,7 @@
     {
       "name": "T2",
       "source_path": "mechanized/t2_atomic_journal_simulation.rs",
-      "source_sha256": "68f658e9e29dbe19dec986d045a4235139cbf022aa9c15d4e65bf6fbe3b49aa9",
+      "source_sha256": "1e97631b138e876cf5a1813dfcf0307175c6efefe938854a7053a285a650ec74",
       "snapshot_source_path": "sources/t2_atomic_journal_simulation.rs",
       "direct_path_imports": [
         "t2_representation.rs"
@@ -1186,9 +1186,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:57:54.1052997+00:00",
-      "completed_at_utc": "2026-08-16T08:58:14.4906610+00:00",
-      "duration_ms": 20385,
+      "started_at_utc": "2026-09-30T08:42:03.1959334+00:00",
+      "completed_at_utc": "2026-09-30T08:42:20.5189537+00:00",
+      "duration_ms": 17323,
       "verified_obligations_total": 544,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1199,7 +1199,7 @@
     {
       "name": "T3-W0",
       "source_path": "mechanized/t3_wal_runtime.rs",
-      "source_sha256": "3269d8e5cc8650df0dcbdaa6645844c3b6c726f0a4efc13a14d630bda5a0045d",
+      "source_sha256": "4e363e05d1fba10146a62a782e460477b463dcca387eec6de8b7797c6239255b",
       "snapshot_source_path": "sources/t3_wal_runtime.rs",
       "direct_path_imports": [
         "t2_atomic_journal_simulation.rs"
@@ -1213,9 +1213,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:58:14.4906896+00:00",
-      "completed_at_utc": "2026-08-16T08:58:32.5759466+00:00",
-      "duration_ms": 18085,
+      "started_at_utc": "2026-09-30T08:42:20.5189775+00:00",
+      "completed_at_utc": "2026-09-30T08:42:38.4352956+00:00",
+      "duration_ms": 17916,
       "verified_obligations_total": 590,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1226,7 +1226,7 @@
     {
       "name": "T3-W1-T",
       "source_path": "mechanized/t3_wal_trace.rs",
-      "source_sha256": "ff835832932e90c968d625a87a7d54bca5d9420e0f25fb74cd2690be9a163192",
+      "source_sha256": "887fa0b2e6cd4bc11d4ba2ee855a30e20bcee2f0d3116fcd943d29ac73af064e",
       "snapshot_source_path": "sources/t3_wal_trace.rs",
       "direct_path_imports": [
         "t3_wal_runtime.rs"
@@ -1240,9 +1240,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:58:32.5759721+00:00",
-      "completed_at_utc": "2026-08-16T08:58:49.5950248+00:00",
-      "duration_ms": 17019,
+      "started_at_utc": "2026-09-30T08:42:38.4353189+00:00",
+      "completed_at_utc": "2026-09-30T08:42:58.3362584+00:00",
+      "duration_ms": 19901,
       "verified_obligations_total": 601,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1253,7 +1253,7 @@
     {
       "name": "T3-W1-E",
       "source_path": "mechanized/t3_wal_event_projection.rs",
-      "source_sha256": "fe0a167a8a5d5057f7603e51fdad5f9a2fa843c5f4dc284c43772473b85796d7",
+      "source_sha256": "26cb6deb6170e406c5f91c70b52319d98a174a959ec89dcbb684af344b07385d",
       "snapshot_source_path": "sources/t3_wal_event_projection.rs",
       "direct_path_imports": [
         "t3_wal_trace.rs"
@@ -1267,9 +1267,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:58:49.5950502+00:00",
-      "completed_at_utc": "2026-08-16T08:59:08.4500749+00:00",
-      "duration_ms": 18855,
+      "started_at_utc": "2026-09-30T08:42:58.3362814+00:00",
+      "completed_at_utc": "2026-09-30T08:43:15.8323186+00:00",
+      "duration_ms": 17496,
       "verified_obligations_total": 639,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1280,7 +1280,7 @@
     {
       "name": "T3-W1-R",
       "source_path": "mechanized/t3_wal_representation.rs",
-      "source_sha256": "1419d522601772b9796b328565066bc53d959ed312f37c505d29b928c63bf088",
+      "source_sha256": "1c00e94ae9e606d2852a2d6dd8556084882a26386193123275c9299a544b3f84",
       "snapshot_source_path": "sources/t3_wal_representation.rs",
       "direct_path_imports": [
         "t3_wal_event_projection.rs"
@@ -1294,9 +1294,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:59:08.4500979+00:00",
-      "completed_at_utc": "2026-08-16T08:59:28.2612944+00:00",
-      "duration_ms": 19811,
+      "started_at_utc": "2026-09-30T08:43:15.8323442+00:00",
+      "completed_at_utc": "2026-09-30T08:43:35.7073663+00:00",
+      "duration_ms": 19875,
       "verified_obligations_total": 654,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1307,7 +1307,7 @@
     {
       "name": "T3",
       "source_path": "mechanized/t3_wal_journal_simulation.rs",
-      "source_sha256": "3ab560c14b2f5501ba5236bdc16057a30bfec3dd200a8ab900412339cba460aa",
+      "source_sha256": "708c49f980ea77b896d1b0a947b0ca0db23107ae0bbbb31cf1816c304b455980",
       "snapshot_source_path": "sources/t3_wal_journal_simulation.rs",
       "direct_path_imports": [
         "t3_wal_representation.rs"
@@ -1321,9 +1321,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:59:28.2613232+00:00",
-      "completed_at_utc": "2026-08-16T08:59:48.3856217+00:00",
-      "duration_ms": 20124,
+      "started_at_utc": "2026-09-30T08:43:35.7074145+00:00",
+      "completed_at_utc": "2026-09-30T08:43:55.6766012+00:00",
+      "duration_ms": 19969,
       "verified_obligations_total": 672,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1334,7 +1334,7 @@
     {
       "name": "T4-C0",
       "source_path": "mechanized/t4_closed_composition.rs",
-      "source_sha256": "d01b835b248ea904eb5a45bf73f13ae7b2fc8552e86208460dd09bf00f0a94ef",
+      "source_sha256": "6e2f43404c82ae85a15f8085e39a613adaedf394951cbd88baf44139cba7a875",
       "snapshot_source_path": "sources/t4_closed_composition.rs",
       "direct_path_imports": [
         "t3_wal_journal_simulation.rs"
@@ -1348,9 +1348,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T08:59:48.3856477+00:00",
-      "completed_at_utc": "2026-08-16T09:00:08.9669443+00:00",
-      "duration_ms": 20581,
+      "started_at_utc": "2026-09-30T08:43:55.6766272+00:00",
+      "completed_at_utc": "2026-09-30T08:44:17.2834157+00:00",
+      "duration_ms": 21607,
       "verified_obligations_total": 689,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1361,7 +1361,7 @@
     {
       "name": "T4-C1",
       "source_path": "mechanized/t4_context_interface.rs",
-      "source_sha256": "9ec0aaac0ef6ae6336e443ac18084b510e17645616626834157657abb570fe31",
+      "source_sha256": "6e8b058501b227ddb5887e0db0d60ec6cf0ac199d67ea4353fc42c549242b8fb",
       "snapshot_source_path": "sources/t4_context_interface.rs",
       "direct_path_imports": [
         "t4_closed_composition.rs"
@@ -1375,9 +1375,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:00:08.9669877+00:00",
-      "completed_at_utc": "2026-08-16T09:00:29.0541275+00:00",
-      "duration_ms": 20087,
+      "started_at_utc": "2026-09-30T08:44:17.2834403+00:00",
+      "completed_at_utc": "2026-09-30T08:44:37.5454672+00:00",
+      "duration_ms": 20262,
       "verified_obligations_total": 733,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1388,7 +1388,7 @@
     {
       "name": "T4-C2",
       "source_path": "mechanized/t4_contextual_composition.rs",
-      "source_sha256": "1f51140d07397bfe42167dcb7aa2b34ce824028923d63e88345d1348e04631fc",
+      "source_sha256": "394fc8a119b556ae22a46c354c2a5e7ceab6d5b7be88430c35b9ec7662bb2a46",
       "snapshot_source_path": "sources/t4_contextual_composition.rs",
       "direct_path_imports": [
         "t4_context_interface.rs"
@@ -1402,9 +1402,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:00:29.0541865+00:00",
-      "completed_at_utc": "2026-08-16T09:00:52.7717272+00:00",
-      "duration_ms": 23718,
+      "started_at_utc": "2026-09-30T08:44:37.5455189+00:00",
+      "completed_at_utc": "2026-09-30T08:44:59.1815889+00:00",
+      "duration_ms": 21636,
       "verified_obligations_total": 747,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1415,7 +1415,7 @@
     {
       "name": "T5-S0",
       "source_path": "mechanized/t5_commit_step.rs",
-      "source_sha256": "5c09764ffa45da64dc9767b43b5d74262cb943480b300e49cb411a4642436cec",
+      "source_sha256": "9ac52a2d076339c1ca43f274a4edf8eca1e2606fd3098e9cb2fe578fa8973b3f",
       "snapshot_source_path": "sources/t5_commit_step.rs",
       "direct_path_imports": [
         "t4_contextual_composition.rs"
@@ -1429,9 +1429,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:00:52.7717760+00:00",
-      "completed_at_utc": "2026-08-16T09:01:21.1020452+00:00",
-      "duration_ms": 28330,
+      "started_at_utc": "2026-09-30T08:44:59.1816166+00:00",
+      "completed_at_utc": "2026-09-30T08:45:18.5264364+00:00",
+      "duration_ms": 19345,
       "verified_obligations_total": 756,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1442,7 +1442,7 @@
     {
       "name": "T5-E0",
       "source_path": "mechanized/t5_commit_execution.rs",
-      "source_sha256": "f67dd2aa1db972f6b250e329ea12b4b0223ace8f96db2b0002548bfa750fa4e7",
+      "source_sha256": "03b4b4e235ecff0ff7eab7afaa51b75adff30518a94a0be3ae59b43141755b24",
       "snapshot_source_path": "sources/t5_commit_execution.rs",
       "direct_path_imports": [
         "t5_commit_step.rs"
@@ -1456,9 +1456,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:01:21.1020785+00:00",
-      "completed_at_utc": "2026-08-16T09:01:45.2685432+00:00",
-      "duration_ms": 24166,
+      "started_at_utc": "2026-09-30T08:45:18.5264581+00:00",
+      "completed_at_utc": "2026-09-30T08:45:40.5612838+00:00",
+      "duration_ms": 22035,
       "verified_obligations_total": 760,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1469,7 +1469,7 @@
     {
       "name": "T5-R0",
       "source_path": "mechanized/t5_commit_recovery.rs",
-      "source_sha256": "81c0b1d0bea8394ad928fc00e620dcf59f215ac52389b7313e3ce3a386b8bd28",
+      "source_sha256": "876efb07b4dfef4fcd12f1a148093718e5224d94d57fe930b9934b8bd45a02e6",
       "snapshot_source_path": "sources/t5_commit_recovery.rs",
       "direct_path_imports": [
         "t5_commit_execution.rs"
@@ -1483,9 +1483,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:01:45.2685952+00:00",
-      "completed_at_utc": "2026-08-16T09:02:09.7810081+00:00",
-      "duration_ms": 24512,
+      "started_at_utc": "2026-09-30T08:45:40.5613063+00:00",
+      "completed_at_utc": "2026-09-30T08:46:04.2219769+00:00",
+      "duration_ms": 23661,
       "verified_obligations_total": 783,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1510,9 +1510,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:02:09.7810754+00:00",
-      "completed_at_utc": "2026-08-16T09:02:33.3766952+00:00",
-      "duration_ms": 23596,
+      "started_at_utc": "2026-09-30T08:46:04.2220000+00:00",
+      "completed_at_utc": "2026-09-30T08:46:26.2328103+00:00",
+      "duration_ms": 22011,
       "verified_obligations_total": 797,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1523,7 +1523,7 @@
     {
       "name": "T5-C0",
       "source_path": "mechanized/t5_commit_contextual.rs",
-      "source_sha256": "64b96ae0e2204d8e932ddca27c42b3c8c8cd1ee73d95ccf9e0b5d63c84d634e8",
+      "source_sha256": "3530d7a44e3c174c9e2712c043f10b138999a9035c491f10c92b8f331935382f",
       "snapshot_source_path": "sources/t5_commit_contextual.rs",
       "direct_path_imports": [
         "t5_durable_success_recovery.rs"
@@ -1537,9 +1537,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:02:33.3767239+00:00",
-      "completed_at_utc": "2026-08-16T09:02:57.5441481+00:00",
-      "duration_ms": 24167,
+      "started_at_utc": "2026-09-30T08:46:26.2328359+00:00",
+      "completed_at_utc": "2026-09-30T08:46:51.2416798+00:00",
+      "duration_ms": 25009,
       "verified_obligations_total": 815,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1550,7 +1550,7 @@
     {
       "name": "H1",
       "source_path": "mechanized/h1_artifact_nonvacuity.rs",
-      "source_sha256": "6b95f5e3fddd5f3f805827b451e4d49094fd8e896a0381694253d73460743372",
+      "source_sha256": "abbc6eee6a823979cbf438b0063a050c0c1ecbdfacf749cbacb90118fe2f3c1f",
       "snapshot_source_path": "sources/h1_artifact_nonvacuity.rs",
       "direct_path_imports": [
         "t5_commit_contextual.rs"
@@ -1564,9 +1564,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:02:57.5441803+00:00",
-      "completed_at_utc": "2026-08-16T09:03:23.5514288+00:00",
-      "duration_ms": 26007,
+      "started_at_utc": "2026-09-30T08:46:51.2417036+00:00",
+      "completed_at_utc": "2026-09-30T08:47:13.6674882+00:00",
+      "duration_ms": 22426,
       "verified_obligations_total": 818,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1577,7 +1577,7 @@
     {
       "name": "T6-D0",
       "source_path": "mechanized/t6_terminal_definitions.rs",
-      "source_sha256": "d96d66c476104b3a6994ad21587ff18e7fde4feffbcfad95238a163372c0e909",
+      "source_sha256": "d46cfa4222a5e76924be22161765c90ac36ff3066b1606fc5bd771a564682bd1",
       "snapshot_source_path": "sources/t6_terminal_definitions.rs",
       "direct_path_imports": [
         "t5_commit_contextual.rs"
@@ -1591,9 +1591,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:03:23.5514533+00:00",
-      "completed_at_utc": "2026-08-16T09:03:48.7736205+00:00",
-      "duration_ms": 25222,
+      "started_at_utc": "2026-09-30T08:47:13.6675149+00:00",
+      "completed_at_utc": "2026-09-30T08:47:35.7762120+00:00",
+      "duration_ms": 22109,
       "verified_obligations_total": 832,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1604,7 +1604,7 @@
     {
       "name": "T6-E0",
       "source_path": "mechanized/t6_terminal_evidence.rs",
-      "source_sha256": "3284ddc98e15fd8b37c43ab0cbafcccc0db2e54ac78d1dc1351ee20b130c46b5",
+      "source_sha256": "8d1dd374a98bec25727ce38e637d3abfee47d600287dd87be13097633da2d4b2",
       "snapshot_source_path": "sources/t6_terminal_evidence.rs",
       "direct_path_imports": [
         "t6_terminal_definitions.rs"
@@ -1618,9 +1618,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:03:48.7736612+00:00",
-      "completed_at_utc": "2026-08-16T09:04:17.3679085+00:00",
-      "duration_ms": 28594,
+      "started_at_utc": "2026-09-30T08:47:35.7762348+00:00",
+      "completed_at_utc": "2026-09-30T08:47:58.0839252+00:00",
+      "duration_ms": 22308,
       "verified_obligations_total": 850,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1631,7 +1631,7 @@
     {
       "name": "T6-C0",
       "source_path": "mechanized/t6_terminal_compatibility.rs",
-      "source_sha256": "b931b118bb269de49ff9b0a917595460b585fd50a6e5253c330f74d97279fa49",
+      "source_sha256": "00a9b16827cc8e410e0debd11b4972cddf55a740e53d90a771cb004a77063401",
       "snapshot_source_path": "sources/t6_terminal_compatibility.rs",
       "direct_path_imports": [
         "t6_terminal_evidence.rs"
@@ -1645,9 +1645,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:04:17.3679345+00:00",
-      "completed_at_utc": "2026-08-16T09:04:45.7553637+00:00",
-      "duration_ms": 28387,
+      "started_at_utc": "2026-09-30T08:47:58.0839504+00:00",
+      "completed_at_utc": "2026-09-30T08:48:21.4758697+00:00",
+      "duration_ms": 23392,
       "verified_obligations_total": 867,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1658,7 +1658,7 @@
     {
       "name": "T6-S0",
       "source_path": "mechanized/t6_terminal_bridge.rs",
-      "source_sha256": "2cadd60e4e7004ab16edd908b95a5b687a8fdc0c47ecc608ecca387963e299e3",
+      "source_sha256": "bf5e2186967fd11524ccff7fe42d7da2f43632ca443cafb1bdc03a131306feba",
       "snapshot_source_path": "sources/t6_terminal_bridge.rs",
       "direct_path_imports": [
         "t6_terminal_compatibility.rs"
@@ -1672,9 +1672,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:04:45.7553892+00:00",
-      "completed_at_utc": "2026-08-16T09:05:17.4039120+00:00",
-      "duration_ms": 31649,
+      "started_at_utc": "2026-09-30T08:48:21.4758917+00:00",
+      "completed_at_utc": "2026-09-30T08:48:45.3009659+00:00",
+      "duration_ms": 23825,
       "verified_obligations_total": 873,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1685,7 +1685,7 @@
     {
       "name": "T6-A0",
       "source_path": "mechanized/t6_adapter_semantic_closure.rs",
-      "source_sha256": "e3e65d078d9a1406b0a123d123f5b6b391ffe9c0f77aab8e62fec2a46b247b6b",
+      "source_sha256": "975fef2e18ec3e77c1761225b4d7e15abc8348fd80865514349be512c2cf8c32",
       "snapshot_source_path": "sources/t6_adapter_semantic_closure.rs",
       "direct_path_imports": [
         "t6_terminal_bridge.rs"
@@ -1699,9 +1699,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:05:17.4039517+00:00",
-      "completed_at_utc": "2026-08-16T09:05:58.9044411+00:00",
-      "duration_ms": 41500,
+      "started_at_utc": "2026-09-30T08:48:45.3009984+00:00",
+      "completed_at_utc": "2026-09-30T08:49:18.3892793+00:00",
+      "duration_ms": 33088,
       "verified_obligations_total": 897,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1712,7 +1712,7 @@
     {
       "name": "T6-A1",
       "source_path": "mechanized/t6_adapter_executable_refinement.rs",
-      "source_sha256": "9ceb909da835c8646ffb84e8a2ad0b641b85b810dfe20afe5016ee1bb65a435b",
+      "source_sha256": "c2bb85300b2e02a12cf679b4a29baa4aa1f1b61feafbae06794a09b5d0bf4908",
       "snapshot_source_path": "sources/t6_adapter_executable_refinement.rs",
       "direct_path_imports": [
         "t6_adapter_semantic_closure.rs"
@@ -1726,9 +1726,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:05:58.9044838+00:00",
-      "completed_at_utc": "2026-08-16T09:08:25.2014462+00:00",
-      "duration_ms": 146297,
+      "started_at_utc": "2026-09-30T08:49:18.3893008+00:00",
+      "completed_at_utc": "2026-09-30T08:51:30.3832499+00:00",
+      "duration_ms": 131994,
       "verified_obligations_total": 949,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1753,9 +1753,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:08:25.2015290+00:00",
-      "completed_at_utc": "2026-08-16T09:09:00.9269007+00:00",
-      "duration_ms": 35725,
+      "started_at_utc": "2026-09-30T08:51:30.3832877+00:00",
+      "completed_at_utc": "2026-09-30T08:52:02.4243915+00:00",
+      "duration_ms": 32041,
       "verified_obligations_total": 898,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1766,7 +1766,7 @@
     {
       "name": "T6-M0",
       "source_path": "mechanized/t6_mediation_exclusivity.rs",
-      "source_sha256": "9674948baf5fb82c49098831802011734217c207c076e764725a0713aab27a8b",
+      "source_sha256": "18f1a1c6f116065fd34bf26502cf685e215a4c48251a70ff773eb1b3a4ad9c6e",
       "snapshot_source_path": "sources/t6_mediation_exclusivity.rs",
       "direct_path_imports": [
         "t6_adapter_executable_refinement.rs"
@@ -1780,9 +1780,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:09:00.9269283+00:00",
-      "completed_at_utc": "2026-08-16T09:11:23.2519978+00:00",
-      "duration_ms": 142325,
+      "started_at_utc": "2026-09-30T08:52:02.4244219+00:00",
+      "completed_at_utc": "2026-09-30T08:54:14.6547179+00:00",
+      "duration_ms": 132230,
       "verified_obligations_total": 1010,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1793,7 +1793,7 @@
     {
       "name": "T6-P0",
       "source_path": "mechanized/t6_prefix_simulation.rs",
-      "source_sha256": "38341bf6dfb9a957d480f5cd1afdc9452963cfc667708655e7e29f105a298a23",
+      "source_sha256": "e3fe1368aef2879c2ccc8eb5ed01e7c4b1871d3ec1efd02e4a0c6138eef802cb",
       "snapshot_source_path": "sources/t6_prefix_simulation.rs",
       "direct_path_imports": [
         "t6_mediation_exclusivity.rs"
@@ -1807,9 +1807,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:11:23.2520230+00:00",
-      "completed_at_utc": "2026-08-16T09:13:51.8230058+00:00",
-      "duration_ms": 148571,
+      "started_at_utc": "2026-09-30T08:54:14.6547481+00:00",
+      "completed_at_utc": "2026-09-30T08:56:25.2039672+00:00",
+      "duration_ms": 130549,
       "verified_obligations_total": 1033,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1820,7 +1820,7 @@
     {
       "name": "T6-X0",
       "source_path": "mechanized/t6_contextual_end_to_end.rs",
-      "source_sha256": "88c0ac60ba23dc8d03001b3f4a779a990e49c6fe3f674773f029207cf7efcbbf",
+      "source_sha256": "03f1d5b076cb51a9a02a0957570f1837131e35a7502579e6d66b1761373d24c3",
       "snapshot_source_path": "sources/t6_contextual_end_to_end.rs",
       "direct_path_imports": [
         "t6_prefix_simulation.rs"
@@ -1834,9 +1834,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:13:51.8230336+00:00",
-      "completed_at_utc": "2026-08-16T09:16:23.3157122+00:00",
-      "duration_ms": 151493,
+      "started_at_utc": "2026-09-30T08:56:25.2039897+00:00",
+      "completed_at_utc": "2026-09-30T08:58:43.9013326+00:00",
+      "duration_ms": 138697,
       "verified_obligations_total": 1055,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1847,7 +1847,7 @@
     {
       "name": "T6-RO0",
       "source_path": "mechanized/t6_readonly_operational.rs",
-      "source_sha256": "07109ce73012ed26a49717fc3f71290f08954b61849648f13acf233602c98c21",
+      "source_sha256": "0f6f1a4dd933843ef6844069d8b2acc544e4af2dd022d714476117c411c36296",
       "snapshot_source_path": "sources/t6_readonly_operational.rs",
       "direct_path_imports": [
         "t6_contextual_end_to_end.rs"
@@ -1861,9 +1861,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:16:23.3157605+00:00",
-      "completed_at_utc": "2026-08-16T09:19:15.2201825+00:00",
-      "duration_ms": 171904,
+      "started_at_utc": "2026-09-30T08:58:43.9013550+00:00",
+      "completed_at_utc": "2026-09-30T09:01:16.0993036+00:00",
+      "duration_ms": 152198,
       "verified_obligations_total": 1118,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1874,7 +1874,7 @@
     {
       "name": "T6-DD0",
       "source_path": "mechanized/t6_deduplicated_operational.rs",
-      "source_sha256": "91391e9fb25389fdff6729434f101d9db10ecffe08f591eecc330e88be07e082",
+      "source_sha256": "7d0d2894abf77cb23754edf70feae2fe6cfbea95d12e87efe6b5acc5fa81a007",
       "snapshot_source_path": "sources/t6_deduplicated_operational.rs",
       "direct_path_imports": [
         "t6_readonly_operational.rs"
@@ -1888,9 +1888,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:19:15.2202066+00:00",
-      "completed_at_utc": "2026-08-16T09:22:15.8401310+00:00",
-      "duration_ms": 180620,
+      "started_at_utc": "2026-09-30T09:01:16.0993265+00:00",
+      "completed_at_utc": "2026-09-30T09:03:41.1049669+00:00",
+      "duration_ms": 145006,
       "verified_obligations_total": 1120,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1915,9 +1915,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:22:15.8401579+00:00",
-      "completed_at_utc": "2026-08-16T09:25:13.7339597+00:00",
-      "duration_ms": 177894,
+      "started_at_utc": "2026-09-30T09:03:41.1050077+00:00",
+      "completed_at_utc": "2026-09-30T09:06:15.4570386+00:00",
+      "duration_ms": 154352,
       "verified_obligations_total": 1148,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1942,9 +1942,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:25:13.7339843+00:00",
-      "completed_at_utc": "2026-08-16T09:28:13.0861028+00:00",
-      "duration_ms": 179352,
+      "started_at_utc": "2026-09-30T09:06:15.4570626+00:00",
+      "completed_at_utc": "2026-09-30T09:08:51.0728622+00:00",
+      "duration_ms": 155616,
       "verified_obligations_total": 1180,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1969,9 +1969,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:28:13.0861270+00:00",
-      "completed_at_utc": "2026-08-16T09:31:24.2752313+00:00",
-      "duration_ms": 191189,
+      "started_at_utc": "2026-09-30T09:08:51.0728848+00:00",
+      "completed_at_utc": "2026-09-30T09:11:30.7375795+00:00",
+      "duration_ms": 159665,
       "verified_obligations_total": 1219,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -1996,9 +1996,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:31:24.2752714+00:00",
-      "completed_at_utc": "2026-08-16T09:34:19.0193503+00:00",
-      "duration_ms": 174744,
+      "started_at_utc": "2026-09-30T09:11:30.7376016+00:00",
+      "completed_at_utc": "2026-09-30T09:13:59.8508326+00:00",
+      "duration_ms": 149113,
       "verified_obligations_total": 1259,
       "verus_errors": 0,
       "verus_exit_code": 0,
@@ -2023,9 +2023,9 @@
         "--no-cheating"
       ],
       "status": "passed",
-      "started_at_utc": "2026-08-16T09:34:19.0193753+00:00",
-      "completed_at_utc": "2026-08-16T09:37:25.3727874+00:00",
-      "duration_ms": 186353,
+      "started_at_utc": "2026-09-30T09:13:59.8508558+00:00",
+      "completed_at_utc": "2026-09-30T09:16:32.6845832+00:00",
+      "duration_ms": 152834,
       "verified_obligations_total": 1265,
       "verus_errors": 0,
       "verus_exit_code": 0,

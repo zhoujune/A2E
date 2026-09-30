@@ -166,7 +166,10 @@ def validate(root, manifest_path, require_paper=False):
                     repository_root,
                 )
                 require(source_path.exists(), f"target source is missing: {source_path}")
-                digest = hashlib.sha256(source_path.read_bytes()).hexdigest()
+                source_bytes = source_path.read_bytes()
+                if source_path.suffix.lower() in {".rs", ".toml", ".lock", ".py", ".json", ".sh"}:
+                    source_bytes = source_bytes.replace(b"\r\n", b"\n")
+                digest = hashlib.sha256(source_bytes).hexdigest()
                 require(digest == target["source_sha256"], f"target source hash mismatch: {target_name}")
         elif evidence["kind"] == "attestation":
             attestation = evidence.get("attestation")

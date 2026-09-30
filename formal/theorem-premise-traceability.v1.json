@@ -507,8 +507,8 @@
           "path": "reference-broker/evaluation/results/k4-i1-submission.json",
           "validator": "reference-broker/evaluation/validate_k4_i1.py",
           "assertions": [
-            {"path": "provenance.source_revision", "equals": "43a34f1b8626d1ac0917bf42638220da61dbea9b"},
-            {"path": "provenance.source_manifest_sha256", "equals": "49878df6bf8af7a9420e7fcaae30eeea0189c6b7983ae6f239e97ed6978068c9"},
+            {"path": "provenance.source_revision", "equals": "12eeda63996701a3596908a55efa2b4331230354"},
+            {"path": "provenance.source_manifest_sha256", "equals": "afe1417ef47a5b49bf5cedbee671e250d2799a1e8a8f8242754713bda030ecdf"},
             {"path": "gate_profile", "equals": "k4-a4-required"},
             {"path": "broker_opens", "equals": 47},
             {"path": "gate_evidence.gates_created", "equals": 47},

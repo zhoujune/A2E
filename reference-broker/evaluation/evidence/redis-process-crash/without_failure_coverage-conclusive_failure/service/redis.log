@@ -1,0 +1,16 @@
+970:C 28 Sep 2026 22:16:24.816 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+970:C 28 Sep 2026 22:16:24.819 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+970:C 28 Sep 2026 22:16:24.827 * Redis version=7.2.5, bits=64, commit=00000000, modified=0, pid=970, just started
+970:C 28 Sep 2026 22:16:24.830 * Configuration loaded
+970:M 28 Sep 2026 22:16:24.836 * Increased maximum number of open files to 10032 (it was originally set to 1024).
+970:M 28 Sep 2026 22:16:24.841 * monotonic clock: POSIX clock_gettime
+970:M 28 Sep 2026 22:16:24.844 * Running mode=standalone, port=0.
+970:M 28 Sep 2026 22:16:24.848 * Server initialized
+970:M 28 Sep 2026 22:16:24.872 * Creating AOF base file appendonly.aof.1.base.rdb on server start
+970:M 28 Sep 2026 22:16:24.896 * Creating AOF incr file appendonly.aof.1.incr.aof on server start
+970:M 28 Sep 2026 22:16:24.899 * Ready to accept connections unix
+970:signal-handler (1790604985) Received SIGTERM scheduling shutdown...
+970:M 28 Sep 2026 22:16:25.106 * User requested shutdown...
+970:M 28 Sep 2026 22:16:25.114 * Calling fsync() on the AOF file.
+970:M 28 Sep 2026 22:16:25.121 * Removing the unix socket file.
+970:M 28 Sep 2026 22:16:25.124 # Redis is now ready to exit, bye bye...

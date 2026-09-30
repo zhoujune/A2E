@@ -1,4 +1,4 @@
-# ProveAI minimal reference broker (M4)
+# A2E reference broker (M4)
 
 This crate is the executable M4 reference system from the FSE 2027 submission
 contract. It provides a small, deterministic broker around the K1-K3 protocol

@@ -13,11 +13,12 @@ import re
 from pathlib import Path, PurePosixPath
 
 
-PREFIX = "proveai-fse-artifact"
+PREFIX = "a2e-fse-artifact"
 REVISION = re.compile(r"^[0-9a-f]{40}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 ROOT_FILES = (
     ".gitattributes",
+    "README.md",
     "ARTIFACT.md",
     "DEPENDENCIES.md",
     "TROUBLESHOOTING.md",
@@ -95,6 +96,11 @@ def admitted(relative):
         return False
     if any(part in {"paper", "paper-ndss"} or part.startswith("paper-") for part in path.parts):
         return False
+    if path.parts[:4] == ("reference-broker", "evaluation", "evidence", "redis-process-crash"):
+        return path.suffix.lower() in {
+            ".json", ".wal", ".config", ".txt", ".stdout", ".log",
+            ".rdb", ".aof", ".manifest", ".patch",
+        }
     return (
         path.as_posix() not in EXCLUDED_FILES
         and path.suffix.lower() not in EXCLUDED_SUFFIXES
@@ -176,7 +182,7 @@ def main():
         fail("worktree is dirty; commit the release snapshot or pass --allow-dirty")
 
     files = selected_files(root)
-    with tempfile.TemporaryDirectory(prefix="proveai-fse-release-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="a2e-fse-release-") as temporary:
         staging = Path(temporary) / PREFIX
         for source in files:
             relative = source.relative_to(root)

@@ -1,0 +1,22 @@
+{
+  "variant": "without_failure_coverage",
+  "scenario": "conclusive_failure",
+  "broker_exit_codes": [
+    0,
+    0
+  ],
+  "oracle": {
+    "initial": 0,
+    "decision_boundary": 0,
+    "after_reopen": 0
+  },
+  "terminal": "Fail",
+  "effect": 0,
+  "reopened_calls": 0,
+  "service_survived": true,
+  "observed_effect_violation": false,
+  "preterminal_wal_sha256": "b433003ab52c0f9e841c4033b334ef6db68b9883b2c2c20f88bdf933e5a1a712",
+  "preterminal_records": "[\n    Authorize {\n        request: RequestId(\n            1,\n        ),\n        capability: CapabilityId(\n            7,\n        ),\n        digest: Digest(\n            102,\n        ),\n    },\n    Prepare {\n        request: RequestId(\n            1,\n        ),\n        class: Idempotent,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        auth_ref: 1,\n    },\n    Arm {\n        request: RequestId(\n            1,\n        ),\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        prepare_ref: 2,\n    },\n    Start {\n        request: RequestId(\n            1,\n        ),\n        attempt: 1,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        arm_ref: 3,\n    },\n    Outcome {\n        request: RequestId(\n            1,\n        ),\n        attempt: 1,\n        observation: Failure,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        start_ref: 4,\n    },\n]\n",
+  "preterminal_records_sha256": "bb92e996f3749d09989c463539f332e9c393cfddb17e04cb780bb4b7a8222c01",
+  "initial_wal_sha256": null
+}

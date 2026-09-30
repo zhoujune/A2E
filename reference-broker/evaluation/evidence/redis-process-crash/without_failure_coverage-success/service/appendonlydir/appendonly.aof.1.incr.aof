@@ -1,0 +1,12 @@
+*2
+$6
+SELECT
+$1
+0
+*3
+$4
+SADD
+$13
+study:members
+$6
+member

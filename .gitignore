@@ -20,12 +20,31 @@ mechanized/results/*.json
 # Standard Rust build output for the M4 reference broker.
 **/target/
 
-# Downloaded/generated manuscript template package.
-paper/template/acmart-primary-2.19-source.zip
+# Manuscript and local review material are separate from the artifact.
+paper/
+paper-ndss/
+paper-evidence-current.md
+fig*.png
+dist/
+tmp/
 
-# Local related-work copies; cite the published sources instead.
-paper/AgentBound.pdf
-paper/reading/*.pdf
+# Development notes retained only in local checkouts.
+artifact/README.md
+artifact/results/README.md
+formal/README.md
+formal/agentbound-motivating-example.md
+formal/fse-2027-submission-contract.md
+formal/related-work-audit.md
+formal/results/README.md
+formal/tooling.md
+formal/value-refinement.md
+mechanized/README.md
+mechanized/results/README.md
+reference-broker/evaluation/results/README.md
+
+# Raw experiment runs stay private; curated evidence is under evaluation/evidence.
+reference-broker/evaluation/results/redis-process-crash-runs/
+reference-broker/evaluation/results/k4-i1-*.json
 
 # Python validation-script caches.
 **/__pycache__/

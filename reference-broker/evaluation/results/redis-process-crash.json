@@ -5,31 +5,11 @@
     {
       "variant": "full",
       "scenario": "uninvoked_then_rejected",
-      "redis_command": [
-        "/tmp/redis-server-a2e",
-        "--port",
-        "0",
-        "--unixsocket",
-        "/tmp/a2e-redis-8ac8lu4o/redis.sock",
-        "--unixsocketperm",
-        "700",
-        "--dir",
-        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-uninvoked_then_rejected/service",
-        "--appendonly",
-        "yes",
-        "--appendfsync",
-        "always",
-        "--save",
-        "",
-        "--logfile",
-        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-uninvoked_then_rejected/service/redis.log"
-      ],
       "broker_exit_codes": [
         -9,
         0,
         0
       ],
-      "service_pid": 912,
       "oracle": {
         "initial": 0,
         "before_kill": 0,
@@ -50,31 +30,11 @@
     {
       "variant": "full",
       "scenario": "effect_then_rejected",
-      "redis_command": [
-        "/tmp/redis-server-a2e",
-        "--port",
-        "0",
-        "--unixsocket",
-        "/tmp/a2e-redis-8ac8lu4o/redis.sock",
-        "--unixsocketperm",
-        "700",
-        "--dir",
-        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-effect_then_rejected/service",
-        "--appendonly",
-        "yes",
-        "--appendfsync",
-        "always",
-        "--save",
-        "",
-        "--logfile",
-        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-effect_then_rejected/service/redis.log"
-      ],
       "broker_exit_codes": [
         -9,
         0,
         0
       ],
-      "service_pid": 922,
       "oracle": {
         "initial": 0,
         "before_kill": 1,
@@ -105,30 +65,10 @@
     {
       "variant": "full",
       "scenario": "conclusive_failure",
-      "redis_command": [
-        "/tmp/redis-server-a2e",
-        "--port",
-        "0",
-        "--unixsocket",
-        "/tmp/a2e-redis-8ac8lu4o/redis.sock",
-        "--unixsocketperm",
-        "700",
-        "--dir",
-        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-conclusive_failure/service",
-        "--appendonly",
-        "yes",
-        "--appendfsync",
-        "always",
-        "--save",
-        "",
-        "--logfile",
-        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-conclusive_failure/service/redis.log"
-      ],
       "broker_exit_codes": [
         0,
         0
       ],
-      "service_pid": 933,
       "oracle": {
         "initial": 0,
         "decision_boundary": 0,
@@ -147,30 +87,10 @@
     {
       "variant": "full",
       "scenario": "success",
-      "redis_command": [
-        "/tmp/redis-server-a2e",
-        "--port",
-        "0",
-        "--unixsocket",
-        "/tmp/a2e-redis-8ac8lu4o/redis.sock",
-        "--unixsocketperm",
-        "700",
-        "--dir",
-        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-success/service",
-        "--appendonly",
-        "yes",
-        "--appendfsync",
-        "always",
-        "--save",
-        "",
-        "--logfile",
-        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/full-success/service/redis.log"
-      ],
       "broker_exit_codes": [
         0,
         0
       ],
-      "service_pid": 941,
       "oracle": {
         "initial": 0,
         "decision_boundary": 1,
@@ -189,31 +109,11 @@
     {
       "variant": "without_failure_coverage",
       "scenario": "uninvoked_then_rejected",
-      "redis_command": [
-        "/tmp/redis-server-a2e",
-        "--port",
-        "0",
-        "--unixsocket",
-        "/tmp/a2e-redis-8ac8lu4o/redis.sock",
-        "--unixsocketperm",
-        "700",
-        "--dir",
-        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-uninvoked_then_rejected/service",
-        "--appendonly",
-        "yes",
-        "--appendfsync",
-        "always",
-        "--save",
-        "",
-        "--logfile",
-        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-uninvoked_then_rejected/service/redis.log"
-      ],
       "broker_exit_codes": [
         -9,
         0,
         0
       ],
-      "service_pid": 949,
       "oracle": {
         "initial": 0,
         "before_kill": 0,
@@ -234,31 +134,11 @@
     {
       "variant": "without_failure_coverage",
       "scenario": "effect_then_rejected",
-      "redis_command": [
-        "/tmp/redis-server-a2e",
-        "--port",
-        "0",
-        "--unixsocket",
-        "/tmp/a2e-redis-8ac8lu4o/redis.sock",
-        "--unixsocketperm",
-        "700",
-        "--dir",
-        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-effect_then_rejected/service",
-        "--appendonly",
-        "yes",
-        "--appendfsync",
-        "always",
-        "--save",
-        "",
-        "--logfile",
-        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-effect_then_rejected/service/redis.log"
-      ],
       "broker_exit_codes": [
         -9,
         0,
         0
       ],
-      "service_pid": 959,
       "oracle": {
         "initial": 0,
         "before_kill": 1,
@@ -289,30 +169,10 @@
     {
       "variant": "without_failure_coverage",
       "scenario": "conclusive_failure",
-      "redis_command": [
-        "/tmp/redis-server-a2e",
-        "--port",
-        "0",
-        "--unixsocket",
-        "/tmp/a2e-redis-8ac8lu4o/redis.sock",
-        "--unixsocketperm",
-        "700",
-        "--dir",
-        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-conclusive_failure/service",
-        "--appendonly",
-        "yes",
-        "--appendfsync",
-        "always",
-        "--save",
-        "",
-        "--logfile",
-        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-conclusive_failure/service/redis.log"
-      ],
       "broker_exit_codes": [
         0,
         0
       ],
-      "service_pid": 970,
       "oracle": {
         "initial": 0,
         "decision_boundary": 0,
@@ -331,30 +191,10 @@
     {
       "variant": "without_failure_coverage",
       "scenario": "success",
-      "redis_command": [
-        "/tmp/redis-server-a2e",
-        "--port",
-        "0",
-        "--unixsocket",
-        "/tmp/a2e-redis-8ac8lu4o/redis.sock",
-        "--unixsocketperm",
-        "700",
-        "--dir",
-        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-success/service",
-        "--appendonly",
-        "yes",
-        "--appendfsync",
-        "always",
-        "--save",
-        "",
-        "--logfile",
-        "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z/without_failure_coverage-success/service/redis.log"
-      ],
       "broker_exit_codes": [
         0,
         0
       ],
-      "service_pid": 978,
       "oracle": {
         "initial": 0,
         "decision_boundary": 1,
@@ -371,9 +211,9 @@
       "initial_wal_sha256": null
     }
   ],
-  "started_at_utc": "2026-09-28T14:16:14.988049+00:00",
+  "started_at_utc": "2026-09-28T22:16:14.988049+08:00",
   "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39",
-  "artifacts": "<workspace>/reference-broker/evaluation/results/redis-process-crash-runs/20260928T141614907904Z",
+  "artifacts": "reference-broker/evaluation/evidence/redis-process-crash",
   "source_sha256": {
     "reference-broker/Cargo.lock": "87c7ba0e4bb42443a1ef86d556e1eee2b3274264d65a1bbbd31d5aa60b629f4b",
     "reference-broker/Cargo.toml": "0ee2a3ac7365890d6912c3f217f8faea7e356adc9629d7c8efe551023171e7a2",
@@ -432,5 +272,5 @@
       "reopen_without_invocation": 4
     }
   },
-  "finished_at_utc": "2026-09-28T14:16:25.574458+00:00"
+  "finished_at_utc": "2026-09-28T22:16:25.574458+08:00"
 }

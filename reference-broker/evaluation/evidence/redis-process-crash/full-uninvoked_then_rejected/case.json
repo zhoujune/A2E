@@ -1,0 +1,25 @@
+{
+  "variant": "full",
+  "scenario": "uninvoked_then_rejected",
+  "broker_exit_codes": [
+    -9,
+    0,
+    0
+  ],
+  "oracle": {
+    "initial": 0,
+    "before_kill": 0,
+    "after_kill": 0,
+    "decision_boundary": 0,
+    "after_reopen": 0
+  },
+  "terminal": "Unknown",
+  "effect": 0,
+  "reopened_calls": 0,
+  "service_survived": true,
+  "observed_effect_violation": false,
+  "preterminal_wal_sha256": "d87c3e183818dc66c537c73c005213ee9e82f5117958e1541586137ef8c73f76",
+  "preterminal_records": "[\n    Authorize {\n        request: RequestId(\n            1,\n        ),\n        capability: CapabilityId(\n            7,\n        ),\n        digest: Digest(\n            102,\n        ),\n    },\n    Prepare {\n        request: RequestId(\n            1,\n        ),\n        class: Idempotent,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        auth_ref: 1,\n    },\n    Arm {\n        request: RequestId(\n            1,\n        ),\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        prepare_ref: 2,\n    },\n    Start {\n        request: RequestId(\n            1,\n        ),\n        attempt: 1,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        arm_ref: 3,\n    },\n    Outcome {\n        request: RequestId(\n            1,\n        ),\n        attempt: 1,\n        observation: Ambiguous,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        start_ref: 4,\n    },\n    Start {\n        request: RequestId(\n            1,\n        ),\n        attempt: 2,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        arm_ref: 3,\n    },\n    Outcome {\n        request: RequestId(\n            1,\n        ),\n        attempt: 2,\n        observation: Failure,\n        digest: Digest(\n            102,\n        ),\n        key: None,\n        start_ref: 6,\n    },\n]\n",
+  "preterminal_records_sha256": "9e5c01e782fc5633f6662b77756c442c4d2df12495da904858dffa6f6db374b2",
+  "initial_wal_sha256": "d458377791cf6d37fd9112e1f7ce2b9a8f6e56f3444da034084db366e4374e30"
+}

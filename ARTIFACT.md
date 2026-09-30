@@ -1,4 +1,4 @@
-# ProveAI Artifact
+# A2E Artifact
 
 This package contains the formal models, mechanized proofs, executable broker,
 evaluation harnesses, retained reports, and reproduction scripts underlying
@@ -17,6 +17,7 @@ python3 formal/validate_traceability.py \
 python3 artifact/validate_report.py artifact/results/tla-full-9a45d39.json
 python3 reference-broker/evaluation/validate_k4_i1.py \
   reference-broker/evaluation/results/k4-i1-submission.json
+python3 reference-broker/evaluation/validate_redis_evidence.py
 ```
 
 Run the standard-Rust implementation tests with:
@@ -82,7 +83,7 @@ the revision and source manifest measured by the fresh reports:
 python3 artifact/create-release.py \
   --verified-source-revision <fresh-report-revision> \
   --verified-source-manifest-sha256 <fresh-report-source-manifest> \
-  --output /tmp/proveai-fse-artifact.tar.gz
+  --output /tmp/a2e-fse-artifact.tar.gz
 ```
 
 After extraction, the manifest records the verified revision, exact K4 source

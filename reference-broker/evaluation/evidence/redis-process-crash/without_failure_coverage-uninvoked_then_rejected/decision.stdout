@@ -1,0 +1,4 @@
+CALL|2
+REPLY|-NOPERM User study has no permissions to run the 'sadd' command
+PRE_TERMINAL|Fail
+TERMINAL|Fail|1

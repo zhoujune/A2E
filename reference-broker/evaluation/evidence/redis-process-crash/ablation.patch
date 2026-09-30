@@ -1,0 +1,19 @@
+--- full/src/broker.rs
++++ without_failure_coverage/src/broker.rs
+@@ -681,16 +681,6 @@
+                     value,
+                     outcome_ref: outcome.outcome_ref,
+                 },
+-                Observation::Failure
+-                    if state.class == Some(RetryClass::Idempotent)
+-                        && !state.all_attempts_failed =>
+-                {
+-                    RecoveryDecision::Unknown {
+-                        attempt: Some(outcome.attempt),
+-                        reason: UnknownReason::NonConclusiveFailure,
+-                        evidence_ref: outcome.outcome_ref,
+-                    }
+-                }
+                 Observation::Failure => RecoveryDecision::Fail {
+                     attempt: outcome.attempt,
+                     outcome_ref: outcome.outcome_ref,

@@ -40,8 +40,12 @@ classifier.
 
 The JSON report records eight executions, tool versions, source hashes,
 state-oracle answers, terminal decisions, WAL hashes, and run times. The
-timestamped run directory retains per-case WALs, pre-terminal records,
-stdout/stderr, Redis AOF/logs, and the ablation patch.
+reviewer package includes the eight per-case `case.json` oracle records,
+broker WALs, pre-terminal records, decision output, Redis AOF/logs, and the
+single-branch ablation patch under
+`reference-broker/evaluation/evidence/redis-process-crash/`. The packaged
+`case.json` files omit local command paths and process IDs; their outcomes,
+oracle readings, and WAL hashes are unchanged.
 
 The paired runs have byte-identical initial and pre-terminal WALs within each
 broker variant. The retained report has status passed: the full broker

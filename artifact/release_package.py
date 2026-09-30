@@ -18,24 +18,42 @@ REVISION = re.compile(r"^[0-9a-f]{40}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 ROOT_FILES = (
     ".gitattributes",
-    ".gitignore",
     "ARTIFACT.md",
-    "README.md",
     "DEPENDENCIES.md",
     "TROUBLESHOOTING.md",
     "LICENSE-APACHE",
     "LICENSE-MIT",
     "reproduce.sh",
     "reproduce.ps1",
+    "artifact/release_package.py",
 )
-ROOT_DIRS = (".github", "artifact", "formal", "kernel", "mechanized", "reference-broker")
-EXCLUDED_DIRS = {".git", ".toolbox", "__pycache__", "target", "tmp"}
+ROOT_DIRS = ("artifact", "formal", "kernel", "mechanized", "reference-broker")
+EXCLUDED_DIRS = {
+    ".git", ".toolbox", "__pycache__", "target", "tmp",
+    "redis-process-crash-runs",
+}
 EXCLUDED_SUFFIXES = {
     ".pyc", ".pdf", ".tex", ".aux", ".log", ".out", ".blg", ".bbl",
     ".png", ".jpg", ".jpeg", ".svg", ".eps", ".rdb", ".aof", ".manifest",
 }
 EXCLUDED_FILES = {
-    "reference-broker/evaluation/results/decision-discrimination.json",
+    "artifact/README.md",
+    "artifact/results/archive-smoke-preflight-7fc87a7.json",
+    "artifact/results/linux-smoke-preflight.json",
+    "artifact/results/README.md",
+    "artifact/results/tla-full-5d8e8ed.json",
+    "artifact/results/tla-smoke-5d8e8ed.json",
+    "formal/README.md",
+    "formal/agentbound-motivating-example.md",
+    "formal/fse-2027-submission-contract.md",
+    "formal/related-work-audit.md",
+    "formal/results/README.md",
+    "mechanized/README.md",
+    "mechanized/results/README.md",
+    "mechanized/results/verification-report-linux-5d8e8ed.json",
+    "mechanized/results/verification-report-linux-9a45d39.json",
+    "mechanized/results/verification-report-linux-offline-079f209.json",
+    "reference-broker/evaluation/results/README.md",
 }
 
 
@@ -84,11 +102,23 @@ def admitted(relative):
 
 
 def selected_files(root):
+    tracked = None
+    if (root / ".git").exists():
+        try:
+            result = subprocess.check_output(
+                ["git", "ls-tree", "-r", "--name-only", "HEAD"],
+                cwd=root,
+            )
+        except (OSError, subprocess.CalledProcessError) as error:
+            fail(f"cannot enumerate committed release files: {error}")
+        tracked = set(result.decode("utf-8").splitlines())
     paths = []
     for name in ROOT_FILES:
         path = root / name
         if not path.is_file():
             fail(f"required release file is missing: {name}")
+        if tracked is not None and name not in tracked:
+            fail(f"required release file is not committed: {name}")
         paths.append(path)
     for name in ROOT_DIRS:
         base = root / name
@@ -97,7 +127,9 @@ def selected_files(root):
         for path in base.rglob("*"):
             if path.is_symlink():
                 fail(f"symbolic links are not admitted: {path.relative_to(root)}")
-            if path.is_file() and admitted(path.relative_to(root)):
+            relative = path.relative_to(root)
+            if (path.is_file() and admitted(relative)
+                    and (tracked is None or relative.as_posix() in tracked)):
                 paths.append(path)
     return sorted(set(paths), key=lambda item: item.relative_to(root).as_posix())
 
@@ -144,7 +176,7 @@ def main():
         fail("worktree is dirty; commit the release snapshot or pass --allow-dirty")
 
     files = selected_files(root)
-    with tempfile.TemporaryDirectory(prefix="proveai-ndss-release-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="proveai-fse-release-") as temporary:
         staging = Path(temporary) / PREFIX
         for source in files:
             relative = source.relative_to(root)

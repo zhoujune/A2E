@@ -19,7 +19,7 @@
     "confidence_z": 1.959963984540054
   },
   "environment": {
-    "hostname": "proveai-wsl2-host",
+    "hostname": "anonymous-wsl2-host",
     "target": "x86_64-linux",
     "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)",
     "source_revision": "01fbcddda570e53f95c4f9bfcdc4d01f7f77617f",

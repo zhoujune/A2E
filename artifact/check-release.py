@@ -3,14 +3,14 @@
 
 import argparse
 import re
-import subprocess
 import sys
 from pathlib import Path
+
+from importlib.util import module_from_spec, spec_from_file_location
 
 
 REQUIRED = (
     ".gitattributes",
-    ".github/workflows/ci.yml",
     "DEPENDENCIES.md",
     "LICENSE-MIT",
     "LICENSE-APACHE",
@@ -18,6 +18,7 @@ REQUIRED = (
     "reproduce.sh",
     "reproduce.ps1",
     "artifact/reproduce.py",
+    "artifact/release_package.py",
     "artifact/source-revision.txt",
 )
 
@@ -34,7 +35,7 @@ FORBIDDEN = (
     ),
     (
         re.compile(
-            r"(?:[A-Za-z]:\\Users\\|[A-Za-z]:/Users/|"
+            r"(?:[A-Za-z]:\\Users\\|[A-Za-z]:/Users/|/mnt/[a-z]/Users/|"
             + re.escape(ROOT_HOME)
             + r"|"
             + re.escape(HOME_PREFIX)
@@ -43,38 +44,19 @@ FORBIDDEN = (
         "absolute user path",
     ),
     (re.compile(r"\b172\.30\.60\.189\b"), "private server address"),
+    (re.compile(r'(?i)"hostname"\s*:\s*"(?!anonymous-)[^"]+"'), "identifying hostname"),
 )
-
-GENERATED_DIRECTORIES = {".toolbox", "__pycache__", "target"}
-EXCLUDED_RELEASE_FILES = {
-    "reference-broker/evaluation/results/decision-discrimination.json",
-    "reference-broker/evaluation/results/redis-process-crash.json",
-}
-
 
 def fail(message):
     raise RuntimeError(message)
 
 
-def tracked_files(root):
-    if not (root / ".git").exists():
-        return [
-            path.relative_to(root)
-            for path in root.rglob("*")
-            if path.is_file()
-            and not GENERATED_DIRECTORIES.intersection(path.relative_to(root).parts)
-            and path.suffix != ".pyc"
-        ]
-    try:
-        result = subprocess.run(
-            ["git", "ls-files", "-z"],
-            cwd=root,
-            check=True,
-            stdout=subprocess.PIPE,
-        )
-    except (OSError, subprocess.CalledProcessError) as error:
-        fail(f"could not enumerate tracked files: {error}")
-    return [Path(item) for item in result.stdout.decode("utf-8").split("\0") if item]
+def release_files(root):
+    path = root / "artifact" / "release_package.py"
+    spec = spec_from_file_location("release_builder", path)
+    module = module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return [item.relative_to(root) for item in module.selected_files(root)]
 
 
 def main():
@@ -82,15 +64,13 @@ def main():
     parser.add_argument("--repository", default=".")
     args = parser.parse_args()
     root = Path(args.repository).resolve()
-    files = tracked_files(root)
+    files = release_files(root)
     file_set = {path.as_posix() for path in files}
     missing = [path for path in REQUIRED if path not in file_set]
     if missing:
         fail("required release files are missing: " + ", ".join(missing))
     findings = []
     for relative in files:
-        if relative.as_posix() in EXCLUDED_RELEASE_FILES:
-            continue
         path = root / relative
         try:
             content = path.read_text(encoding="utf-8")

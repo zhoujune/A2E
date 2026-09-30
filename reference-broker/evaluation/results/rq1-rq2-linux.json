@@ -4,7 +4,7 @@
   "iterations": 100,
   "retry_iterations": 10,
   "environment": {
-    "hostname": "nb-24cb14da0659f04784-6dd8ddfd6-ffj8p",
+    "hostname": "anonymous-linux-host",
     "target": "x86_64-linux",
     "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)",
     "source_revision": "702a2537ab13bf79e069b34504388294211bfde7",

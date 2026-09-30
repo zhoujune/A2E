@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Rust format
-        run: cargo fmt --manifest-path reference-broker/Cargo.toml -- --check
+        run: python3 artifact/check-rust-format.py
       - name: Rust tests
         run: cargo test --manifest-path reference-broker/Cargo.toml --all-targets
       - name: Validate retained reports

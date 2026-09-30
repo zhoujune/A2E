@@ -131,7 +131,7 @@ def main():
         summary["steps"]["rust_fmt"] = "skipped"
         summary["steps"]["rust_test"] = "skipped"
     else:
-        summary["steps"]["rust_fmt"] = run_command(["cargo", "fmt", "--manifest-path", str(root / "reference-broker" / "Cargo.toml"), "--", "--check"], root, logs / "cargo-fmt.log")
+        summary["steps"]["rust_fmt"] = run_command([sys.executable, "artifact/check-rust-format.py"], root, logs / "cargo-fmt.log")
         summary["steps"]["rust_test"] = run_command(["cargo", "test", "--manifest-path", str(root / "reference-broker" / "Cargo.toml"), "--all-targets"], root, logs / "cargo-test.log")
     summary["steps"]["verus"] = run_verus(
         root,

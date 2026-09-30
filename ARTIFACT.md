@@ -30,8 +30,8 @@ cargo test --all-targets
 The top-level smoke and full entry points are:
 
 ```sh
-./reproduce.sh smoke --workers 2
-./reproduce.sh full --workers 32 --timeout-seconds 1200
+bash reproduce.sh smoke --workers 2
+bash reproduce.sh full --workers 32 --timeout-seconds 1200
 ```
 
 The PowerShell equivalents use `reproduce.ps1`. The full run checks all 13
@@ -89,5 +89,9 @@ python3 artifact/create-release.py \
 After extraction, the manifest records the verified revision, exact K4 source
 manifest, and archive revision. The builder rejects either value when it does
 not match the release checkout.
+
+On systems that do not preserve Unix executable bits (for example ZIP
+extraction on Windows), invoke shell entry points with `bash`, such as
+`bash reproduce.sh smoke --workers 2` and `bash artifact/run-k4-i1.sh`.
 
 See `TROUBLESHOOTING.md` for common toolchain and platform issues.

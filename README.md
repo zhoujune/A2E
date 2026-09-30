@@ -21,8 +21,8 @@ python3 reference-broker/evaluation/validate_redis_evidence.py
 
 To exercise the Rust implementation, run
 `cargo test --manifest-path reference-broker/Cargo.toml --all-targets`.
-For a fresh smoke or full reproduction, use `./reproduce.sh smoke --workers 2`
-or `./reproduce.sh full --workers 32 --timeout-seconds 1200`. The full run
+For a fresh smoke or full reproduction, use `bash reproduce.sh smoke --workers 2`
+or `bash reproduce.sh full --workers 32 --timeout-seconds 1200`. The full run
 requires the pinned tools listed in [DEPENDENCIES.md](DEPENDENCIES.md).
 
 ## Contents

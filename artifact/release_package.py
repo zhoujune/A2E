@@ -96,6 +96,8 @@ def admitted(relative):
         return False
     if any(part in {"paper", "paper-ndss"} or part.startswith("paper-") for part in path.parts):
         return False
+    if path.as_posix() == "artifact/release-manifest.json":
+        return True
     if path.parts[:4] == ("reference-broker", "evaluation", "evidence", "redis-process-crash"):
         return path.suffix.lower() in {
             ".json", ".wal", ".config", ".txt", ".stdout", ".log",
@@ -134,7 +136,8 @@ def selected_files(root):
             if path.is_symlink():
                 fail(f"symbolic links are not admitted: {path.relative_to(root)}")
             relative = path.relative_to(root)
-            if (path.is_file() and admitted(relative)
+            if (path.is_file() and relative.as_posix() != "artifact/release-manifest.json"
+                    and admitted(relative)
                     and (tracked is None or relative.as_posix() in tracked)):
                 paths.append(path)
     return sorted(set(paths), key=lambda item: item.relative_to(root).as_posix())

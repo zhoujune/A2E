@@ -6,7 +6,7 @@ the paper source or PDF.
 | Claim or result | Primary source | Retained evidence | Validation or reproduction |
 |---|---|---|---|
 | A2E history obligations and evidence-complete classifier | `formal/EffectBroker.tla`, `mechanized/t1_broker_contract.rs`, `mechanized/t1_durable_queries.rs`, `mechanized/t1_replay.rs` | `mechanized/results/verification-report.json` | `pwsh mechanized/verify.ps1` |
-| Journal/WAL crash-prefix and recovery refinement | `formal/EffectBrokerJournal.tla`, `formal/EffectBrokerJournalRefinement.tla`, `formal/EffectBrokerWALRefinement.tla`, T4/T5 Verus targets | TLA+ and Verus reports | `./reproduce.sh full --workers 32 --timeout-seconds 1200` |
+| Journal/WAL crash-prefix and recovery refinement | `formal/EffectBrokerJournal.tla`, `formal/EffectBrokerJournalRefinement.tla`, `formal/EffectBrokerWALRefinement.tla`, T4/T5 Verus targets | TLA+ and Verus reports | `bash reproduce.sh full --workers 32 --timeout-seconds 1200` |
 | Three-law adapter interface and terminal semantics | `mechanized/t6_terminal_definitions.rs`, `mechanized/t6_adapter_semantic_closure.rs` | registered T6 targets in the Verus report | `pwsh mechanized/verify.ps1` |
 | Read-only, idempotent, and deduplicated packages | `mechanized/t6_readonly_operational.rs`, `mechanized/t6_deduplicated_invariant.rs`, related T6 adapter files | adapter target groups in the Verus report | `pwsh mechanized/verify.ps1` |
 | Typed executable kernel and crash/recovery gate | `mechanized/k1_executable_kernel.rs`, `mechanized/k2_executable_kernel_refinement.rs`, `mechanized/k3_append_linearization_kernel.rs`, `mechanized/k4_*` | K4 targets and K4-I0/I1 reports | `artifact/run-k4-i0.sh`, `artifact/run-k4-i1.sh` |

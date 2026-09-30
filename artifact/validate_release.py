@@ -6,6 +6,8 @@ import json
 import sys
 from pathlib import Path
 
+from k4_i1_provenance import source_manifest_sha256
+
 
 MANIFEST = Path("artifact/release-manifest.json")
 EXCLUDED_DIRS = {".git", ".toolbox", "__pycache__", "target", "tmp"}
@@ -35,6 +37,8 @@ def main():
         fail("unsupported release manifest version")
     if manifest.get("paper_material_included") is not False:
         fail("release manifest does not exclude paper material")
+    if manifest.get("verified_source_manifest_sha256") != source_manifest_sha256(root):
+        fail("release manifest does not match the packaged K4 source inputs")
 
     expected = manifest.get("files")
     if not isinstance(expected, dict) or not expected:

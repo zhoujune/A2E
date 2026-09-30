@@ -3,6 +3,7 @@
 
 import argparse
 import hashlib
+import json
 import os
 import re
 import shlex
@@ -141,7 +142,23 @@ def source_revision_matches(root, revision):
         return False
     head = git_source_revision(root)
     if head is None:
-        return repository_source_revision(root) == revision.lower()
+        archive_revision = repository_source_revision(root)
+        if archive_revision == revision.lower():
+            return True
+        release_manifest = root / "artifact" / "release-manifest.json"
+        if not release_manifest.is_file():
+            return False
+        try:
+            release = json.loads(release_manifest.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return False
+        return (
+            release.get("schema") == "proveai.fse.artifact-release"
+            and release.get("archive_revision") == archive_revision
+            and release.get("verified_source_revision") == revision.lower()
+            and release.get("verified_source_manifest_sha256")
+                == source_manifest_sha256(root)
+        )
     if head == revision.lower():
         return True
     try:

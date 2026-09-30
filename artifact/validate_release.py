@@ -5,6 +5,7 @@ import hashlib
 import json
 import sys
 from pathlib import Path
+import importlib.util
 
 from k4_i1_provenance import source_manifest_sha256
 
@@ -43,14 +44,15 @@ def main():
     expected = manifest.get("files")
     if not isinstance(expected, dict) or not expected:
         fail("release manifest has no file map")
-    observed = {}
-    for path in root.rglob("*"):
-        if not path.is_file() or path == manifest_path:
-            continue
-        relative = path.relative_to(root)
-        if EXCLUDED_DIRS.intersection(relative.parts):
-            continue
-        observed[relative.as_posix()] = digest(path)
+    builder_path = root / "artifact" / "release_package.py"
+    spec = importlib.util.spec_from_file_location("release_package", builder_path)
+    builder = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(builder)
+    observed = {
+        path.relative_to(root).as_posix(): digest(path)
+        for path in builder.selected_files(root)
+        if path != manifest_path
+    }
     if set(observed) != set(expected):
         missing = sorted(set(expected) - set(observed))
         extra = sorted(set(observed) - set(expected))

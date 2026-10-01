@@ -38,6 +38,9 @@ def main():
         fail("unsupported release manifest version")
     if manifest.get("paper_material_included") is not False:
         fail("release manifest does not exclude paper material")
+    source_revision_path = root / "artifact" / "source-revision.txt"
+    if source_revision_path.read_text(encoding="utf-8").strip() != manifest.get("verified_source_revision"):
+        fail("source-revision.txt does not match the manifest verified source revision")
     if manifest.get("verified_source_manifest_sha256") != source_manifest_sha256(root):
         fail("release manifest does not match the packaged K4 source inputs")
 

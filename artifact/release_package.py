@@ -197,10 +197,10 @@ def main():
                 mode = 0o755
             destination.chmod(mode)
 
-        exported_revision = revision(root)
         (staging / "artifact" / "source-revision.txt").write_text(
-            exported_revision + "\n", encoding="utf-8"
+            args.verified_source_revision.lower() + "\n", encoding="utf-8"
         )
+        exported_revision = revision(root)
 
         manifest_files = {}
         for path in sorted(staging.rglob("*")):

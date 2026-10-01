@@ -5,4 +5,4 @@
 *.json text eol=lf
 *.toml text eol=lf
 *.lock text eol=lf
-artifact/source-revision.txt text eol=lf export-subst
+artifact/source-revision.txt text eol=lf

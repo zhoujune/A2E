@@ -43,6 +43,7 @@ EXCLUDED_FILES = {
     "artifact/results/linux-smoke-preflight.json",
     "artifact/results/README.md",
     "artifact/results/tla-full-5d8e8ed.json",
+    "artifact/results/tla-full-9a45d39.json",
     "artifact/results/tla-smoke-5d8e8ed.json",
     "formal/README.md",
     "formal/agentbound-motivating-example.md",

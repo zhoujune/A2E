@@ -15,7 +15,7 @@ python3 artifact/check-release.py
 python3 formal/validate_traceability.py formal/theorem-premise-traceability.v1.json
 python3 reference-broker/evaluation/validate_k4_i1.py \
   reference-broker/evaluation/results/k4-i1-submission.json
-python3 artifact/validate_report.py artifact/results/tla-full-9a45d39.json
+python3 artifact/validate_report.py artifact/results/tla-full-final.json
 python3 reference-broker/evaluation/validate_redis_evidence.py
 ```
 

@@ -198,8 +198,8 @@ def main():
                 mode = 0o755
             destination.chmod(mode)
 
-        (staging / "artifact" / "source-revision.txt").write_text(
-            args.verified_source_revision.lower() + "\n", encoding="utf-8"
+        (staging / "artifact" / "source-revision.txt").write_bytes(
+            (args.verified_source_revision.lower() + "\n").encode("utf-8")
         )
         exported_revision = revision(root)
 
